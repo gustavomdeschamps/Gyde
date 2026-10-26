@@ -1,7 +1,7 @@
 // Service worker do Gyde: guarda a "casca" do app para abrir rápido e funcionar sem internet
 // (a Prática em JavaScript roda offline). Sempre tenta a rede primeiro, para as atualizações
 // chegarem na hora; a API, as imagens geradas e o vídeo nunca entram no cache.
-const CACHE = 'gyde-v6';
+const CACHE = 'gyde-v7';
 const SHELL = [
   '/', '/index.html', '/style.css', '/skills.css', '/recursos.css', '/agente.css', '/app.js', '/onboarding.js', '/pratica.js',
   '/skills.js', '/turmas.js', '/agente.js', '/icones.js', '/runner.js', '/passo-a-passo.js', '/projeto.js', '/runners/js-worker.js',

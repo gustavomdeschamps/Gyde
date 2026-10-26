@@ -89,3 +89,6 @@
 .forja-resposta .msg-error { margin: 0; }
 @media (max-width: 700px) { .forja-chips { display: none; } .forja-projeto code { display: none; } }
 @media (prefers-reduced-motion: reduce) { .ag-passo, .forja-turno, .ag-vazio, .agente-sessao { animation: none; } .forja-turno.trabalhando .forja-status b { animation: none; } }
+
+/* Na Forja o topo vazio some no computador (no celular fica, porque tem o botão do menu) */
+@media (min-width: 901px) { .main[data-page="agente"] .topbar { display: none; } }

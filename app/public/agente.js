@@ -16,7 +16,7 @@ const ic = {
   enviar: '<svg class="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg><svg class="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>',
 };
 const verbo = { listar: 'Explorando', ler: 'Lendo', buscar: 'Procurando', escrever: 'Criando', editar: 'Editando', executar: 'Executando' };
-const alvo = (nome, a = {}) => (nome === 'executar' ? a.comando : nome === 'buscar' ? `"${a.texto}"` : a.caminho || '.');
+const alvo = (nome, a = {}) => (nome === 'executar' ? a.comando : nome === 'buscar' ? `"${a.texto}"` : !a.caminho || a.caminho === '.' || a.caminho === './' ? 'a pasta do projeto' : a.caminho);
 const quando = (ms) => new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 // 75000 -> "1 min 15 s"; 8000 -> "8 s"
 export const duracao = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? `${s} s` : `${Math.floor(s / 60)} min${s % 60 ? ` ${s % 60} s` : ''}`; };

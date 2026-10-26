@@ -1,110 +1,178 @@
-# Gyde
+<p align="center">
+  <img src="docs/imagens/banner.jpg" alt="Gyde" width="100%">
+</p>
 
-**Gyde** (Gustavo + Yasmin + Deschamps — e soa como *guide*, "guia") é um tutor de programação com IA,
-em português, para quem está aprendendo. Roda no seu computador usando os modelos grátis do
-[FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi).
+<h3 align="center">O tutor de programação com IA que ensina em vez de só entregar a resposta.</h3>
 
-## Instalar (Windows)
+<p align="center">
+  Chat que explica o erro antes de corrigir · agente que programa sozinho no seu projeto · prática com XP ·
+  extensões para VS Code e Chrome. Em português, de graça, rodando no seu computador.
+</p>
 
-**Primeira vez? Siga o [COMO-INSTALAR.md](COMO-INSTALAR.md)**: passo a passo completo, com as chaves grátis de IA,
-o que vem junto e o que não vem (cada pessoa começa com a própria conta e a própria IA) e solução de problemas.
+<p align="center">
+  <img alt="Grátis" src="https://img.shields.io/badge/pre%C3%A7o-gr%C3%A1tis-2563eb">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-1e3a8a">
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-22.13%2B-3b82f6">
+  <img alt="Licença MIT" src="https://img.shields.io/badge/licen%C3%A7a-MIT-5b8cff">
+  <img alt="Em português" src="https://img.shields.io/badge/idioma-portugu%C3%AAs-93c5fd">
+</p>
+
+<p align="center">
+  <a href="COMO-INSTALAR.md"><b>Instalar (passo a passo)</b></a> ·
+  <a href="#o-que-o-gyde-faz">O que ele faz</a> ·
+  <a href="#forja-o-agente-de-c%C3%B3digo">Forja</a> ·
+  <a href="#extens%C3%B5es">Extensões</a> ·
+  <a href="#perguntas-frequentes">Dúvidas</a>
+</p>
+
+---
+
+## Por que o Gyde existe
+
+Quem está começando a programar trava num erro, cola numa IA, recebe o código pronto e... não aprende nada.
+O **Gyde** foi feito para o contrário: ele **mostra onde está o erro, explica o porquê e só depois corrige**,
+no nível de quem está aprendendo. E quando você já sabe o que quer, a **Forja** (o agente de código do Gyde)
+abre o seu projeto e faz o trabalho sozinha, como um desenvolvedor: escreve, testa, corrige e documenta.
+
+Tudo roda **no seu computador**, com os modelos de IA **grátis** do [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi).
+Suas conversas e seu progresso ficam só com você.
+
+## O que o Gyde faz
+
+### Chat de tutor
+Cole um erro ou um código. O Gyde aponta a linha, explica a causa e mostra a correção. Os blocos de Python e
+JavaScript têm o botão **Executar**, que roda o código ali mesmo.
+
+<p align="center"><img src="docs/imagens/chat.jpg" alt="Chat do Gyde explicando um erro de Python" width="88%"></p>
+
+### Passo a passo
+O botão **Passo a passo** roda o código linha por linha e mostra o valor de cada variável a cada passo.
+É o jeito mais fácil de entender um laço ou uma função.
+
+<p align="center"><img src="docs/imagens/passo.jpg" alt="Passo a passo mostrando as variáveis linha por linha" width="88%"></p>
+
+### Prática
+Trilhas de Python, JavaScript e lógica, **projetos guiados** com testes automáticos, **XP**, **desafio do dia**,
+**sequência de dias** e **revisão dos erros** (o exercício que você errou volta depois de 1, 3, 7 e 21 dias).
+Travou? A **Dica do Gyde** ajuda sem entregar a resposta.
+
+<p align="center"><img src="docs/imagens/pratica.jpg" alt="Tela de Prática com trilhas e projetos" width="88%"></p>
+
+### Forja, o agente de código
+Um chat ligado à pasta de um projeto seu. Você pede, e a Forja **trabalha sozinha**: lê o código, cria e edita
+arquivos, roda os testes até passarem e documenta. Cada ação aparece ao vivo, com o tempo que levou, os arquivos
+alterados e as mudanças coloridas. Ela faz várias ações por rodada para responder rápido.
+
+<p align="center"><img src="docs/imagens/forja.jpg" alt="Forja corrigindo um projeto e rodando os testes" width="88%"></p>
+
+**Segurança da Forja:** só mexe dentro da pasta que você escolheu, não lê `.env` nem chaves, recusa a raiz do disco
+e pastas como Documentos inteira, bloqueia comandos perigosos (formatar, desligar, apagar o disco) e tem um botão
+**Parar** a qualquer momento.
+
+### E mais
+- **Skills:** habilidades instaláveis, como plugins (`/revisar`, `/git`, `/sql`...). Dá para criar as suas e publicar na loja de skills.
+- **Quiz de boas-vindas:** o Gyde descobre o seu nível e adapta as explicações.
+- **Turmas:** o professor cria a turma, passa exercícios com prazo e acompanha quem fez.
+- **Memória:** o Gyde lembra o que você pedir para ele lembrar (dá para ver e apagar).
+- **Revisar projeto inteiro:** anexe uma pasta ou um `.zip` e peça a revisão.
+- **Imagens e voz:** gera imagens e lê as respostas em voz alta.
+- **App:** instale pelo navegador como um aplicativo. Tema claro e escuro.
+- **Vídeo de abertura** em 3D, com narração e legendas.
+
+## Extensões
+
+### VS Code
+O Gyde dentro do editor: chat na barra lateral e, com o botão direito, **Explicar com o Gyde**,
+**Revisar com o Gyde** e **Explicar o erro desta linha**. A resposta tem o botão **Inserir no editor**.
+Veja [extensoes/vscode](extensoes/vscode/README.md).
+
+<p align="center"><img src="docs/imagens/vscode.jpg" alt="Extensão do Gyde no VS Code" width="88%"></p>
+
+### Chrome
+Painel lateral que lê a página, a seleção ou um print, e um **modo agente**: você dá o comando e ele faz sozinho
+na aba, com uma seta que clica e digita (e para antes de compras, exclusões e senhas).
+Veja [extensoes/chrome](extensoes/chrome/LEIA-ME.md).
+
+## Como funciona
+
+```mermaid
+flowchart LR
+    V["Você"] --> N["Navegador<br/>(chat, Prática, Forja)"]
+    VS["VS Code / Chrome"] --> G
+    N --> G["Gyde<br/>(no seu computador)"]
+    G --> F["FreeLLMAPI<br/>(no seu computador)"]
+    F --> M["Modelos grátis<br/>Google, Groq, Mistral..."]
+    G --> D[("Seus dados<br/>só no seu PC")]
+```
+
+O Gyde escolhe sozinho os melhores modelos para programar. Se um estiver ocupado ou fora do ar, o próximo da
+fila assume, sem você perceber. Os limites grátis renovam todo dia, e quanto mais chaves grátis você colocar no
+FreeLLMAPI, mais o Gyde aguenta.
+
+## Instalar
+
+**Siga o [COMO-INSTALAR.md](COMO-INSTALAR.md)**: o passo a passo completo, feito para quem nunca instalou nada
+parecido. Leva uns 15 minutos.
 
 Resumo:
 
-1. Baixe ou clone este repositório.
-2. Dê dois cliques em **`instalar.bat`**. Ele confere o Node.js, instala as dependências, ajuda a abrir o
-   [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi), salva a chave e cria um atalho **Gyde** na Área de Trabalho.
-3. Abra pelo atalho (ou `iniciar.bat`) com o FreeLLMAPI aberto. O Gyde roda em http://127.0.0.1:3210.
+1. Baixe este repositório (**Code → Download ZIP**) e extraia numa pasta fixa.
+2. Instale o [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi/releases/latest) e coloque pelo menos uma chave grátis (ex.: Google AI Studio).
+3. Dê dois cliques em **`instalar.bat`**.
+4. Use o **`iniciar.bat`** sempre que quiser abrir o Gyde. Ele roda em http://127.0.0.1:3210.
 
-Extras opcionais ficam na pasta **`configurar`**: `configurar-imagens.bat` (gerar imagens), `configurar-voz.bat` (voz natural
-com o Gemini) e `instalar-vscode.bat` (extensão do VS Code). A extensão do Chrome está em `extensoes\chrome` (veja o
-`LEIA-ME.md` de lá). No Chrome/Edge dá para **instalar o Gyde como app** (botão na barra lateral).
+> Cada pessoa tem o próprio Gyde: a conta, as conversas e o progresso ficam no computador de quem instalou,
+> e cada um usa as próprias chaves grátis de IA.
 
-## Modo pessoal e modo público
+## Perguntas frequentes
 
-- **Pessoal (padrão):** para usar no seu computador. Crie a conta com qualquer e-mail — nada é enviado e não há
-  código para confirmar. Esqueceu a senha? Rode `configurar\redefinir-senha.bat`.
-- **Público:** para hospedar para outras pessoas. Coloque `GYDE_MODE=publico` no `.env` e configure o e-mail
-  (`configurar\configurar-email.bat`): as contas passam a ser confirmadas por código.
+**É grátis mesmo?**
+Sim. O Gyde é grátis e usa os limites grátis dos serviços de IA (Google, Groq, Mistral e outros) pelo FreeLLMAPI.
 
-## O que ele faz
+**Precisa de internet?**
+Para a IA responder, sim. O app em si roda no seu computador.
 
-- **Conta própria:** cadastro (no modo público, com código de confirmação por e-mail), login, troca de senha. Cada pessoa vê só o que é dela.
-- **Quiz de boas-vindas:** perguntas sobre a pessoa + 8 desafios de código na linguagem que ela escolher
-  (Python, JavaScript ou Java). O Gyde adapta as explicações ao nível, às linguagens e aos pontos fracos.
-- **Skills:** habilidades instaláveis, como plugins. Cada skill é um arquivo `.md` com instruções; ela entra em ação
-  pelo comando (`/revisar`, `/git`, `/sql`...) ou sozinha pelas palavras-gatilho. Dá para criar as suas, exportar e importar.
-  O catálogo fica em `app/skills-catalogo/`: coloque um `.md` lá e ele aparece para instalar.
-- **Loja de skills:** publique uma skill sua e quem usa o mesmo Gyde instala uma cópia (com contador de instalações).
-- **Rodar código no chat:** botão **Executar** nos blocos de Python e JavaScript, e **Passo a passo**, que mostra
-  linha por linha o valor de cada variável.
-- **Prática:** trilhas, exercícios e **projetos guiados** com editor, testes automáticos, XP e Dica do Gyde. Tem
-  **desafio do dia**, **sequência de dias**, **ranking com amigos** e **revisão dos erros** (o exercício que você errou
-  volta depois de 1, 3, 7 e 21 dias).
-- **Turmas:** o professor cria a turma, passa exercícios da Prática com prazo e vê quem fez cada um; os alunos
-  entram com um código de 6 letras.
-- **Revisar projeto inteiro:** anexe uma pasta ou um .zip (sem `node_modules`, `.env` e afins) e peça a revisão.
-- **Memória:** o Gyde lembra fatos sobre você entre conversas ("lembre que..."). Dá para ver, apagar e desligar em Personalizar.
-- **Forja, o agente de código** (menu "Forja", só no modo pessoal): como o Codex ou o Claude Code. Clique em
-  **Abrir pasta do projeto**, escolha a pasta no Explorador de Arquivos e converse num chat ligado a ela. A Forja
-  trabalha sozinha como um desenvolvedor (escreve, testa, corrige e documenta), faz várias ações por rodada para
-  responder rápido e mostra quanto tempo levou. Lembra da conversa daquele projeto. Cada passo aparece num bloco que
-  abre e fecha, com as mudanças coloridas, e o botão de enviar vira **Parar** enquanto ela trabalha. Segurança: só mexe
-  dentro da pasta escolhida, não lê `.env` nem chaves, recusa a raiz do disco e pastas como Documentos e Área de
-  Trabalho inteiras, bloqueia comandos perigosos (formatar, desligar, apagar o disco...) e para em 30 rodadas (cada rodada pode ter várias ações).
-- **Extensão para Chrome** (pasta `extensoes/chrome/`): painel lateral que lê a página, a seleção ou um print, e um
-  **modo agente**: você dá o comando e ele faz sozinho na aba, com uma seta animada que clica e digita (para só em
-  compras, exclusões, senhas e cartões).
-- **Extensão para VS Code** (pasta `extensoes/vscode/`): chat na barra lateral, explicar seleção, revisar arquivo e
-  explicar o erro da linha.
-- **App (PWA):** instale pelo navegador; a casca funciona sem internet.
-- **Chat de tutor:** explica o erro, mostra onde está, diz o porquê e só depois corrige. Streaming, histórico com busca,
-  fixar, renomear, exportar, editar pergunta, gerar de novo, anexar imagens/PDFs/código.
-- **Modelos:** Gyde 1 e Gyde 1 Pro combinam os melhores modelos para programar do FreeLLMAPI (Claude, Qwen, GPT-OSS,
-  Codestral). Se um falhar, o próximo da fila assume sozinho. As filas ficam em `app/motor.js`.
-- **Imagens** (botão "Imagem") e **voz** (ditado com "enviar" no fim; ouvir respostas).
-- **Vídeo de abertura** em 3D com narração, trilha original e legendas sobrepostas. Termina com a logo voando até o
-  lugar dela na tela de entrada (ou no app), enquanto a tela real aparece por trás. Esc pula; o botão no canto liga e
-  desliga o som. O vídeo é gerado no estúdio em `C:\tools\gyde-video` (fora deste projeto).
-- Tema claro/escuro, animações (respeita "reduzir movimento" do sistema) e layout para celular.
+**Meus dados vão para algum lugar?**
+Sua conta, conversas e progresso ficam na pasta `data` do seu computador. As mensagens vão só para o serviço de IA
+que responde.
 
-## E-mail (Gmail) — só no modo público
+**E quando o limite grátis acabar?**
+O FreeLLMAPI troca sozinho de serviço. Os limites diários renovam todo dia (21h no horário de Brasília).
 
-O `configurar\configurar-email.bat` pede o seu Gmail e uma **senha de app** do Google:
+**Funciona no Mac ou no Linux?**
+Foi feito e testado no Windows. O servidor é Node.js e roda em outros sistemas, mas os instaladores e a janela de
+escolher pasta da Forja são do Windows.
 
-1. Ative a **verificação em duas etapas** na sua conta Google (é exigência do Google para senhas de app).
-2. Abra https://myaccount.google.com/apppasswords, crie uma senha com o nome "Gyde" e copie.
-3. Rode o `configurar-email.bat`. Ele manda um e-mail de teste para você antes de salvar.
-
-Para publicar o Gyde na internet com HTTPS, adicione `COOKIE_SECURE=1` no `.env`.
-
-## Estrutura
-
-Na pasta principal ficam só o que a pessoa usa: `instalar.bat`, `iniciar.bat` e os guias.
+## Estrutura do projeto
 
 | Pasta ou arquivo | Para que serve |
 |---|---|
-| `instalar.bat` | Instala tudo na primeira vez (roda uma vez só) |
+| `instalar.bat` | Instala tudo na primeira vez |
 | `iniciar.bat` | Abre o Gyde no dia a dia |
-| `COMO-INSTALAR.md` | Passo a passo para quem baixou o Gyde |
-| `configurar/` | Extras opcionais: chave do FreeLLMAPI, imagens, voz, e-mail, trocar senha, extensão do VS Code (os scripts de verdade ficam em `configurar/scripts/`) |
-| `extensoes/` | Extensões do Gyde para o Chrome (`chrome/`) e o VS Code (`vscode/`) |
-| `app/` | O programa (a pessoa não precisa mexer) |
-| `.env` | Chaves e senhas, criado na instalação. **Não compartilhe este arquivo.** |
-| `data/` | Banco de dados com contas, conversas e progresso, criado no primeiro uso |
+| `COMO-INSTALAR.md` | Passo a passo de instalação |
+| `configurar/` | Extras: chave do FreeLLMAPI, imagens, voz, e-mail, trocar senha, extensão do VS Code |
+| `extensoes/` | Extensões para VS Code (`vscode/`) e Chrome (`chrome/`) |
+| `app/` | O programa: servidor (`server.js`), Forja (`codigo-agente.js`), modelos (`motor.js`), interface (`public/`) e skills (`skills-catalogo/`) |
+| `docs/` | Imagens desta página |
 
-Dentro de `app/`:
+Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).
 
-| Arquivo | Para que serve |
-|---|---|
-| `server.js` | Servidor: conversas, imagens e conexão com o FreeLLMAPI |
-| `motor.js` | Combina os modelos (fila com troca automática quando um falha) |
-| `auth.js` | Cadastro, login, sessões e e-mails |
-| `quiz.js` | Perguntas e correção do quiz de boas-vindas |
-| `skills-sistema.js` e `skills-catalogo/` | Skills instaláveis e o catálogo (uma skill por arquivo `.md`) |
-| `pratica-dados.js` e `pratica-servidor.js` | Prática: trilhas, exercícios, projetos, XP, desafio do dia e revisão |
-| `memoria.js` | Memória entre conversas |
-| `turmas.js` | Modo turma (professor e alunos) |
-| `codigo-agente.js` e `escolher-pasta.ps1` | Forja (agente de código) e a janela de escolher pasta |
-| `agente.js` | Decide os passos do modo agente da extensão do Chrome |
-| `public/` | Interface (HTML, CSS, JavaScript), vídeo de abertura e os executores de código |
+<details>
+<summary><b>Modo público e e-mail (para quem vai hospedar o Gyde para outras pessoas)</b></summary>
+
+- **Pessoal (padrão):** para usar no seu computador. Crie a conta com qualquer e-mail; nada é enviado e não há
+  código para confirmar. Esqueceu a senha? Rode `configurar\redefinir-senha.bat`.
+- **Público:** coloque `GYDE_MODE=publico` no `.env` e rode `configurar\configurar-email.bat`. As contas passam a ser
+  confirmadas por código no e-mail. O script pede um Gmail e uma **senha de app** do Google
+  (crie em https://myaccount.google.com/apppasswords com a verificação em duas etapas ligada) e manda um e-mail de teste
+  antes de salvar. Para publicar com HTTPS, adicione `COOKIE_SECURE=1` no `.env`.
+</details>
+
+## Sobre
+
+**Gyde** (Gustavo + Yasmin + Deschamps, e soa como *guide*, "guia") foi criado por
+**Gustavo Moreira Deschamps**, estudante de Desenvolvimento de Sistemas na Escola SESI SENAI Blumenau.
+
+Achou um problema ou tem uma ideia? Abra uma [issue](https://github.com/gustavomdeschamps/Gyde/issues).
+
+Licença [MIT](LICENSE): use, estude, modifique e compartilhe, mantendo os créditos.

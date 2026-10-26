@@ -1,44 +1,143 @@
 {
   "name": "gyde",
-  "displayName": "Gyde — seu guia na programação",
-  "description": "Converse com o Gyde dentro do VS Code: explique código, revise arquivos e entenda erros sem sair do editor.",
+  "displayName": "Gyde: tutor de programação com IA",
+  "description": "Tutor de programação com IA, em português e grátis: explica o código, mostra onde está o erro e por quê, revisa arquivos e conversa no chat da barra lateral.",
   "version": "1.1.0",
-  "publisher": "gyde",
+  "publisher": "gustavomdeschamps",
+  "author": {
+    "name": "Gustavo Moreira Deschamps"
+  },
   "license": "MIT",
   "icon": "media/icone.png",
-  "engines": { "vscode": "^1.85.0" },
-  "categories": ["Education", "Programming Languages", "Other"],
+  "galleryBanner": {
+    "color": "#0b1220",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gustavomdeschamps/Gyde"
+  },
+  "homepage": "https://github.com/gustavomdeschamps/Gyde#readme",
+  "bugs": {
+    "url": "https://github.com/gustavomdeschamps/Gyde/issues"
+  },
+  "keywords": [
+    "ia",
+    "ai",
+    "tutor",
+    "programação",
+    "português",
+    "iniciante",
+    "explicar código",
+    "erros",
+    "chat",
+    "assistente"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Education",
+    "Programming Languages",
+    "Machine Learning",
+    "Other"
+  ],
   "main": "./extension.js",
-  "activationEvents": ["onStartupFinished"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "viewsContainers": {
-      "activitybar": [{ "id": "gyde", "title": "Gyde", "icon": "media/barra.svg" }]
+      "activitybar": [
+        {
+          "id": "gyde",
+          "title": "Gyde",
+          "icon": "media/barra.svg"
+        }
+      ]
     },
     "views": {
-      "gyde": [{ "type": "webview", "id": "gyde.chat", "name": "Conversa" }]
+      "gyde": [
+        {
+          "type": "webview",
+          "id": "gyde.chat",
+          "name": "Conversa"
+        }
+      ]
     },
     "commands": [
-      { "command": "gyde.abrir", "title": "Abrir o chat", "category": "Gyde" },
-      { "command": "gyde.novaConversa", "title": "Nova conversa", "category": "Gyde", "icon": "$(add)" },
-      { "command": "gyde.explicar", "title": "Explicar com o Gyde", "category": "Gyde" },
-      { "command": "gyde.revisar", "title": "Revisar com o Gyde", "category": "Gyde" },
-      { "command": "gyde.explicarErro", "title": "Explicar o erro desta linha", "category": "Gyde" },
-      { "command": "gyde.configurar", "title": "Conectar (colar token)", "category": "Gyde" },
-      { "command": "gyde.desconectar", "title": "Desconectar", "category": "Gyde" }
+      {
+        "command": "gyde.abrir",
+        "title": "Abrir o chat",
+        "category": "Gyde"
+      },
+      {
+        "command": "gyde.novaConversa",
+        "title": "Nova conversa",
+        "category": "Gyde",
+        "icon": "$(add)"
+      },
+      {
+        "command": "gyde.explicar",
+        "title": "Explicar com o Gyde",
+        "category": "Gyde"
+      },
+      {
+        "command": "gyde.revisar",
+        "title": "Revisar com o Gyde",
+        "category": "Gyde"
+      },
+      {
+        "command": "gyde.explicarErro",
+        "title": "Explicar o erro desta linha",
+        "category": "Gyde"
+      },
+      {
+        "command": "gyde.configurar",
+        "title": "Conectar (colar token)",
+        "category": "Gyde"
+      },
+      {
+        "command": "gyde.desconectar",
+        "title": "Desconectar",
+        "category": "Gyde"
+      }
     ],
     "menus": {
       "editor/context": [
-        { "command": "gyde.explicar", "when": "editorHasSelection", "group": "gyde@1" },
-        { "command": "gyde.revisar", "group": "gyde@2" },
-        { "command": "gyde.explicarErro", "group": "gyde@3" }
+        {
+          "command": "gyde.explicar",
+          "when": "editorHasSelection",
+          "group": "gyde@1"
+        },
+        {
+          "command": "gyde.revisar",
+          "group": "gyde@2"
+        },
+        {
+          "command": "gyde.explicarErro",
+          "group": "gyde@3"
+        }
       ],
       "view/title": [
-        { "command": "gyde.novaConversa", "when": "view == gyde.chat", "group": "navigation" }
+        {
+          "command": "gyde.novaConversa",
+          "when": "view == gyde.chat",
+          "group": "navigation"
+        }
       ]
     },
     "keybindings": [
-      { "command": "gyde.explicar", "key": "ctrl+alt+g", "when": "editorHasSelection" },
-      { "command": "gyde.abrir", "key": "ctrl+alt+g", "when": "!editorHasSelection" }
+      {
+        "command": "gyde.explicar",
+        "key": "ctrl+alt+g",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "gyde.abrir",
+        "key": "ctrl+alt+g",
+        "when": "!editorHasSelection"
+      }
     ],
     "configuration": {
       "title": "Gyde",
