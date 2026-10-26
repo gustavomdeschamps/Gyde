@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gyde</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header class="bar">
+    <img src="icons/icon32.png" alt="" width="24" height="24">
+    <b>Gyde</b>
+    <span class="spacer"></span>
+    <button class="icon" id="newChat" title="Nova conversa" aria-label="Nova conversa">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button class="icon" id="openSettings" title="Configurações" aria-label="Configurações">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+
+  <!-- Configuração (primeiro uso) -->
+  <section class="setup" id="setup" hidden>
+    <h1>Conectar ao Gyde</h1>
+    <p>No Gyde, abra <b>Personalizar → Extensões</b>, clique em <b>Gerar token</b> e cole aqui.</p>
+    <label>Endereço do Gyde<input id="server" value="http://127.0.0.1:3210" spellcheck="false"></label>
+    <label>Token<input id="token" type="password" placeholder="gyde_..." spellcheck="false" autocomplete="off"></label>
+    <p class="error" id="setupError" hidden></p>
+    <button class="btn primary" id="connect">Conectar</button>
+  </section>
+
+  <!-- Conversa -->
+  <main class="chat" id="chat" hidden>
+    <div class="messages" id="messages">
+      <div class="hello" id="hello">
+        <h2>Oi, <span id="userName"></span>!</h2>
+        <p>Posso ler esta página, o texto que você selecionar ou um print da tela. Escolha abaixo e pergunte. No modo <b>Agente</b>, você dá o comando e eu faço sozinho nesta aba.</p>
+        <div class="quick">
+          <button data-quick="Resuma esta página e me diga os pontos principais." data-ctx="page">Resumir esta página</button>
+          <button data-quick="Explique o código desta página passo a passo." data-ctx="page">Explicar o código da página</button>
+          <button data-quick="O que tem nesta tela? Me ajude com o que estou vendo." data-ctx="shot">Ler minha tela</button>
+        </div>
+      </div>
+    </div>
+
+    <form class="composer" id="composer">
+      <div class="ctx" id="ctxChips"></div>
+      <div class="ctx-buttons">
+        <button type="button" data-ctx="page" title="Enviar o texto da página aberta">
+          <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Página</button>
+        <button type="button" data-ctx="selection" title="Enviar o texto selecionado">
+          <svg viewBox="0 0 24 24"><path d="M5 4h4M5 20h4M7 4v16M13 8h6M13 12h6M13 16h4"/></svg>Seleção</button>
+        <button type="button" data-ctx="shot" title="Enviar um print do que aparece na tela">
+          <svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></svg>Print</button>
+        <button type="button" id="agentToggle" class="agent-toggle" aria-pressed="false" title="Modo agente: o Gyde usa esta aba por você, pedindo permissão a cada passo">
+          <svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z"/></svg>Agente</button>
+      </div>
+      <div class="agent-bar" id="agentBar" hidden>
+        <span>Modo agente: diga o que fazer e eu faço nesta aba.<label class="agent-ask"><input type="checkbox" id="agentAsk"> pedir permissão a cada passo</label></span>
+        <button type="button" class="btn danger" id="agentStop" hidden>Parar</button>
+      </div>
+      <div class="row">
+        <textarea id="input" rows="1" placeholder="Pergunte ao Gyde…"></textarea>
+        <button class="send" id="send" aria-label="Enviar">
+          <svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

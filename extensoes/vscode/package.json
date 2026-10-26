@@ -1,0 +1,54 @@
+{
+  "name": "gyde",
+  "displayName": "Gyde — seu guia na programação",
+  "description": "Converse com o Gyde dentro do VS Code: explique código, revise arquivos e entenda erros sem sair do editor.",
+  "version": "1.1.0",
+  "publisher": "gyde",
+  "license": "MIT",
+  "icon": "media/icone.png",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Education", "Programming Languages", "Other"],
+  "main": "./extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{ "id": "gyde", "title": "Gyde", "icon": "media/barra.svg" }]
+    },
+    "views": {
+      "gyde": [{ "type": "webview", "id": "gyde.chat", "name": "Conversa" }]
+    },
+    "commands": [
+      { "command": "gyde.abrir", "title": "Abrir o chat", "category": "Gyde" },
+      { "command": "gyde.novaConversa", "title": "Nova conversa", "category": "Gyde", "icon": "$(add)" },
+      { "command": "gyde.explicar", "title": "Explicar com o Gyde", "category": "Gyde" },
+      { "command": "gyde.revisar", "title": "Revisar com o Gyde", "category": "Gyde" },
+      { "command": "gyde.explicarErro", "title": "Explicar o erro desta linha", "category": "Gyde" },
+      { "command": "gyde.configurar", "title": "Conectar (colar token)", "category": "Gyde" },
+      { "command": "gyde.desconectar", "title": "Desconectar", "category": "Gyde" }
+    ],
+    "menus": {
+      "editor/context": [
+        { "command": "gyde.explicar", "when": "editorHasSelection", "group": "gyde@1" },
+        { "command": "gyde.revisar", "group": "gyde@2" },
+        { "command": "gyde.explicarErro", "group": "gyde@3" }
+      ],
+      "view/title": [
+        { "command": "gyde.novaConversa", "when": "view == gyde.chat", "group": "navigation" }
+      ]
+    },
+    "keybindings": [
+      { "command": "gyde.explicar", "key": "ctrl+alt+g", "when": "editorHasSelection" },
+      { "command": "gyde.abrir", "key": "ctrl+alt+g", "when": "!editorHasSelection" }
+    ],
+    "configuration": {
+      "title": "Gyde",
+      "properties": {
+        "gyde.servidor": {
+          "type": "string",
+          "default": "http://127.0.0.1:3210",
+          "description": "Endereço do Gyde (o mesmo que abre no navegador)."
+        }
+      }
+    }
+  }
+}

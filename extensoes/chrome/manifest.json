@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Gyde — seu guia na programação",
+  "short_name": "Gyde",
+  "version": "1.2.0",
+  "description": "Converse com o Gyde num painel lateral: ele lê a página, a seleção ou um print e, no modo agente, faz sozinho o que você pedir na aba aberta.",
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "action": { "default_title": "Abrir o Gyde", "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png" } },
+  "side_panel": { "default_path": "panel.html" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["sidePanel", "contextMenus", "storage", "activeTab", "scripting", "tabs"],
+  "host_permissions": ["http://127.0.0.1:3210/*", "http://localhost:3210/*"],
+  "optional_host_permissions": ["<all_urls>"],
+  "commands": {
+    "_execute_action": { "suggested_key": { "default": "Alt+G" }, "description": "Abrir o Gyde" }
+  }
+}

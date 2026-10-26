@@ -1,0 +1,91 @@
+/* ===== Modo Agente ===== */
+.nav-badge.novo { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+.agente-escolher { margin-top: 22px; width: 100%; display: flex; align-items: center; gap: 16px; text-align: left; padding: 18px 20px; border: 1.5px dashed color-mix(in srgb, var(--accent) 45%, var(--border)); border-radius: 18px; background: color-mix(in srgb, var(--accent) 5%, var(--surface)); color: var(--text); cursor: pointer; transition: border-color var(--t2) var(--ease), background-color var(--t2) var(--ease), transform var(--t2) var(--ease); }
+.agente-escolher:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); transform: translateY(-1px); }
+.agente-escolher:active { transform: translateY(0) scale(.995); }
+.agente-escolher:focus-visible { outline: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); }
+.agente-escolher > span:last-child { display: grid; gap: 2px; }
+.agente-escolher b { font-size: 16px; }
+.agente-escolher small { color: var(--text-soft); font-size: 13.5px; }
+.agente-escolher-ic { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); flex: none; transition: transform var(--t2) var(--ease); }
+.agente-escolher:hover .agente-escolher-ic { transform: scale(1.06) rotate(-4deg); }
+.agente-escolher-ic svg { width: 24px; height: 24px; }
+.agente-escolher.esperando { cursor: progress; opacity: .75; }
+.agente-escolher.esperando .agente-escolher-ic { animation: ag-pulsa 1s ease-in-out infinite; }
+.agente-escolher.esperando small::after { content: ' (a janela abriu: escolha a pasta lá)'; }
+.agente-sessoes { display: grid; gap: 8px; }
+.agente-sessao { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); animation: rise var(--t3) var(--ease) both; animation-delay: calc(var(--i, 0) * 40ms); transition: border-color var(--t2) var(--ease), transform var(--t2) var(--ease); }
+.agente-sessao:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); transform: translateY(-1px); }
+.agente-sessao svg { width: 22px; height: 22px; color: var(--accent-text); flex: none; }
+.agente-sessao span { flex: 1; min-width: 0; display: grid; }
+.agente-sessao small { color: var(--text-faint); font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agente-sessao time { color: var(--text-faint); font-size: 12px; flex: none; }
+
+.main[data-page="agente"] #agenteView { overflow: hidden; }
+.ag-vazio { text-align: center; color: var(--text-soft); padding: 12vh 0 20px; animation: rise var(--t3) var(--ease) both; }
+.ag-vazio h2 { font: 700 26px/1.2 var(--font-display); letter-spacing: -.02em; color: var(--text); margin: 14px 0 6px; }
+.ag-sugestoes { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
+.ag-sugestoes button { border: 1px solid var(--border); background: var(--surface); padding: 8px 14px; border-radius: 99px; font-size: 13.5px; color: var(--text-soft); transition: border-color var(--t2) var(--ease), color var(--t2) var(--ease); }
+.ag-sugestoes button:hover { border-color: var(--accent); color: var(--text); }
+.ag-passo { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 8px 12px; animation: rise var(--t2) var(--ease); transition: border-color var(--t2) var(--ease); }
+.ag-passo.rodando { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+.ag-passo.falhou { border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
+.ag-cab { display: flex; align-items: center; gap: 10px; }
+.ag-ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); flex: none; }
+.ag-ic svg { width: 15px; height: 15px; }
+.ag-tit { flex: 1; min-width: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ag-tit code { font-size: 12.5px; color: var(--text-soft); }
+.ag-estado { font-weight: 800; color: var(--success); }
+.ag-passo.falhou .ag-estado { color: var(--danger); }
+.ag-passo.rodando .ag-estado::after { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent); border-right-color: transparent; animation: ag-gira .8s linear infinite; }
+@keyframes ag-gira { to { transform: rotate(360deg); } }
+.ag-pens { margin: 6px 0 0 36px; color: var(--text-faint); font-size: 13px; }
+.ag-passo details { margin: 6px 0 0 36px; }
+.ag-passo summary { cursor: pointer; color: var(--text-soft); font-size: 13px; }
+.ag-saida, .ag-diff { margin: 6px 0 0; max-height: 280px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: var(--code-bg); font: 12.5px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; }
+.ag-passo > .ag-diff { margin-left: 36px; }
+.ag-diff span { display: block; }
+.ag-diff .menos { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+.ag-diff .mais { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }
+.ag-pensando { color: var(--text-faint); font-size: 13px; display: flex; align-items: center; gap: 4px; padding-left: 4px; }
+.ag-pensando i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: ag-pulsa 1s ease-in-out infinite; }
+.ag-pensando i:nth-child(2) { animation-delay: .15s; }
+.ag-pensando i:nth-child(3) { animation-delay: .3s; }
+@keyframes ag-pulsa { 50% { opacity: .3; transform: scale(.7); } }
+
+/* ===== Forja como chat ===== */
+.forja-chat { display: flex; flex-direction: column; height: 100%; }
+.forja-topo { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.forja-projeto { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.forja-projeto svg { width: 18px; height: 18px; color: var(--accent-text); flex: none; }
+.forja-projeto b { white-space: nowrap; }
+.forja-projeto code { font-size: 12.5px; color: var(--text-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.forja-rolagem { flex: 1; overflow-y: auto; min-height: 0; }
+.forja-composer { margin-bottom: 16px; }
+.forja-marca { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; flex: none; }
+.forja-marca svg { width: 17px; height: 17px; }
+.forja-marca.grande { width: 56px; height: 56px; border-radius: 16px; margin: 0 auto; box-shadow: var(--shadow); }
+.forja-marca.grande svg { width: 30px; height: 30px; }
+.forja-turno { animation: rise var(--t3) var(--ease) both; }
+.forja-cab { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 4px 0; color: var(--text-soft); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.forja-cab:hover .forja-status { color: var(--text); }
+.forja-status { transition: color var(--t2) var(--ease); white-space: nowrap; }
+.forja-status b { color: var(--text); font-weight: 600; }
+.forja-tempo { font-variant-numeric: tabular-nums; color: var(--accent-text); }
+.forja-turno.trabalhando .forja-status b { animation: forja-pulso 1.6s ease-in-out infinite; }
+@keyframes forja-pulso { 50% { opacity: .55; } }
+.forja-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.forja-chips span { padding: 2px 9px; border-radius: 99px; background: var(--bg-soft); border: 1px solid var(--border); font-size: 12px; color: var(--text-soft); }
+.forja-seta { margin-left: auto; display: grid; color: var(--text-faint); transition: transform var(--t2) var(--ease); transform: rotate(90deg); }
+.forja-seta svg { width: 16px; height: 16px; }
+.forja-turno.fechado .forja-seta { transform: none; }
+.forja-turno.sem-atividade .forja-seta, .forja-turno.sem-atividade .forja-atividade { display: none; }
+.forja-atividade { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--t3) var(--ease), opacity var(--t2) var(--ease); }
+.forja-turno.fechado .forja-atividade { grid-template-rows: 0fr; opacity: 0; }
+.forja-passos { overflow: hidden; display: grid; gap: 8px; padding: 8px 0 4px 13px; margin-left: 13px; border-left: 2px solid color-mix(in srgb, var(--accent) 25%, var(--border)); }
+.forja-turno.fechado .forja-passos { padding-top: 0; padding-bottom: 0; }
+.forja-resposta { margin-top: 10px; }
+.forja-resposta:empty { display: none; }
+.forja-resposta .msg-error { margin: 0; }
+@media (max-width: 700px) { .forja-chips { display: none; } .forja-projeto code { display: none; } }
+@media (prefers-reduced-motion: reduce) { .ag-passo, .forja-turno, .ag-vazio, .agente-sessao { animation: none; } .forja-turno.trabalhando .forja-status b { animation: none; } }
