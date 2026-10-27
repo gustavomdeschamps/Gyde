@@ -526,3 +526,4 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
   .uso-periodos { grid-template-columns: 1fr; }
   .uso-ultimos li { grid-template-columns: 1fr; gap: 0; }
 }
+.config-erro { display: grid; gap: 10px; justify-items: start; padding: 12px 14px; border-radius: 12px; background: var(--danger-soft); color: var(--text); }

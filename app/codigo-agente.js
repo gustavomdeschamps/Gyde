@@ -4,7 +4,7 @@
 // As proteções ficam em seguranca.js e valem mesmo que o modelo tente outra coisa.
 import { randomUUID, createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
-import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, rmSync, realpathSync } from 'node:fs';
+import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, rmSync, realpathSync, accessSync, constants as FS } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { CADEIAS, completar, extrairJson } from './motor.js';
@@ -19,6 +19,25 @@ const IMAGEM = /^data:image\/(png|jpe?g|webp|gif);base64,/i;
 const MAX_IMAGEM = 6 * 1024 * 1024, MAX_TEXTO = 200_000, MAX_ANEXOS = 8;
 const MAX_COPIA = 2_000_000; // arquivos maiores que isso não entram na cópia para desfazer (a Forja avisa)
 const hash = (buf) => (buf == null ? null : createHash('sha1').update(buf).digest('hex'));
+
+// Estado real da pasta de um projeto, com o motivo quando não dá para usar. Distingue pasta apagada de unidade
+// desconectada (pendrive, rede, OneDrive) e de falta de permissão, que podem ser temporárias.
+export function estadoPasta(pasta) {
+  const p = String(pasta || '');
+  if (!p || !path.isAbsolute(p)) return { ok: false, motivo: 'invalida', texto: 'O caminho salvo desta conversa não é válido. Reconecte a pasta.' };
+  const raiz = path.parse(p).root;
+  if (!existsSync(raiz)) return { ok: false, motivo: 'unidade', temporario: true, texto: `A unidade ${raiz} não está disponível agora (pendrive, disco externo ou rede desconectados?). Conecte de novo e recarregue.` };
+  let st;
+  try { st = statSync(p); } catch (e) {
+    if (e.code === 'ENOENT') return { ok: false, motivo: 'nao-encontrada', texto: `A pasta ${p} não foi encontrada: ela pode ter sido movida, renomeada ou apagada. Se ela mudou de lugar, reconecte.` };
+    return { ok: false, motivo: 'sem-acesso', temporario: true, texto: `O Gyde não conseguiu acessar ${p} (${e.code}). Pode ser permissão ou o arquivo em uso; tente de novo.` };
+  }
+  if (!st.isDirectory()) return { ok: false, motivo: 'nao-e-pasta', texto: `${p} não é uma pasta.` };
+  try { accessSync(p, FS.R_OK | FS.W_OK); } catch (e) {
+    return { ok: false, motivo: 'sem-permissao', temporario: true, texto: `O Gyde não tem permissão para ler e escrever em ${p} (${e.code}).` };
+  }
+  return { ok: true, motivo: null, texto: null };
+}
 
 // O que dá para saber do projeto olhando os arquivos (sem rodar nada): tecnologias, como testar, tamanho.
 export function analisarProjeto(pasta) {
@@ -113,6 +132,7 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir, uso })
   const q = {
     criar: db.prepare('INSERT INTO agente_sessoes (id, user_id, pasta, titulo, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'),
     lista: db.prepare('SELECT id, pasta, titulo, updated_at FROM agente_sessoes WHERE user_id = ? ORDER BY updated_at DESC LIMIT 50'),
+    trocarPasta: db.prepare('UPDATE agente_sessoes SET pasta = ?, updated_at = ? WHERE id = ? AND user_id = ?'),
     uma: db.prepare('SELECT * FROM agente_sessoes WHERE id = ? AND user_id = ?'),
     tocar: db.prepare('UPDATE agente_sessoes SET updated_at = ?, titulo = COALESCE(?, titulo) WHERE id = ?'),
     apagar: db.prepare('DELETE FROM agente_sessoes WHERE id = ? AND user_id = ?'),
@@ -320,7 +340,7 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir, uso })
   });
 
   // ---------- rotas ----------
-  app.get('/api/codigo/sessoes', bloqueado, (req, res) => res.json({ sessoes: q.lista.all(req.user.id), pessoal }));
+  app.get('/api/codigo/sessoes', bloqueado, (req, res) => res.json({ sessoes: q.lista.all(req.user.id).map((s) => ({ ...s, disponivel: estadoPasta(s.pasta).ok })), pessoal }));
   app.post('/api/codigo/sessoes', bloqueado, (req, res) => {
     const pasta = validarPasta(req.body?.pasta);
     const id = randomUUID(), t = Date.now();
@@ -349,15 +369,15 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir, uso })
   app.get('/api/codigo/sessoes/:id', bloqueado, (req, res) => {
     const s = q.uma.get(req.params.id, req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
-    const existe = existsSync(s.pasta);
-    res.json({ ...s, existe, projeto: existe ? analisarProjeto(realpathSync.native(s.pasta)) : null, podeDesfazer: q.temCopia.get(s.id).n > 0,
+    const pastaEstado = estadoPasta(s.pasta);
+    res.json({ ...s, existe: pastaEstado.ok, pastaEstado, projeto: pastaEstado.ok ? analisarProjeto(realpathSync.native(s.pasta)) : null, podeDesfazer: q.temCopia.get(s.id).n > 0,
       trabalhando: rodando.has(s.id), eventos: q.eventos.all(s.id).map((e) => ({ tipo: e.tipo, em: e.created_at, ...JSON.parse(e.dados) })) });
   });
   // arquivos do projeto que a Forja pode ver (para o usuário consultar)
   app.get('/api/codigo/sessoes/:id/arquivos', bloqueado, (req, res) => {
     const s = q.uma.get(req.params.id, req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
-    if (!existsSync(s.pasta)) return res.status(400).json({ error: 'A pasta deste projeto não existe mais.' });
+    { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
     res.json({ pasta: s.pasta, arvore: ferramentas.listar(realpathSync.native(s.pasta), { caminho: '.', profundidade: 3 }).saida });
   });
   // imagens anexadas (só o dono da sessão vê)
@@ -381,12 +401,23 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir, uso })
     res.json({ ok: true });
   });
 
+  // Reconectar: a pasta mudou de lugar (ou foi escolhida de novo). A conversa, o histórico e o Desfazer continuam.
+  app.post('/api/codigo/sessoes/:id/reconectar', bloqueado, (req, res) => {
+    const s = q.uma.get(req.params.id, req.user.id);
+    if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
+    if (rodando.has(s.id)) return res.status(409).json({ error: 'Pare a Forja antes de trocar a pasta.' });
+    const pasta = validarPasta(req.body?.pasta);
+    q.trocarPasta.run(pasta, Date.now(), s.id, req.user.id);
+    if (pasta !== s.pasta) q.evento.run(s.id, 'reconectado', JSON.stringify({ de: s.pasta, para: pasta }), Date.now());
+    res.json({ ok: true, pasta, pastaEstado: estadoPasta(pasta) });
+  });
+
   // botão "Desfazer" da tela (o mesmo que a ferramenta desfazer do agente)
   app.post('/api/codigo/sessoes/:id/desfazer', bloqueado, (req, res) => {
     const s = q.uma.get(req.params.id, req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
     if (rodando.has(s.id)) return res.status(409).json({ error: 'Pare a Forja antes de desfazer.' });
-    if (!existsSync(s.pasta)) return res.status(400).json({ error: 'A pasta deste projeto não existe mais.' });
+    { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
     const r = desfazerUltima(s.id, realpathSync.native(s.pasta));
     if (r.restaurados || r.mantidos) q.evento.run(s.id, 'desfeito', JSON.stringify({ texto: r.saida, restaurados: r.restaurados || [], mantidos: r.mantidos || [] }), Date.now());
     q.tocar.run(Date.now(), null, s.id);
@@ -406,7 +437,7 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir, uso })
     if (rodando.has(s.id)) return res.status(409).json({ error: 'A Forja já está trabalhando nesta conversa.' });
     const tarefa = String(req.body?.texto || '').trim().slice(0, 8000);
     if (!tarefa && !req.body?.anexos?.length) return res.status(400).json({ error: 'Diga o que a Forja deve fazer.' });
-    if (!existsSync(s.pasta)) return res.status(400).json({ error: 'A pasta deste projeto não existe mais.' });
+    { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
     const pastaReal = realpathSync.native(s.pasta);
     const anexos = guardarAnexos(s.id, req.body?.anexos); // valida antes de começar (erro vira 400)
 

@@ -1,62 +1,16 @@
 // Prática no servidor: progresso, XP, revisão espaçada, desafio do dia, sequência de dias,
 // amigos com ranking semanal e a Dica do Gyde.
 import { TRACKS, TOPICO_EXERCICIOS, findExercise } from './pratica-dados.js';
+import { planoDe, findGuiado } from './pratica-plano.js';
+
+export { planoDe };
 
 const REVIEW_DAYS = [1, 3, 7, 21]; // intervalos da revisão espaçada
 const DAY_MS = 86_400_000;
+// perfil salvo corrompido não pode derrubar a Prática: vira perfil vazio (plano inicial)
+const perfilDe = (user) => { try { const p = JSON.parse(user.profile || '{}'); return p && typeof p === 'object' ? p : {}; } catch { return {}; } };
 const today = (t = Date.now()) => new Date(t).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso do PC
 const allExercises = () => TRACKS.flatMap((t) => t.exercises.map((ex) => ({ ...ex, track: t })));
-
-// Linguagens do questionário que têm trilha na Prática. As outras aparecem como "sem trilha ainda" (com
-// exercícios pelo chat), em vez de fingir que existem.
-const LINGUAGEM_DA_TRILHA = { Python: 'python', JavaScript: 'javascript', 'HTML e CSS': 'javascript' };
-
-// Plano de estudos de UMA pessoa: separa o que ela declarou no questionário, o que o quiz mediu e o que foi
-// observado nos exercícios. A ordem das trilhas sai dessas três fontes; nada é inventado para quem ainda não tem dados.
-export function planoDe(perfil, progress) {
-  const p = perfil || {};
-  const temQuiz = Boolean(p.level);
-  const langs = (p.languages || []).map((l) => LINGUAGEM_DA_TRILHA[l]).filter(Boolean);
-  const feitos = (t) => t.exercises.filter((e) => progress[e.id]?.done).length;
-  const motivos = {};
-  const pontua = (t) => {
-    const m = []; let n = 0;
-    const done = feitos(t), total = t.exercises.length;
-    if (done === total) return { n: -100, m: ['concluída'] };
-    if (langs.includes(t.lang)) { n += 3; m.push(`você escolheu ${t.lang === 'python' ? 'Python' : 'JavaScript'}`); }
-    const basica = t.id === 'python-basico' || t.id === 'js-zero';
-    if (['zero', 'basic'].includes(p.level) && basica) { n += 2; m.push('combina com o seu nível'); }
-    if (['intermediate', 'advanced'].includes(p.level) && !basica) { n += 2; m.push('você já passou do básico'); }
-    if (p.goal === 'Criar jogos' && t.id === 'proj-adivinhacao') { n += 2; m.push('seu objetivo é criar jogos'); }
-    if (p.goal === 'Criar meus próprios apps e sites' && t.lang === 'javascript') { n += 1; m.push('seu objetivo é criar apps e sites'); }
-    if (p.goal === 'Faculdade, vestibular ou olimpíada' && t.id === 'logica') { n += 2; m.push('lógica cai em provas e olimpíadas'); }
-    if (p.goal === 'Conseguir meu primeiro emprego' && t.projeto) { n += 1; m.push('projetos contam no portfólio'); }
-    if (done > 0) { n += 1.5; m.push('você já começou'); }
-    if (!temQuiz && t.id === 'python-basico') n += 1; // sem dados: começa pelo mais simples, e a tela explica isso
-    return { n, m };
-  };
-  const ordem = TRACKS.map((t) => { const r = pontua(t); motivos[t.id] = r.m; return { id: t.id, n: r.n }; })
-    .sort((a, b) => b.n - a.n).map((x) => x.id);
-  const recomendada = TRACKS.find((t) => t.id === ordem[0] && feitos(t) < t.exercises.length) || null;
-  const proximo = recomendada?.exercises.find((e) => !progress[e.id]?.done) || null;
-  // observado nos exercícios (não é o que a pessoa disse, é o que aconteceu)
-  const tentados = Object.entries(progress);
-  return {
-    temQuiz,
-    declarado: temQuiz ? { experiencia: p.experience, linguagens: p.languages || [], objetivo: p.goal, estilo: p.style, em: p.takenAt } : null,
-    medido: temQuiz ? { nivel: p.levelLabel, acertos: p.score, total: p.total, reforcar: p.weak || [], anteriores: p.anteriores || [] } : null,
-    observado: {
-      feitos: tentados.filter(([, v]) => v.done).length,
-      tentativasComErro: tentados.reduce((s, [, v]) => s + (v.fails || 0), 0),
-      travados: tentados.filter(([, v]) => v.fails > 0 && !v.done).map(([id]) => id), // errou e ainda não acertou
-    },
-    ordem,
-    motivos,
-    recomendada: recomendada?.id || null,
-    proximo: proximo ? { trackId: recomendada.id, exerciseId: proximo.id, title: proximo.title } : null,
-    semTrilha: (p.languages || []).filter((l) => !LINGUAGEM_DA_TRILHA[l] && l !== 'Ainda não sei'),
-  };
-}
 
 export function setupPratica(app, db, { router, profileSummary, asyncRoute, uso }) {
   db.exec(`
@@ -156,11 +110,11 @@ export function setupPratica(app, db, { router, profileSummary, asyncRoute, uso 
     const now = Date.now();
     const reviews = q.reviews.all(userId).map((r) => ({ exerciseId: r.exercise_id, level: r.level, dueAt: r.due_at, due: r.due_at <= now }));
     // Pontos fracos do quiz viram exercícios recomendados (os que ainda não foram feitos).
-    const weak = JSON.parse(user.profile || '{}').weak || [];
+    const weak = Array.isArray(perfilDe(user).weak) ? perfilDe(user).weak : [];
     const reforco = [...new Set(weak.flatMap((t) => TOPICO_EXERCICIOS[t] || []))].filter((id) => !progress[id]?.done);
     // erros observados também viram reforço (exercícios em que errou e ainda não acertou)
     for (const [id, v] of Object.entries(progress)) if (v.fails > 0 && !v.done && !reforco.includes(id)) reforco.push(id);
-    const plano = planoDe(JSON.parse(user.profile || '{}'), progress);
+    const plano = planoDe(perfilDe(user), progress);
     const { mutual, pedidos, aguardando } = friendsOf(userId);
     const weekAgo = now - 7 * DAY_MS;
     const ranking = [userId, ...mutual].map((id) => {
@@ -213,6 +167,19 @@ export function setupPratica(app, db, { router, profileSummary, asyncRoute, uso 
         ganhos.push({ motivo: 'Desafio do dia (bônus)', xp: ex.xp });
       }
     }
+    res.json({ ...state(req.user), ganhos });
+  });
+
+  // Exercício guiado (sem testes automáticos): a pessoa resolve, o Gyde corrige no chat e ela marca como feito.
+  app.post('/api/pratica/guiado/:id', (req, res) => {
+    const g = findGuiado(String(req.params.id));
+    if (!g) return res.status(404).json({ error: 'Exercício guiado não encontrado.' });
+    const userId = req.user.id, now = Date.now();
+    const antes = q.one.get(userId, g.id);
+    q.upsert.run(userId, g.id, 1, '', now, antes?.fails || 0);
+    q.addDay.run(userId, today(now));
+    const ganhos = [];
+    if (!antes?.done) { q.addXp.run(userId, 10, 'guiado', g.id, now); ganhos.push({ motivo: 'Exercício guiado feito', xp: 10 }); }
     res.json({ ...state(req.user), ganhos });
   });
 

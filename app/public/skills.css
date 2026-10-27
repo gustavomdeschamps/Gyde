@@ -136,3 +136,19 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 .plano .plano-sem { font-size: 13px; }
 .plano > .btn { flex: none; }
 @media (max-width: 640px) { .plano { flex-direction: column; align-items: stretch; } }
+.plano-tipo { margin-left: 6px; padding: 2px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent-text); font: 600 12px var(--font); vertical-align: 2px; }
+.plano .plano-exp { font-size: 13px; color: var(--text-faint); }
+.plano-acoes { display: flex; flex-direction: column; gap: 8px; flex: none; }
+.guiados-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.guiado { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.guiado.feito { opacity: .7; }
+.guiado-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.guiado-topo small { color: var(--text-faint); font-size: 12px; }
+.guiado h3 { margin: 2px 0 0; font: 700 15px var(--font-display); }
+.guiado p { margin: 0; flex: 1; color: var(--text-soft); font-size: 13.5px; line-height: 1.5; }
+.guiado-acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.guiado-ok { display: inline-flex; align-items: center; gap: 4px; color: var(--success); font-size: 13px; font-weight: 600; }
+.guiado-ok svg { width: 15px; height: 15px; }
+.estado-erro { margin: 12vh auto 0; max-width: 520px; padding: 24px; text-align: center; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+.estado-erro h2 { margin: 0 0 8px; font: 700 20px var(--font-display); }
+.estado-erro p { margin: 0 0 16px; color: var(--text-soft); line-height: 1.55; }

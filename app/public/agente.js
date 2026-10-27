@@ -62,7 +62,7 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
         </button>
         <div class="forja-menu" id="forjaMenu" hidden>
           <button type="button" data-act="abrir">${ic.pasta}<span><b>${sessao ? 'Abrir outra pasta…' : 'Conectar uma pasta…'}</b><small>Abre o Explorador de Arquivos</small></span></button>
-          ${outros.length ? `<p class="forja-menu-rot">Recentes</p>${outros.map((r) => `<a href="#/agente/${r.id}">${ic.pasta}<span><b>${esc(r.titulo)}</b><small>${esc(r.pasta)}</small></span></a>`).join('')}` : ''}
+          ${outros.length ? `<p class="forja-menu-rot">Recentes</p>${outros.map((r) => `<a href="#/agente/${r.id}">${ic.pasta}<span><b>${esc(r.titulo)}</b><small>${r.disponivel === false ? 'pasta indisponível · ' : ''}${esc(r.pasta)}</small></span></a>`).join('')}` : ''}
         </div>
       </div>
       ${tec.length ? `<span class="forja-tecs" title="Detectado nos arquivos do projeto">${tec.slice(0, 4).map((t) => `<span>${esc(t)}</span>`).join('')}</span>` : ''}
@@ -185,6 +185,10 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
   }
   // aplica um evento do servidor na conversa (serve para o histórico e para o ao vivo)
   function adicionar(ev, lista, aoVivo = false) {
+    if (ev.tipo === 'reconectado') {
+      lista.insertAdjacentHTML('beforeend', `<div class="forja-desfeito" role="status">${ic.pasta}<span><b>Pasta reconectada</b> ${esc(ev.para)}</span></div>`);
+      return;
+    }
     if (ev.tipo === 'desfeito') {
       lista.insertAdjacentHTML('beforeend', `<div class="forja-desfeito" role="status">${ic.desfazer}<span><b>Desfeito</b> ${esc(ev.texto)}</span></div>`);
       return;
@@ -211,6 +215,14 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
     else if (ev.tipo === 'erro') { turno.querySelector('.forja-resposta').innerHTML = `<p class="msg-error">${esc(ev.texto)}</p>`; concluirTurno(turno, ev, ev.em || Date.now()); }
   }
 
+  // Aviso da pasta só com o motivo que o servidor confirmou (nunca deduzido de um campo ausente).
+  function avisoPasta(sessao) {
+    if (!sessao.pastaEstado) return '<div class="forja-aviso erro" role="alert">O servidor do Gyde está numa versão diferente desta tela, então não dá para conferir a pasta. Feche a janela do iniciar.bat e abra de novo.</div>';
+    if (sessao.pastaEstado.ok) return '';
+    return `<div class="forja-aviso erro" role="alert"><span>${esc(sessao.pastaEstado.texto)} O histórico desta conversa continua salvo.</span>
+      <span class="forja-aviso-acoes">${sessao.pastaEstado.temporario ? '<button type="button" class="btn small ghost" data-act="checar">Verificar de novo</button>' : ''}<button type="button" class="btn small primary" data-act="reconectar">Reconectar pasta</button></span></div>`;
+  }
+
   async function renderSessao(id, recentes) {
     const sessao = await api(`/api/codigo/sessoes/${id}`);
     urlAnexo = (a) => `/api/codigo/sessoes/${id}/anexos/${a.arquivo}`;
@@ -218,7 +230,7 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
     root.innerHTML = `<div class="forja-chat">
       ${barraProjeto(sessao, recentes)}
       <div class="forja-arvore" id="agArvore" hidden></div>
-      ${sessao.existe ? '' : '<p class="forja-aviso erro">A pasta deste projeto não existe mais (foi movida ou apagada). Conecte a pasta de novo pelo menu acima.</p>'}
+      ${avisoPasta(sessao)}
       ${sessao.trabalhando ? '<p class="forja-aviso">A Forja ainda está trabalhando nesta conversa (em outra aba ou depois de recarregar). Espere ela terminar para mandar outra mensagem.</p>' : ''}
       <div class="forja-rolagem" id="agRolagem"><div class="messages" id="agLista">
         ${sessao.eventos.length ? '' : `<div class="ag-vazio"><span class="forja-marca grande">${ic.forja}</span><h2>Projeto conectado: ${esc(nomeDaPasta(sessao.pasta))}</h2>
@@ -291,6 +303,15 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
       } catch (err) { arvore.innerHTML = `<p class="msg-error">${esc(err.message)}</p>`; }
     };
     ligarBarra();
+    root.querySelector('[data-act="checar"]')?.addEventListener('click', () => renderSessao(id, recentes));
+    root.querySelector('[data-act="reconectar"]')?.addEventListener('click', async (e) => {
+      const b = e.currentTarget; b.disabled = true;
+      try {
+        const { pasta } = await api('/api/codigo/escolher-pasta', { method: 'POST' });
+        if (pasta) { await api(`/api/codigo/sessoes/${id}/reconectar`, { method: 'POST', body: JSON.stringify({ pasta }) }); toast('Pasta reconectada. O histórico continua.'); await renderSessao(id, recentes); return; }
+      } catch (err) { toast(err.message); }
+      b.disabled = false;
+    });
     const botaoDesfazer = root.querySelector('[data-act="desfazer"]');
     botaoDesfazer.onclick = async () => {
       if (controle) return;

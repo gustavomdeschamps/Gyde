@@ -96,9 +96,23 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
   let data = null;
   let drafts = {};
 
+  // Confere o formato da resposta antes de desenhar: um servidor de versão diferente (ex.: o Gyde atualizado sem
+  // reiniciar o iniciar.bat) não pode virar uma tela vazia com erro de JavaScript.
+  function validar(d) {
+    const faltando = !d || typeof d !== 'object' ? ['resposta'] : [
+      !Array.isArray(d.tracks) && 'tracks', !d.progress && 'progress', !d.plano && 'plano', !d.desafio && 'desafio',
+      !Array.isArray(d.revisoes) && 'revisoes', !Array.isArray(d.reforco) && 'reforco', !Array.isArray(d.ranking) && 'ranking',
+      d.plano && !Array.isArray(d.plano.ordem) && 'plano.ordem', d.plano && !Array.isArray(d.plano.guiados) && 'plano.guiados',
+    ].filter(Boolean);
+    if (faltando.length) {
+      console.error('[Gyde] resposta de /api/pratica fora do formato esperado; faltando:', faltando.join(', '));
+      throw Object.assign(new Error('O servidor do Gyde respondeu num formato diferente do desta tela. Isso acontece quando o Gyde é atualizado sem reiniciar: feche a janela do iniciar.bat e abra de novo.'), { recuperavel: true });
+    }
+    return d;
+  }
   async function load(force = false) {
     if (!data || force) {
-      data = await api('/api/pratica');
+      data = validar(await api('/api/pratica'));
       onXp(data.xp);
     }
     return data;
@@ -133,29 +147,49 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
     </a>`;
   }
 
-  // "Seu plano": próximo passo e por quê. Diz de onde vem cada coisa (o que você respondeu x o que fez).
+  // "Seu plano": tipo do plano, próximo passo e por quê. Separa o que você respondeu do que você fez.
+  const ROTULO_TIPO = { trilha: 'Trilha', adaptada: 'Plano adaptado', montada: 'Plano montado', inicial: 'Plano inicial' };
+  function passoHtml(passo) {
+    if (!passo) return '';
+    if (passo.tipo === 'trilha') { const f = findEx(passo.exerciseId); return f ? `<a href="${exLink(f.ex.id)}"><b>${esc(f.ex.title)}</b></a> em ${esc(f.t.title)}` : ''; }
+    if (passo.tipo === 'guiado') return `<b>${esc(passo.titulo)}</b> (${esc(passo.tecnologia)}, exercício guiado, logo abaixo)`;
+    return `<b>${esc(passo.titulo)}</b>`;
+  }
   function planoHtml() {
     const pl = data.plano;
-    const prox = pl.proximo && findEx(pl.proximo.exerciseId);
-    const motivos = pl.recomendada ? (pl.motivos[pl.recomendada] || []).filter((m) => m !== 'concluída') : [];
-    const semTrilha = pl.semTrilha.length
-      ? `<p class="plano-sem">Ainda não há trilha de <b>${esc(pl.semTrilha.join(', '))}</b> aqui. <button type="button" class="link" data-chat-exercicio="${esc(pl.semTrilha[0])}">Pedir um exercício de ${esc(pl.semTrilha[0])} no chat</button></p>` : '';
-    if (!pl.temQuiz) {
-      return `<section class="plano"><div><h2 class="section-title">Seu plano</h2>
-        <p>Você ainda não respondeu o questionário inicial, então a Prática começa pelo mais simples. Respondendo (uns 3 minutos), ela passa a seguir suas linguagens, seu nível e seu objetivo.</p></div>
-        <button type="button" class="btn primary" data-fazer-quiz>Responder o questionário</button></section>`;
-    }
+    const motivos = pl.proximo?.tipo === 'trilha' ? (pl.motivos[pl.proximo.trackId] || []).filter((m) => m !== 'concluída') : [];
+    const acao = pl.proximo?.tipo === 'trilha' ? `<a class="btn primary" href="${exLink(pl.proximo.exerciseId)}">Continuar</a>`
+      : pl.proximo?.tipo === 'guiado' ? `<button type="button" class="btn primary" data-guiado-chat="${esc(pl.proximo.id)}">Resolver no chat</button>`
+        : pl.novoDesafio?.tipo === 'chat' ? `<button type="button" class="btn primary" data-desafio-chat>Pedir desafio</button>` : '';
     return `<section class="plano">
-      <div><h2 class="section-title">Seu plano <small>pelo que você respondeu e pelo que já fez</small></h2>
-      ${prox ? `<p>Próximo passo: <a href="${exLink(prox.ex.id)}"><b>${esc(prox.ex.title)}</b></a> em ${esc(prox.t.title)}${motivos.length ? `, porque ${esc(motivos.join(', '))}` : ''}.</p>` : '<p>Você concluiu as trilhas indicadas para você. Experimente as outras abaixo ou peça desafios no chat.</p>'}
-      ${pl.observado.feitos ? `<p class="plano-obs">Até agora: ${pl.observado.feitos} exercício(s) feitos${pl.observado.travados.length ? `, ${pl.observado.travados.length} ainda sem acertar` : ''}.</p>` : '<p class="plano-obs">Ainda sem exercícios feitos: o plano vai se ajustando conforme você pratica.</p>'}
-      ${semTrilha}</div>
-      ${prox ? `<a class="btn primary" href="${exLink(prox.ex.id)}">Continuar</a>` : ''}
+      <div><h2 class="section-title">Seu plano <span class="plano-tipo">${ROTULO_TIPO[pl.tipo] || ''}</span> <small>${esc(pl.tecnologias.join(', '))} · nível ${esc(pl.nivel)}${pl.tecnologiasDeduzidas && pl.temQuiz ? ' (pelo seu objetivo)' : ''}</small></h2>
+      <p class="plano-exp">${esc(pl.explicacao)}</p>
+      ${pl.proximo ? `<p>Próximo passo: ${passoHtml(pl.proximo)}${motivos.length ? `, porque ${esc(motivos.join(', '))}` : ''}.</p>`
+        : `<p>Você concluiu tudo o que o plano indicava. Novo desafio: ${passoHtml(pl.novoDesafio)}.</p>`}
+      <p class="plano-obs">${pl.observado.feitos ? `Até agora: ${pl.observado.feitos} exercício(s) feitos${pl.observado.travados.length ? `, ${pl.observado.travados.length} ainda sem acertar` : ''}.` : 'Ainda sem exercícios feitos: o plano se ajusta conforme você pratica.'}</p>
+      ${pl.temQuiz ? '' : '<p class="plano-obs">Responder o questionário (uns 3 minutos) personaliza linguagens, nível e objetivo.</p>'}</div>
+      <div class="plano-acoes">${acao}${pl.temQuiz ? '' : '<button type="button" class="btn ghost" data-fazer-quiz>Responder o questionário</button>'}</div>
     </section>`;
+  }
+  // exercícios guiados do plano (sem testes automáticos: o Gyde corrige no chat)
+  function guiadosHtml() {
+    const lista = data.plano.guiados.slice(0, 6);
+    if (!lista.length) return '';
+    return `<section class="guiados"><h2 class="section-title">Exercícios guiados <small>você resolve no seu editor e o Gyde corrige no chat</small></h2>
+      <div class="guiados-lista">${lista.map((g) => `<article class="guiado${g.feito ? ' feito' : ''}">
+        <div class="guiado-topo"><span class="lang-badge">${esc(g.tecnologia)}</span><small>${esc(g.topico)} · ${esc({ basico: 'básico', intermediario: 'intermediário', avancado: 'avançado' }[g.nivel])}</small></div>
+        <h3>${esc(g.titulo)}</h3><p>${esc(g.enunciado)}</p>
+        <div class="guiado-acoes">${g.feito ? `<span class="guiado-ok">${icons.check} Feito</span>` : `<button type="button" class="btn small primary" data-guiado-chat="${esc(g.id)}">Resolver no chat</button><button type="button" class="btn small ghost" data-guiado-feito="${esc(g.id)}">Marcar como feito</button>`}</div>
+      </article>`).join('')}</div></section>`;
+  }
+  // abre o chat com o enunciado pronto (o Gyde corrige sem entregar a resposta)
+  function abrirNoChat(texto) {
+    location.hash = '#/';
+    setTimeout(() => { const input = document.getElementById('input'); if (!input) return; input.value = texto; input.dispatchEvent(new Event('input')); input.focus(); }, 300);
   }
 
   async function renderHome() {
-    root.innerHTML = '<div class="skills-inner"><div class="skeleton" style="height:120px;margin-top:24px"></div><div class="skeleton" style="height:180px"></div></div>';
+    root.innerHTML = '<div class="skills-inner" aria-busy="true"><p class="sr-only">Carregando a Prática…</p><div class="skeleton" style="height:120px;margin-top:24px"></div><div class="skeleton" style="height:180px"></div></div>';
     await load(true);
     const totalEx = data.tracks.reduce((s, t) => s + t.exercises.length, 0);
     const doneEx = data.tracks.reduce((s, t) => s + trackDone(t), 0);
@@ -194,6 +228,8 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
 
       ${planoHtml()}
 
+      ${guiadosHtml()}
+
       ${reforco.length ? `<section class="reforco"><h2 class="section-title">Para reforçar <small>pelo questionário e pelos exercícios em que você errou</small></h2>
         <div class="chip-row">${reforco.map(({ t, ex }) => `<a class="chip-link" href="#/pratica/${t.id}/${ex.id}" style="--track:${t.color}"><span class="dot"></span>${esc(ex.title)}<small>${LANG_LABEL[t.lang]}</small></a>`).join('')}</div></section>` : ''}
 
@@ -224,11 +260,20 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
       } catch (err) { toast(err.message); }
     };
     root.querySelector('[data-fazer-quiz]')?.addEventListener('click', () => document.getElementById('redoQuiz')?.click());
-    root.querySelector('[data-chat-exercicio]')?.addEventListener('click', (e) => {
-      const lang = e.currentTarget.dataset.chatExercicio;
-      location.hash = '#/';
-      setTimeout(() => { const input = document.getElementById('input'); input.value = `Me passe um exercício de ${lang} para o meu nível, sem a resposta. Depois eu mando minha solução para você corrigir.`; input.dispatchEvent(new Event('input')); input.focus(); }, 300);
-    });
+    root.querySelector('[data-desafio-chat]')?.addEventListener('click', () => abrirNoChat(`Me dê um desafio de ${data.plano.tecnologias[0]} um pouco acima do meu nível (${data.plano.nivel}), sem a resposta. Depois eu mando minha solução para você corrigir.`));
+    root.querySelectorAll('[data-guiado-chat]').forEach((b) => b.addEventListener('click', () => {
+      const g = data.plano.guiados.find((x) => x.id === b.dataset.guiadoChat); if (!g) return;
+      abrirNoChat(`Exercício guiado de ${g.tecnologia} (${g.titulo}):\n${g.enunciado}\n\nNão me dê a resposta. Vou mandar minha solução; corrija, aponte os erros e me dê dicas.`);
+    }));
+    root.querySelectorAll('[data-guiado-feito]').forEach((b) => b.addEventListener('click', async () => {
+      b.disabled = true;
+      try {
+        const r = await api(`/api/pratica/guiado/${encodeURIComponent(b.dataset.guiadoFeito)}`, { method: 'POST', headers: HEADERS });
+        data = validar(r); onXp(data.xp);
+        if (r.ganhos?.length) toast(`+${r.ganhos.reduce((n, g) => n + g.xp, 0)} XP`);
+        renderHome();
+      } catch (err) { toast(err.message); b.disabled = false; }
+    }));
     root.querySelector('.friend-form').onsubmit = (e) => { e.preventDefault(); addFriend(e.target.email.value.trim()); };
     root.querySelectorAll('[data-accept]').forEach((b) => { b.onclick = () => addFriend(b.dataset.accept); });
   }
@@ -422,7 +467,13 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
         else await renderHome();
         root.scrollTop = 0;
       } catch (err) {
-        root.innerHTML = `<div class="skills-inner"><p class="msg-error">${esc(err.message)}</p></div>`;
+        console.error('[Gyde] Prática:', err);
+        const semConexao = err instanceof TypeError;
+        root.innerHTML = `<div class="skills-inner"><div class="estado-erro" role="alert">
+          <h2>Não deu para abrir a Prática</h2>
+          <p>${esc(semConexao ? 'Sem conexão com o servidor do Gyde. Confira se a janela do iniciar.bat está aberta.' : err.message)}</p>
+          <button type="button" class="btn primary" data-tentar>Tentar de novo</button></div></div>`;
+        root.querySelector('[data-tentar]').onclick = () => this.show(parts);
       }
     },
     refreshXp: () => load(true).catch(() => {}),

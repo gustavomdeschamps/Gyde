@@ -157,4 +157,6 @@ Essas duas coisas **nunca** vão junto quando o Gyde é compartilhado.
 | A porta 3210 já está em uso | Abra o arquivo `.env` com o Bloco de Notas e adicione a linha `PORT=3211`. Depois use http://127.0.0.1:3211 |
 | Esqueci minha senha | Na pasta `configurar`, rode `redefinir-senha.bat`. |
 | A Forja não abre a janela de pastas | A Forja só funciona com o Gyde rodando no seu próprio computador (Windows). |
+| "O Gyde foi atualizado, mas o servidor ainda está rodando a versão anterior" | Feche a janela preta do Gyde e abra o `iniciar.bat` de novo. Isso aparece depois de baixar uma versão nova com o Gyde aberto. |
+| A Forja diz que a pasta não foi encontrada | A pasta mudou de lugar ou foi renomeada. Clique em **Reconectar pasta** e escolha o novo lugar: o histórico da conversa continua. |
 

@@ -1018,11 +1018,20 @@ async function desenharPraticaConfig() {
   const box = $('#cfgPratica');
   box.innerHTML = '<div class="skeleton" style="height:90px"></div>';
   let plano;
-  try { plano = (await api('/api/pratica')).plano; } catch (err) { box.innerHTML = `<p class="msg-error">${escapeHtml(err.message)}</p>`; return; }
+  try {
+    plano = (await api('/api/pratica')).plano;
+    if (!plano || typeof plano !== 'object' || !('observado' in plano)) throw new Error('O servidor do Gyde respondeu num formato diferente desta tela. Feche a janela do iniciar.bat e abra de novo para terminar a atualização.');
+  } catch (err) {
+    console.error('[Gyde] Configurações > Prática:', err);
+    box.innerHTML = `<div class="config-erro" role="alert"><p>${escapeHtml(err instanceof TypeError ? 'Sem conexão com o servidor do Gyde.' : err.message)}</p><button type="button" class="btn small" id="cfgPraticaTentar">Tentar de novo</button></div>`;
+    $('#cfgPraticaTentar').onclick = desenharPraticaConfig;
+    return;
+  }
   $('#redoQuiz').textContent = plano.temQuiz ? 'Refazer o questionário' : 'Fazer o questionário';
   const d = plano.declarado, m = plano.medido, o = plano.observado;
   const item = (rot, val) => `<div><dt>${rot}</dt><dd>${val}</dd></div>`;
-  box.innerHTML = plano.temQuiz ? `
+  const resumoPlano = `<p class="config-nota"><b>Plano atual:</b> ${escapeHtml(plano.explicacao || '')} Tecnologias: ${escapeHtml((plano.tecnologias || []).join(', '))}; nível ${escapeHtml(plano.nivel || '')}.</p>`;
+  box.innerHTML = resumoPlano + (plano.temQuiz ? `
     <h3 class="config-sub">O que você respondeu <small>em ${new Date(d.em).toLocaleDateString('pt-BR')}</small></h3>
     <dl class="config-dl">
       ${item('Experiência', escapeHtml(d.experiencia || 'não respondeu'))}
@@ -1042,7 +1051,7 @@ async function desenharPraticaConfig() {
       ${item('Tentativas com erro', String(o.tentativasComErro))}
       ${item('Ainda travado em', o.travados.length ? `${o.travados.length} exercício(s)` : 'nenhum')}
     </dl>`
-    : '<p class="config-nota">Você ainda não respondeu o questionário. Sem ele, a Prática começa pelo mais simples (Python do zero). Leva uns 3 minutos e muda as recomendações e o jeito do Gyde explicar.</p>';
+    : '<p class="config-nota">Você ainda não respondeu o questionário. Sem ele, a Prática começa pelo mais simples (lógica e Python). Leva uns 3 minutos e muda as recomendações e o jeito do Gyde explicar.</p>');
 }
 $('#redoQuiz').addEventListener('click', () => {
   els.settingsDialog.close('cancel');
@@ -1169,6 +1178,11 @@ async function checkStatus() {
     const s = await api('/api/status');
     state.imagesEnabled = s.imagesEnabled;
     atualizarUso();
+    if (s.desatualizado) { // código novo no disco, servidor antigo na memória: telas e servidor não combinam
+      els.banner.textContent = 'O Gyde foi atualizado, mas o servidor ainda está rodando a versão anterior. Feche a janela do iniciar.bat e abra de novo para terminar a atualização.';
+      els.banner.hidden = false;
+      return true;
+    }
     if (s.keyConfigured && !s.routerOnline && s.iaAtiva === 'offline') {
       els.banner.textContent = 'Sem conexão com o FreeLLMAPI: usando o modelo local (offline). Ele é mais simples e mais lento.';
       els.banner.hidden = false;

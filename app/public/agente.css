@@ -149,3 +149,5 @@
 .forja-recentes span { flex: 1; min-width: 0; display: grid; }
 .forja-recentes small { color: var(--text-faint); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .forja-recentes time { font-size: 12px; color: var(--text-faint); flex: none; }
+.forja-aviso.erro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.forja-aviso-acoes { display: flex; gap: 6px; }

@@ -1,7 +1,7 @@
 import express from 'express';
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseEnv } from 'node:util';
 import path from 'node:path';
@@ -304,9 +304,25 @@ const skillsSystem = setupSkills(app, db, { root: ROOT });
 // Memória entre conversas (memoria.js).
 const memory = setupMemoria(app, db, { router, getSetting, setSetting });
 
+// Versão do código: se os arquivos do Gyde mudarem no disco depois que o servidor iniciou (atualização sem reiniciar
+// o iniciar.bat), o navegador recebe telas novas de um servidor antigo. O status avisa para a tela pedir o reinício.
+const impressaoDoCodigo = () => {
+  const pastas = [ROOT, path.join(ROOT, 'public')];
+  let h = 0;
+  for (const dir of pastas) for (const f of readdirSync(dir).sort()) {
+    if (!/\.(js|mjs|html|css)$/.test(f)) continue;
+    const t = statSync(path.join(dir, f)).mtimeMs;
+    for (const c of `${f}:${t}`) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  }
+  return h;
+};
+const VERSAO_INICIO = impressaoDoCodigo();
+
 app.get('/api/status', asyncRoute(async (_req, res) => {
   const u = await provedores.resumo({ mostrarConta: false });
-  res.json({ keyConfigured: Boolean(ROUTER_KEY), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagesEnabled() });
+  let desatualizado = false;
+  try { desatualizado = impressaoDoCodigo() !== VERSAO_INICIO; } catch { /* sem como checar */ }
+  res.json({ keyConfigured: Boolean(ROUTER_KEY), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagesEnabled(), desatualizado });
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).
@@ -375,7 +391,9 @@ setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // F
 app.get('/api/quiz', (_req, res) => res.json({ questions: publicQuiz() }));
 
 app.post('/api/profile', (req, res) => {
-  const { profile, results } = gradeQuiz(req.body?.answers);
+  const answers = req.body?.answers;
+  if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return res.status(400).json({ error: 'Respostas do questionário inválidas.' });
+  const { profile, results } = gradeQuiz(answers); // alternativas que não existem são descartadas
   // refazer o questionário atualiza o perfil sem apagar o progresso; guarda os resultados anteriores para mostrar a evolução
   const antes = JSON.parse(req.user.profile || '{}');
   if (antes.level) profile.anteriores = [{ em: antes.takenAt, nivel: antes.levelLabel, acertos: antes.score, total: antes.total }, ...(antes.anteriores || [])].slice(0, 5);

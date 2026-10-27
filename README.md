@@ -63,10 +63,20 @@ Cada conta tem o próprio plano, montado a partir de três fontes que a tela mos
 - **o que o mini desafio mediu** (nível e assuntos para reforçar);
 - **o que os exercícios mostram** (feitos, tentativas com erro, onde você travou).
 
-A ordem das trilhas, a trilha recomendada (com o motivo), o próximo passo e o desafio do dia saem desse plano.
-Quem escolheu uma linguagem que ainda não tem trilha (Java, C#, SQL...) vê isso escrito, com um atalho para pedir
-exercícios no chat. Refazer o questionário atualiza as recomendações sem apagar o progresso. Sem questionário,
-a Prática começa pelo mais simples e diz isso.
+Qualquer combinação de respostas gera um plano, sem depender de IA, e a tela diz qual dos quatro tipos ele é:
+
+| Tipo | Quando | O que você recebe |
+|---|---|---|
+| **Trilha** | Existe trilha com testes automáticos para o que você escolheu (Python, JavaScript, lógica) | Exercícios corrigidos na hora, no navegador |
+| **Plano adaptado** | Parte tem trilha e parte não (ex.: HTML e CSS) | Trilhas com testes + exercícios guiados |
+| **Plano montado** | Não há trilha (Java, C / C++, C#, PHP, SQL, Kotlin) | Exercícios guiados da tecnologia, no seu nível |
+| **Plano inicial** | Sem questionário ou sem escolhas | Lógica e Python do básico, até você responder |
+
+**Exercícios guiados** vêm de um catálogo local (10 tecnologias, 3 níveis): você resolve no seu editor, clica em
+**Resolver no chat** e o Gyde corrige sem entregar a resposta; depois, **Marcar como feito**. Eles não têm teste
+automático, e a tela diz isso. Quem nunca programou não recebe exercício avançado, e quem já é avançado não precisa
+refazer o básico. Quando tudo do plano acaba, aparece um novo desafio em vez de uma tela vazia. Refazer o questionário
+atualiza o plano sem apagar XP, exercícios feitos nem a sequência de dias.
 
 <p align="center"><img src="docs/imagens/pratica.jpg" alt="Tela de Prática com trilhas e projetos" width="88%"></p>
 
@@ -86,6 +96,9 @@ e documenta. Você não precisa saber comandos de terminal.
 - **Desfazer:** o botão **Desfazer** (ou pedir "desfaça a última alteração") volta os arquivos ao que eram antes da
   última tarefa. Arquivos que você editou depois ficam como estão, e a Forja avisa quais.
 - **Trocar de projeto:** o nome da pasta no topo abre o menu com outra pasta e os projetos recentes.
+- **Pasta guardada:** a conversa lembra a pasta mesmo depois de fechar o Gyde ou reiniciar o PC. Se a pasta sumir, a
+  Forja diz o motivo real (movida ou apagada, unidade desconectada, sem permissão) e o botão **Reconectar pasta**
+  aponta a conversa para o novo lugar, mantendo o histórico.
 - **Anexos:** prints de erro, referências de layout ou arquivos de texto (clipe, Ctrl+V ou arrastar).
   As imagens vão para um modelo que enxerga.
 - **Arquivos do projeto:** o botão de pasta no topo mostra tudo o que a Forja pode ver.
@@ -164,6 +177,8 @@ Em **Configurações > Uso e limites** (ou clicando no indicador do rodapé do c
 
 Provedores diferentes (FreeLLMAPI e modelo local) aparecem separados, porque as cotas não se somam.
 
+<p align="center"><img src="docs/imagens/uso.jpg" alt="Configurações, aba Uso e limites" width="88%"></p>
+
 **Quando o limite acaba**, a mensagem diz qual limite foi (os pedidos por minuto do FreeLLMAPI), quando ele renova
 (se o FreeLLMAPI informou) e o que funciona enquanto isso (o modelo local, se estiver instalado). No modo automático,
 se o FreeLLMAPI parar de responder, o Gyde usa o modelo local e **avisa** na resposta, sem troca silenciosa.
@@ -222,16 +237,24 @@ GEMINI_API_KEY=                # voz natural (configurar\configurar-voz.bat)
 
 Para rodar sem os `.bat`: `npm install` e depois `npm start` (Node.js 22.13 ou mais novo).
 
+### Atualizar o Gyde
+
+Baixe a versão nova (ou `git pull`) e **feche e abra de novo o `iniciar.bat`**. O servidor só lê o código quando
+inicia; se ele continuar aberto, a tela avisa: "O Gyde foi atualizado, mas o servidor ainda está rodando a versão
+anterior". Suas contas, conversas e progresso ficam na pasta `data/` e não são tocados.
+
 ## Testes
 
 ```bash
 npm test
 ```
 
-Roda os testes automáticos de `app/testes/` (12 testes): proteção de caminhos e arquivos de senha, classificação de
-comandos, remoção de segredos, ambiente limpo dos comandos, contabilização de uso (pedidos x chamadas, tokens só
-quando informados, cancelados, limite por minuto) e a mensagem de limite. Eles usam um provedor falso local e não
-gastam cota.
+Roda os testes automáticos de `app/testes/` (19 testes, sem internet e sem gastar cota):
+- **segurança:** caminhos fora da pasta, arquivos de senha, classificação de comandos, remoção de segredos;
+- **uso:** pedidos x chamadas, tokens só quando informados, cancelados e limite por minuto (com um provedor falso local);
+- **Prática:** mais de 10 mil combinações das alternativas reais do questionário, cada linguagem, níveis, respostas
+  inválidas ou faltando, progresso parcial e completo. A regra testada: toda resposta válida vira um plano com próximo
+  passo (ou um novo desafio), sem chamar IA.
 
 ## Limitações conhecidas
 
@@ -239,6 +262,7 @@ gastam cota.
   de modelo quando a resposta vem vazia ou inválida, mas não dá para garantir o mesmo comportamento sempre.
 - O modelo local (Ollama) é bem mais simples e lento que os online, principalmente na Forja.
 - O **Desfazer** da Forja guarda as 10 últimas tarefas de cada conversa e não copia arquivos maiores que 2 MB.
+- Exercícios guiados (Java, SQL, C#...) não têm correção automática: dependem do chat e de você marcar como feito.
 - A Forja e a janela de escolher pasta só funcionam no Windows e com o Gyde no modo pessoal (rodando no seu PC).
 - A moderação depende das instruções do Gyde e do provedor; não há um filtro de conteúdo separado.
 - Imagens geradas ficam acessíveis para qualquer conta logada no mesmo Gyde que tenha o link (os nomes são aleatórios).
