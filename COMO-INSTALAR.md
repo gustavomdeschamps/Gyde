@@ -125,6 +125,7 @@ No fim aparece **"Tudo pronto!"**. Digite `s` e Enter para abrir o Gyde.
 | Extensão do Chrome | Siga o `LEIA-ME.md` da pasta `extensoes\chrome` |
 | Extensão do VS Code | Na pasta `configurar`, rode `instalar-vscode.bat` |
 | Instalar como app | No Gyde, botão **Instalar o Gyde como app** na barra lateral |
+| IA sem internet | Instale o [Ollama](https://ollama.com), rode `ollama pull qwen2.5:3b` e escolha **Só offline** no rodapé do chat |
 
 ---
 
@@ -157,10 +158,3 @@ Essas duas coisas **nunca** vão junto quando o Gyde é compartilhado.
 | Esqueci minha senha | Na pasta `configurar`, rode `redefinir-senha.bat`. |
 | A Forja não abre a janela de pastas | A Forja só funciona com o Gyde rodando no seu próprio computador (Windows). |
 
----
-
-## Para quem vai publicar o Gyde (dono do projeto)
-
-- O `.gitignore` já deixa de fora `data/`, `.env` e `node_modules/`. **Confira isso antes de subir.**
-- Nunca envie o arquivo `.env` para ninguém: ele tem as suas chaves.
-- Quem baixar segue este guia e terá o Gyde dele, com a conta e a IA dele.

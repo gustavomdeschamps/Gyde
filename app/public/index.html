@@ -149,7 +149,13 @@
           </button>
         </div>
       </form>
-      <p class="footnote">O Gyde pode errar. Teste o código antes de usar. Suas conversas ficam só no seu computador.</p>
+      <div class="footnote">
+        <span>O Gyde pode errar. Teste o código antes de usar. Suas conversas ficam só no seu computador.</span>
+        <button type="button" class="uso-chip" id="usoChip" aria-haspopup="dialog" aria-expanded="false" aria-controls="usoPainel" title="Modelo, consumo e limites da IA">
+          <i class="uso-ponto" aria-hidden="true"></i><span id="usoTexto">IA</span>
+        </button>
+        <div class="uso-painel" id="usoPainel" role="dialog" aria-label="Consumo e limites da IA" hidden></div>
+      </div>
     </main>
   </div>
 
@@ -196,7 +202,7 @@
   </dialog>
 
   <div class="intro" id="intro" hidden>
-    <video id="introVideo" src="/intro.mp4?v=8" playsinline preload="auto"></video>
+    <video id="introVideo" data-src="/intro.mp4?v=8" playsinline preload="none"></video>
     <p class="intro-legenda" id="introLegenda" aria-live="polite"></p>
     <p class="intro-som" id="introSom" hidden>Clique em qualquer lugar para ouvir</p>
     <button type="button" class="intro-som-btn" id="introSomBtn" aria-label="Som do vídeo" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="onda" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path class="mudo" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></button>

@@ -92,3 +92,47 @@
 
 /* Na Forja o topo vazio some no computador (no celular fica, porque tem o botão do menu) */
 @media (min-width: 901px) { .main[data-page="agente"] .topbar { display: none; } }
+
+/* Forja: anexos, confirmação de risco, resumo das mudanças e arquivos do projeto */
+.forja-anexos { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 4px; }
+.forja-anexos:empty { display: none; }
+.forja-anexos:not(:empty) { margin-bottom: 6px; }
+.forja-anexo { display: inline-flex; align-items: center; gap: 8px; max-width: 240px; padding: 4px 6px 4px 4px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); font-size: 12.5px; animation: pop-in var(--t2) var(--ease); }
+.forja-anexo img { width: 34px; height: 34px; object-fit: cover; border-radius: 8px; }
+.forja-anexo > svg { width: 18px; height: 18px; margin: 0 4px; color: var(--accent-text); }
+.forja-anexo span { display: grid; min-width: 0; }
+.forja-anexo span, .forja-anexo small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.forja-anexo small { color: var(--text-faint); font-size: 11px; }
+.forja-anexo button { border: 0; background: none; color: var(--text-faint); border-radius: 6px; width: 22px; height: 22px; cursor: pointer; }
+.forja-anexo button:hover { background: var(--hover); color: var(--text); }
+.forja-anexos-msg { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; margin-bottom: 6px; max-width: 80%; }
+.forja-anexo-img img { display: block; max-width: 200px; max-height: 160px; border-radius: 12px; border: 1px solid var(--border); object-fit: cover; }
+.forja-anexo-arq { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 99px; font-size: 12.5px; color: var(--text-soft); background: var(--surface); }
+.forja-anexo-arq svg { width: 14px; height: 14px; }
+
+.forja-confirmar { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 12px; border: 1px solid color-mix(in srgb, #f59e0b 55%, var(--border)); background: color-mix(in srgb, #f59e0b 8%, var(--surface)); animation: rise var(--t2) var(--ease); }
+.forja-confirmar-ic { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, #f59e0b 18%, transparent); color: #b45309; }
+.forja-confirmar-ic svg { width: 18px; height: 18px; }
+.forja-confirmar b { display: block; font-size: 14px; overflow-wrap: anywhere; }
+.forja-confirmar small { color: var(--text-soft); font-size: 12.5px; }
+.forja-confirmar-botoes { display: flex; gap: 6px; }
+.forja-confirmar-estado { font-size: 13px; font-weight: 600; color: var(--text-soft); white-space: nowrap; }
+.forja-confirmar.aprovado { border-color: color-mix(in srgb, var(--success) 45%, var(--border)); background: var(--surface); }
+.forja-confirmar.aprovado .forja-confirmar-estado { color: var(--success); }
+.forja-confirmar.recusado { border-color: var(--border); background: var(--surface); }
+@media (max-width: 600px) { .forja-confirmar { grid-template-columns: auto 1fr; } .forja-confirmar-botoes { grid-column: 1 / -1; justify-content: flex-end; } }
+
+.forja-resumo { display: grid; gap: 6px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-soft); }
+.forja-mud { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+.forja-mud b { width: 72px; color: var(--text-soft); font-weight: 600; }
+.forja-mud code { font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); }
+.forja-mud.criados code { border-color: color-mix(in srgb, var(--success) 40%, var(--border)); }
+.forja-mud.apagados code { border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); text-decoration: line-through; }
+.forja-mud.comandos code.ok { color: var(--success); }
+.forja-mud.comandos code.falhou { color: var(--danger); }
+
+.forja-arvore { margin: 8px 16px 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); max-height: 280px; overflow: auto; animation: rise var(--t2) var(--ease); }
+.forja-arvore pre { margin: 6px 0 0; font: 12.5px/1.5 var(--mono); color: var(--text-soft); }
+.forja-arvore-info { margin: 0; font-size: 12.5px; color: var(--text-faint); }
+.forja-aviso { margin: 8px 16px 0; padding: 8px 12px; border-radius: 10px; background: var(--accent-soft); color: var(--text-soft); font-size: 13px; }
+.forja-composer.dragging { border-color: var(--accent); }

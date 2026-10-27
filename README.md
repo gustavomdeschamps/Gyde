@@ -59,15 +59,24 @@ Travou? A **Dica do Gyde** ajuda sem entregar a resposta.
 <p align="center"><img src="docs/imagens/pratica.jpg" alt="Tela de Prática com trilhas e projetos" width="88%"></p>
 
 ### Forja, o agente de código
-Um chat ligado à pasta de um projeto seu. Você pede, e a Forja **trabalha sozinha**: lê o código, cria e edita
-arquivos, roda os testes até passarem e documenta. Cada ação aparece ao vivo, com o tempo que levou, os arquivos
-alterados e as mudanças coloridas. Ela faz várias ações por rodada para responder rápido.
+Um chat ligado à pasta de um projeto seu. Você pede, e a Forja **trabalha nos arquivos de verdade**: lê o código,
+cria e edita arquivos, roda os testes até passarem e documenta. Cada ação aparece ao vivo, com o tempo que levou e as
+mudanças coloridas. No fim vem um resumo com os arquivos **criados, alterados e apagados** e os **comandos rodados**.
+
+- **Anexos:** mande prints de erro, referências de layout ou arquivos de texto (botão de clipe, Ctrl+V ou arrastar).
+  As imagens vão para um modelo que enxerga; se nenhum estiver disponível, a Forja avisa.
+- **Arquivos do projeto:** o botão de pasta no topo mostra tudo o que a Forja pode ver.
 
 <p align="center"><img src="docs/imagens/forja.jpg" alt="Forja corrigindo um projeto e rodando os testes" width="88%"></p>
 
-**Segurança da Forja:** só mexe dentro da pasta que você escolheu, não lê `.env` nem chaves, recusa a raiz do disco
-e pastas como Documentos inteira, bloqueia comandos perigosos (formatar, desligar, apagar o disco) e tem um botão
-**Parar** a qualquer momento.
+**Segurança da Forja** (no código, não só nas instruções da IA):
+- só mexe dentro da pasta escolhida, nem por `..`, caminho absoluto ou atalho que aponte para fora;
+- nunca lê, envia ao modelo, edita ou apaga arquivos de senhas e chaves (`.env`, chaves SSH, `.pem`, `credentials`...);
+- chaves e tokens que aparecerem em arquivos ou saídas viram `[segredo removido]` antes de ir para a IA e para a tela;
+- os comandos não recebem as chaves do Gyde;
+- comandos são classificados: os perigosos (formatar, desligar, mexer no sistema, ler senhas) são **bloqueados**;
+  apagar arquivos, instalar pacotes, acessar a internet, mexer no Git remoto ou publicar **pedem a sua autorização**;
+- botão **Parar** a qualquer momento (também encerra os comandos em andamento).
 
 ### E mais
 - **Skills:** habilidades instaláveis, como plugins (`/revisar`, `/git`, `/sql`...). Dá para criar as suas e publicar na loja de skills.
@@ -109,6 +118,33 @@ O Gyde escolhe sozinho os melhores modelos para programar. Se um estiver ocupado
 fila assume, sem você perceber. Os limites grátis renovam todo dia, e quanto mais chaves grátis você colocar no
 FreeLLMAPI, mais o Gyde aguenta.
 
+## Modelos, consumo e limites
+
+No rodapé do chat, o indicador **Online · grátis** abre um painel com:
+- o modelo que respondeu de verdade e os tokens da última resposta;
+- os pedidos por minuto que sobram no FreeLLMAPI e quando renovam;
+- o consumo do mês;
+- os limites definidos por chave.
+
+Tudo vem do próprio provedor. O que ele não informa aparece como "não disponível"; o Gyde não inventa créditos.
+Cada resposta também mostra, embaixo, o modelo que respondeu e os tokens usados.
+
+## IA offline (sem internet)
+
+O Gyde pode usar um modelo que roda no seu computador pelo [Ollama](https://ollama.com), sem mandar nada para fora.
+
+1. Instale o Ollama e baixe um modelo pequeno (o download é seu, de uns 2 GB): `ollama pull qwen2.5:3b`
+2. No painel do rodapé do chat, escolha **Só offline**, ou deixe em **Automático** (usa o offline se o FreeLLMAPI cair).
+
+Configuração opcional no `.env`: `GYDE_MODO_IA=auto|online|offline`, `OLLAMA_MODELO=qwen2.5:3b`, `OLLAMA_URL=http://127.0.0.1:11434`.
+
+| Funciona sem internet | Funciona offline depois de instalar o Ollama e baixar um modelo | Precisa de internet |
+|---|---|---|
+| App, contas, histórico, Prática (editor e testes), rodar código e passo a passo, skills, turmas, memória salva | Chat, Forja, dicas da Prática e títulos de conversa (com o modelo local) | Modelos online (FreeLLMAPI), gerar imagens (Cloudflare), voz natural (Gemini), extensão do Chrome no modo agente |
+
+Modelos locais pequenos são bem mais simples e lentos que os online, principalmente em tarefas grandes de programação.
+Num computador com 8 GB de RAM e sem placa de vídeo, use modelos de até 3 bilhões de parâmetros.
+
 ## Instalar
 
 **Siga o [COMO-INSTALAR.md](COMO-INSTALAR.md)**: o passo a passo completo, feito para quem nunca instalou nada
@@ -130,7 +166,7 @@ Resumo:
 Sim. O Gyde é grátis e usa os limites grátis dos serviços de IA (Google, Groq, Mistral e outros) pelo FreeLLMAPI.
 
 **Precisa de internet?**
-Para a IA responder, sim. O app em si roda no seu computador.
+Para os modelos online, sim. Sem internet, dá para usar um modelo local pelo Ollama (veja "IA offline").
 
 **Meus dados vão para algum lugar?**
 Sua conta, conversas e progresso ficam na pasta `data` do seu computador. As mensagens vão só para o serviço de IA
@@ -157,16 +193,9 @@ escolher pasta da Forja são do Windows.
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).
 
-<details>
-<summary><b>Modo público e e-mail (para quem vai hospedar o Gyde para outras pessoas)</b></summary>
+Esqueceu a senha? Rode `configurar\redefinir-senha.bat`.
 
-- **Pessoal (padrão):** para usar no seu computador. Crie a conta com qualquer e-mail; nada é enviado e não há
-  código para confirmar. Esqueceu a senha? Rode `configurar\redefinir-senha.bat`.
-- **Público:** coloque `GYDE_MODE=publico` no `.env` e rode `configurar\configurar-email.bat`. As contas passam a ser
-  confirmadas por código no e-mail. O script pede um Gmail e uma **senha de app** do Google
-  (crie em https://myaccount.google.com/apppasswords com a verificação em duas etapas ligada) e manda um e-mail de teste
-  antes de salvar. Para publicar com HTTPS, adicione `COOKIE_SECURE=1` no `.env`.
-</details>
+O Gyde foi feito para rodar no seu próprio computador: o servidor só aceita conexões do próprio PC (127.0.0.1).
 
 ## Sobre
 

@@ -1,4 +1,7 @@
 // Motor do Gyde: cada modo usa uma cadeia dos melhores modelos do FreeLLMAPI para programar.
+// Atenção: os nomes são apelidos do FreeLLMAPI; quem responde de fato vem no cabeçalho x-routed-via
+// (ex.: "claude-sonnet-4-5" foi atendido pelo Qwen 3.8 via Groq nos testes). A tela mostra o modelo real.
+// No modo offline (provedores.js) todo nome de modelo vira o modelo local do Ollama.
 // Se um modelo falhar (fora do ar, cota, resposta inválida), o próximo assume sem o usuário ver erro.
 // Toda cadeia termina em 'auto' para funcionar com qualquer conjunto de chaves que a pessoa tiver no FreeLLMAPI.
 
@@ -7,6 +10,8 @@ export const CADEIAS = {
   'gyde-1-pro': ['claude-opus-4-5', 'claude-sonnet-4-5', 'gpt-oss-120b', 'fusion', 'auto'],
   agente: ['claude-sonnet-4-5', 'claude-opus-4-5', 'qwen3.8-27b', 'gpt-oss-120b', 'codestral', 'auto'],
   util: [process.env.UTIL_MODEL || 'mistral-code', 'qwen3.8-27b', 'auto'],
+  // com imagens: só modelos que enxergam (o FreeLLMAPI recusa os que não têm visão e o 'auto' escolhe um que tenha)
+  visao: ['qwen3.8-27b', 'gemini-3.8-flash', 'auto'],
 };
 
 // Modelos que o usuário escolhe pelo nome direto continuam funcionando (cadeia de um modelo + automático).
@@ -25,7 +30,7 @@ export async function completar(router, { cadeia, messages, max_tokens = 1500, t
       if (valida && !valida(texto)) throw new Error(`${model} respondeu num formato inválido`);
       return { texto, modelo: model };
     } catch (err) {
-      if (err.name === 'AbortError') throw err;
+      if (err.name === 'AbortError' || err.final || err.status === 429) throw err; // offline ou limite: outro modelo não resolve
       ultimoErro = err;
     }
   }

@@ -10,7 +10,8 @@
   },
   "scripts": {
     "start": "node app/server.js",
-    "dev": "node --watch app/server.js"
+    "dev": "node --watch app/server.js",
+    "test": "node --test app/testes/*.test.mjs"
   },
   "dependencies": {
     "@highlightjs/cdn-assets": "^11.12.0",

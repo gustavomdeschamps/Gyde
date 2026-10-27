@@ -459,6 +459,13 @@ async function send({ mode = 'new', messageId, content, attachments } = {}) {
           state.messages.push(ev.message);
           const finalEl = renderMessage(ev.message);
           finalEl.querySelectorAll('[data-act="speak"]').forEach((b) => { b.hidden = !('speechSynthesis' in window); });
+          if (ev.consumo) { // modelo que respondeu de verdade e tokens, como o provedor informou
+            uso.ultima = ev.consumo;
+            const meta = finalEl.querySelector('.msg-meta');
+            const partes = [nomeModelo(ev.consumo.modelo), ev.consumo.tokens?.total != null ? `${numero(ev.consumo.tokens.total)} tokens` : '', ev.consumo.provedor === 'offline' ? 'offline' : ''].filter(Boolean);
+            if (meta && partes.length) { meta.textContent = `${meta.textContent} · ${partes.join(' · ')}`; meta.title = 'Modelo que respondeu e tokens usados, informados pelo provedor'; }
+            atualizarUso();
+          }
           if (skillChips) finalEl.prepend(skillChips);
           answerEl.replaceWith(finalEl);
           updateRegenerateButtons();
@@ -987,11 +994,67 @@ els.settingsDialog.addEventListener('close', async () => {
   }).then(() => toast('Preferências salvas')).catch((e) => toast(e.message));
 });
 
+// ---------- Consumo e limites da IA ----------
+// Mostra só o que o provedor informa (FreeLLMAPI ou Ollama). O que não vem do provedor aparece como "não disponível".
+const uso = { ultima: null, dados: null };
+const nomeModelo = (id) => String(id || '').split('/').pop().replace(/:free$/, '');
+const horaCurta = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+const numero = (n) => (n == null ? 'não disponível' : Number(n).toLocaleString('pt-BR'));
+async function atualizarUso() {
+  try { uso.dados = await api('/api/uso'); } catch { uso.dados = null; }
+  const d = uso.dados, chip = $('#usoChip');
+  chip.dataset.estado = !d ? 'erro' : d.ativo;
+  $('#usoTexto').textContent = !d ? 'IA indisponível' : d.ativo === 'offline' ? `Offline · ${d.offline.modelo}` : 'Online · grátis';
+  if (!$('#usoPainel').hidden) desenharUso();
+}
+function desenharUso() {
+  const d = uso.dados, u = uso.ultima;
+  const linha = (rot, val) => `<div><dt>${rot}</dt><dd>${val}</dd></div>`;
+  if (!d) { $('#usoPainel').innerHTML = '<p>Não consegui falar com o servidor do Gyde.</p>'; return; }
+  const lim = d.limiteRoteador;
+  $('#usoPainel').innerHTML = `
+    <h3>IA do Gyde</h3>
+    <label class="uso-modo">Modo
+      <select id="usoModo">
+        <option value="auto"${d.modo === 'auto' ? ' selected' : ''}>Automático (online; offline se cair)</option>
+        <option value="online"${d.modo === 'online' ? ' selected' : ''}>Só online (FreeLLMAPI)</option>
+        <option value="offline"${d.modo === 'offline' ? ' selected' : ''}${d.offline.disponivel ? '' : ' disabled'}>Só offline (${escapeHtml(d.offline.modelo)})</option>
+      </select></label>
+    <dl>
+      ${linha('Usando agora', d.ativo === 'offline' ? `modelo local <b>${escapeHtml(d.offline.modelo)}</b> (sem internet)` : 'FreeLLMAPI (serviços grátis com cota)')}
+      ${linha('Última resposta', u ? `${escapeHtml(nomeModelo(u.modelo) || 'não informado')} · ${u.tokens ? `${numero(u.tokens.total)} tokens` : 'tokens não informados'}` : 'nenhuma ainda')}
+      ${d.ativo === 'online' ? linha('Pedidos por minuto', lim ? `${numero(lim.restante)} de ${numero(lim.total)} livres${lim.renovaEm ? ` · renova às ${horaCurta(lim.renovaEm)}` : ''}` : 'não disponível (aparece depois da 1ª resposta)') : ''}
+      ${d.mes ? linha('Neste mês', `${numero(d.mes.pedidos)} pedidos · ${numero(d.mes.tokens)} tokens · zera em ${new Date(d.mes.renovaEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`) : ''}
+      ${d.mes ? linha('Limite por chave', d.mes.porChave.some((k) => k.limitePedidos || k.limiteTokens) ? d.mes.porChave.filter((k) => k.limitePedidos || k.limiteTokens).map((k) => `${escapeHtml(k.provedor)}: ${numero(k.limitePedidos ?? k.limiteTokens)}`).join(' · ') : 'nenhum definido no FreeLLMAPI') : ''}
+      ${linha('Créditos', d.ativo === 'offline' ? 'ilimitado (roda no seu computador)' : 'não informado pelo FreeLLMAPI · cada serviço grátis tem a própria cota diária')}
+    </dl>
+    ${d.ativo === 'offline' ? '<p class="uso-nota">O modelo local é bem mais simples e mais lento que os online. A primeira resposta demora porque ele carrega na memória.</p>' : ''}
+    ${!d.offline.disponivel ? `<p class="uso-nota">Offline indisponível: abra o Ollama${d.offline.instalados.length ? '' : ' e baixe um modelo'} (veja o README).</p>` : ''}`;
+  $('#usoModo').onchange = async (e) => {
+    try { await api('/api/uso/modo', { method: 'POST', body: JSON.stringify({ modo: e.target.value }) }); toast('Modo da IA alterado.'); } catch (err) { toast(err.message); }
+    atualizarUso();
+  };
+}
+$('#usoChip').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const p = $('#usoPainel'), abrir = p.hidden;
+  p.hidden = !abrir; $('#usoChip').setAttribute('aria-expanded', String(abrir));
+  if (abrir) { desenharUso(); atualizarUso(); }
+});
+document.addEventListener('click', (e) => { if (!e.target.closest('#usoPainel, #usoChip')) { $('#usoPainel').hidden = true; $('#usoChip').setAttribute('aria-expanded', 'false'); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#usoPainel').hidden) { $('#usoPainel').hidden = true; $('#usoChip').focus(); } });
+
 // ---------- Início ----------
 async function checkStatus() {
   try {
     const s = await api('/api/status');
     state.imagesEnabled = s.imagesEnabled;
+    atualizarUso();
+    if (s.keyConfigured && !s.routerOnline && s.iaAtiva === 'offline') {
+      els.banner.textContent = 'Sem conexão com o FreeLLMAPI: usando o modelo local (offline). Ele é mais simples e mais lento.';
+      els.banner.hidden = false;
+      return true;
+    }
     if (!s.keyConfigured) {
       els.banner.innerHTML = 'A chave do FreeLLMAPI ainda não foi configurada. Clique em <b>Copy Key</b> no ícone do FreeLLMAPI e rode <code>configurar-chave.bat</code> (pasta <b>configurar</b> do Gyde).';
     } else if (!s.routerOnline) {
@@ -1040,7 +1103,8 @@ async function boot() {
 }
 
 // ---------- Vídeo de abertura ----------
-// Aparece sempre que o Gyde é aberto (uma vez por aba), antes do login, e começa sozinho.
+// Aparece só na primeira vez que o Gyde é aberto neste navegador (fica marcado no localStorage, sem nada
+// externo). Dá para rever em Personalizar. Ela vem antes do login, então a marca é do navegador, não da conta.
 // Se o navegador segurar o som automático, o vídeo toca sem som e o som liga no primeiro clique ou tecla.
 // No fim, a logo do vídeo vira a logo de verdade e voa até o lugar dela, enquanto a tela real aparece
 // por trás num círculo que se abre a partir da logo. preparar() monta a tela real alguns segundos antes.
@@ -1050,7 +1114,12 @@ function visivel(el) {
   const r = el.getBoundingClientRect();
   return r.width > 4 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight ? r : null;
 }
+const INTRO_VISTA = 'gyde-intro-vista';
+const introJaVista = () => { try { return localStorage.getItem(INTRO_VISTA) === '1' || sessionStorage.getItem('gyde-intro-visto') === '1'; } catch { return false; } };
+// marca logo que começa: atualizar no meio, pular ou falhar a reprodução não faz o vídeo voltar
+const marcarIntroVista = () => { try { localStorage.setItem(INTRO_VISTA, '1'); } catch { /* sem storage: some ao fechar a aba */ } };
 function playIntro({ preparar = () => {} } = {}) {
+  marcarIntroVista();
   return new Promise((done) => {
     const box = $('#intro'), video = $('#introVideo'), hint = $('#introSom'), somBtn = $('#introSomBtn'), leg = $('#introLegenda');
     box.hidden = false; box.classList.remove('revelando'); box.style.removeProperty('--r');
@@ -1071,7 +1140,6 @@ function playIntro({ preparar = () => {} } = {}) {
       finished = true;
       document.removeEventListener('keydown', onKey);
       box.removeEventListener('pointerdown', unmute);
-      try { sessionStorage.setItem('gyde-intro-visto', '1'); } catch { /* sem storage */ }
       video.pause(); leg.classList.remove('on'); hint.hidden = true;
       prepara();
       const reduzir = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1110,6 +1178,7 @@ function playIntro({ preparar = () => {} } = {}) {
         }
       });
     };
+    if (!video.getAttribute('src')) { video.src = video.dataset.src; video.preload = 'auto'; } // só baixa quando vai tocar
     video.currentTime = 0;
     video.muted = false;
     video.play().then(mostrarSom).catch(() => {
@@ -1139,7 +1208,7 @@ applyTheme();
 (async () => {
   let seen = false, iniciou = false;
   const iniciar = () => { if (!iniciou) { iniciou = true; boot(); } };
-  try { seen = sessionStorage.getItem('gyde-intro-visto') === '1'; } catch { /* sem storage */ }
+  seen = introJaVista();
   if (!seen) await playIntro({ preparar: iniciar });
   iniciar();
 })();
