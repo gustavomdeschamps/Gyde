@@ -106,12 +106,9 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
 
   const trackDone = (t) => t.exercises.filter((e) => data.progress[e.id]?.done).length;
 
-  function recommendedTrack() {
-    const p = getProfile() || {};
-    if (p.level === 'intermediate' || p.level === 'advanced') return 'logica';
-    if ((p.languages || []).includes('JavaScript') && !(p.languages || []).includes('Python')) return 'js-zero';
-    return 'python-basico';
-  }
+  // a recomendação vem do servidor (plano de cada pessoa: questionário + desempenho)
+  const recommendedTrack = () => data.plano?.recomendada;
+  const ordenar = (lista) => [...lista].sort((a, b) => data.plano.ordem.indexOf(a.id) - data.plano.ordem.indexOf(b.id));
 
   // Acha um exercício e a trilha dele.
   function findEx(id) {
@@ -128,12 +125,33 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
     const pct = Math.round((done / t.exercises.length) * 100);
     return `<a class="track-card" href="#/pratica/${t.id}" style="--i:${i};--track:${t.color}">
       <div class="track-top"><span class="track-icon">${TRACK_ICONS[t.icon] || esc(t.icon)}</span><span class="lang-badge">${LANG_LABEL[t.lang]}</span></div>
-      ${t.id === rec && done < t.exercises.length ? '<span class="recommended">Recomendada para você</span>' : ''}
+      ${t.id === rec && done < t.exercises.length ? `<span class="recommended" title="${esc((data.plano.motivos[t.id] || []).join(', '))}">Recomendada para você</span>` : ''}
       <h2>${esc(t.title)}</h2>
       <p>${esc(t.description)}</p>
       <div class="progress"><span data-w="${pct}"></span></div>
       <div class="track-meta"><span>${done}/${t.exercises.length} ${t.projeto ? 'etapas' : 'exercícios'}</span><span>${pct === 100 ? 'Concluído ✓' : done ? 'Continuar →' : 'Começar →'}</span></div>
     </a>`;
+  }
+
+  // "Seu plano": próximo passo e por quê. Diz de onde vem cada coisa (o que você respondeu x o que fez).
+  function planoHtml() {
+    const pl = data.plano;
+    const prox = pl.proximo && findEx(pl.proximo.exerciseId);
+    const motivos = pl.recomendada ? (pl.motivos[pl.recomendada] || []).filter((m) => m !== 'concluída') : [];
+    const semTrilha = pl.semTrilha.length
+      ? `<p class="plano-sem">Ainda não há trilha de <b>${esc(pl.semTrilha.join(', '))}</b> aqui. <button type="button" class="link" data-chat-exercicio="${esc(pl.semTrilha[0])}">Pedir um exercício de ${esc(pl.semTrilha[0])} no chat</button></p>` : '';
+    if (!pl.temQuiz) {
+      return `<section class="plano"><div><h2 class="section-title">Seu plano</h2>
+        <p>Você ainda não respondeu o questionário inicial, então a Prática começa pelo mais simples. Respondendo (uns 3 minutos), ela passa a seguir suas linguagens, seu nível e seu objetivo.</p></div>
+        <button type="button" class="btn primary" data-fazer-quiz>Responder o questionário</button></section>`;
+    }
+    return `<section class="plano">
+      <div><h2 class="section-title">Seu plano <small>pelo que você respondeu e pelo que já fez</small></h2>
+      ${prox ? `<p>Próximo passo: <a href="${exLink(prox.ex.id)}"><b>${esc(prox.ex.title)}</b></a> em ${esc(prox.t.title)}${motivos.length ? `, porque ${esc(motivos.join(', '))}` : ''}.</p>` : '<p>Você concluiu as trilhas indicadas para você. Experimente as outras abaixo ou peça desafios no chat.</p>'}
+      ${pl.observado.feitos ? `<p class="plano-obs">Até agora: ${pl.observado.feitos} exercício(s) feitos${pl.observado.travados.length ? `, ${pl.observado.travados.length} ainda sem acertar` : ''}.</p>` : '<p class="plano-obs">Ainda sem exercícios feitos: o plano vai se ajustando conforme você pratica.</p>'}
+      ${semTrilha}</div>
+      ${prox ? `<a class="btn primary" href="${exLink(prox.ex.id)}">Continuar</a>` : ''}
+    </section>`;
   }
 
   async function renderHome() {
@@ -174,14 +192,16 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
         </div>
       </div>
 
-      ${reforco.length ? `<section class="reforco"><h2 class="section-title">Para reforçar <small>pelo seu quiz de nível</small></h2>
+      ${planoHtml()}
+
+      ${reforco.length ? `<section class="reforco"><h2 class="section-title">Para reforçar <small>pelo questionário e pelos exercícios em que você errou</small></h2>
         <div class="chip-row">${reforco.map(({ t, ex }) => `<a class="chip-link" href="#/pratica/${t.id}/${ex.id}" style="--track:${t.color}"><span class="dot"></span>${esc(ex.title)}<small>${LANG_LABEL[t.lang]}</small></a>`).join('')}</div></section>` : ''}
 
       <h2 class="section-title">Trilhas</h2>
-      <div class="track-grid">${data.tracks.filter((t) => !t.projeto).map((t, i) => trackCard(t, i, rec)).join('')}</div>
+      <div class="track-grid">${ordenar(data.tracks.filter((t) => !t.projeto)).map((t, i) => trackCard(t, i, rec)).join('')}</div>
 
       <h2 class="section-title">Projetos guiados <small>construa algo de verdade, etapa por etapa</small></h2>
-      <div class="track-grid">${data.tracks.filter((t) => t.projeto).map((t, i) => trackCard(t, i + 3, rec)).join('')}</div>
+      <div class="track-grid">${ordenar(data.tracks.filter((t) => t.projeto)).map((t, i) => trackCard(t, i + 3, rec)).join('')}</div>
 
       <section class="ranking">
         <h2 class="section-title">Ranking da semana <small>XP dos últimos 7 dias</small></h2>
@@ -203,6 +223,12 @@ export function createPractice({ root, api, toast, renderMarkdown, onXp, getProf
         renderHome();
       } catch (err) { toast(err.message); }
     };
+    root.querySelector('[data-fazer-quiz]')?.addEventListener('click', () => document.getElementById('redoQuiz')?.click());
+    root.querySelector('[data-chat-exercicio]')?.addEventListener('click', (e) => {
+      const lang = e.currentTarget.dataset.chatExercicio;
+      location.hash = '#/';
+      setTimeout(() => { const input = document.getElementById('input'); input.value = `Me passe um exercício de ${lang} para o meu nível, sem a resposta. Depois eu mando minha solução para você corrigir.`; input.dispatchEvent(new Event('input')); input.focus(); }, 300);
+    });
     root.querySelector('.friend-form').onsubmit = (e) => { e.preventDefault(); addFriend(e.target.email.value.trim()); };
     root.querySelectorAll('[data-accept]').forEach((b) => { b.onclick = () => addFriend(b.dataset.accept); });
   }

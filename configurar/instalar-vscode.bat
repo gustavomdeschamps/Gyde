@@ -8,7 +8,7 @@ call code --install-extension "extensoes\vscode\gyde.vsix" --force || goto erro
 del "extensoes\vscode\gyde.vsix" >nul 2>nul
 echo.
 echo Pronto! Abra (ou recarregue) o VS Code: o Gyde aparece na barra lateral esquerda.
-echo Primeiro uso: clique no icone do Gyde e em "Colar token" (gere o token no Gyde em Personalizar).
+echo Primeiro uso: clique no icone do Gyde e em "Colar token" (gere o token no Gyde em Configuracoes > Extensoes).
 pause
 exit /b 0
 :semcode

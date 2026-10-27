@@ -28,7 +28,7 @@ function renderConnect(error) {
     <p>Leva menos de um minuto, e só precisa fazer uma vez.</p>
     <ol class="steps">
       <li><span>Deixe o Gyde aberto no computador (<code>iniciar.bat</code>).</span></li>
-      <li><span>No Gyde, abra <b>Personalizar → Extensões → Gerar token</b> e copie.</span></li>
+      <li><span>No Gyde, abra <b>Configurações → Extensões → Gerar token</b> e copie.</span></li>
       <li><span>Clique no botão abaixo e cole o token.</span></li>
     </ol>
     ${error ? `<p class="error">${esc(error)}</p>` : ''}

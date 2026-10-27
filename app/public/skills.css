@@ -91,7 +91,7 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 .gate-steps { margin: 0 0 18px; padding-left: 1.3em; display: grid; gap: 6px; color: var(--text-soft); }
 .gate-steps li::marker { color: var(--accent-text); font-weight: 700; }
 
-/* Tokens da extensão (em Personalizar) */
+/* Tokens das extensões (em Configurações) */
 .token-new { display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; align-items: center; width: 100%; padding: 10px; border-radius: 12px; background: var(--accent-soft); animation: pop-in var(--t2) var(--ease); }
 .token-new code { font: 12.5px var(--mono); overflow-wrap: anywhere; user-select: all; }
 .token-new small { grid-column: 1 / -1; color: var(--accent-text); font-weight: 600; }
@@ -126,3 +126,13 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 .intro-som-btn:hover, .intro-som-btn:focus-visible { opacity: 1; border-color: rgb(157 188 255 / .55); }
 .intro-som-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .intro-som-btn[aria-pressed="true"] .mudo, .intro-som-btn[aria-pressed="false"] .onda { display: none; }
+
+/* Seu plano (Prática personalizada) */
+.plano { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 22px 0 6px; padding: 16px 20px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 14px; background: var(--surface); }
+.plano .section-title { margin: 0 0 6px; }
+.plano p { margin: 0 0 4px; color: var(--text-soft); font-size: 14px; line-height: 1.5; }
+.plano a b { color: var(--accent-text); }
+.plano .plano-obs { font-size: 13px; color: var(--text-faint); }
+.plano .plano-sem { font-size: 13px; }
+.plano > .btn { flex: none; }
+@media (max-width: 640px) { .plano { flex-direction: column; align-items: stretch; } }

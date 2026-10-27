@@ -42,7 +42,7 @@ A extensão precisa do app Gyde aberto no seu computador (Windows).
 1. **Instale o Gyde** seguindo o passo a passo:
    [github.com/gustavomdeschamps/Gyde](https://github.com/gustavomdeschamps/Gyde/blob/main/COMO-INSTALAR.md) (uns 15 minutos, tudo grátis).
 2. **Abra o Gyde** (`iniciar.bat`).
-3. No Gyde, vá em **Personalizar → Extensões → Gerar token** e copie.
+3. No Gyde, vá em **Configurações → Extensões → Gerar token** e copie.
 4. No VS Code, clique no ícone do Gyde na barra da esquerda e em **Colar token**.
 
 Pronto. O token fica guardado no cofre de senhas do VS Code. Para sair: comando **Gyde: Desconectar**.
@@ -75,7 +75,7 @@ pediu para revisar, e nada mais. Sua conta e suas conversas ficam no seu computa
 | O que aparece | O que fazer |
 |---|---|
 | "Não consegui falar com o Gyde" | Abra o Gyde (`iniciar.bat`) e tente de novo. |
-| Token inválido | Gere um token novo no Gyde (Personalizar → Extensões) e use **Gyde: Conectar**. |
+| Token inválido | Gere um token novo no Gyde (Configurações → Extensões) e use **Gyde: Conectar**. |
 | O ícone não aparece | Recarregue o VS Code: `Ctrl+Shift+P` → **Reload Window**. |
 
 ---

@@ -15,6 +15,7 @@ import { cadeiaDe, CADEIAS } from './motor.js';
 import { setupCodigoAgente } from './codigo-agente.js';
 import { setupSkills } from './skills-sistema.js';
 import { criarProvedores } from './provedores.js';
+import { criarUso } from './uso.js';
 import { ARQUIVO_SECRETO, redigir } from './seguranca.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -123,7 +124,8 @@ let lastTs = 0;
 const now = () => (lastTs = Math.max(Date.now(), lastTs + 1));
 
 // ---------- Provedor de IA (FreeLLMAPI online ou Ollama offline) ----------
-const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: ROUTER_KEY, ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto' });
+const uso = criarUso(db); // registro de uso do Gyde (uso.js): um registro por pedido, com o que o provedor informou
+const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: ROUTER_KEY, ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso });
 const router = provedores.router;
 
 // Converte uma mensagem salva para o formato de chat da OpenAI.
@@ -308,9 +310,11 @@ app.get('/api/status', asyncRoute(async (_req, res) => {
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).
-app.get('/api/uso', asyncRoute(async (_req, res) => {
-  res.json(await provedores.resumo({ mostrarConta: process.env.GYDE_MODE !== 'publico' }));
+app.get('/api/uso', asyncRoute(async (req, res) => {
+  const pessoal = process.env.GYDE_MODE !== 'publico';
+  res.json({ ...(await provedores.resumo({ mostrarConta: pessoal })), gyde: uso.resumo(req.user.id, { mostrarInternas: pessoal }) });
 }));
+app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); res.json({ ok: true }); });
 // Trocar entre online, offline e automático (só no modo pessoal: vale para o Gyde inteiro).
 app.post('/api/uso/modo', (req, res) => {
   if (process.env.GYDE_MODE === 'publico') return res.status(403).json({ error: 'No modo público o modo da IA é definido no servidor.' });
@@ -362,35 +366,50 @@ app.delete('/api/conversations/:id', (req, res) => {
 });
 
 // ---------- Prática: exercícios, projetos, revisão, desafio do dia, amigos (pratica-servidor.js) ----------
-setupPratica(app, db, { router, profileSummary, asyncRoute });
+setupPratica(app, db, { router, profileSummary, asyncRoute, uso });
 setupTurmas(app, db); // modo turma (turmas.js)
 setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão (agente.js)
-setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR }); // Forja (agente de código): trabalha numa pasta de projeto (codigo-agente.js)
+setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja (agente de código): trabalha numa pasta de projeto (codigo-agente.js)
 
 // ---------- Quiz de boas-vindas ----------
 app.get('/api/quiz', (_req, res) => res.json({ questions: publicQuiz() }));
 
 app.post('/api/profile', (req, res) => {
   const { profile, results } = gradeQuiz(req.body?.answers);
+  // refazer o questionário atualiza o perfil sem apagar o progresso; guarda os resultados anteriores para mostrar a evolução
+  const antes = JSON.parse(req.user.profile || '{}');
+  if (antes.level) profile.anteriores = [{ em: antes.takenAt, nivel: antes.levelLabel, acertos: antes.score, total: antes.total }, ...(antes.anteriores || [])].slice(0, 5);
   db.prepare('UPDATE users SET profile = ?, onboarded = 1 WHERE id = ?').run(JSON.stringify(profile), req.user.id);
   res.json({ profile, results });
 });
 
-// Pular o quiz (dá para fazer depois em Personalizar).
+// Pular o quiz (dá para fazer depois em Configurações > Prática).
 app.post('/api/profile/skip', (req, res) => {
   db.prepare('UPDATE users SET onboarded = 1 WHERE id = ?').run(req.user.id);
   res.json({ ok: true });
 });
 
-app.get('/api/settings', (req, res) => {
-  res.json({ about_user: getSetting(req.user.id, 'about_user'), response_style: getSetting(req.user.id, 'response_style') });
+// Preferências da conta (ficam no banco, valem em qualquer navegador). Tema e animação ficam no navegador.
+const PAGINAS_INICIAIS = ['chat', 'pratica', 'agente'];
+const lerPreferencias = (userId) => ({
+  about_user: getSetting(userId, 'about_user'),
+  response_style: getSetting(userId, 'response_style'),
+  pagina_inicial: getSetting(userId, 'pagina_inicial', 'chat'),
 });
+app.get('/api/settings', (req, res) => res.json(lerPreferencias(req.user.id)));
 
 app.put('/api/settings', (req, res) => {
   for (const key of ['about_user', 'response_style']) {
     if (typeof req.body?.[key] === 'string') setSetting(req.user.id, key, req.body[key].slice(0, 4000));
   }
-  res.json({ about_user: getSetting(req.user.id, 'about_user'), response_style: getSetting(req.user.id, 'response_style') });
+  if (PAGINAS_INICIAIS.includes(req.body?.pagina_inicial)) setSetting(req.user.id, 'pagina_inicial', req.body.pagina_inicial);
+  res.json(lerPreferencias(req.user.id));
+});
+
+// Apagar TODAS as conversas do chat desta conta (a tela pede confirmação antes).
+app.delete('/api/conversations', (req, res) => {
+  const { changes } = db.prepare('DELETE FROM conversations WHERE user_id = ?').run(req.user.id);
+  res.json({ apagadas: changes });
 });
 
 // Extrai texto de PDFs enviados pelo navegador.
@@ -455,6 +474,7 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
   let consumo = null; // { modelo, tokens, provedor } informados pelo provedor
   let failure = null;
   const started = Date.now();
+  const registro = uso.iniciar(req.user.id, isImage ? 'imagem' : 'chat');
   try {
     if (isImage) {
       const request = history.at(-1).content;
@@ -477,6 +497,7 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
     const upstream = await router('/v1/chat/completions', {
       method: 'POST',
       signal: controller.signal,
+      registro,
       body: JSON.stringify({ model: modeloAtual, stream: true, messages: mensagens }),
     });
     const via = upstream.headers.get('x-routed-via');
@@ -497,7 +518,7 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
         if (json.error) throw Object.assign(new Error(json.error.message || 'Erro no provedor.'), { status: 502 });
         if (json.model && !GYDE_MODELS[chosenModel]) servedModel = json.model;
         if (json.model && !consumo.modelo) consumo.modelo = json.model;
-        if (json.usage) consumo.tokens = provedores.tokensDe(json.usage);
+        if (json.usage) { consumo.tokens = provedores.tokensDe(json.usage); registro.tokens(json.usage); }
         const delta = json.choices?.[0]?.delta?.content;
         if (delta) {
           answer += delta;
@@ -514,6 +535,7 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
   } catch (err) {
     if (err.name !== 'AbortError') failure = err;
   }
+  registro.fim(controller.signal.aborted ? 'cancelado' : answer ? 'ok' : uso.resultadoDe(failure), failure?.message);
 
   if (answer) {
     const assistant = { id: randomUUID(), role: 'assistant', content: answer, attachments: [], model: servedModel, created_at: now() };

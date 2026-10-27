@@ -462,7 +462,9 @@ async function send({ mode = 'new', messageId, content, attachments } = {}) {
           if (ev.consumo) { // modelo que respondeu de verdade e tokens, como o provedor informou
             uso.ultima = ev.consumo;
             const meta = finalEl.querySelector('.msg-meta');
-            const partes = [nomeModelo(ev.consumo.modelo), ev.consumo.tokens?.total != null ? `${numero(ev.consumo.tokens.total)} tokens` : '', ev.consumo.provedor === 'offline' ? 'offline' : ''].filter(Boolean);
+            const partes = [nomeModelo(ev.consumo.modelo), ev.consumo.tokens?.total != null ? `${numero(ev.consumo.tokens.total)} tokens` : '', ev.consumo.provedor === 'offline' ? 'modelo local, sem internet' : ''].filter(Boolean);
+            // troca automática para o modelo local muda a qualidade: avisa em vez de trocar em silêncio
+            if (ev.consumo.provedor === 'offline' && uso.dados?.modo === 'auto') toast('O FreeLLMAPI não respondeu: esta resposta veio do modelo local, que é mais simples.');
             if (meta && partes.length) { meta.textContent = `${meta.textContent} · ${partes.join(' · ')}`; meta.title = 'Modelo que respondeu e tokens usados, informados pelo provedor'; }
             atualizarUso();
           }
@@ -878,7 +880,8 @@ $('#openSidebar').addEventListener('click', () => els.app.classList.add('sidebar
 $('#closeSidebar').addEventListener('click', () => els.app.classList.remove('sidebar-open'));
 $('#scrim').addEventListener('click', () => els.app.classList.remove('sidebar-open'));
 
-// ---------- Tema ----------
+// ---------- Tema (fica no navegador: precisa valer antes do login, sem piscar) ----------
+const temaSalvo = () => { try { return localStorage.getItem('theme') || 'auto'; } catch { return 'auto'; } };
 function currentTheme() {
   return document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 }
@@ -887,31 +890,74 @@ function applyTheme() {
   $('#hljs-theme').href = `/vendor/hljs/styles/${dark ? 'github-dark' : 'github'}.min.css`;
   $('#themeLabel').textContent = dark ? 'Tema claro' : 'Tema escuro';
 }
-$('#toggleTheme').addEventListener('click', () => {
-  const next = currentTheme() === 'dark' ? 'light' : 'dark';
-  document.documentElement.dataset.theme = next;
-  try { localStorage.setItem('theme', next); } catch { /* sem storage */ }
+function definirTema(t) {
+  if (t === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = t;
+  try { if (t === 'auto') localStorage.removeItem('theme'); else localStorage.setItem('theme', t); } catch { /* sem storage */ }
   applyTheme();
-});
+}
+$('#toggleTheme').addEventListener('click', () => definirTema(currentTheme() === 'dark' ? 'light' : 'dark'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 
-// ---------- Personalizar ----------
-function profileText(p) {
-  if (!p?.level) return 'Você ainda não fez o quiz de nível.';
-  const langs = p.languages?.length ? ` · ${p.languages.slice(0, 3).join(', ')}` : '';
-  return `Nível: ${p.levelLabel} (${p.score}/${p.total} no mini desafio)${langs}.`;
+// ---------- Configurações ----------
+// Cada controle salva na hora (não existe "Salvar" que dá para esquecer). Preferências da conta vão para o
+// servidor; tema e vídeo de abertura são deste navegador.
+const ABAS = ['geral', 'ia', 'uso', 'pratica', 'dados', 'extensoes'];
+function mostrarAba(aba) {
+  document.querySelectorAll('.config-abas [role="tab"]').forEach((b) => { const on = b.dataset.aba === aba; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; });
+  document.querySelectorAll('.config-painel').forEach((p) => { p.hidden = p.dataset.painel !== aba; });
+  if (aba === 'uso' || aba === 'ia') { desenharUso(); atualizarUso(); }
+  if (aba === 'pratica') desenharPraticaConfig();
 }
-
-$('#openSettings').addEventListener('click', async () => {
-  const s = await api('/api/settings');
-  els.settingsForm.about_user.value = s.about_user;
-  els.settingsForm.response_style.value = s.response_style;
-  $('#profileSummary').textContent = profileText(state.user?.profile);
-  $('#redoQuiz').textContent = state.user?.profile?.level ? 'Refazer o quiz de nível' : 'Fazer o quiz de nível';
+async function abrirConfig(aba = 'geral') {
+  let s = {};
+  try { s = await api('/api/settings'); } catch (err) { toast(err.message); }
+  els.settingsForm.about_user.value = s.about_user || '';
+  els.settingsForm.response_style.value = s.response_style || '';
+  $('#cfgTema').value = temaSalvo();
+  $('#cfgInicio').value = s.pagina_inicial || 'chat';
   loadTokens();
   loadMemory();
-  els.settingsDialog.showModal();
+  mostrarAba(aba);
+  if (!els.settingsDialog.open) els.settingsDialog.showModal();
+}
+$('#openSettings').addEventListener('click', () => abrirConfig());
+$('#usoChip').addEventListener('click', () => abrirConfig('uso'));
+const abas = $('.config-abas');
+abas.addEventListener('click', (e) => { const b = e.target.closest('[data-aba]'); if (b) mostrarAba(b.dataset.aba); });
+abas.addEventListener('keydown', (e) => { // setas trocam de aba (padrão de abas acessíveis)
+  if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+  e.preventDefault();
+  const atual = ABAS.indexOf(document.activeElement?.dataset.aba);
+  const prox = ABAS[(atual + (e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : ABAS.length - 1)) % ABAS.length];
+  mostrarAba(prox); abas.querySelector(`[data-aba="${prox}"]`).focus();
 });
+const salvarPreferencia = async (dados) => {
+  try { await api('/api/settings', { method: 'PUT', body: JSON.stringify(dados) }); toast('Salvo'); } catch (err) { toast(err.message); }
+};
+for (const nome of ['about_user', 'response_style']) els.settingsForm[nome].addEventListener('change', (e) => salvarPreferencia({ [nome]: e.target.value }));
+$('#cfgTema').addEventListener('change', (e) => definirTema(e.target.value));
+$('#cfgInicio').addEventListener('change', (e) => salvarPreferencia({ pagina_inicial: e.target.value }));
+$('#cfgRestaurar').addEventListener('click', async () => {
+  if (!confirm('Voltar o tema, a página inicial e o modelo do chat ao padrão?')) return;
+  definirTema('auto'); $('#cfgTema').value = 'auto';
+  try { localStorage.removeItem('model'); } catch { /* sem storage */ }
+  setModelOptions(DEFAULT_MODEL);
+  $('#cfgInicio').value = 'chat';
+  await salvarPreferencia({ pagina_inicial: 'chat' });
+});
+// apagar dados (sempre com confirmação)
+const APAGAR = {
+  conversas: { pergunta: 'Apagar TODAS as conversas do chat? Não dá para desfazer.', rota: '/api/conversations', depois: async (r) => { toast(`${r.apagadas} conversa(s) apagada(s)`); await loadConversations(); if (location.hash.startsWith('#/c/')) location.hash = '#/'; } },
+  forja: { pergunta: 'Apagar todas as conversas da Forja? Os arquivos dos projetos não são tocados.', rota: '/api/codigo/sessoes', depois: (r) => toast(`${r.apagadas} conversa(s) da Forja apagada(s)`) },
+  uso: { pergunta: 'Zerar o registro de uso desta conta?', rota: '/api/uso', depois: () => { toast('Registro de uso apagado'); atualizarUso(); } },
+};
+document.querySelectorAll('[data-apagar]').forEach((b) => b.addEventListener('click', async () => {
+  const a = APAGAR[b.dataset.apagar];
+  if (!confirm(a.pergunta)) return;
+  try { await a.depois(await api(a.rota, { method: 'DELETE' })); } catch (err) { toast(err.message); }
+}));
+
 // Memória entre conversas
 const MEM_SOURCE = { auto: 'aprendido', manual: 'você escreveu', pedido: 'você pediu' };
 function renderMemory(m) {
@@ -940,7 +986,7 @@ $('#memoryClear').addEventListener('click', async () => {
   toast('Memória apagada');
 });
 
-// Tokens da extensão do navegador
+// Tokens das extensões (Chrome e VS Code)
 function renderTokens(tokens) {
   const fmt = (t) => (t ? new Date(t).toLocaleDateString('pt-BR') : 'nunca');
   $('#tokenList').innerHTML = tokens.map((t) => `<li><span>${escapeHtml(t.name)} · criado em ${fmt(t.created_at)} · último uso: ${fmt(t.last_used)}</span>
@@ -952,7 +998,7 @@ async function loadTokens() {
 }
 $('#tokenCreate').addEventListener('click', async () => {
   try {
-    const r = await api('/api/tokens', { method: 'POST', body: JSON.stringify({ name: 'Extensão do Chrome' }) });
+    const r = await api('/api/tokens', { method: 'POST', body: JSON.stringify({ name: 'Extensão do Gyde' }) });
     $('#tokenValue').textContent = r.token;
     $('#tokenNew').hidden = false;
     renderTokens(r.tokens);
@@ -967,10 +1013,42 @@ $('#tokenList').addEventListener('click', async (e) => {
 });
 els.settingsDialog.addEventListener('close', () => { $('#tokenNew').hidden = true; $('#tokenValue').textContent = ''; });
 
+// Prática nas configurações: o que você declarou, o que o quiz mediu e o que os exercícios mostraram
+async function desenharPraticaConfig() {
+  const box = $('#cfgPratica');
+  box.innerHTML = '<div class="skeleton" style="height:90px"></div>';
+  let plano;
+  try { plano = (await api('/api/pratica')).plano; } catch (err) { box.innerHTML = `<p class="msg-error">${escapeHtml(err.message)}</p>`; return; }
+  $('#redoQuiz').textContent = plano.temQuiz ? 'Refazer o questionário' : 'Fazer o questionário';
+  const d = plano.declarado, m = plano.medido, o = plano.observado;
+  const item = (rot, val) => `<div><dt>${rot}</dt><dd>${val}</dd></div>`;
+  box.innerHTML = plano.temQuiz ? `
+    <h3 class="config-sub">O que você respondeu <small>em ${new Date(d.em).toLocaleDateString('pt-BR')}</small></h3>
+    <dl class="config-dl">
+      ${item('Experiência', escapeHtml(d.experiencia || 'não respondeu'))}
+      ${item('Linguagens', escapeHtml(d.linguagens.join(', ') || 'nenhuma escolhida'))}
+      ${item('Objetivo', escapeHtml(d.objetivo || 'não respondeu'))}
+      ${item('Como aprende melhor', escapeHtml(d.estilo || 'não respondeu'))}
+    </dl>
+    <h3 class="config-sub">O que o mini desafio mediu</h3>
+    <dl class="config-dl">
+      ${item('Nível estimado', `${escapeHtml(m.nivel)} (${m.acertos} de ${m.total})`)}
+      ${item('Para reforçar', escapeHtml(m.reforcar.join(', ') || 'nada: acertou tudo'))}
+      ${m.anteriores.length ? item('Antes', m.anteriores.map((a) => `${escapeHtml(a.nivel)} (${a.acertos}/${a.total}) em ${new Date(a.em).toLocaleDateString('pt-BR')}`).join(' · ')) : ''}
+    </dl>
+    <h3 class="config-sub">O que os exercícios mostram</h3>
+    <dl class="config-dl">
+      ${item('Exercícios feitos', String(o.feitos))}
+      ${item('Tentativas com erro', String(o.tentativasComErro))}
+      ${item('Ainda travado em', o.travados.length ? `${o.travados.length} exercício(s)` : 'nenhum')}
+    </dl>`
+    : '<p class="config-nota">Você ainda não respondeu o questionário. Sem ele, a Prática começa pelo mais simples (Python do zero). Leva uns 3 minutos e muda as recomendações e o jeito do Gyde explicar.</p>';
+}
 $('#redoQuiz').addEventListener('click', () => {
   els.settingsDialog.close('cancel');
   showQuiz({ user: state.user, onDone: () => boot() });
 });
+$('#cfgIrPratica').addEventListener('click', () => els.settingsDialog.close('cancel'));
 
 // ---------- Conta ----------
 function renderUser() {
@@ -986,63 +1064,104 @@ $('#logoutBtn').addEventListener('click', async () => {
   location.hash = '#/';
   location.reload();
 });
-els.settingsDialog.addEventListener('close', async () => {
-  if (els.settingsDialog.returnValue !== 'save') return;
-  await api('/api/settings', {
-    method: 'PUT',
-    body: JSON.stringify({ about_user: els.settingsForm.about_user.value, response_style: els.settingsForm.response_style.value }),
-  }).then(() => toast('Preferências salvas')).catch((e) => toast(e.message));
-});
 
-// ---------- Consumo e limites da IA ----------
-// Mostra só o que o provedor informa (FreeLLMAPI ou Ollama). O que não vem do provedor aparece como "não disponível".
+// ---------- Uso e limites ----------
+// Separa: o uso do Gyde (registrado aqui, por pedido), a cota do provedor (o que ele informa), tokens e créditos.
+// O que o provedor não informa aparece escrito assim, sem número inventado nem barra de progresso falsa.
 const uso = { ultima: null, dados: null };
 const nomeModelo = (id) => String(id || '').split('/').pop().replace(/:free$/, '');
 const horaCurta = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-const numero = (n) => (n == null ? 'não disponível' : Number(n).toLocaleString('pt-BR'));
+const numero = (n) => (n == null ? 'não informado' : Number(n).toLocaleString('pt-BR'));
+const NOME_PROVEDOR = { online: 'FreeLLMAPI', offline: 'Modelo local (Ollama)', nenhum: 'Sem provedor' };
+const ORIGEM = { chat: 'Chat', forja: 'Forja', pratica: 'Dica da Prática', imagem: 'Imagem' };
+const RESULTADO = { ok: 'concluído', erro: 'falhou', cancelado: 'cancelado', limite: 'limite atingido' };
 async function atualizarUso() {
   try { uso.dados = await api('/api/uso'); } catch { uso.dados = null; }
   const d = uso.dados, chip = $('#usoChip');
   chip.dataset.estado = !d ? 'erro' : d.ativo;
-  $('#usoTexto').textContent = !d ? 'IA indisponível' : d.ativo === 'offline' ? `Offline · ${d.offline.modelo}` : 'Online · grátis';
-  if (!$('#usoPainel').hidden) desenharUso();
+  const lim = d?.limiteRoteador;
+  $('#usoTexto').textContent = !d ? 'IA indisponível' : d.ativo === 'offline' ? `Offline · ${d.offline.modelo}` : lim ? `Online · ${lim.restante}/${lim.total} por min` : 'Online';
+  if (els.settingsDialog.open) desenharUso();
 }
 function desenharUso() {
   const d = uso.dados, u = uso.ultima;
   const linha = (rot, val) => `<div><dt>${rot}</dt><dd>${val}</dd></div>`;
-  if (!d) { $('#usoPainel').innerHTML = '<p>Não consegui falar com o servidor do Gyde.</p>'; return; }
-  const lim = d.limiteRoteador;
-  $('#usoPainel').innerHTML = `
-    <h3>IA do Gyde</h3>
-    <label class="uso-modo">Modo
-      <select id="usoModo">
-        <option value="auto"${d.modo === 'auto' ? ' selected' : ''}>Automático (online; offline se cair)</option>
+  const estado = $('#cfgIaEstado');
+  if (!d) {
+    $('#usoPainel').innerHTML = estado.innerHTML = '<p class="msg-error">Não consegui falar com o servidor do Gyde.</p>';
+    return;
+  }
+  // ----- aba IA e modelos: conexão real e modo
+  estado.innerHTML = `
+    <div class="config-linha">
+      <div><b>Modo da IA</b><small>Vale para o Gyde inteiro neste computador.</small></div>
+      <select id="usoModo" aria-label="Modo da IA">
+        <option value="auto"${d.modo === 'auto' ? ' selected' : ''}>Automático (online; local se cair)</option>
         <option value="online"${d.modo === 'online' ? ' selected' : ''}>Só online (FreeLLMAPI)</option>
-        <option value="offline"${d.modo === 'offline' ? ' selected' : ''}${d.offline.disponivel ? '' : ' disabled'}>Só offline (${escapeHtml(d.offline.modelo)})</option>
-      </select></label>
-    <dl>
-      ${linha('Usando agora', d.ativo === 'offline' ? `modelo local <b>${escapeHtml(d.offline.modelo)}</b> (sem internet)` : 'FreeLLMAPI (serviços grátis com cota)')}
-      ${linha('Última resposta', u ? `${escapeHtml(nomeModelo(u.modelo) || 'não informado')} · ${u.tokens ? `${numero(u.tokens.total)} tokens` : 'tokens não informados'}` : 'nenhuma ainda')}
-      ${d.ativo === 'online' ? linha('Pedidos por minuto', lim ? `${numero(lim.restante)} de ${numero(lim.total)} livres${lim.renovaEm ? ` · renova às ${horaCurta(lim.renovaEm)}` : ''}` : 'não disponível (aparece depois da 1ª resposta)') : ''}
-      ${d.mes ? linha('Neste mês', `${numero(d.mes.pedidos)} pedidos · ${numero(d.mes.tokens)} tokens · zera em ${new Date(d.mes.renovaEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}`) : ''}
-      ${d.mes ? linha('Limite por chave', d.mes.porChave.some((k) => k.limitePedidos || k.limiteTokens) ? d.mes.porChave.filter((k) => k.limitePedidos || k.limiteTokens).map((k) => `${escapeHtml(k.provedor)}: ${numero(k.limitePedidos ?? k.limiteTokens)}`).join(' · ') : 'nenhum definido no FreeLLMAPI') : ''}
-      ${linha('Créditos', d.ativo === 'offline' ? 'ilimitado (roda no seu computador)' : 'não informado pelo FreeLLMAPI · cada serviço grátis tem a própria cota diária')}
+        <option value="offline"${d.modo === 'offline' ? ' selected' : ''}${d.offline.disponivel ? '' : ' disabled'}>Só offline (${escapeHtml(d.offline.modelo)})${d.offline.disponivel ? '' : ' · indisponível'}</option>
+      </select>
+    </div>
+    <dl class="config-dl">
+      ${linha('Em uso agora', `<b>${NOME_PROVEDOR[d.ativo]}</b>`)}
+      ${linha('FreeLLMAPI', d.online.disponivel ? '<span class="ok">conectado</span>' : '<span class="ruim">sem resposta ou sem chave</span>')}
+      ${linha('Modelo local', d.offline.disponivel ? `<span class="ok">${escapeHtml(d.offline.modelo)} pronto</span>` : `<span class="ruim">indisponível</span>${d.offline.instalados.length ? ` (instalados: ${escapeHtml(d.offline.instalados.join(', '))})` : ' (Ollama fechado ou sem modelo)'}`)}
+      ${linha('Última resposta', u ? `${escapeHtml(nomeModelo(u.modelo) || 'modelo não informado')} via ${NOME_PROVEDOR[u.provedor] || ''}` : 'nenhuma nesta sessão')}
     </dl>
-    ${d.ativo === 'offline' ? '<p class="uso-nota">O modelo local é bem mais simples e mais lento que os online. A primeira resposta demora porque ele carrega na memória.</p>' : ''}
-    ${!d.offline.disponivel ? `<p class="uso-nota">Offline indisponível: abra o Ollama${d.offline.instalados.length ? '' : ' e baixe um modelo'} (veja o README).</p>` : ''}`;
+    ${d.modo === 'auto' ? '<p class="config-nota">No automático, se o FreeLLMAPI parar de responder, o Gyde usa o modelo local e avisa na resposta. Ele é mais simples e mais lento, e nada sai do computador.</p>' : ''}`;
   $('#usoModo').onchange = async (e) => {
-    try { await api('/api/uso/modo', { method: 'POST', body: JSON.stringify({ modo: e.target.value }) }); toast('Modo da IA alterado.'); } catch (err) { toast(err.message); }
+    try { await api('/api/uso/modo', { method: 'POST', body: JSON.stringify({ modo: e.target.value }) }); toast('Modo da IA alterado'); } catch (err) { toast(err.message); }
     atualizarUso();
   };
+
+  // ----- aba Uso e limites
+  const g = d.gyde || { hoje: {}, semana: {}, ultimos: [] };
+  const blocoGyde = (periodo) => {
+    const provs = Object.entries(periodo);
+    if (!provs.length) return '<p class="config-nota">Nenhum pedido registrado.</p>';
+    return provs.map(([prov, p]) => `<div class="uso-prov"><b>${NOME_PROVEDOR[prov] || escapeHtml(prov)}</b>
+      <dl class="config-dl">
+        ${linha('Pedidos', `${numero(p.pedidos)} <small>(${p.concluidos} concluídos${p.falhas ? `, ${p.falhas} com falha` : ''}${p.cancelados ? `, ${p.cancelados} cancelados` : ''}${p.limite ? `, ${p.limite} barrados por limite` : ''})</small>`)}
+        ${linha('Chamadas ao provedor', `${numero(p.chamadas)}${p.chamadas > p.pedidos ? ` <small>(inclui ${p.chamadas - p.pedidos} trocas de modelo e rodadas da Forja)</small>` : ''}`)}
+        ${linha('Tokens', p.tokensEntrada || p.tokensSaida ? `${numero(p.tokensEntrada)} de entrada · ${numero(p.tokensSaida)} de saída${p.semTokens ? ` <small>(${p.semTokens} pedido(s) sem tokens informados)</small>` : ''}` : 'não informados pelo provedor')}
+      </dl></div>`).join('');
+  };
+  const lim = d.limiteRoteador;
+  const pctLivre = lim && lim.total ? Math.round((lim.restante / lim.total) * 100) : null;
+  const alerta = lim && lim.total && lim.restante / lim.total <= 0.1
+    ? `<p class="uso-alerta" role="alert">Restam ${lim.restante} pedidos neste minuto no FreeLLMAPI.${lim.renovaEm ? ` Renova às ${horaCurta(lim.renovaEm)}.` : ''}${d.offline.disponivel ? ' Se acabar, dá para usar o modelo local (aba IA e modelos).' : ''}</p>` : '';
+  const porChave = d.mes?.porChave || [];
+  $('#usoPainel').innerHTML = `${alerta}
+    <section class="uso-sec">
+      <h3 class="config-sub">Uso do Gyde <small>registrado neste computador, por pedido seu</small></h3>
+      <div class="uso-periodos"><div><h4>Hoje</h4>${blocoGyde(g.hoje)}</div><div><h4>Últimos 7 dias</h4>${blocoGyde(g.semana)}</div></div>
+      ${g.internasHoje ? `<p class="config-nota">Além disso, ${g.internasHoje} chamada(s) internas hoje (títulos de conversas e memória).</p>` : ''}
+    </section>
+    <section class="uso-sec">
+      <h3 class="config-sub">Cota do provedor <small>informada por ${d.ativo === 'offline' ? 'ninguém: roda no seu PC' : 'FreeLLMAPI'}</small></h3>
+      ${d.ativo === 'offline' ? '<p class="config-nota">O modelo local não tem cota nem custo: o limite é a memória e a velocidade do seu computador.</p>' : `
+      <dl class="config-dl">
+        ${linha('Pedidos por minuto', lim ? `${numero(lim.restante)} de ${numero(lim.total)} livres${lim.renovaEm ? ` · renova às ${horaCurta(lim.renovaEm)}` : ''}<span class="uso-barra" role="img" aria-label="${pctLivre}% livres"><i style="width:${pctLivre}%"></i></span>` : 'aparece depois do primeiro pedido')}
+        ${d.mes ? linha('No mês, na conta do FreeLLMAPI', `${numero(d.mes.pedidos)} pedidos · ${numero(d.mes.tokens)} tokens<small class="uso-sub">Conta tudo que usa a chave do FreeLLMAPI (não só o Gyde). Zera em ${new Date(d.mes.renovaEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}.</small>`) : ''}
+        ${d.mes ? linha('Limite mensal', porChave.some((k) => k.limitePedidos || k.limiteTokens) ? porChave.filter((k) => k.limitePedidos || k.limiteTokens).map((k) => `${escapeHtml(k.provedor)}: ${k.limitePedidos ? `${numero(k.limitePedidos)} pedidos` : `${numero(k.limiteTokens)} tokens`}`).join(' · ') : 'Limite não informado (nenhum definido no FreeLLMAPI)') : ''}
+        ${linha('Créditos e saldo', 'Saldo não disponibilizado pelo provedor. Os serviços grátis por trás do FreeLLMAPI têm cotas diárias próprias que ele não repassa.')}
+      </dl>`}
+    </section>
+    <section class="uso-sec">
+      <h3 class="config-sub">Planos do Gyde</h3>
+      <p class="config-nota">O Gyde não tem planos, assinatura nem cobrança. Os limites acima são só do provedor de IA.</p>
+    </section>
+    ${g.ultimos.length ? `<section class="uso-sec"><h3 class="config-sub">Últimos pedidos</h3><ul class="uso-ultimos">${g.ultimos.map((r) => `<li class="r-${r.resultado}">
+      <time>${new Date(r.inicio).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</time>
+      <span>${ORIGEM[r.origem] || escapeHtml(r.origem)} · ${escapeHtml(nomeModelo(r.modelo) || NOME_PROVEDOR[r.provedor] || 'sem modelo')}</span>
+      <span>${RESULTADO[r.resultado]}${r.tokens_entrada != null ? ` · ${numero(r.tokens_entrada + (r.tokens_saida || 0))} tokens` : ''}${r.chamadas > 1 ? ` · ${r.chamadas} chamadas` : ''}</span></li>`).join('')}</ul></section>` : ''}
+    <details class="uso-glossario"><summary>O que significa cada coisa</summary>
+      <p><b>Pedido:</b> uma mensagem sua no chat, uma tarefa da Forja ou uma dica da Prática. Conta uma vez só, mesmo que o Gyde tente outro modelo.</p>
+      <p><b>Chamada:</b> cada vez que o Gyde fala com o provedor. Trocas de modelo e rodadas da Forja geram várias chamadas num pedido.</p>
+      <p><b>Token:</b> pedaço de texto que o modelo lê (entrada) ou escreve (saída). Só aparece quando o provedor informa.</p>
+      <p><b>Cota:</b> limite do serviço de IA (por minuto, por dia ou por mês). Quem define é o provedor, não o Gyde.</p>
+      <p><b>Créditos:</b> saldo em dinheiro ou unidades. O FreeLLMAPI não tem nem informa saldo.</p>
+    </details>`;
 }
-$('#usoChip').addEventListener('click', (e) => {
-  e.stopPropagation();
-  const p = $('#usoPainel'), abrir = p.hidden;
-  p.hidden = !abrir; $('#usoChip').setAttribute('aria-expanded', String(abrir));
-  if (abrir) { desenharUso(); atualizarUso(); }
-});
-document.addEventListener('click', (e) => { if (!e.target.closest('#usoPainel, #usoChip')) { $('#usoPainel').hidden = true; $('#usoChip').setAttribute('aria-expanded', 'false'); } });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#usoPainel').hidden) { $('#usoPainel').hidden = true; $('#usoChip').focus(); } });
 
 // ---------- Início ----------
 async function checkStatus() {
@@ -1096,6 +1215,13 @@ async function boot() {
   const ok = await checkStatus();
   if (ok) await loadModels();
   await loadConversations().catch(() => {});
+  if (!state.inicioAplicado) { // página inicial escolhida em Configurações (só ao entrar, sem atropelar um link)
+    state.inicioAplicado = true;
+    if (!location.hash || location.hash === '#/') {
+      const pref = (await api('/api/settings').catch(() => ({}))).pagina_inicial;
+      if (pref === 'pratica' || pref === 'agente') history.replaceState(null, '', `#/${pref}`);
+    }
+  }
   state.convId = undefined; // força o route a recarregar a conversa atual
   practice.refreshXp();
   skillsPage.refresh();
@@ -1104,7 +1230,7 @@ async function boot() {
 
 // ---------- Vídeo de abertura ----------
 // Aparece só na primeira vez que o Gyde é aberto neste navegador (fica marcado no localStorage, sem nada
-// externo). Dá para rever em Personalizar. Ela vem antes do login, então a marca é do navegador, não da conta.
+// externo). Dá para rever em Configurações > Geral. Ela vem antes do login, então a marca é do navegador, não da conta.
 // Se o navegador segurar o som automático, o vídeo toca sem som e o som liga no primeiro clique ou tecla.
 // No fim, a logo do vídeo vira a logo de verdade e voa até o lugar dela, enquanto a tela real aparece
 // por trás num círculo que se abre a partir da logo. preparar() monta a tela real alguns segundos antes.

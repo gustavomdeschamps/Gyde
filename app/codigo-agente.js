@@ -2,7 +2,7 @@
 // O modelo lê, procura, edita arquivos e roda comandos até terminar, mostrando cada ação real.
 // Só funciona no modo pessoal (o Gyde rodando no seu computador) e só dentro da pasta escolhida.
 // As proteções ficam em seguranca.js e valem mesmo que o modelo tente outra coisa.
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, rmSync, realpathSync } from 'node:fs';
 import path from 'node:path';
@@ -17,6 +17,45 @@ const ESPERA_CONFIRMACAO = 5 * 60_000;
 // anexos aceitos na Forja
 const IMAGEM = /^data:image\/(png|jpe?g|webp|gif);base64,/i;
 const MAX_IMAGEM = 6 * 1024 * 1024, MAX_TEXTO = 200_000, MAX_ANEXOS = 8;
+const MAX_COPIA = 2_000_000; // arquivos maiores que isso não entram na cópia para desfazer (a Forja avisa)
+const hash = (buf) => (buf == null ? null : createHash('sha1').update(buf).digest('hex'));
+
+// O que dá para saber do projeto olhando os arquivos (sem rodar nada): tecnologias, como testar, tamanho.
+export function analisarProjeto(pasta) {
+  const tem = (f) => existsSync(path.join(pasta, f));
+  const tecnologias = new Set();
+  let testes = null;
+  if (tem('package.json')) {
+    tecnologias.add('Node.js');
+    try {
+      const pkg = JSON.parse(readFileSync(path.join(pasta, 'package.json'), 'utf8'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      const nomes = { react: 'React', next: 'Next.js', vue: 'Vue', svelte: 'Svelte', express: 'Express', vite: 'Vite', typescript: 'TypeScript', tailwindcss: 'Tailwind', jest: 'Jest', vitest: 'Vitest', electron: 'Electron', '@angular/core': 'Angular' };
+      for (const [d, n] of Object.entries(nomes)) if (deps[d]) tecnologias.add(n);
+      if (pkg.scripts?.test && !/no test specified/.test(pkg.scripts.test)) testes = 'npm test';
+    } catch { /* package.json inválido */ }
+  }
+  if (tem('requirements.txt') || tem('pyproject.toml') || tem('setup.py')) { tecnologias.add('Python'); if (tem('pytest.ini') || tem('tests')) testes ||= 'python -m pytest'; }
+  if (tem('pom.xml')) { tecnologias.add('Java (Maven)'); testes ||= 'mvn test'; }
+  if (tem('build.gradle') || tem('build.gradle.kts')) { tecnologias.add('Java/Kotlin (Gradle)'); testes ||= 'gradlew test'; }
+  if (tem('go.mod')) { tecnologias.add('Go'); testes ||= 'go test ./...'; }
+  if (tem('Cargo.toml')) { tecnologias.add('Rust'); testes ||= 'cargo test'; }
+  if (tem('composer.json')) tecnologias.add('PHP');
+  let arquivos = 0; const extensoes = {};
+  const anda = (dir, nivel) => {
+    if (nivel > 6 || arquivos > 5000) return;
+    let itens; try { itens = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const it of itens) {
+      if (IGNORAR.has(it.name) || it.name.startsWith('.') || it.isSymbolicLink()) continue;
+      if (it.isDirectory()) anda(path.join(dir, it.name), nivel + 1);
+      else { arquivos++; const e = path.extname(it.name).toLowerCase(); extensoes[e] = (extensoes[e] || 0) + 1; }
+    }
+  };
+  anda(pasta, 1);
+  const porExt = { '.py': 'Python', '.java': 'Java', '.cs': 'C#', '.cpp': 'C++', '.c': 'C', '.php': 'PHP', '.ts': 'TypeScript', '.html': 'HTML', '.css': 'CSS', '.js': 'JavaScript', '.kt': 'Kotlin', '.sql': 'SQL', '.dart': 'Dart' };
+  for (const [e, n] of Object.entries(porExt)) if (extensoes[e]) tecnologias.add(n);
+  return { tecnologias: [...tecnologias].slice(0, 8), testes, arquivos, git: tem('.git') };
+}
 
 const SYSTEM = `Você é a Forja, o agente de código do Gyde: um desenvolvedor de software experiente conversando com o usuário num chat
 e trabalhando dentro da pasta de um projeto no computador dele (Windows). Você faz o trabalho de verdade nos arquivos reais:
@@ -29,6 +68,7 @@ FERRAMENTAS (caminhos sempre relativos à pasta do projeto):
 - escrever: {"caminho": "src/novo.js", "conteudo": "..."} cria um arquivo (ou substitui um inteiro, só quando precisar)
 - editar: {"caminho": "src/app.js", "procurar": "trecho exato atual", "substituir": "trecho novo"} troca um trecho que aparece UMA vez
 - apagar: {"caminho": "src/velho.js"} apaga um arquivo (o usuário precisa confirmar)
+- desfazer: {} desfaz as mudanças de arquivos da SUA tarefa anterior nesta conversa (use quando o usuário pedir para desfazer)
 - executar: {"comando": "npm test"} roda um comando no terminal (cmd do Windows) dentro da pasta, até 2 minutos
 
 SEJA RÁPIDO: em cada passo, mande VÁRIAS ações de uma vez quando elas não dependem uma da outra
@@ -36,6 +76,7 @@ SEJA RÁPIDO: em cada passo, mande VÁRIAS ações de uma vez quando elas não d
 
 COMO TRABALHAR (como um bom dev):
 1. Se a mensagem for só uma pergunta ou conversa, responda direto.
+   Se o usuário pedir para DESFAZER ou REVERTER a última alteração, use a ferramenta "desfazer" (não refaça à mão, não pergunte).
 2. Tarefa grande: no "pensamento" do primeiro passo, diga o plano em 2 ou 3 etapas curtas.
 3. Antes de mudar, entenda: leia os arquivos envolvidos. Nunca invente o conteúdo de um arquivo que você não leu.
 4. Prefira "editar" (mudanças pequenas e precisas). Não reescreva arquivos inteiros sem necessidade; preserve o que já funciona e siga o estilo do projeto.
@@ -60,12 +101,14 @@ RESPONDA SEMPRE com UM objeto JSON e nada mais:
 - para agir: {"pensamento": "o que vou fazer e por quê (1 frase)", "acoes": [{"ferramenta": "ler", "args": {...}}, {"ferramenta": "ler", "args": {...}}]}
 - para terminar ou só responder: {"pensamento": "...", "resposta": "texto em markdown"}`;
 
-export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir }) {
+export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir, uso }) {
   const pessoal = process.env.GYDE_MODE !== 'publico';
   const PASTA_ANEXOS = path.join(dataDir, 'forja-anexos');
   db.exec(`
     CREATE TABLE IF NOT EXISTS agente_sessoes (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, pasta TEXT NOT NULL, titulo TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS agente_eventos (id INTEGER PRIMARY KEY AUTOINCREMENT, sessao_id TEXT NOT NULL REFERENCES agente_sessoes(id) ON DELETE CASCADE, tipo TEXT NOT NULL, dados TEXT NOT NULL, created_at INTEGER NOT NULL);
+    -- cópia dos arquivos ANTES de cada tarefa mexer neles, para o "Desfazer" (fica no banco local, nunca vai para a IA)
+    CREATE TABLE IF NOT EXISTS agente_desfazer (id TEXT PRIMARY KEY, sessao_id TEXT NOT NULL, dados TEXT NOT NULL, desfeito INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL);
   `);
   const q = {
     criar: db.prepare('INSERT INTO agente_sessoes (id, user_id, pasta, titulo, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'),
@@ -76,7 +119,31 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir }) {
     apagarEventos: db.prepare('DELETE FROM agente_eventos WHERE sessao_id = ?'),
     evento: db.prepare('INSERT INTO agente_eventos (sessao_id, tipo, dados, created_at) VALUES (?, ?, ?, ?)'),
     eventos: db.prepare('SELECT tipo, dados, created_at FROM agente_eventos WHERE sessao_id = ? ORDER BY id'),
+    guardarCopia: db.prepare('INSERT INTO agente_desfazer (id, sessao_id, dados, created_at) VALUES (?, ?, ?, ?)'),
+    ultimaCopia: db.prepare('SELECT id, dados FROM agente_desfazer WHERE sessao_id = ? AND desfeito = 0 ORDER BY created_at DESC LIMIT 1'),
+    marcarDesfeito: db.prepare('UPDATE agente_desfazer SET desfeito = 1 WHERE id = ?'),
+    apagarCopias: db.prepare('DELETE FROM agente_desfazer WHERE sessao_id = ?'),
+    podarCopias: db.prepare('DELETE FROM agente_desfazer WHERE sessao_id = ? AND id NOT IN (SELECT id FROM agente_desfazer WHERE sessao_id = ? ORDER BY created_at DESC LIMIT 10)'),
+    temCopia: db.prepare('SELECT COUNT(*) AS n FROM agente_desfazer WHERE sessao_id = ? AND desfeito = 0'),
   };
+
+  // Desfaz a última tarefa que mudou arquivos. Só restaura o arquivo que continua igual ao que a Forja deixou:
+  // se você mexeu nele depois, ele fica como está (e a resposta diz qual).
+  function desfazerUltima(sessaoId, pastaReal) {
+    const c = q.ultimaCopia.get(sessaoId);
+    if (!c) return { ok: false, saida: 'Não há mudanças da Forja para desfazer nesta conversa.' };
+    const restaurados = [], mantidos = [];
+    for (const f of JSON.parse(c.dados)) {
+      let alvo; try { alvo = caminhoSeguro(pastaReal, f.caminho); } catch { mantidos.push(`${f.caminho} (caminho inválido)`); continue; }
+      const atual = existsSync(alvo) ? readFileSync(alvo) : null;
+      if (hash(atual) !== f.depois) { mantidos.push(`${f.caminho} (foi alterado depois da Forja)`); continue; }
+      if (f.antes == null) { if (atual != null) unlinkSync(alvo); } else { mkdirSync(path.dirname(alvo), { recursive: true }); writeFileSync(alvo, Buffer.from(f.antes, 'base64')); }
+      restaurados.push(f.caminho);
+    }
+    q.marcarDesfeito.run(c.id);
+    const texto = `${restaurados.length ? `Voltei ${restaurados.length} arquivo(s) ao que eram antes: ${restaurados.join(', ')}.` : 'Nenhum arquivo foi restaurado.'}${mantidos.length ? ` Mantidos: ${mantidos.join('; ')}.` : ''}`;
+    return { ok: restaurados.length > 0, saida: texto, resumo: `desfez ${restaurados.length} arquivo(s)`, restaurados, mantidos };
+  }
   const bloqueado = (_req, res, next) => (pessoal ? next() : res.status(403).json({ error: 'A Forja só funciona com o Gyde rodando no seu computador (modo pessoal).' }));
 
   // ---------- validação de pastas ----------
@@ -282,7 +349,9 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir }) {
   app.get('/api/codigo/sessoes/:id', bloqueado, (req, res) => {
     const s = q.uma.get(req.params.id, req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
-    res.json({ ...s, trabalhando: rodando.has(s.id), eventos: q.eventos.all(s.id).map((e) => ({ tipo: e.tipo, em: e.created_at, ...JSON.parse(e.dados) })) });
+    const existe = existsSync(s.pasta);
+    res.json({ ...s, existe, projeto: existe ? analisarProjeto(realpathSync.native(s.pasta)) : null, podeDesfazer: q.temCopia.get(s.id).n > 0,
+      trabalhando: rodando.has(s.id), eventos: q.eventos.all(s.id).map((e) => ({ tipo: e.tipo, em: e.created_at, ...JSON.parse(e.dados) })) });
   });
   // arquivos do projeto que a Forja pode ver (para o usuário consultar)
   app.get('/api/codigo/sessoes/:id/arquivos', bloqueado, (req, res) => {
@@ -306,10 +375,28 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir }) {
     const s = q.uma.get(req.params.id, req.user.id);
     if (s) {
       if (rodando.has(s.id)) return res.status(409).json({ error: 'Pare a Forja antes de apagar esta conversa.' });
-      q.apagarEventos.run(s.id); q.apagar.run(s.id, req.user.id);
+      q.apagarEventos.run(s.id); q.apagarCopias.run(s.id); q.apagar.run(s.id, req.user.id);
       rmSync(pastaAnexos(s.id), { recursive: true, force: true }); // anexos vão junto
     }
     res.json({ ok: true });
+  });
+
+  // botão "Desfazer" da tela (o mesmo que a ferramenta desfazer do agente)
+  app.post('/api/codigo/sessoes/:id/desfazer', bloqueado, (req, res) => {
+    const s = q.uma.get(req.params.id, req.user.id);
+    if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
+    if (rodando.has(s.id)) return res.status(409).json({ error: 'Pare a Forja antes de desfazer.' });
+    if (!existsSync(s.pasta)) return res.status(400).json({ error: 'A pasta deste projeto não existe mais.' });
+    const r = desfazerUltima(s.id, realpathSync.native(s.pasta));
+    if (r.restaurados || r.mantidos) q.evento.run(s.id, 'desfeito', JSON.stringify({ texto: r.saida, restaurados: r.restaurados || [], mantidos: r.mantidos || [] }), Date.now());
+    q.tocar.run(Date.now(), null, s.id);
+    res.status(r.restaurados?.length ? 200 : 409).json(r.restaurados?.length ? { ...r, podeDesfazer: q.temCopia.get(s.id).n > 0 } : { error: r.saida, podeDesfazer: q.temCopia.get(s.id).n > 0 });
+  });
+  // apagar todas as conversas da Forja desta conta (os arquivos dos projetos ficam)
+  app.delete('/api/codigo/sessoes', bloqueado, (req, res) => {
+    const minhas = q.lista.all(req.user.id).filter((s) => !rodando.has(s.id));
+    for (const s of minhas) { q.apagarEventos.run(s.id); q.apagarCopias.run(s.id); q.apagar.run(s.id, req.user.id); rmSync(pastaAnexos(s.id), { recursive: true, force: true }); }
+    res.json({ apagadas: minhas.length });
   });
 
   const rodando = new Set();
@@ -342,6 +429,19 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir }) {
     });
     rodando.add(s.id);
     const inicio = Date.now();
+    const registro = uso?.iniciar(req.user.id, 'forja');
+    let falha = null;
+    const copias = new Map(); // caminho relativo -> conteúdo antes da 1ª mudança desta tarefa (base64 ou null)
+    const copiar = (args) => {
+      try {
+        const alvo = caminhoSeguro(pastaReal, args.caminho);
+        const rel = relativo(pastaReal, alvo);
+        if (copias.has(rel)) return;
+        const existe = existsSync(alvo) && statSync(alvo).isFile();
+        if (existe && statSync(alvo).size > MAX_COPIA) { copias.set(rel, { grande: true }); return; }
+        copias.set(rel, { antes: existe ? readFileSync(alvo).toString('base64') : null });
+      } catch { /* caminho inválido: a ferramenta vai recusar */ }
+    };
     const mudancas = { criados: new Set(), modificados: new Set(), apagados: new Set(), comandos: [] };
     let passos = 0;
     const totais = () => {
@@ -366,19 +466,21 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir }) {
         ? [{ type: 'text', text: textoInicial }, ...imagens.map((a) => ({ type: 'image_url', image_url: { url: `data:image/${a.arquivo.split('.').pop().replace('jpg', 'jpeg')};base64,${readFileSync(path.join(pastaAnexos(s.id), a.arquivo)).toString('base64')}` } }))]
         : textoInicial;
       const msgs = [{ role: 'system', content: SYSTEM }, { role: 'user', content: conteudoInicial }];
+      const projeto = analisarProjeto(pastaReal);
+      msgs[0].content += `\n\nPROJETO DETECTADO: ${projeto.tecnologias.join(', ') || 'tecnologia não identificada'}; ${projeto.arquivos} arquivos${projeto.testes ? `; comando de testes provável: ${projeto.testes}` : '; sem comando de testes identificado'}.`;
       const cadeia = imagens.length ? CADEIAS.visao : CADEIAS.agente;
       const normalizar = (o) => {
         if (!o) return null;
         if (o.resposta) return o;
         const lista = Array.isArray(o.acoes) ? o.acoes : o.ferramenta ? [{ ferramenta: o.ferramenta, args: o.args }] : [];
-        const acoes = lista.filter((a) => a && ferramentas[a.ferramenta]).slice(0, 8);
+        const acoes = lista.filter((a) => a && (ferramentas[a.ferramenta] || a.ferramenta === 'desfazer')).slice(0, 8);
         return acoes.length ? { ...o, acoes } : null;
       };
       let terminou = false;
       for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted; passo++) {
         registrar('pensando', { passo });
         const { texto, modelo } = await completar(router, {
-          cadeia, messages: msgs, max_tokens: 6000, temperature: 0.2, signal: controle.signal,
+          cadeia, messages: msgs, max_tokens: 6000, temperature: 0.2, signal: controle.signal, registro,
           valida: (t) => Boolean(normalizar(extrairJson(t))),
         });
         const o = normalizar(extrairJson(texto));
@@ -391,7 +493,11 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir }) {
           const args = a.args && typeof a.args === 'object' ? a.args : {};
           registrar('ferramenta', { nome: a.ferramenta, args: { ...args, conteudo: args.conteudo ? `(${String(args.conteudo).split('\n').length} linhas)` : undefined, procurar: undefined, substituir: undefined }, pensamento: i === 0 ? redigir(o.pensamento || '') : '' });
           let r;
-          try { r = await ferramentas[a.ferramenta](pastaReal, args, { sinal: controle.signal, confirmar }); } catch (err) { r = { ok: false, saida: err.message }; }
+          if (['escrever', 'editar', 'apagar'].includes(a.ferramenta) && args.caminho) copiar(args);
+          try {
+            r = a.ferramenta === 'desfazer' ? desfazerUltima(s.id, pastaReal) : await ferramentas[a.ferramenta](pastaReal, args, { sinal: controle.signal, confirmar });
+          } catch (err) { r = { ok: false, saida: err.message }; }
+          for (const f of r.restaurados || []) mudancas.modificados.add(f);
           const rel = args.caminho ? String(args.caminho).replaceAll('\\', '/').replace(/^\.\//, '') : '';
           if (r.ok && r.mudanca === 'criado') mudancas.criados.add(rel);
           if (r.ok && r.mudanca === 'modificado') mudancas.modificados.add(rel);
@@ -407,13 +513,21 @@ export function setupCodigoAgente(app, db, { router, asyncRoute, dataDir }) {
       }
       if (!terminou && !controle.signal.aborted) registrar('resposta', { texto: `Parei depois de ${MAX_PASSOS} rodadas. Mande "continue" para eu seguir de onde parei.`, ...totais() });
     } catch (err) {
+      falha = err;
       if (err.name !== 'AbortError') registrar('erro', { texto: redigir(err.message), ...totais() });
     } finally {
+      // guarda a cópia para o "Desfazer" (só dos arquivos que mudaram de verdade)
+      const lista = [...copias].filter(([, c]) => !c.grande).map(([caminho, c]) => {
+        const alvo = path.join(pastaReal, caminho);
+        return { caminho, antes: c.antes, depois: hash(existsSync(alvo) ? readFileSync(alvo) : null) };
+      }).filter((f) => hash(f.antes == null ? null : Buffer.from(f.antes, 'base64')) !== f.depois);
+      if (lista.length) { q.guardarCopia.run(randomUUID(), s.id, JSON.stringify(lista), Date.now()); q.podarCopias.run(s.id, s.id); }
+      registro?.fim(controle.signal.aborted ? 'cancelado' : falha ? uso.resultadoDe(falha) : 'ok', falha?.message);
       rodando.delete(s.id);
       pendentes.get(s.id)?.resolver(false);
       if (controle.signal.aborted) q.evento.run(s.id, 'erro', JSON.stringify({ texto: 'Parado por você.', ...totais() }), Date.now());
       q.tocar.run(Date.now(), null, s.id);
-      if (!res.writableEnded) { res.write(`data: ${JSON.stringify({ tipo: 'fim' })}\n\n`); res.end(); }
+      if (!res.writableEnded) { res.write(`data: ${JSON.stringify({ tipo: 'fim', podeDesfazer: q.temCopia.get(s.id).n > 0 })}\n\n`); res.end(); }
     }
   }));
 }

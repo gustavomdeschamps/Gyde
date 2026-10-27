@@ -21,7 +21,9 @@
   <a href="COMO-INSTALAR.md"><b>Instalar (passo a passo)</b></a> ·
   <a href="#o-que-o-gyde-faz">O que ele faz</a> ·
   <a href="#forja-o-agente-de-c%C3%B3digo">Forja</a> ·
-  <a href="#extens%C3%B5es">Extensões</a> ·
+  <a href="#uso-cotas-e-limites">Uso e limites</a> ·
+  <a href="#configura%C3%A7%C3%A3o-env">Configuração</a> ·
+  <a href="#testes">Testes</a> ·
   <a href="#perguntas-frequentes">Dúvidas</a>
 </p>
 
@@ -51,20 +53,41 @@ O botão **Passo a passo** roda o código linha por linha e mostra o valor de ca
 
 <p align="center"><img src="docs/imagens/passo.jpg" alt="Passo a passo mostrando as variáveis linha por linha" width="88%"></p>
 
-### Prática
+### Prática personalizada
 Trilhas de Python, JavaScript e lógica, **projetos guiados** com testes automáticos, **XP**, **desafio do dia**,
 **sequência de dias** e **revisão dos erros** (o exercício que você errou volta depois de 1, 3, 7 e 21 dias).
 Travou? A **Dica do Gyde** ajuda sem entregar a resposta.
 
+Cada conta tem o próprio plano, montado a partir de três fontes que a tela mostra separadas:
+- **o que você respondeu** no questionário inicial (linguagens, objetivo, experiência, jeito de aprender);
+- **o que o mini desafio mediu** (nível e assuntos para reforçar);
+- **o que os exercícios mostram** (feitos, tentativas com erro, onde você travou).
+
+A ordem das trilhas, a trilha recomendada (com o motivo), o próximo passo e o desafio do dia saem desse plano.
+Quem escolheu uma linguagem que ainda não tem trilha (Java, C#, SQL...) vê isso escrito, com um atalho para pedir
+exercícios no chat. Refazer o questionário atualiza as recomendações sem apagar o progresso. Sem questionário,
+a Prática começa pelo mais simples e diz isso.
+
 <p align="center"><img src="docs/imagens/pratica.jpg" alt="Tela de Prática com trilhas e projetos" width="88%"></p>
 
 ### Forja, o agente de código
-Um chat ligado à pasta de um projeto seu. Você pede, e a Forja **trabalha nos arquivos de verdade**: lê o código,
-cria e edita arquivos, roda os testes até passarem e documenta. Cada ação aparece ao vivo, com o tempo que levou e as
-mudanças coloridas. No fim vem um resumo com os arquivos **criados, alterados e apagados** e os **comandos rodados**.
+O chat do Gyde com acesso a uma pasta do seu computador. A conversa funciona como no chat principal. A diferença
+é que a Forja **trabalha nos arquivos de verdade**: lê o código, cria e edita arquivos, roda os testes até passarem
+e documenta. Você não precisa saber comandos de terminal.
 
-- **Anexos:** mande prints de erro, referências de layout ou arquivos de texto (botão de clipe, Ctrl+V ou arrastar).
-  As imagens vão para um modelo que enxerga; se nenhum estiver disponível, a Forja avisa.
+1. Abra a Forja e escreva o pedido (ou clique em **Conectar pasta do projeto**). A janela do Windows abre para você
+   escolher a pasta; o servidor do Gyde, que roda no mesmo PC, passa a ter acesso só a ela.
+2. A Forja identifica o projeto (tecnologias, quantidade de arquivos, comando de testes) e mostra isso no topo.
+3. Cada ação aparece ao vivo (lendo, editando, executando), com o tempo que levou e as mudanças coloridas.
+4. No fim vem um resumo, montado pelo servidor e não pelo texto da IA, com os arquivos **criados, alterados e
+   apagados** e os **comandos rodados** com o resultado.
+5. Continue a conversa: o contexto do projeto e das mensagens anteriores fica guardado.
+
+- **Desfazer:** o botão **Desfazer** (ou pedir "desfaça a última alteração") volta os arquivos ao que eram antes da
+  última tarefa. Arquivos que você editou depois ficam como estão, e a Forja avisa quais.
+- **Trocar de projeto:** o nome da pasta no topo abre o menu com outra pasta e os projetos recentes.
+- **Anexos:** prints de erro, referências de layout ou arquivos de texto (clipe, Ctrl+V ou arrastar).
+  As imagens vão para um modelo que enxerga.
 - **Arquivos do projeto:** o botão de pasta no topo mostra tudo o que a Forja pode ver.
 
 <p align="center"><img src="docs/imagens/forja.jpg" alt="Forja corrigindo um projeto e rodando os testes" width="88%"></p>
@@ -76,11 +99,19 @@ mudanças coloridas. No fim vem um resumo com os arquivos **criados, alterados e
 - os comandos não recebem as chaves do Gyde;
 - comandos são classificados: os perigosos (formatar, desligar, mexer no sistema, ler senhas) são **bloqueados**;
   apagar arquivos, instalar pacotes, acessar a internet, mexer no Git remoto ou publicar **pedem a sua autorização**;
-- botão **Parar** a qualquer momento (também encerra os comandos em andamento).
+- botão **Parar** a qualquer momento (também encerra os comandos em andamento);
+- a cópia dos arquivos usada pelo **Desfazer** fica só no banco local e nunca vai para a IA.
+
+### Configurações
+No menu lateral, **Configurações** reúne tudo em seções: **Geral** (tema automático, claro ou escuro; página inicial;
+vídeo de abertura; restaurar padrões), **IA e modelos** (estado real da conexão, modo online, offline ou automático,
+como o Gyde deve responder, memória), **Uso e limites**, **Prática** (suas respostas, nível medido e desempenho;
+refazer o questionário), **Privacidade e dados** (o que fica no PC, o que vai para a IA, apagar conversas e registros)
+e **Extensões** (tokens). Cada opção salva na hora.
 
 ### E mais
 - **Skills:** habilidades instaláveis, como plugins (`/revisar`, `/git`, `/sql`...). Dá para criar as suas e publicar na loja de skills.
-- **Quiz de boas-vindas:** o Gyde descobre o seu nível e adapta as explicações.
+- **Questionário inicial:** o Gyde descobre o seu nível e objetivo e adapta as explicações e a Prática.
 - **Turmas:** o professor cria a turma, passa exercícios com prazo e acompanha quem fez.
 - **Memória:** o Gyde lembra o que você pedir para ele lembrar (dá para ver e apagar).
 - **Revisar projeto inteiro:** anexe uma pasta ou um `.zip` e peça a revisão.
@@ -114,29 +145,38 @@ flowchart LR
     G --> D[("Seus dados<br/>só no seu PC")]
 ```
 
-O Gyde escolhe sozinho os melhores modelos para programar. Se um estiver ocupado ou fora do ar, o próximo da
-fila assume, sem você perceber. Os limites grátis renovam todo dia, e quanto mais chaves grátis você colocar no
-FreeLLMAPI, mais o Gyde aguenta.
+O Gyde tenta uma fila de modelos bons para programar. Se um estiver ocupado ou fora do ar, o próximo assume.
+Cada resposta mostra, embaixo, o **modelo que respondeu de verdade** (os nomes do FreeLLMAPI são apelidos: o
+"claude-sonnet-4-5" de lá, por exemplo, foi atendido pelo Qwen nos testes) e os tokens usados.
 
-## Modelos, consumo e limites
+## Uso, cotas e limites
 
-No rodapé do chat, o indicador **Online · grátis** abre um painel com:
-- o modelo que respondeu de verdade e os tokens da última resposta;
-- os pedidos por minuto que sobram no FreeLLMAPI e quando renovam;
-- o consumo do mês;
-- os limites definidos por chave.
+Em **Configurações > Uso e limites** (ou clicando no indicador do rodapé do chat), cada conceito aparece separado:
 
-Tudo vem do próprio provedor. O que ele não informa aparece como "não disponível"; o Gyde não inventa créditos.
-Cada resposta também mostra, embaixo, o modelo que respondeu e os tokens usados.
+| O quê | O que é | De onde vem |
+|---|---|---|
+| **Uso do Gyde** | Pedidos seus (mensagem do chat, tarefa da Forja, dica da Prática), hoje e nos últimos 7 dias, separados em concluídos, com falha, cancelados e barrados por limite | Registro do próprio Gyde, no banco local (`uso.js`) |
+| **Chamadas** | Quantas vezes o Gyde falou com o provedor. Trocas de modelo e rodadas da Forja geram várias chamadas num pedido, e o pedido conta uma vez só | Registro do Gyde |
+| **Tokens** | Entrada e saída do modelo | Campo `usage` da resposta do provedor. Se ele não manda, aparece "não informado", nunca estimado |
+| **Cota do provedor** | Pedidos por minuto livres e a hora em que renova; consumo do mês na conta do FreeLLMAPI | Cabeçalhos `x-ratelimit-*` e a rota `/v1/usage` do FreeLLMAPI |
+| **Créditos e saldo** | Não existe no FreeLLMAPI | Aparece "Saldo não disponibilizado pelo provedor" |
+| **Planos do Gyde** | Não existem: o Gyde não tem assinatura nem cobrança | — |
+
+Provedores diferentes (FreeLLMAPI e modelo local) aparecem separados, porque as cotas não se somam.
+
+**Quando o limite acaba**, a mensagem diz qual limite foi (os pedidos por minuto do FreeLLMAPI), quando ele renova
+(se o FreeLLMAPI informou) e o que funciona enquanto isso (o modelo local, se estiver instalado). No modo automático,
+se o FreeLLMAPI parar de responder, o Gyde usa o modelo local e **avisa** na resposta, sem troca silenciosa.
+
+O FreeLLMAPI não informa a cota diária de cada serviço grátis que ele usa por trás (Google, Groq...), então o Gyde
+também não mostra isso.
 
 ## IA offline (sem internet)
 
 O Gyde pode usar um modelo que roda no seu computador pelo [Ollama](https://ollama.com), sem mandar nada para fora.
 
 1. Instale o Ollama e baixe um modelo pequeno (o download é seu, de uns 2 GB): `ollama pull qwen2.5:3b`
-2. No painel do rodapé do chat, escolha **Só offline**, ou deixe em **Automático** (usa o offline se o FreeLLMAPI cair).
-
-Configuração opcional no `.env`: `GYDE_MODO_IA=auto|online|offline`, `OLLAMA_MODELO=qwen2.5:3b`, `OLLAMA_URL=http://127.0.0.1:11434`.
+2. Em **Configurações > IA e modelos**, escolha **Só offline**, ou deixe em **Automático** (usa o offline se o FreeLLMAPI cair).
 
 | Funciona sem internet | Funciona offline depois de instalar o Ollama e baixar um modelo | Precisa de internet |
 |---|---|---|
@@ -160,6 +200,55 @@ Resumo:
 > Cada pessoa tem o próprio Gyde: a conta, as conversas e o progresso ficam no computador de quem instalou,
 > e cada um usa as próprias chaves grátis de IA.
 
+## Configuração (.env)
+
+O `instalar.bat` e os scripts da pasta `configurar/` criam o `.env` para você. Se quiser editar à mão, ele fica na
+pasta principal do Gyde e **nunca vai para o GitHub**. Exemplo (sem chaves de verdade):
+
+```ini
+# obrigatório para os modelos online
+FREELLMAPI_URL=http://127.0.0.1:31415
+FREELLMAPI_KEY=cole-aqui-a-chave-do-freellmapi
+
+# opcionais
+PORT=3210                      # porta do Gyde
+GYDE_MODO_IA=auto              # auto | online | offline
+OLLAMA_URL=http://127.0.0.1:11434
+OLLAMA_MODELO=qwen2.5:3b
+CLOUDFLARE_ACCOUNT_ID=         # gerar imagens (configurar\configurar-imagens.bat)
+CLOUDFLARE_API_TOKEN=
+GEMINI_API_KEY=                # voz natural (configurar\configurar-voz.bat)
+```
+
+Para rodar sem os `.bat`: `npm install` e depois `npm start` (Node.js 22.13 ou mais novo).
+
+## Testes
+
+```bash
+npm test
+```
+
+Roda os testes automáticos de `app/testes/` (12 testes): proteção de caminhos e arquivos de senha, classificação de
+comandos, remoção de segredos, ambiente limpo dos comandos, contabilização de uso (pedidos x chamadas, tokens só
+quando informados, cancelados, limite por minuto) e a mensagem de limite. Eles usam um provedor falso local e não
+gastam cota.
+
+## Limitações conhecidas
+
+- Os modelos grátis variam: às vezes um modelo recusa uma tarefa sozinho ou pergunta em vez de agir. O Gyde troca
+  de modelo quando a resposta vem vazia ou inválida, mas não dá para garantir o mesmo comportamento sempre.
+- O modelo local (Ollama) é bem mais simples e lento que os online, principalmente na Forja.
+- O **Desfazer** da Forja guarda as 10 últimas tarefas de cada conversa e não copia arquivos maiores que 2 MB.
+- A Forja e a janela de escolher pasta só funcionam no Windows e com o Gyde no modo pessoal (rodando no seu PC).
+- A moderação depende das instruções do Gyde e do provedor; não há um filtro de conteúdo separado.
+- Imagens geradas ficam acessíveis para qualquer conta logada no mesmo Gyde que tenha o link (os nomes são aleatórios).
+
+## Contribuir
+
+Ideias e correções são bem-vindas. Abra uma [issue](https://github.com/gustavomdeschamps/Gyde/issues) descrevendo
+o problema ou a ideia; para mudanças de código, faça um fork, rode `npm test` e abra um pull request explicando o que
+mudou. Nunca inclua o `.env`, a pasta `data/` ou chaves nos commits.
+
 ## Perguntas frequentes
 
 **É grátis mesmo?**
@@ -173,7 +262,8 @@ Sua conta, conversas e progresso ficam na pasta `data` do seu computador. As men
 que responde.
 
 **E quando o limite grátis acabar?**
-O FreeLLMAPI troca sozinho de serviço. Os limites diários renovam todo dia (21h no horário de Brasília).
+O FreeLLMAPI troca de serviço quando um deles esgota. Se acabar o limite por minuto do próprio FreeLLMAPI, o Gyde
+diz quando renova e, se você tiver o Ollama, oferece o modelo local. Veja em **Configurações > Uso e limites**.
 
 **Funciona no Mac ou no Linux?**
 Foi feito e testado no Windows. O servidor é Node.js e roda em outros sistemas, mas os instaladores e a janela de
@@ -188,7 +278,7 @@ escolher pasta da Forja são do Windows.
 | `COMO-INSTALAR.md` | Passo a passo de instalação |
 | `configurar/` | Extras: chave do FreeLLMAPI, imagens, voz, e-mail, trocar senha, extensão do VS Code |
 | `extensoes/` | Extensões para VS Code (`vscode/`) e Chrome (`chrome/`) |
-| `app/` | O programa: servidor (`server.js`), Forja (`codigo-agente.js`), modelos (`motor.js`), interface (`public/`) e skills (`skills-catalogo/`) |
+| `app/` | O programa: servidor (`server.js`), Forja (`codigo-agente.js`), provedores online/offline (`provedores.js`), registro de uso (`uso.js`), proteções (`seguranca.js`), modelos (`motor.js`), Prática (`pratica-servidor.js`), interface (`public/`), skills (`skills-catalogo/`) e testes (`testes/`) |
 | `docs/` | Imagens desta página |
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).

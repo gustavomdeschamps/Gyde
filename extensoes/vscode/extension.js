@@ -157,7 +157,7 @@ class ChatView {
   async askToken() {
     const token = await vscode.window.showInputBox({
       title: 'Conectar ao Gyde',
-      prompt: 'No Gyde: Personalizar → Extensões → Gerar token. Cole o token aqui (o mesmo serve para o VS Code).',
+      prompt: 'No Gyde: Configurações → Extensões → Gerar token. Cole o token aqui (o mesmo serve para o VS Code).',
       password: true,
       ignoreFocusOut: true,
       validateInput: (v) => (/^gyde_[0-9a-f]{48}$/.test(v.trim()) ? null : 'O token começa com gyde_ e tem 53 caracteres.'),

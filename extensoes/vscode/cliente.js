@@ -18,7 +18,7 @@ function createClient({ server, token }) {
     } catch {
       throw new GydeError('Não consegui falar com o Gyde. Ele está aberto (iniciar.bat)?');
     }
-    if (res.status === 401) throw new GydeError('Token inválido ou revogado. Gere outro no Gyde em Personalizar.', true);
+    if (res.status === 401) throw new GydeError('Token inválido ou revogado. Gere outro no Gyde em Configurações.', true);
     if (!res.ok) {
       let msg = `Erro ${res.status}`;
       try { msg = (await res.json()).error || msg; } catch { /* sem corpo */ }

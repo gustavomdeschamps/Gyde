@@ -431,7 +431,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .success-banner .btn { margin-left: auto; }
 .loading-line { display: flex; align-items: center; gap: 10px; color: var(--text-soft); font-family: var(--font); }
 /* Seções: o chat some quando outra página (Prática, Turmas, Skills) está aberta. */
-.main:not([data-page="chat"]) :is(.thread, .composer, .footnote, .model-picker, .topbar-title) { display: none; }
+.main:not([data-page="chat"]) :is(.thread, #composer, .footnote, .model-picker, .topbar-title) { display: none; }
 .main:not([data-page="pratica"]) #praticaView, .main:not([data-page="turmas"]) #turmasView, .main:not([data-page="agente"]) #agenteView, .main:not([data-page="skills"]) #skillsView { display: none; }
 
 /* ---------- Celular ---------- */
@@ -465,13 +465,64 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .uso-ponto { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
 .uso-chip[data-estado="offline"] .uso-ponto { background: #f59e0b; }
 .uso-chip[data-estado="erro"] .uso-ponto { background: var(--danger); }
-.uso-painel { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); z-index: 30; width: min(400px, calc(100vw - 32px)); text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 14px 16px; font-size: 13px; color: var(--text); animation: rise var(--t2) var(--ease); }
-.uso-painel h3 { margin: 0 0 10px; font: 700 15px var(--font-display); }
-.uso-modo { display: grid; gap: 4px; font-size: 12px; color: var(--text-soft); margin-bottom: 10px; }
-.uso-modo select { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); color: var(--text); padding: 6px 8px; font: inherit; font-size: 13px; }
-.uso-painel dl { margin: 0; display: grid; gap: 7px; }
-.uso-painel dl div { display: grid; grid-template-columns: 128px 1fr; gap: 8px; }
-.uso-painel dt { color: var(--text-faint); }
-.uso-painel dd { margin: 0; }
-.uso-nota { margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; background: var(--bg-soft); color: var(--text-soft); font-size: 12.5px; }
-@media (max-width: 520px) { .uso-painel dl div { grid-template-columns: 1fr; gap: 0; } }
+/* ===== Configurações ===== */
+.dialog.config { width: min(860px, calc(100% - 32px)); padding: 0; overflow: hidden; }
+.config form { display: flex; flex-direction: column; max-height: min(720px, calc(100dvh - 32px)); }
+.config-topo { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.config-topo h2 { margin: 0; }
+.config-corpo { display: grid; grid-template-columns: 190px 1fr; min-height: 0; flex: 1; }
+.config-abas { display: grid; align-content: start; gap: 2px; padding: 12px; border-right: 1px solid var(--border); background: var(--bg-soft); }
+.config-abas button { text-align: left; padding: 8px 12px; border: 0; border-radius: 10px; background: none; color: var(--text-soft); font-size: 14px; }
+.config-abas button:hover { background: var(--hover); color: var(--text); }
+.config-abas button[aria-selected="true"] { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow-sm); }
+.config-abas button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.config-painel { padding: 18px 22px 22px; overflow-y: auto; min-height: 0; }
+.config-linha { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.config-linha:last-child { border-bottom: 0; }
+.config-linha > div { display: grid; gap: 2px; min-width: 0; }
+.config-linha b { font-size: 14px; }
+.config-linha small { color: var(--text-faint); font-size: 12.5px; font-weight: 400; }
+.config-linha select, .config select { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); color: var(--text); padding: 7px 10px; font: inherit; font-size: 13.5px; max-width: 260px; }
+.config-linha.perigo .btn { color: var(--danger); }
+.config-nota { margin: 8px 0 12px; color: var(--text-soft); font-size: 13px; line-height: 1.5; }
+.config-texto p { margin: 0 0 10px; color: var(--text-soft); font-size: 13.5px; line-height: 1.55; }
+.config-texto b { color: var(--text); }
+.config-sub { margin: 18px 0 8px; font: 700 14.5px var(--font-display); }
+.config-sub:first-child { margin-top: 0; }
+.config-sub small { font: 400 12.5px var(--font); color: var(--text-faint); margin-left: 6px; }
+.config-dl { margin: 0; display: grid; gap: 6px; font-size: 13.5px; }
+.config-dl div { display: grid; grid-template-columns: 170px 1fr; gap: 10px; }
+.config-dl dt { color: var(--text-faint); }
+.config-dl dd { margin: 0; }
+.config-dl small, .uso-sub { color: var(--text-faint); font-size: 12.5px; }
+.uso-sub { display: block; margin-top: 2px; }
+.config-dl .ok { color: var(--success); }
+.config-dl .ruim { color: var(--danger); }
+.config-estado { margin-bottom: 12px; }
+.config-botoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.uso-painel { font-size: 13.5px; }
+.uso-sec { padding: 4px 0 14px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+.uso-periodos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.uso-periodos h4 { margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-faint); }
+.uso-periodos .config-dl div { grid-template-columns: 120px 1fr; }
+.uso-prov { display: grid; gap: 6px; margin-bottom: 10px; }
+.uso-barra { display: block; height: 6px; margin-top: 6px; max-width: 260px; border-radius: 99px; background: var(--bg-soft); overflow: hidden; }
+.uso-barra i { display: block; height: 100%; background: var(--success); border-radius: inherit; }
+.uso-alerta { margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, #f59e0b 16%, var(--surface)); color: var(--text); }
+.uso-ultimos { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.uso-ultimos li { display: grid; grid-template-columns: 96px 1fr auto; gap: 10px; padding: 6px 8px; border-radius: 8px; background: var(--bg-soft); font-size: 12.5px; }
+.uso-ultimos time { color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.uso-ultimos .r-erro span:last-child, .uso-ultimos .r-limite span:last-child { color: var(--danger); }
+.uso-ultimos .r-cancelado span:last-child { color: var(--text-faint); }
+.uso-glossario { font-size: 13px; color: var(--text-soft); }
+.uso-glossario summary { cursor: pointer; color: var(--accent-text); }
+.uso-glossario p { margin: 6px 0; }
+@media (max-width: 720px) {
+  .config-corpo { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .config-abas { display: flex; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--border); padding: 8px; }
+  .config-abas button { white-space: nowrap; flex: none; }
+  .config-linha { flex-direction: column; align-items: stretch; }
+  .config-dl div, .uso-periodos .config-dl div { grid-template-columns: 1fr; gap: 0; }
+  .uso-periodos { grid-template-columns: 1fr; }
+  .uso-ultimos li { grid-template-columns: 1fr; gap: 0; }
+}

@@ -1,5 +1,6 @@
-// Página da Forja (agente de código): um chat ligado à pasta de um projeto. Cada resposta mostra quanto tempo
-// a Forja trabalhou e, num bloco que abre e fecha, tudo o que ela fez (arquivos lidos, editados, comandos e testes).
+// Página da Forja: o chat do Gyde com acesso à pasta de um projeto. A tela é sempre um chat; o projeto conectado
+// fica numa barra no topo (trocar, recentes, desfazer). Cada resposta mostra quanto tempo a Forja trabalhou e,
+// num bloco que abre e fecha, tudo o que ela fez de verdade (arquivos lidos, editados, comandos e testes).
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ic = {
@@ -16,6 +17,8 @@ const ic = {
   clipe: '<svg viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg>',
   arquivos: '<svg viewBox="0 0 24 24"><path d="M4 5h6l2 2h8v12H4z"/><path d="M8 12h8M8 15h5"/></svg>',
   escudo: '<svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M12 8v5M12 16h.01"/></svg>',
+  desfazer: '<svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>',
+  baixo: '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
   enviar: '<svg class="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg><svg class="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>',
 };
 const verbo = { listar: 'Explorando', ler: 'Lendo', buscar: 'Procurando', escrever: 'Escrevendo', editar: 'Editando', apagar: 'Apagando', executar: 'Executando' };
@@ -30,28 +33,85 @@ const relogio = (ms) => { const s = Math.floor(ms / 1000); return `${Math.floor(
 export function createAgentePage({ root, api, toast, renderMarkdown }) {
   let controle = null, timer = null, urlAnexo = () => '';
 
-  async function renderHome() {
-    const { sessoes, pessoal } = await api('/api/codigo/sessoes').catch((e) => ({ sessoes: [], erro: e.message }));
-    root.innerHTML = `<div class="skills-inner">
-      <header class="skills-hero"><div><h1>Forja</h1>
-        <p>O agente de código do Gyde. É um chat ligado à pasta de um projeto: você pede, e a Forja faz como um desenvolvedor de verdade, escrevendo o código, testando, corrigindo e documentando, sozinha. Você acompanha cada passo e quanto tempo ela levou.</p></div></header>
-      ${pessoal === false ? '<p class="msg-error">A Forja só funciona com o Gyde rodando no seu computador.</p>' : ''}
-      <button type="button" class="agente-escolher" id="escolher">
-        <span class="agente-escolher-ic">${ic.pasta}</span>
-        <span><b>Abrir pasta do projeto</b><small>Abre o Explorador de Arquivos para você escolher a pasta</small></span>
-      </button>
-      ${sessoes.length ? `<h2 class="section-title">Projetos recentes</h2><div class="agente-sessoes">${sessoes.map((s, i) => `
-        <a class="agente-sessao" href="#/agente/${s.id}" style="--i:${i}">${ic.pasta}<span><b>${esc(s.titulo)}</b><small>${esc(s.pasta)}</small></span><time>${quando(s.updated_at)}</time></a>`).join('')}</div>` : ''}
+  let pendente = null; // mensagem escrita antes de conectar uma pasta: é enviada assim que o projeto abre
+  const nomeDaPasta = (p) => String(p).split(/[\\/]/).filter(Boolean).pop() || p;
+
+  // Abre a janela "Selecionar pasta" do Windows e cria a conversa daquele projeto.
+  async function conectarPasta(botao) {
+    if (botao) { botao.disabled = true; botao.classList.add('esperando'); }
+    try {
+      const { pasta } = await api('/api/codigo/escolher-pasta', { method: 'POST' });
+      if (!pasta) return false; // cancelou a janela
+      const r = await api('/api/codigo/sessoes', { method: 'POST', body: JSON.stringify({ pasta }) });
+      location.hash = `#/agente/${r.id}`;
+      return true;
+    } catch (err) { toast(err.message); return false; } finally { if (botao) { botao.disabled = false; botao.classList.remove('esperando'); } }
+  }
+
+  // Barra do projeto: mostra qual pasta está conectada e abre o menu (outra pasta, recentes).
+  function barraProjeto(sessao, recentes) {
+    const outros = recentes.filter((r) => r.id !== sessao?.id).slice(0, 6);
+    const tec = sessao?.projeto?.tecnologias || [];
+    return `<header class="forja-topo">
+      <div class="forja-proj">
+        <button type="button" class="forja-proj-btn" aria-haspopup="true" aria-expanded="false" aria-controls="forjaMenu">
+          <span class="forja-proj-ic${sessao ? ' on' : ''}">${ic.pasta}</span>
+          <span class="forja-proj-txt"><b>${sessao ? esc(nomeDaPasta(sessao.pasta)) : 'Nenhum projeto conectado'}</b>
+            <small>${sessao ? esc(sessao.pasta) : 'A Forja só mexe na pasta que você escolher'}</small></span>
+          <span class="forja-proj-seta">${ic.baixo}</span>
+        </button>
+        <div class="forja-menu" id="forjaMenu" hidden>
+          <button type="button" data-act="abrir">${ic.pasta}<span><b>${sessao ? 'Abrir outra pasta…' : 'Conectar uma pasta…'}</b><small>Abre o Explorador de Arquivos</small></span></button>
+          ${outros.length ? `<p class="forja-menu-rot">Recentes</p>${outros.map((r) => `<a href="#/agente/${r.id}">${ic.pasta}<span><b>${esc(r.titulo)}</b><small>${esc(r.pasta)}</small></span></a>`).join('')}` : ''}
+        </div>
+      </div>
+      ${tec.length ? `<span class="forja-tecs" title="Detectado nos arquivos do projeto">${tec.slice(0, 4).map((t) => `<span>${esc(t)}</span>`).join('')}</span>` : ''}
+      ${sessao ? `<span class="forja-acoes">
+        <button type="button" class="btn small ghost" data-act="desfazer" title="Volta os arquivos ao que eram antes da última tarefa da Forja"${sessao.podeDesfazer ? '' : ' hidden'}>${ic.desfazer}Desfazer</button>
+        <button type="button" class="icon-btn" data-act="arquivos" title="Arquivos que a Forja pode ver" aria-label="Arquivos do projeto" aria-expanded="false">${ic.arquivos}</button>
+        <button type="button" class="icon-btn" data-act="apagar" title="Apagar esta conversa (os arquivos do projeto ficam)" aria-label="Apagar esta conversa">${ic.lixo}</button>
+      </span>` : ''}
+    </header>`;
+  }
+
+  function ligarBarra() {
+    const btn = root.querySelector('.forja-proj-btn'), menu = root.querySelector('#forjaMenu');
+    const fechar = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
+    btn.onclick = (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); };
+    menu.querySelector('[data-act="abrir"]').onclick = (e) => { fechar(); conectarPasta(e.currentTarget); };
+    const casca = root.querySelector('.forja-chat'); // trocada a cada tela: os ouvintes não se acumulam
+    casca.addEventListener('click', (e) => { if (!e.target.closest('.forja-proj')) fechar(); });
+    casca.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { fechar(); btn.focus(); } });
+  }
+
+  async function renderHome(recentes) {
+    root.innerHTML = `<div class="forja-chat">
+      ${barraProjeto(null, recentes)}
+      <div class="forja-rolagem"><div class="messages">
+        <div class="ag-vazio"><span class="forja-marca grande">${ic.forja}</span>
+          <h2>Forja: o Gyde trabalhando no seu projeto</h2>
+          <p>Converse como no chat. A diferença é que aqui o Gyde lê, edita e testa os arquivos de verdade, só dentro da pasta que você conectar. Antes de apagar arquivos, instalar pacotes ou acessar a internet, ele pergunta.</p>
+          <button type="button" class="btn primary" id="conectar">${ic.pasta}Conectar pasta do projeto</button>
+          ${recentes.length ? `<div class="forja-recentes"><p>Continuar em um projeto</p>${recentes.slice(0, 4).map((r) => `<a href="#/agente/${r.id}">${ic.pasta}<span><b>${esc(nomeDaPasta(r.pasta))}</b><small>${esc(r.titulo)}</small></span><time>${quando(r.updated_at)}</time></a>`).join('')}</div>` : ''}
+        </div>
+      </div></div>
+      <form class="composer forja-composer" id="agForm">
+        <div class="composer-row">
+          <textarea name="texto" rows="1" placeholder="Diga o que fazer. Ao enviar, você escolhe a pasta do projeto."></textarea>
+          <button type="submit" class="send" aria-label="Enviar">${ic.enviar}</button>
+        </div>
+      </form>
     </div>`;
-    const botao = root.querySelector('#escolher');
-    botao.onclick = async () => {
-      botao.disabled = true; botao.classList.add('esperando');
-      try {
-        const { pasta } = await api('/api/codigo/escolher-pasta', { method: 'POST' });
-        if (!pasta) return; // cancelou a janela
-        const r = await api('/api/codigo/sessoes', { method: 'POST', body: JSON.stringify({ pasta }) });
-        location.hash = `#/agente/${r.id}`;
-      } catch (err) { toast(err.message); } finally { botao.disabled = false; botao.classList.remove('esperando'); }
+    ligarBarra();
+    root.querySelector('#conectar').onclick = (e) => conectarPasta(e.currentTarget);
+    const form = root.querySelector('#agForm');
+    form.texto.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const texto = form.texto.value.trim(); if (!texto) return;
+      pendente = texto;
+      toast('Escolha a pasta do projeto para a Forja trabalhar.');
+      if (!(await conectarPasta(form.querySelector('.send')))) pendente = null;
     };
   }
 
@@ -125,6 +185,10 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
   }
   // aplica um evento do servidor na conversa (serve para o histórico e para o ao vivo)
   function adicionar(ev, lista, aoVivo = false) {
+    if (ev.tipo === 'desfeito') {
+      lista.insertAdjacentHTML('beforeend', `<div class="forja-desfeito" role="status">${ic.desfazer}<span><b>Desfeito</b> ${esc(ev.texto)}</span></div>`);
+      return;
+    }
     const turno = [...lista.querySelectorAll('.forja-turno')].pop();
     const passos = turno?.querySelector('.forja-passos');
     passos?.querySelector('.ag-pensando')?.remove();
@@ -147,21 +211,19 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
     else if (ev.tipo === 'erro') { turno.querySelector('.forja-resposta').innerHTML = `<p class="msg-error">${esc(ev.texto)}</p>`; concluirTurno(turno, ev, ev.em || Date.now()); }
   }
 
-  async function renderSessao(id) {
+  async function renderSessao(id, recentes) {
     const sessao = await api(`/api/codigo/sessoes/${id}`);
     urlAnexo = (a) => `/api/codigo/sessoes/${id}/anexos/${a.arquivo}`;
+    const p = sessao.projeto;
     root.innerHTML = `<div class="forja-chat">
-      <header class="forja-topo">
-        <a class="icon-btn" href="#/agente" title="Projetos" aria-label="Voltar para os projetos">${ic.seta.replace('<svg', '<svg style="transform:scaleX(-1)"')}</a>
-        <span class="forja-projeto" title="${esc(sessao.pasta)}">${ic.pasta}<b>${esc(sessao.pasta.split(/[\\/]/).pop())}</b><code>${esc(sessao.pasta)}</code></span>
-        <button class="icon-btn" data-act="arquivos" title="Arquivos do projeto que a Forja pode ver" aria-label="Arquivos do projeto" aria-expanded="false">${ic.arquivos}</button>
-        <button class="icon-btn" data-act="apagar" title="Apagar esta conversa (os arquivos do projeto ficam)">${ic.lixo}</button>
-      </header>
+      ${barraProjeto(sessao, recentes)}
       <div class="forja-arvore" id="agArvore" hidden></div>
+      ${sessao.existe ? '' : '<p class="forja-aviso erro">A pasta deste projeto não existe mais (foi movida ou apagada). Conecte a pasta de novo pelo menu acima.</p>'}
       ${sessao.trabalhando ? '<p class="forja-aviso">A Forja ainda está trabalhando nesta conversa (em outra aba ou depois de recarregar). Espere ela terminar para mandar outra mensagem.</p>' : ''}
       <div class="forja-rolagem" id="agRolagem"><div class="messages" id="agLista">
-        ${sessao.eventos.length ? '' : `<div class="ag-vazio"><span class="forja-marca grande">${ic.forja}</span><h2>O que vamos construir?</h2><p>A Forja trabalha dentro de <b>${esc(sessao.pasta.split(/[\\/]/).pop())}</b>: lê, escreve, testa e documenta sozinha.</p>
-          <div class="ag-sugestoes"><button>Explique como este projeto funciona</button><button>Encontre e corrija bugs</button><button>Crie testes para o código principal</button><button>Escreva um README completo</button></div></div>`}
+        ${sessao.eventos.length ? '' : `<div class="ag-vazio"><span class="forja-marca grande">${ic.forja}</span><h2>Projeto conectado: ${esc(nomeDaPasta(sessao.pasta))}</h2>
+          <p>${p ? `${p.arquivos} arquivos${p.tecnologias.length ? ` · ${esc(p.tecnologias.join(', '))}` : ''}${p.testes ? ` · testes: <code>${esc(p.testes)}</code>` : ' · nenhum comando de testes encontrado'}.` : ''} O que a Forja deve fazer?</p>
+          <div class="ag-sugestoes"><button>Explique como este projeto funciona</button><button>Analise o projeto e corrija os erros que encontrar</button><button>${p?.testes ? 'Rode os testes e corrija os que falharem' : 'Crie testes para o código principal'}</button><button>Explique o que você pretende mudar antes de começar a melhorar o visual</button></div></div>`}
       </div></div>
       <form class="composer forja-composer" id="agForm">
         <div class="drop-hint">Solte as imagens ou arquivos para anexar</div>
@@ -169,7 +231,7 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
         <div class="composer-row">
           <button type="button" class="icon-btn" data-act="anexar" aria-label="Anexar imagens ou arquivos" title="Anexar imagens (prints, referências) ou arquivos de texto">${ic.clipe}</button>
           <input type="file" id="agArquivo" multiple hidden accept="image/png,image/jpeg,image/webp,image/gif,.txt,.md,.js,.mjs,.ts,.tsx,.jsx,.json,.py,.java,.c,.cpp,.cs,.go,.rs,.php,.html,.css,.sql,.xml,.yml,.yaml,.csv,.log">
-          <textarea name="texto" rows="1" placeholder="Peça qualquer coisa para este projeto (cole prints com Ctrl+V)"></textarea>
+          <textarea name="texto" rows="1" placeholder="Peça qualquer coisa para este projeto (cole prints com Ctrl+V)" aria-label="Mensagem para a Forja"></textarea>
           <button type="submit" class="send" aria-label="Enviar">${ic.enviar}</button>
         </div>
       </form>
@@ -228,6 +290,18 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
         arvore.innerHTML = `<p class="forja-arvore-info">A Forja só enxerga esta pasta. Arquivos de senhas e chaves (.env, chaves SSH...) ficam de fora. <a href="#/agente">Trocar de projeto</a></p><pre>${esc(r.arvore)}</pre>`;
       } catch (err) { arvore.innerHTML = `<p class="msg-error">${esc(err.message)}</p>`; }
     };
+    ligarBarra();
+    const botaoDesfazer = root.querySelector('[data-act="desfazer"]');
+    botaoDesfazer.onclick = async () => {
+      if (controle) return;
+      if (!confirm('Desfazer a última tarefa da Forja? Os arquivos que ela mudou voltam ao que eram antes (os que você editou depois ficam como estão).')) return;
+      botaoDesfazer.disabled = true;
+      try {
+        const r = await api(`/api/codigo/sessoes/${id}/desfazer`, { method: 'POST' });
+        adicionar({ tipo: 'desfeito', texto: r.saida, restaurados: r.restaurados, mantidos: r.mantidos }, lista); descer();
+        botaoDesfazer.hidden = !r.podeDesfazer;
+      } catch (err) { toast(err.message); } finally { botaoDesfazer.disabled = false; }
+    };
     const ajustar = () => { form.texto.style.height = 'auto'; form.texto.style.height = `${Math.min(form.texto.scrollHeight, 220)}px`; };
     form.texto.addEventListener('input', ajustar);
     root.querySelectorAll('.ag-sugestoes button').forEach((b) => { b.onclick = () => { form.texto.value = b.textContent; form.requestSubmit(); }; });
@@ -256,7 +330,8 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
             if (!linha.startsWith('data: ')) continue;
             const ev = JSON.parse(linha.slice(6));
             if (ev.tipo === 'tarefa') ev.inicio = Date.now(); // relógio do navegador para o contador ao vivo
-            if (ev.tipo !== 'fim') adicionar(ev, lista, true);
+            if (ev.tipo === 'fim') botaoDesfazer.hidden = !ev.podeDesfazer;
+            else adicionar(ev, lista, true);
             descer();
           }
         }
@@ -270,13 +345,16 @@ export function createAgentePage({ root, api, toast, renderMarkdown }) {
       envio.classList.remove('streaming'); envio.setAttribute('aria-label', 'Enviar'); form.texto.focus(); descer();
     };
     form.texto.focus();
+    if (pendente) { form.texto.value = pendente; pendente = null; form.requestSubmit(); } // pedido feito antes de conectar a pasta
   }
 
   return {
     async show(id) {
       if (controle) return; // trabalhando: não troca a tela no meio
       clearInterval(timer);
-      try { if (id) await renderSessao(id); else await renderHome(); } catch (err) { root.innerHTML = `<div class="skills-inner"><p class="msg-error">${esc(err.message)}</p></div>`; }
+      const { sessoes: recentes = [], pessoal } = await api('/api/codigo/sessoes').catch(() => ({}));
+      if (pessoal === false) { root.innerHTML = '<div class="skills-inner"><p class="msg-error">A Forja só funciona com o Gyde rodando no seu computador (modo pessoal): ela precisa acessar as pastas do PC.</p></div>'; return; }
+      try { if (id) await renderSessao(id, recentes); else await renderHome(recentes); } catch (err) { root.innerHTML = `<div class="skills-inner"><p class="msg-error">${esc(err.message)}</p></div>`; }
     },
     ocupado: () => Boolean(controle),
   };

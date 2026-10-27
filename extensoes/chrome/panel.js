@@ -31,7 +31,7 @@ async function api(path, options = {}) {
   } catch {
     throw new Error('Não consegui falar com o Gyde. Ele está aberto (iniciar.bat)?');
   }
-  if (res.status === 401) throw Object.assign(new Error('Token inválido ou revogado. Gere outro em Personalizar.'), { auth: true });
+  if (res.status === 401) throw Object.assign(new Error('Token inválido ou revogado. Gere outro em Configurações.'), { auth: true });
   if (!res.ok) {
     let msg = `Erro ${res.status}`;
     try { msg = (await res.json()).error || msg; } catch { /* sem corpo */ }

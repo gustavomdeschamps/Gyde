@@ -288,7 +288,7 @@ export async function showQuiz({ user, onDone, allowSkip = true }) {
       <p class="quiz-score"><span data-count="${profile.score}">0</span><small>de ${profile.total} no mini desafio</small></p>
       <p class="gate-sub">O Gyde vai te tratar como <b>${esc(profile.levelLabel)}</b>${profile.languages.length ? ` e usar exemplos em <b>${esc(profile.languages.slice(0, 3).join(', '))}</b>` : ''}.</p>
       ${wrong.length ? `<div class="quiz-review"><p>Vale reforçar:</p><ul>${wrong.map((w) => `<li><b>${esc(w.topic)}</b> — a resposta era <code>${esc(w.answer)}</code></li>`).join('')}</ul>
-        <p class="gate-note">Pergunte ao Gyde sobre qualquer um desses, ou pratique na área Prática. Dá para refazer o quiz em Personalizar.</p></div>` : '<p class="gate-sub">Acertou tudo! Vamos para desafios mais difíceis.</p>'}
+        <p class="gate-note">Pergunte ao Gyde sobre qualquer um desses, ou pratique na área Prática. Dá para refazer o questionário em Configurações > Prática.</p></div>` : '<p class="gate-sub">Acertou tudo! Vamos para desafios mais difíceis.</p>'}
       <button type="button" class="btn primary wide" data-go="start">Começar a usar o Gyde</button>`, 'next');
 
     // Contagem animada da nota + confete se foi bem.

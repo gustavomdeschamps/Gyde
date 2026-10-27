@@ -19,16 +19,17 @@ export const cadeiaDe = (id) => CADEIAS[id] || [id, 'auto'];
 
 // Chamada sem streaming com troca automática de modelo. Devolve { texto, modelo }.
 // `valida(texto)` pode recusar a resposta (ex.: JSON inválido) para tentar o próximo modelo.
-export async function completar(router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida }) {
+export async function completar(router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida, registro }) {
   let ultimoErro = new Error('Nenhum modelo respondeu.');
   for (const model of cadeia) {
     try {
-      const r = await router('/v1/chat/completions', { method: 'POST', signal, body: JSON.stringify({ model, messages, max_tokens, temperature }) });
+      const r = await router('/v1/chat/completions', { method: 'POST', signal, registro, body: JSON.stringify({ model, messages, max_tokens, temperature }) });
       const j = await r.json();
+      registro?.tokens(j.usage);
       const texto = j.choices?.[0]?.message?.content || '';
       if (!texto.trim()) throw new Error(`${model} respondeu vazio`);
       if (valida && !valida(texto)) throw new Error(`${model} respondeu num formato inválido`);
-      return { texto, modelo: model };
+      return { texto, modelo: r.headers.get('x-routed-via') || model };
     } catch (err) {
       if (err.name === 'AbortError' || err.final || err.status === 429) throw err; // offline ou limite: outro modelo não resolve
       ultimoErro = err;

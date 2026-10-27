@@ -13,7 +13,7 @@ ou um print da tela, e te explica.
 
 ## Conectar
 
-1. No Gyde, abra **Personalizar → Extensões → Gerar token** e copie o token.
+1. No Gyde, abra **Configurações → Extensões → Gerar token** e copie o token.
 2. Clique no ícone do Gyde no Chrome (ou **Alt+G**), cole o token e clique em **Conectar**.
 
 ## Usar

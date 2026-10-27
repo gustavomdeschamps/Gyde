@@ -4,7 +4,7 @@
 
 const SEGUNDO = 1000;
 
-export function criarProvedores({ routerUrl, routerKey, ollamaUrl, ollamaModelo, modo }) {
+export function criarProvedores({ routerUrl, routerKey, ollamaUrl, ollamaModelo, modo, uso }) {
   // modo: 'online' (só FreeLLMAPI), 'offline' (só Ollama) ou 'auto' (FreeLLMAPI; se ele não responder, Ollama)
   const cfg = { modo: ['online', 'offline', 'auto'].includes(modo) ? modo : 'auto' };
   const saude = { online: null, offline: null, em: 0, modelosLocais: [] };
@@ -41,7 +41,21 @@ export function criarProvedores({ routerUrl, routerKey, ollamaUrl, ollamaModelo,
     }
   }
 
-  async function router(pathname, init = {}) {
+  // `init.registro` (uso.js) recebe cada ida ao provedor; chamadas sem dono (títulos, memória) viram registro "interno".
+  async function router(pathname, { registro, ...init } = {}) {
+    const avulso = !registro && uso && /completions|images/.test(pathname) ? uso.iniciar(null, 'interno') : null;
+    const reg = registro || avulso;
+    try {
+      const res = await chamar(pathname, init, reg);
+      avulso?.fim('ok');
+      return res;
+    } catch (err) {
+      avulso?.fim(uso.resultadoDe(err), err.message);
+      throw err;
+    }
+  }
+
+  async function chamar(pathname, init, reg) {
     const provedor = await ativo();
     const offline = provedor === 'offline';
     if (!offline && !routerKey) {
@@ -67,6 +81,7 @@ export function criarProvedores({ routerUrl, routerKey, ollamaUrl, ollamaModelo,
         headers: { 'Content-Type': 'application/json', ...(offline ? {} : { Authorization: `Bearer ${routerKey}` }), ...init.headers },
       });
     } catch (cause) {
+      reg?.chamada({ provedor, ok: false });
       if (cause.name === 'AbortError') throw cause;
       saude.em = 0; // força nova checagem: pode ter caído a internet ou o programa
       const msg = offline
@@ -75,13 +90,13 @@ export function criarProvedores({ routerUrl, routerKey, ollamaUrl, ollamaModelo,
       throw Object.assign(new Error(msg), { status: 502, final: offline });
     }
     registrar(res, provedor);
+    reg?.chamada({ provedor, ok: res.ok, modelo: offline ? ollamaModelo : res.headers.get('x-routed-via') });
     if (!res.ok) {
       let detail = '';
       try { const j = await res.json(); detail = j.error?.message || j.message || ''; } catch { /* corpo vazio */ }
       // 429 do roteador inteiro (acabaram os pedidos do minuto) para tudo; 429 de um modelo só deixa tentar outro
       if (res.status === 429 && ultimo.limite?.restante === 0) {
-        const quando = ultimo.limite?.renovaEm ? ` Renova às ${new Date(ultimo.limite.renovaEm).toLocaleTimeString('pt-BR')}.` : '';
-        throw Object.assign(new Error(`Limite de pedidos do FreeLLMAPI atingido.${quando}`), { status: 429 });
+        throw Object.assign(new Error(await mensagemLimite()), { status: 429, limite: 'roteador-minuto' });
       }
       const err = new Error(offline ? `O modelo local respondeu ${res.status}${detail ? `: ${detail}` : ''}` : `FreeLLMAPI respondeu ${res.status}${detail ? `: ${detail}` : ''}`);
       err.status = res.status === 401 ? 401 : 502;
@@ -89,6 +104,17 @@ export function criarProvedores({ routerUrl, routerKey, ollamaUrl, ollamaModelo,
       throw err;
     }
     return res;
+  }
+
+  // Mensagem quando o limite por minuto do FreeLLMAPI acaba: qual limite, quem limita, quando volta e o que funciona.
+  async function mensagemLimite() {
+    const l = ultimo.limite;
+    const volta = l?.renovaEm ? `Ele renova às ${new Date(l.renovaEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} (informado pelo FreeLLMAPI).` : 'O FreeLLMAPI não informou quando renova.';
+    const s = await checar();
+    const alternativa = s.offline
+      ? ` Enquanto isso, dá para usar o modelo local (${ollamaModelo}, mais simples e sem internet): Configurações > IA e modelos > modo "Só offline".`
+      : ' Espere a renovação e tente de novo.';
+    return `Limite atingido: os ${l?.total ?? ''} pedidos por minuto do FreeLLMAPI acabaram. ${volta}${alternativa}`.replace('os  pedidos', 'os pedidos');
   }
 
   // Tokens de uma resposta (campo usage da API, quando o provedor manda).

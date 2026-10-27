@@ -7,7 +7,58 @@ const DAY_MS = 86_400_000;
 const today = (t = Date.now()) => new Date(t).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso do PC
 const allExercises = () => TRACKS.flatMap((t) => t.exercises.map((ex) => ({ ...ex, track: t })));
 
-export function setupPratica(app, db, { router, profileSummary, asyncRoute }) {
+// Linguagens do questionário que têm trilha na Prática. As outras aparecem como "sem trilha ainda" (com
+// exercícios pelo chat), em vez de fingir que existem.
+const LINGUAGEM_DA_TRILHA = { Python: 'python', JavaScript: 'javascript', 'HTML e CSS': 'javascript' };
+
+// Plano de estudos de UMA pessoa: separa o que ela declarou no questionário, o que o quiz mediu e o que foi
+// observado nos exercícios. A ordem das trilhas sai dessas três fontes; nada é inventado para quem ainda não tem dados.
+export function planoDe(perfil, progress) {
+  const p = perfil || {};
+  const temQuiz = Boolean(p.level);
+  const langs = (p.languages || []).map((l) => LINGUAGEM_DA_TRILHA[l]).filter(Boolean);
+  const feitos = (t) => t.exercises.filter((e) => progress[e.id]?.done).length;
+  const motivos = {};
+  const pontua = (t) => {
+    const m = []; let n = 0;
+    const done = feitos(t), total = t.exercises.length;
+    if (done === total) return { n: -100, m: ['concluída'] };
+    if (langs.includes(t.lang)) { n += 3; m.push(`você escolheu ${t.lang === 'python' ? 'Python' : 'JavaScript'}`); }
+    const basica = t.id === 'python-basico' || t.id === 'js-zero';
+    if (['zero', 'basic'].includes(p.level) && basica) { n += 2; m.push('combina com o seu nível'); }
+    if (['intermediate', 'advanced'].includes(p.level) && !basica) { n += 2; m.push('você já passou do básico'); }
+    if (p.goal === 'Criar jogos' && t.id === 'proj-adivinhacao') { n += 2; m.push('seu objetivo é criar jogos'); }
+    if (p.goal === 'Criar meus próprios apps e sites' && t.lang === 'javascript') { n += 1; m.push('seu objetivo é criar apps e sites'); }
+    if (p.goal === 'Faculdade, vestibular ou olimpíada' && t.id === 'logica') { n += 2; m.push('lógica cai em provas e olimpíadas'); }
+    if (p.goal === 'Conseguir meu primeiro emprego' && t.projeto) { n += 1; m.push('projetos contam no portfólio'); }
+    if (done > 0) { n += 1.5; m.push('você já começou'); }
+    if (!temQuiz && t.id === 'python-basico') n += 1; // sem dados: começa pelo mais simples, e a tela explica isso
+    return { n, m };
+  };
+  const ordem = TRACKS.map((t) => { const r = pontua(t); motivos[t.id] = r.m; return { id: t.id, n: r.n }; })
+    .sort((a, b) => b.n - a.n).map((x) => x.id);
+  const recomendada = TRACKS.find((t) => t.id === ordem[0] && feitos(t) < t.exercises.length) || null;
+  const proximo = recomendada?.exercises.find((e) => !progress[e.id]?.done) || null;
+  // observado nos exercícios (não é o que a pessoa disse, é o que aconteceu)
+  const tentados = Object.entries(progress);
+  return {
+    temQuiz,
+    declarado: temQuiz ? { experiencia: p.experience, linguagens: p.languages || [], objetivo: p.goal, estilo: p.style, em: p.takenAt } : null,
+    medido: temQuiz ? { nivel: p.levelLabel, acertos: p.score, total: p.total, reforcar: p.weak || [], anteriores: p.anteriores || [] } : null,
+    observado: {
+      feitos: tentados.filter(([, v]) => v.done).length,
+      tentativasComErro: tentados.reduce((s, [, v]) => s + (v.fails || 0), 0),
+      travados: tentados.filter(([, v]) => v.fails > 0 && !v.done).map(([id]) => id), // errou e ainda não acertou
+    },
+    ordem,
+    motivos,
+    recomendada: recomendada?.id || null,
+    proximo: proximo ? { trackId: recomendada.id, exerciseId: proximo.id, title: proximo.title } : null,
+    semTrilha: (p.languages || []).filter((l) => !LINGUAGEM_DA_TRILHA[l] && l !== 'Ainda não sei'),
+  };
+}
+
+export function setupPratica(app, db, { router, profileSummary, asyncRoute, uso }) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS skill_progress (
       user_id TEXT NOT NULL, exercise_id TEXT NOT NULL, done INTEGER NOT NULL DEFAULT 0,
@@ -70,11 +121,15 @@ export function setupPratica(app, db, { router, profileSummary, asyncRoute }) {
   }
 
   // Desafio do dia: escolhido uma vez por dia, entre os exercícios ainda não feitos.
-  function dailyOf(userId, progress) {
+  function dailyOf(userId, progress, plano) {
     const day = today();
     let row = q.daily.get(userId, day);
     if (!row) {
-      const pending = allExercises().filter((e) => !progress[e.id]?.done);
+      // primeiro das 2 trilhas mais indicadas para a pessoa; se ela já fez tudo nelas, de qualquer trilha
+      const indicadas = new Set(plano.ordem.slice(0, 2));
+      const pendentes = allExercises().filter((e) => !progress[e.id]?.done);
+      const daIndicada = pendentes.filter((e) => indicadas.has(e.track.id));
+      const pending = daIndicada.length ? daIndicada : pendentes;
       const pool = pending.length ? pending : allExercises();
       let h = 0;
       for (const ch of userId + day) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -103,6 +158,9 @@ export function setupPratica(app, db, { router, profileSummary, asyncRoute }) {
     // Pontos fracos do quiz viram exercícios recomendados (os que ainda não foram feitos).
     const weak = JSON.parse(user.profile || '{}').weak || [];
     const reforco = [...new Set(weak.flatMap((t) => TOPICO_EXERCICIOS[t] || []))].filter((id) => !progress[id]?.done);
+    // erros observados também viram reforço (exercícios em que errou e ainda não acertou)
+    for (const [id, v] of Object.entries(progress)) if (v.fails > 0 && !v.done && !reforco.includes(id)) reforco.push(id);
+    const plano = planoDe(JSON.parse(user.profile || '{}'), progress);
     const { mutual, pedidos, aguardando } = friendsOf(userId);
     const weekAgo = now - 7 * DAY_MS;
     const ranking = [userId, ...mutual].map((id) => {
@@ -111,7 +169,7 @@ export function setupPratica(app, db, { router, profileSummary, asyncRoute }) {
     }).sort((a, b) => b.xpSemana - a.xpSemana);
     return {
       tracks: TRACKS, progress, xp: q.xpTotal.get(userId).xp, sequencia: streakOf(userId),
-      desafio: dailyOf(userId, progress), revisoes: reviews, reforco, ranking, pedidos, aguardando,
+      desafio: dailyOf(userId, progress, plano), revisoes: reviews, reforco, ranking, pedidos, aguardando, plano,
     };
   }
 
@@ -182,8 +240,12 @@ export function setupPratica(app, db, { router, profileSummary, asyncRoute }) {
     const results = Array.isArray(req.body?.results) ? req.body.results.slice(0, 10) : [];
     const failed = results.filter((r) => !r.pass).map((r) => `- entrada ${JSON.stringify(r.args)}: esperado ${JSON.stringify(r.expected)}, ${r.error ? `erro: ${r.error}` : `recebido ${JSON.stringify(r.got)}`}`).join('\n');
     const lang = track.lang === 'python' ? 'Python' : 'JavaScript';
-    const r = await router('/v1/chat/completions', {
+    const registro = uso?.iniciar(req.user.id, 'pratica');
+    let r;
+    try {
+    r = await router('/v1/chat/completions', {
       method: 'POST',
+      registro,
       body: JSON.stringify({
         model: 'auto',
         max_tokens: 400,
@@ -200,7 +262,9 @@ export function setupPratica(app, db, { router, profileSummary, asyncRoute }) {
         ],
       }),
     });
+    } catch (err) { registro?.fim(uso.resultadoDe(err), err.message); throw err; }
     const json = await r.json();
+    registro?.tokens(json.usage); registro?.fim('ok');
     res.json({ hint: json.choices?.[0]?.message?.content?.trim() || 'Tente rodar os testes e ler a mensagem de erro com calma.' });
   }));
 }
