@@ -26,7 +26,12 @@ import * as C from './contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
 // Formatos guardados no banco
-interface Anexo { kind: 'file' | 'image'; name?: string; text?: string; dataUrl?: string }
+interface Anexo { kind: 'file' | 'image'; name: string; text?: string; dataUrl?: string }
+// anexos vêm do navegador: só passam os campos conhecidos, com tipos conferidos
+const limparAnexos = (lista: unknown): Anexo[] => (Array.isArray(lista) ? lista : [])
+  .filter((a): a is Record<string, unknown> => Boolean(a) && typeof a === 'object' && (a.kind === 'image' || a.kind === 'file'))
+  .slice(0, 20)
+  .map((a) => ({ kind: a.kind as Anexo['kind'], name: String(a.name ?? 'anexo').slice(0, 200), ...(typeof a.dataUrl === 'string' ? { dataUrl: a.dataUrl } : {}), ...(typeof a.text === 'string' ? { text: a.text } : {}) }));
 interface Conversa { id: string; user_id: string | null; title: string; model: string; pinned: number; created_at: number; updated_at: number }
 interface LinhaMensagem { id: string; conversation_id: string; role: 'user' | 'assistant'; content: string; attachments: string; model: string | null; created_at: number }
 type Mensagem = Omit<LinhaMensagem, 'attachments'> & { attachments: Anexo[] };
@@ -360,7 +365,7 @@ app.get('/api/models', asyncRoute(async (_req, res) => {
   const r = await router('/v1/models');
   const json = await r.json() as { data?: { id: string; available?: boolean }[] };
   const available = new Set((json.data || []).filter((m) => m.available !== false).map((m) => m.id));
-  res.json({
+  responder(res, C.Modelos, {
     brand: Object.entries(GYDE_MODELS).map(([id, m]) => ({ id, label: m.label, hint: m.hint })),
     models: CODE_MODELS.filter((m) => available.has(m.id)),
   });
@@ -369,20 +374,20 @@ app.get('/api/models', asyncRoute(async (_req, res) => {
 app.get('/api/conversations', (req, res) => {
   const term = String(req.query.q || '').trim();
   const rows = term ? q.searchConvs.all(req.user.id, `%${term}%`, `%${term}%`) : q.listConvs.all(req.user.id);
-  res.json({ conversations: rows });
+  responder(res, C.ListaConversas, { conversations: rows });
 });
 
 app.post('/api/conversations', (req, res) => {
   const id = randomUUID();
   const t = now();
   q.insertConv.run(id, req.user.id, 'Nova conversa', String(req.body?.model || DEFAULT_MODEL), t, t);
-  res.status(201).json(q.getConv.get(id, req.user.id));
+  responder(res, C.Conversa, q.getConv.get(id, req.user.id)!, 201);
 });
 
 app.get('/api/conversations/:id', (req, res) => {
   const conv = q.getConv.get(req.params.id, req.user.id);
   if (!conv) return res.status(404).json({ error: 'Conversa não encontrada.' });
-  res.json({ ...conv, messages: q.getMessages.all(conv.id).map(parseMessage) });
+  responder(res, C.Conversa, { ...conv, messages: q.getMessages.all(conv.id).map(parseMessage) });
 });
 
 app.patch('/api/conversations/:id', (req, res) => {
@@ -392,7 +397,7 @@ app.patch('/api/conversations/:id', (req, res) => {
   if (typeof title === 'string' && title.trim()) db.prepare('UPDATE conversations SET title = ? WHERE id = ?').run(title.trim().slice(0, 120), conv.id);
   if (typeof model === 'string' && model) db.prepare('UPDATE conversations SET model = ? WHERE id = ?').run(model, conv.id);
   if (typeof pinned === 'boolean') db.prepare('UPDATE conversations SET pinned = ? WHERE id = ?').run(pinned ? 1 : 0, conv.id);
-  res.json(q.getConv.get(conv.id, req.user.id));
+  responder(res, C.Conversa, q.getConv.get(conv.id, req.user.id)!);
 });
 
 app.delete('/api/conversations/:id', (req, res) => {
@@ -470,7 +475,8 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
   const conv = q.getConv.get(String(req.params.id), req.user.id);
   if (!conv) return res.status(404).json({ error: 'Conversa não encontrada.' });
 
-  const { content = '', attachments = [], model, mode = 'new', messageId } = (req.body || {}) as { content?: unknown; attachments?: Anexo[]; model?: string; mode?: string; messageId?: string };
+  const { content = '', model, mode = 'new', messageId } = (req.body || {}) as { content?: unknown; model?: string; mode?: string; messageId?: string };
+  const attachments = limparAnexos(req.body?.attachments);
   let isImage = req.body?.kind === 'image';
   // "Gerar de novo" numa imagem gera outra imagem.
   if (mode === 'regenerate' && messageId) isImage ||= /^!\[/.test(q.getMessage.get(messageId, conv.id)?.content || '');

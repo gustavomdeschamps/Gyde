@@ -22,6 +22,18 @@ export const Preferencias = z.object({
   pagina_inicial: z.enum(PAGINAS_INICIAIS),
 });
 
+// ---------- Chat ----------
+export const AnexoMensagem = z.object({ kind: z.enum(['image', 'file']), name: z.string(), dataUrl: z.string().optional(), text: z.string().optional() });
+export const ResumoConversa = z.object({ id: z.string(), title: z.string(), model: z.string(), pinned: z.number().int(), updated_at: z.number() });
+export const ListaConversas = z.object({ conversations: z.array(ResumoConversa) });
+export const Mensagem = z.object({
+  id: z.string(), conversation_id: z.string().optional(), role: z.enum(['user', 'assistant']), content: z.string(),
+  attachments: z.array(AnexoMensagem), model: z.string().nullable().optional(), created_at: z.number(),
+});
+export const Conversa = ResumoConversa.extend({ user_id: z.string().nullable().optional(), created_at: z.number(), messages: z.array(Mensagem).optional() });
+const OpcaoModelo = z.object({ id: z.string(), label: z.string(), hint: z.string() });
+export const Modelos = z.object({ brand: z.array(OpcaoModelo), models: z.array(OpcaoModelo) });
+
 // ---------- Memória e tokens das extensões ----------
 export const Memoria = z.object({
   ativa: z.boolean(),
@@ -148,4 +160,8 @@ export type TProjeto = z.infer<typeof Projeto>;
 export type TSessaoForja = z.infer<typeof SessaoForja>;
 export type TUso = z.infer<typeof Uso>;
 export type TMemoria = z.infer<typeof Memoria>;
+export type TMensagem = z.infer<typeof Mensagem>;
+export type TConversa = z.infer<typeof Conversa>;
+export type TResumoConversa = z.infer<typeof ResumoConversa>;
+export type TModelos = z.infer<typeof Modelos>;
 export type TTokens = z.infer<typeof Tokens>;
