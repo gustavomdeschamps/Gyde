@@ -467,7 +467,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .uso-chip[data-estado="erro"] .uso-ponto { background: var(--danger); }
 /* ===== Configurações ===== */
 .dialog.config { width: min(860px, calc(100% - 32px)); padding: 0; overflow: hidden; }
-.config form { display: flex; flex-direction: column; max-height: min(720px, calc(100dvh - 32px)); }
+.config .config-form { display: flex; flex-direction: column; max-height: min(720px, calc(100dvh - 32px)); }
 .config-topo { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
 .config-topo h2 { margin: 0; }
 .config-corpo { display: grid; grid-template-columns: 190px 1fr; min-height: 0; flex: 1; }

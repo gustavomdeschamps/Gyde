@@ -22,6 +22,14 @@ export const Preferencias = z.object({
   pagina_inicial: z.enum(PAGINAS_INICIAIS),
 });
 
+// ---------- Memória e tokens das extensões ----------
+export const Memoria = z.object({
+  ativa: z.boolean(),
+  itens: z.array(z.object({ id: z.string(), text: z.string(), source: z.enum(['auto', 'manual', 'pedido']), created_at: z.number() })),
+});
+export const Tokens = z.object({ tokens: z.array(z.object({ id: z.string(), name: z.string(), created_at: z.number(), last_used: z.number().nullable() })) });
+export const TokenNovo = Tokens.extend({ token: z.string().regex(/^gyde_[0-9a-f]{48}$/) });
+
 // ---------- Prática ----------
 export const NivelPlano = z.enum(['basico', 'intermediario', 'avancado']);
 export const Guiado = z.object({ id: z.string(), tecnologia: z.string(), nivel: NivelPlano, topico: z.string(), titulo: z.string(), enunciado: z.string() });
@@ -139,3 +147,5 @@ export type TEstadoPasta = z.infer<typeof EstadoPasta>;
 export type TProjeto = z.infer<typeof Projeto>;
 export type TSessaoForja = z.infer<typeof SessaoForja>;
 export type TUso = z.infer<typeof Uso>;
+export type TMemoria = z.infer<typeof Memoria>;
+export type TTokens = z.infer<typeof Tokens>;

@@ -150,110 +150,11 @@
       </form>
       <div class="footnote">
         <span>O Gyde pode errar. Teste o código antes de usar. Suas conversas ficam só no seu computador.</span>
-        <button type="button" class="uso-chip" id="usoChip" aria-haspopup="dialog" title="Uso e limites da IA">
-          <i class="uso-ponto" aria-hidden="true"></i><span id="usoTexto">IA</span>
-        </button>
+        <span id="usoChipRaiz"></span>
       </div>
     </main>
   </div>
 
-  <dialog id="settingsDialog" class="dialog config" aria-labelledby="configTitulo">
-    <form method="dialog" id="settingsForm">
-      <header class="config-topo">
-        <h2 id="configTitulo">Configurações</h2>
-        <button value="cancel" class="icon-btn" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      </header>
-      <div class="config-corpo">
-        <nav class="config-abas" role="tablist" aria-label="Seções das configurações">
-          <button type="button" role="tab" data-aba="geral" aria-selected="true">Geral</button>
-          <button type="button" role="tab" data-aba="ia">IA e modelos</button>
-          <button type="button" role="tab" data-aba="uso">Uso e limites</button>
-          <button type="button" role="tab" data-aba="pratica">Prática</button>
-          <button type="button" role="tab" data-aba="dados">Privacidade e dados</button>
-          <button type="button" role="tab" data-aba="extensoes">Extensões</button>
-        </nav>
-
-        <section class="config-painel" role="tabpanel" data-painel="geral">
-          <div class="config-linha">
-            <div><b>Tema</b><small>Automático segue o tema do Windows. Fica salvo neste navegador.</small></div>
-            <select id="cfgTema"><option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select>
-          </div>
-          <div class="config-linha">
-            <div><b>Ao abrir o Gyde</b><small>Página que aparece quando você entra. Fica salvo na sua conta.</small></div>
-            <select id="cfgInicio"><option value="chat">Conversas</option><option value="pratica">Prática</option><option value="agente">Forja</option></select>
-          </div>
-          <div class="config-linha">
-            <div><b>Vídeo de abertura</b><small>Aparece só na primeira vez em cada navegador.</small></div>
-            <button type="button" class="btn ghost" id="replayIntro">Ver de novo</button>
-          </div>
-          <div class="config-linha">
-            <div><b>Restaurar padrões</b><small>Volta o tema, a página inicial e o modelo do chat ao padrão. Não apaga conversas nem progresso.</small></div>
-            <button type="button" class="btn ghost" id="cfgRestaurar">Restaurar</button>
-          </div>
-        </section>
-
-        <section class="config-painel" role="tabpanel" data-painel="ia" hidden>
-          <div id="cfgIaEstado" class="config-estado"></div>
-          <label>O que o Gyde deve saber sobre você?
-            <textarea name="about_user" rows="3" maxlength="4000" placeholder="Ex.: Estou no 1º ano do técnico em informática, sei um pouco de Python e quero aprender Java."></textarea></label>
-          <label>Como você quer as respostas?
-            <textarea name="response_style" rows="3" maxlength="4000" placeholder="Ex.: Respostas curtas e diretas, com exemplos de código comentados."></textarea></label>
-          <p class="config-nota">Os textos são salvos quando você sai do campo. O modelo de cada conversa é escolhido no topo do chat.</p>
-          <div class="profile-box memory-box">
-            <div class="memory-head">
-              <p><b>Memória</b><br>O Gyde lembra fatos sobre você entre conversas (projetos, objetivos, dificuldades). Diga "lembre que…" para guardar algo.</p>
-              <label class="switch"><input type="checkbox" id="memoryOn" aria-label="Memória ligada"><span></span></label>
-            </div>
-            <ul class="memory-list" id="memoryList"></ul>
-            <div class="memory-add"><input id="memoryInput" maxlength="200" placeholder="Ex.: estou fazendo um jogo em Pygame para o TCC" aria-label="Novo fato para a memória"><button type="button" class="btn small" id="memoryAdd">Guardar</button></div>
-            <button type="button" class="link" id="memoryClear">Apagar toda a memória</button>
-          </div>
-        </section>
-
-        <section class="config-painel" role="tabpanel" data-painel="uso" hidden><div id="usoPainel" class="uso-painel"></div></section>
-
-        <section class="config-painel" role="tabpanel" data-painel="pratica" hidden>
-          <div id="cfgPratica"></div>
-          <div class="config-botoes">
-            <button type="button" class="btn primary" id="redoQuiz">Fazer o questionário</button>
-            <a class="btn ghost" href="#/pratica" id="cfgIrPratica">Abrir a Prática</a>
-          </div>
-          <p class="config-nota">Refazer o questionário atualiza as recomendações. Exercícios feitos, XP e sequência continuam.</p>
-        </section>
-
-        <section class="config-painel" role="tabpanel" data-painel="dados" hidden>
-          <div class="config-texto">
-            <p><b>Onde ficam seus dados.</b> Conversas, progresso, memória, registro de uso e conversas da Forja ficam no banco <code>data\chat.db</code> deste computador. Cada conta só vê os próprios dados.</p>
-            <p><b>O que sai do computador.</b> No modo online, o texto das mensagens, os anexos e os trechos de arquivos que a Forja lê vão para o FreeLLMAPI, que repassa a um serviço de IA (Groq, Google, Mistral e outros, conforme as chaves configuradas nele). No modo offline nada sai: o modelo roda no Ollama, aqui mesmo.</p>
-            <p><b>O que nunca vai para a IA.</b> Arquivos <code>.env</code>, chaves SSH, certificados e outros arquivos de senhas são bloqueados. Chaves e tokens encontrados em textos são trocados por <code>[segredo removido]</code>.</p>
-          </div>
-          <div class="config-linha perigo">
-            <div><b>Apagar todas as conversas do chat</b><small>Não dá para desfazer.</small></div>
-            <button type="button" class="btn ghost" data-apagar="conversas">Apagar</button>
-          </div>
-          <div class="config-linha perigo">
-            <div><b>Apagar todas as conversas da Forja</b><small>Os arquivos dos seus projetos não são tocados.</small></div>
-            <button type="button" class="btn ghost" data-apagar="forja">Apagar</button>
-          </div>
-          <div class="config-linha perigo">
-            <div><b>Apagar o registro de uso</b><small>Zera os contadores de pedidos e tokens do painel Uso e limites.</small></div>
-            <button type="button" class="btn ghost" data-apagar="uso">Apagar</button>
-          </div>
-        </section>
-
-        <section class="config-painel" role="tabpanel" data-painel="extensoes" hidden>
-          <p class="config-nota">Gere um token e cole na extensão do Gyde para o Chrome ou para o VS Code. Ele dá acesso à sua conta, então não compartilhe.</p>
-          <div class="token-new" id="tokenNew" hidden>
-            <code id="tokenValue"></code>
-            <button type="button" class="btn small" id="tokenCopy">Copiar</button>
-            <small>Copie agora: este token não será mostrado de novo.</small>
-          </div>
-          <ul class="token-list" id="tokenList"></ul>
-          <button type="button" class="btn ghost" id="tokenCreate">Gerar token</button>
-        </section>
-      </div>
-    </form>
-  </dialog>
 
   <div class="intro" id="intro" hidden>
     <video id="introVideo" data-src="/intro.mp4?v=8" playsinline preload="none"></video>

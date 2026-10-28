@@ -3,8 +3,10 @@ import { randomUUID } from 'node:crypto';
 import type { Express } from 'express';
 import type { Db, Router, Usuario } from './tipos.ts';
 import { consulta } from './tipos.ts';
+import * as C from './contratos.ts';
+import { responder } from './contratos-servidor.ts';
 
-interface Memoria { id: string; text: string; source: string; created_at: number }
+interface Memoria { id: string; text: string; source: 'auto' | 'manual' | 'pedido'; created_at: number }
 
 // Modelo direto (sem "raciocínio em voz alta") para tarefas internas; o automático fica de reserva.
 const UTIL_MODELS = [process.env.UTIL_MODEL || 'mistral-code', 'auto'];
@@ -94,17 +96,17 @@ export function setupMemoria(app: Express, db: Db, { router, getSetting, setSett
   }
 
   const view = (userId: string) => ({ ativa: enabled(userId), itens: q.list.all(userId) });
-  app.get('/api/memoria', (req, res) => res.json(view(req.user.id)));
+  app.get('/api/memoria', (req, res) => responder(res, C.Memoria, view(req.user.id)));
   app.post('/api/memoria', (req, res) => {
     if (!save(req.user.id, req.body?.texto || '', 'manual')) return res.status(400).json({ error: 'Texto vazio, repetido ou memória cheia.' });
-    res.status(201).json(view(req.user.id));
+    responder(res, C.Memoria, view(req.user.id), 201);
   });
   app.put('/api/memoria/config', (req, res) => {
     setSetting(req.user.id, 'memory_enabled', req.body?.ativa ? '1' : '0');
-    res.json(view(req.user.id));
+    responder(res, C.Memoria, view(req.user.id));
   });
-  app.delete('/api/memoria/:id', (req, res) => { q.del.run(req.params.id, req.user.id); res.json(view(req.user.id)); });
-  app.delete('/api/memoria', (req, res) => { q.delAll.run(req.user.id); res.json(view(req.user.id)); });
+  app.delete('/api/memoria/:id', (req, res) => { q.del.run(req.params.id, req.user.id); responder(res, C.Memoria, view(req.user.id)); });
+  app.delete('/api/memoria', (req, res) => { q.delAll.run(req.user.id); responder(res, C.Memoria, view(req.user.id)); });
 
   return { promptFor, learnFrom };
 }

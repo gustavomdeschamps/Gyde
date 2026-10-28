@@ -6,6 +6,8 @@ import type { Express, Request, Response, NextFunction } from 'express';
 import type { ScryptOptions } from 'node:crypto';
 import type { Db, Usuario } from './tipos.ts';
 import { consulta, comoErro, erroGyde } from './tipos.ts';
+import * as C from './contratos.ts';
+import { responder } from './contratos-servidor.ts';
 
 interface LinhaUsuario extends Usuario { password_hash: string; email_verified: number; onboarded: number; created_at: number }
 
@@ -344,17 +346,17 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
     if (req.get('authorization')) return res.status(403).json({ error: 'Gerencie os tokens pelo site do Gyde.' });
     requireAuth(req, res, next);
   };
-  app.get('/api/tokens', viaCookie, (req, res) => res.json({ tokens: tq.list.all(req.user.id) }));
+  app.get('/api/tokens', viaCookie, (req, res) => responder(res, C.Tokens, { tokens: tq.list.all(req.user.id) }));
   app.post('/api/tokens', express.json({ limit: '4kb' }), viaCookie, (req, res) => {
     if ((tq.count.get(req.user.id)?.n ?? 0) >= 10) return res.status(400).json({ error: 'Limite de 10 tokens. Revogue um antigo.' });
     const name = String(req.body?.name || 'Extensão').trim().slice(0, 60) || 'Extensão';
     const token = `gyde_${randomBytes(24).toString('hex')}`;
     tq.insert.run(sha256(token), req.user.id, name, Date.now());
-    res.status(201).json({ token, tokens: tq.list.all(req.user.id) }); // o token aparece só agora
+    responder(res, C.TokenNovo, { token, tokens: tq.list.all(req.user.id) }, 201); // o token aparece só agora
   });
   app.delete('/api/tokens/:id', viaCookie, (req, res) => {
     tq.remove.run(req.user.id, String(req.params.id).slice(0, 12));
-    res.json({ tokens: tq.list.all(req.user.id) });
+    responder(res, C.Tokens, { tokens: tq.list.all(req.user.id) });
   });
 
   return { requireAuth, publicUser, smtpReady, firstUser: () => q.countUsers.get()?.n === 1 };
