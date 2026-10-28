@@ -6,6 +6,8 @@ import type { Express } from 'express';
 import type { Db } from './tipos.ts';
 import type { Request, Response } from 'express';
 import { consulta } from './tipos.ts';
+import * as C from './contratos.ts';
+import { responder } from './contratos-servidor.ts';
 
 interface Turma { id: string; code: string; name: string; owner_id: string; created_at: number }
 interface Tarefa { id: string; turma_id: string; exercise_id: string; prazo: string | null; created_at: number }
@@ -61,7 +63,7 @@ export function setupTurmas(app: Express, db: Db) {
   };
 
   app.get('/api/turmas', (req, res) => {
-    res.json({
+    responder(res, C.ListaTurmas, {
       ensino: q.owned.all(req.user.id).map((t) => ({ id: t.id, name: t.name, code: t.code, alunos: q.countMembers.get(t.id)?.n ?? 0, tarefas: q.tasks.all(t.id).length })),
       participo: q.joined.all(req.user.id).map((t) => {
         const done = new Set(q.done.all(req.user.id).map((r) => r.exercise_id));
@@ -77,7 +79,7 @@ export function setupTurmas(app: Express, db: Db) {
     if ((q.owned_count.get(req.user.id)?.n ?? 0) >= 20) return res.status(400).json({ error: 'Limite de 20 turmas.' });
     const id = randomUUID();
     q.create.run(id, newCode(), name, req.user.id, Date.now());
-    res.status(201).json({ id });
+    responder(res, C.IdCriado, { id }, 201);
   });
 
   app.post('/api/turmas/entrar', (req, res) => {
@@ -86,7 +88,7 @@ export function setupTurmas(app: Express, db: Db) {
     if (!t) return res.status(404).json({ error: 'Código não encontrado. Confira com o professor.' });
     if (t.owner_id === req.user.id) return res.status(400).json({ error: 'Você é o professor desta turma.' });
     q.join.run(t.id, req.user.id, Date.now());
-    res.json({ id: t.id });
+    responder(res, C.IdCriado, { id: t.id });
   });
 
   // Visão da turma: o professor vê todos os alunos x tarefas; o aluno vê as próprias tarefas.
@@ -101,11 +103,11 @@ export function setupTurmas(app: Express, db: Db) {
         const done = new Set(q.done.all(m.id).map((r) => r.exercise_id));
         return { id: m.id, name: m.name, email: m.email, xp: q.xp.get(m.id)?.xp ?? 0, ultimoDia: q.lastDay.get(m.id)?.day ?? null, feitas: tasks.map((k) => done.has(k.exerciseId)) };
       });
-      return res.json({ id: t.id, name: t.name, code: t.code, professor: true, tarefas: tasks, alunos });
+      return responder(res, C.TurmaProfessor, { id: t.id, name: t.name, code: t.code, professor: true, tarefas: tasks, alunos });
     }
     const done = new Set(q.done.all(req.user.id).map((r) => r.exercise_id));
     const owner = consulta<{ name: string }>(db, 'SELECT name FROM users WHERE id = ?').get(t.owner_id);
-    res.json({ id: t.id, name: t.name, professor: false, professorNome: owner?.name, tarefas: tasks.map((k) => ({ ...k, feita: done.has(k.exerciseId) })) });
+    responder(res, C.TurmaAluno, { id: t.id, name: t.name, professor: false, professorNome: owner?.name, tarefas: tasks.map((k) => ({ ...k, feita: done.has(k.exerciseId) })) });
   });
 
   app.patch('/api/turmas/:id', (req, res) => {

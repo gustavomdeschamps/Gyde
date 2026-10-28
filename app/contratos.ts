@@ -122,6 +122,27 @@ export const SessaoForja = z.object({
 }).refine((s) => s.existe === s.pastaEstado.ok, { message: '"existe" e "pastaEstado.ok" discordam' });
 export const Reconexao = z.object({ ok: z.literal(true), pasta: z.string(), pastaEstado: EstadoPasta });
 
+// ---------- Turmas ----------
+export const ListaTurmas = z.object({
+  ensino: z.array(z.object({ id: z.string(), name: z.string(), code: z.string(), alunos: z.number().int(), tarefas: z.number().int() })),
+  participo: z.array(z.object({ id: z.string(), name: z.string(), professor: z.string(), tarefas: z.number().int(), feitas: z.number().int() })),
+});
+// tarefa aponta para um exercício da Prática; se ele sair do catálogo, a trilha fica vazia e o título vira o id
+export const TarefaTurma = z.object({
+  id: z.string(), exerciseId: z.string(), trackId: z.string().optional(), title: z.string(), track: z.string().optional(),
+  lang: z.string().optional(), prazo: z.string().nullable(),
+});
+export const TurmaProfessor = z.object({
+  id: z.string(), name: z.string(), code: z.string(), professor: z.literal(true), tarefas: z.array(TarefaTurma),
+  alunos: z.array(z.object({ id: z.string(), name: z.string(), email: z.string(), xp: z.number(), ultimoDia: z.string().nullable(), feitas: z.array(z.boolean()) })),
+}).refine((t) => t.alunos.every((a) => a.feitas.length === t.tarefas.length), 'cada aluno tem uma marca por tarefa');
+export const TurmaAluno = z.object({
+  id: z.string(), name: z.string(), professor: z.literal(false), professorNome: z.string().optional(),
+  tarefas: z.array(TarefaTurma.extend({ feita: z.boolean() })),
+});
+export const Turma = z.union([TurmaProfessor, TurmaAluno]);
+export const IdCriado = z.object({ id: z.string() });
+
 // ---------- Uso e limites ----------
 const Totais = z.object({
   pedidos: z.number().int(), concluidos: z.number().int(), falhas: z.number().int(), cancelados: z.number().int(), limite: z.number().int(),
@@ -165,3 +186,6 @@ export type TConversa = z.infer<typeof Conversa>;
 export type TResumoConversa = z.infer<typeof ResumoConversa>;
 export type TModelos = z.infer<typeof Modelos>;
 export type TTokens = z.infer<typeof Tokens>;
+export type TListaTurmas = z.infer<typeof ListaTurmas>;
+export type TTurmaProfessor = z.infer<typeof TurmaProfessor>;
+export type TTurmaAluno = z.infer<typeof TurmaAluno>;

@@ -9,7 +9,7 @@ import { tocarAbertura, aberturaJaVista } from './abertura.ts';
 import { showAuth, showQuiz, hideGate } from './onboarding.js';
 import { createPractice } from './pratica.svelte.ts';
 import { createSkillsPage } from './skills.js';
-import { createTurmasPage } from './turmas.js';
+import { createTurmasPage } from './turmas.svelte.ts';
 import { createAgentePage } from './agente.ts';
 import { aplicarTema, definirTema, temaAtual } from './tema.ts';
 import { montarConfiguracoes } from './config.ts';
@@ -38,7 +38,7 @@ const pratica = createPractice({
 });
 const skills = createSkillsPage({ root: $('#skillsView'), api, toast, renderMarkdown, onChange: (lista: SkillInstalada[]) => { chat.skills = lista; } });
 const forja = createAgentePage({ root: $('#agenteView'), toast, renderMarkdown });
-const turmas = createTurmasPage({ root: $('#turmasView'), api, toast, getTracks: async () => (await pedir('/api/pratica', C.EstadoPratica)).tracks });
+const turmas = createTurmasPage({ root: $('#turmasView') });
 
 // ---------- rotas ----------
 async function rota() {
