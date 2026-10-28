@@ -22,6 +22,8 @@ import type { Usuario, MensagemIA, ParteConteudo, ErroGyde, AsyncRoute, UsoInfor
 import { consulta, comoErro, erroGyde } from './tipos.ts';
 import type { SkillListada } from './skills-sistema.ts';
 import type { Perfil } from './pratica-plano.ts';
+import * as C from './contratos.ts';
+import { responder } from './contratos-servidor.ts';
 
 // Formatos guardados no banco
 interface Anexo { kind: 'file' | 'image'; name?: string; text?: string; dataUrl?: string }
@@ -338,13 +340,13 @@ app.get('/api/status', asyncRoute(async (_req, res) => {
   const u = await provedores.resumo({ mostrarConta: false });
   let desatualizado = false;
   try { desatualizado = impressaoDoCodigo() !== VERSAO_INICIO; } catch { /* sem como checar */ }
-  res.json({ keyConfigured: Boolean(ROUTER_KEY), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagesEnabled(), desatualizado });
+  responder(res, C.Status, { keyConfigured: Boolean(ROUTER_KEY), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagesEnabled(), desatualizado });
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).
 app.get('/api/uso', asyncRoute(async (req, res) => {
   const pessoal = process.env.GYDE_MODE !== 'publico';
-  res.json({ ...(await provedores.resumo({ mostrarConta: pessoal })), gyde: uso.resumo(req.user.id, { mostrarInternas: pessoal }) });
+  responder(res, C.Uso, { ...(await provedores.resumo({ mostrarConta: pessoal })), gyde: uso.resumo(req.user.id, { mostrarInternas: pessoal }) });
 }));
 app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); res.json({ ok: true }); });
 // Trocar entre online, offline e automático (só no modo pessoal: vale para o Gyde inteiro).
@@ -426,20 +428,19 @@ app.post('/api/profile/skip', (req, res) => {
 });
 
 // Preferências da conta (ficam no banco, valem em qualquer navegador). Tema e animação ficam no navegador.
-const PAGINAS_INICIAIS = ['chat', 'pratica', 'agente'];
-const lerPreferencias = (userId: string) => ({
-  about_user: getSetting(userId, 'about_user'),
-  response_style: getSetting(userId, 'response_style'),
-  pagina_inicial: getSetting(userId, 'pagina_inicial', 'chat'),
-});
-app.get('/api/settings', (req, res) => res.json(lerPreferencias(req.user.id)));
+const ehPaginaInicial = (v: unknown): v is C.TPreferencias['pagina_inicial'] => (C.PAGINAS_INICIAIS as readonly unknown[]).includes(v);
+const lerPreferencias = (userId: string): C.TPreferencias => {
+  const pagina = getSetting(userId, 'pagina_inicial', 'chat');
+  return { about_user: getSetting(userId, 'about_user'), response_style: getSetting(userId, 'response_style'), pagina_inicial: ehPaginaInicial(pagina) ? pagina : 'chat' };
+};
+app.get('/api/settings', (req, res) => responder(res, C.Preferencias, lerPreferencias(req.user.id)));
 
 app.put('/api/settings', (req, res) => {
   for (const key of ['about_user', 'response_style']) {
     if (typeof req.body?.[key] === 'string') setSetting(req.user.id, key, req.body[key].slice(0, 4000));
   }
-  if (PAGINAS_INICIAIS.includes(req.body?.pagina_inicial)) setSetting(req.user.id, 'pagina_inicial', req.body.pagina_inicial);
-  res.json(lerPreferencias(req.user.id));
+  if (ehPaginaInicial(req.body?.pagina_inicial)) setSetting(req.user.id, 'pagina_inicial', req.body.pagina_inicial);
+  responder(res, C.Preferencias, lerPreferencias(req.user.id));
 });
 
 // Apagar TODAS as conversas do chat desta conta (a tela pede confirmação antes).

@@ -7,6 +7,8 @@ import type { Db, Router, AsyncRoute, Usuario } from './tipos.ts';
 import type { Uso } from './uso.ts';
 import { consulta, comoErro } from './tipos.ts';
 import type { Perfil, Progresso, Plano } from './pratica-plano.ts';
+import * as C from './contratos.ts';
+import { responder } from './contratos-servidor.ts';
 
 type Pessoa = { id: string; name: string; email: string };
 
@@ -135,7 +137,7 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
     };
   }
 
-  app.get('/api/pratica', (req, res) => res.json(state(req.user)));
+  app.get('/api/pratica', (req, res) => responder(res, C.EstadoPratica, state(req.user)));
 
   // Salva o código; se passou em todos os testes, dá XP, conta o dia e cuida da revisão.
   app.post('/api/pratica/progress', (req, res) => {
@@ -175,7 +177,7 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
         ganhos.push({ motivo: 'Desafio do dia (bônus)', xp: ex.xp });
       }
     }
-    res.json({ ...state(req.user), ganhos });
+    responder(res, C.EstadoPraticaComGanhos, { ...state(req.user), ganhos });
   });
 
   // Exercício guiado (sem testes automáticos): a pessoa resolve, o Gyde corrige no chat e ela marca como feito.
@@ -188,7 +190,7 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
     q.addDay.run(userId, today(now));
     const ganhos = [];
     if (!antes?.done) { q.addXp.run(userId, 10, 'guiado', g.id, now); ganhos.push({ motivo: 'Exercício guiado feito', xp: 10 }); }
-    res.json({ ...state(req.user), ganhos });
+    responder(res, C.EstadoPraticaComGanhos, { ...state(req.user), ganhos });
   });
 
   // Amizade só vale quando os dois se adicionam (assim ninguém vê seu XP sem você querer).
@@ -198,12 +200,12 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
     if (!friend) return res.status(404).json({ error: 'Não achei ninguém com esse e-mail neste Gyde.' });
     if (friend.id === req.user.id) return res.status(400).json({ error: 'Esse é o seu próprio e-mail.' });
     q.addFriend.run(req.user.id, friend.id, Date.now());
-    res.json(state(req.user));
+    responder(res, C.EstadoPratica, state(req.user));
   });
   app.delete('/api/amigos/:email', (req, res) => {
     const friend = q.userByEmail.get(String(req.params.email).toLowerCase());
     if (friend) q.removeFriend.run(req.user.id, friend.id);
-    res.json(state(req.user));
+    responder(res, C.EstadoPratica, state(req.user));
   });
 
   // Dica do Gyde: aponta o caminho sem entregar a solução.

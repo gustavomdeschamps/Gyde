@@ -7,6 +7,7 @@
 // Exercícios guiados não rodam testes no navegador: a pessoa resolve e o Gyde corrige no chat.
 import { TRACKS } from './pratica-dados.ts';
 import type { Trilha } from './pratica-dados.ts';
+import type { TPlano } from './contratos.ts';
 
 export type NivelPlano = 'basico' | 'intermediario' | 'avancado';
 export type TipoPlano = 'trilha' | 'adaptada' | 'montada' | 'inicial';
@@ -108,7 +109,7 @@ const PELO_OBJETIVO: Record<string, string[]> = {
 const NIVEL_DO_QUIZ: Record<string, NivelPlano> = { zero: 'basico', basic: 'basico', intermediate: 'intermediario', advanced: 'avancado' };
 const NIVEL_DA_EXPERIENCIA: Record<string, NivelPlano> = { 'Nunca programei': 'basico', 'Já fiz alguns exercícios': 'basico', 'Programo com frequência': 'intermediario', 'Faço projetos grandes ou trabalho com isso': 'avancado' };
 
-export function planoDe(perfil: unknown, progress: Progresso = {}) {
+export function planoDe(perfil: unknown, progress: Progresso = {}): TPlano {
   const p: Perfil = perfil && typeof perfil === 'object' && !Array.isArray(perfil) ? perfil as Perfil : {};
   const temQuiz = Boolean(p.level);
   const feito = (id: string) => Boolean(progress[id]?.done);
@@ -185,7 +186,7 @@ export function planoDe(perfil: unknown, progress: Progresso = {}) {
   }
 
   const tentados = Object.entries(progress);
-  const plano = {
+  const plano: TPlano = {
     versao: 2,
     tipo,
     explicacao: {
@@ -198,7 +199,7 @@ export function planoDe(perfil: unknown, progress: Progresso = {}) {
     tecnologias,
     tecnologiasDeduzidas: !declaradas.length,
     temQuiz,
-    declarado: temQuiz ? { experiencia: p.experience || null, linguagens: p.languages || [], objetivo: p.goal || null, estilo: p.style || null, em: p.takenAt || null } : null,
+    declarado: temQuiz ? { experiencia: p.experience || null, linguagens: Array.isArray(p.languages) ? p.languages.filter((l): l is string => typeof l === 'string') : [], objetivo: p.goal || null, estilo: p.style || null, em: p.takenAt || null } : null,
     medido: temQuiz ? { nivel: p.levelLabel || null, acertos: p.score ?? null, total: p.total ?? null, reforcar: p.weak || [], anteriores: p.anteriores || [] } : null,
     observado: {
       feitos: tentados.filter(([, v]) => v.done).length,
@@ -218,4 +219,4 @@ export function planoDe(perfil: unknown, progress: Progresso = {}) {
   return plano;
 }
 
-export type Plano = ReturnType<typeof planoDe>;
+export type Plano = TPlano;

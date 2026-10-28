@@ -5,7 +5,7 @@
 // Isto é o registro do Gyde neste computador, não o saldo oficial de nenhum provedor.
 import { randomUUID } from 'node:crypto';
 import type { Db, Registro, Resultado, UsoInformado } from './tipos.ts';
-import { comoErro } from './tipos.ts';
+import { comoErro, consulta } from './tipos.ts';
 
 export interface TotaisPeriodo {
   pedidos: number; concluidos: number; falhas: number; cancelados: number; limite: number;
@@ -31,7 +31,7 @@ export function criarUso(db: Db) {
     periodo: db.prepare(`SELECT provedor, resultado, COUNT(*) AS pedidos, SUM(chamadas) AS chamadas, SUM(chamadas_falhas) AS falhas,
                            SUM(tokens_entrada) AS entrada, SUM(tokens_saida) AS saida, SUM(tokens_entrada IS NULL AND resultado = 'ok') AS sem_tokens
                          FROM uso_registros WHERE user_id = ? AND inicio >= ? GROUP BY provedor, resultado`),
-    ultimos: db.prepare('SELECT origem, provedor, modelo, resultado, chamadas, tokens_entrada, tokens_saida, erro, inicio, duracao_ms FROM uso_registros WHERE user_id = ? ORDER BY inicio DESC LIMIT ?'),
+    ultimos: consulta<{ origem: string; provedor: string | null; modelo: string | null; resultado: Resultado; chamadas: number; tokens_entrada: number | null; tokens_saida: number | null; erro: string | null; inicio: number; duracao_ms: number }>(db, 'SELECT origem, provedor, modelo, resultado, chamadas, tokens_entrada, tokens_saida, erro, inicio, duracao_ms FROM uso_registros WHERE user_id = ? ORDER BY inicio DESC LIMIT ?'),
     internas: db.prepare('SELECT COUNT(*) AS n FROM uso_registros WHERE user_id IS NULL AND inicio >= ?'),
     apagar: db.prepare('DELETE FROM uso_registros WHERE user_id = ?'),
   };

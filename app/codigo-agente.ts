@@ -13,6 +13,8 @@ import type { Express, Request, Response, NextFunction } from 'express';
 import type { Db, Router, AsyncRoute, MensagemIA, ParteConteudo, ErroGyde } from './tipos.ts';
 import { consulta, comoErro, erroGyde } from './tipos.ts';
 import type { Uso } from './uso.ts';
+import * as C from './contratos.ts';
+import { responder } from './contratos-servidor.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).
 export interface ArgsFerramenta { caminho?: unknown; profundidade?: unknown; inicio?: unknown; fim?: unknown; texto?: unknown; conteudo?: unknown; procurar?: unknown; substituir?: unknown; comando?: unknown }
@@ -360,7 +362,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
   });
 
   // ---------- rotas ----------
-  app.get('/api/codigo/sessoes', bloqueado, (req, res) => res.json({ sessoes: q.lista.all(req.user.id).map((s) => ({ ...s, disponivel: estadoPasta(s.pasta).ok })), pessoal }));
+  app.get('/api/codigo/sessoes', bloqueado, (req, res) => responder(res, C.ListaSessoes, { sessoes: q.lista.all(req.user.id).map((s) => ({ ...s, disponivel: estadoPasta(s.pasta).ok })), pessoal }));
   app.post('/api/codigo/sessoes', bloqueado, (req, res) => {
     const pasta = validarPasta(req.body?.pasta);
     const id = randomUUID(), t = Date.now();
@@ -390,7 +392,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     const s = q.uma.get(String(req.params.id), req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
     const pastaEstado = estadoPasta(s.pasta);
-    res.json({ ...s, existe: pastaEstado.ok, pastaEstado, projeto: pastaEstado.ok ? analisarProjeto(realpathSync.native(s.pasta)) : null, podeDesfazer: temCopia(s.id),
+    responder(res, C.SessaoForja, { ...s, existe: pastaEstado.ok, pastaEstado, projeto: pastaEstado.ok ? analisarProjeto(realpathSync.native(s.pasta)) : null, podeDesfazer: temCopia(s.id),
       trabalhando: rodando.has(s.id), eventos: q.eventos.all(s.id).map((e) => ({ tipo: e.tipo, em: e.created_at, ...JSON.parse(e.dados) })) });
   });
   // arquivos do projeto que a Forja pode ver (para o usuário consultar)
@@ -429,7 +431,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     const pasta = validarPasta(req.body?.pasta);
     q.trocarPasta.run(pasta, Date.now(), s.id, req.user.id);
     if (pasta !== s.pasta) q.evento.run(s.id, 'reconectado', JSON.stringify({ de: s.pasta, para: pasta }), Date.now());
-    res.json({ ok: true, pasta, pastaEstado: estadoPasta(pasta) });
+    responder(res, C.Reconexao, { ok: true, pasta, pastaEstado: estadoPasta(pasta) });
   });
 
   // botão "Desfazer" da tela (o mesmo que a ferramenta desfazer do agente)

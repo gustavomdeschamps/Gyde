@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { QUIZ, gradeQuiz } from '../quiz.ts';
 import { planoDe, GUIADOS, TECNOLOGIAS, findGuiado } from '../pratica-plano.ts';
 import { TRACKS, findExercise } from '../pratica-dados.ts';
+import { Plano } from '../contratos.ts';
 
 const pergunta = (id) => QUIZ.find((q) => q.id === id);
 const conhecimento = QUIZ.filter((q) => q.kind === 'knowledge');
@@ -19,6 +20,8 @@ const subconjunto = () => opcoesLing.filter(() => aleatorio() < 0.3);
 function confere(plano, progress, contexto) {
   const msg = (m) => `${m} | ${JSON.stringify(contexto)}`;
   assert.ok(plano && typeof plano === 'object' && !(plano instanceof Promise), msg('plano não é objeto síncrono'));
+  const contrato = Plano.safeParse(plano);
+  assert.ok(contrato.success, msg(`plano fora do contrato: ${contrato.success ? '' : contrato.error.issues.map((i) => i.path.join('.') + ' ' + i.message).join('; ')}`));
   assert.ok(TIPOS.includes(plano.tipo), msg(`tipo inválido ${plano.tipo}`));
   assert.equal(typeof plano.explicacao, 'string', msg('sem explicação'));
   assert.ok(plano.tecnologias.length > 0 && plano.tecnologias.every((t) => TECNOLOGIAS.includes(t)), msg('tecnologias inválidas'));
