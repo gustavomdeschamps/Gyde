@@ -99,6 +99,6 @@ try {
 
 Write-Host ''
 Write-Host 'Tudo pronto!' -ForegroundColor Green
-Write-Host 'Extras opcionais: pasta configurar (imagens, voz, VS Code) e pasta pacotes\extensao-chrome (extensao do Chrome).'
+Write-Host 'Extras opcionais: imagens em Configuracoes > IA no Gyde, pasta configurar (VS Code) e pasta pacotes\extensao-chrome (extensao do Chrome).'
 $r = Read-Host 'Abrir o Gyde agora? (s/n)'
 if ($r -eq 's') { Start-Process (Join-Path $root 'iniciar.bat') -WorkingDirectory $root }

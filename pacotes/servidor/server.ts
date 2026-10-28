@@ -76,10 +76,12 @@ const DEFAULT_MODEL = 'gyde-1';
 const UTIL_MODEL = process.env.UTIL_MODEL || 'mistral-code';
 
 // Geração de imagens: Cloudflare Workers AI (cota diária grátis).
-const CF_ACCOUNT = process.env.CLOUDFLARE_ACCOUNT_ID || '';
-const CF_TOKEN = process.env.CLOUDFLARE_API_TOKEN || '';
+// lidas na hora (podem ser configuradas pela tela, em Configurações > IA)
+const cfConta = () => process.env.CLOUDFLARE_ACCOUNT_ID || '';
+const cfToken = () => process.env.CLOUDFLARE_API_TOKEN || '';
+const CF_API = (process.env.CLOUDFLARE_API_URL || 'https://api.cloudflare.com').replace(/\/+$/, ''); // os testes apontam para um falso
 const IMAGE_MODEL = process.env.IMAGE_MODEL || '@cf/black-forest-labs/flux-1-schnell';
-const imagesEnabled = () => Boolean(CF_ACCOUNT && CF_TOKEN);
+const imagesEnabled = () => Boolean(cfConta() && cfToken());
 const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(BASE, 'data');
 const IMAGES_DIR = path.join(DATA_DIR, 'images');
 const DIST = path.join(ROOT, '..', 'interface', 'dist'); // interface gerada pelo Vite (pacotes/interface)
@@ -254,10 +256,10 @@ async function generateImage(prompt: string, signal: AbortSignal) {
   }
   let res: globalThis.Response;
   try {
-    res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/ai/run/${IMAGE_MODEL}`, {
+    res = await fetch(`${CF_API}/client/v4/accounts/${cfConta()}/ai/run/${IMAGE_MODEL}`, {
       method: 'POST',
       signal,
-      headers: { Authorization: `Bearer ${CF_TOKEN}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${cfToken()}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: prompt.slice(0, 2000), steps: 6 }),
     });
   } catch (cause) {
@@ -333,17 +335,47 @@ app.get('/api/uso', asyncRoute(async (req, res) => {
 app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); res.json({ ok: true }); });
 // Chave do FreeLLMAPI (modo pessoal): grava no .env deste computador e passa a valer na hora. Nunca é devolvida.
 const CHAVE_FREELLMAPI = /^freellmapi-[A-Za-z0-9_-]{8,200}$/;
-app.put('/api/config/chave-freellmapi', (req, res) => {
-  if (process.env.GYDE_MODE === 'publico') return res.status(403).json({ error: 'No modo público a chave é configurada no servidor.' });
-  const chave = String(req.body?.chave ?? '').trim();
-  if (!CHAVE_FREELLMAPI.test(chave)) return res.status(400).json({ error: 'Isso não parece a chave do FreeLLMAPI (ela começa com "freellmapi-"). Use o "Copy Key" no ícone do FreeLLMAPI.' });
-  const linhas = (existsSync(ENV_FILE) ? readFileSync(ENV_FILE, 'utf8').split(/\r?\n/) : []).filter((l) => l.trim() && !/^\s*FREELLMAPI_KEY\s*=/.test(l));
-  linhas.push(`FREELLMAPI_KEY=${chave}`);
-  if (!linhas.some((l) => /^\s*FREELLMAPI_URL\s*=/.test(l))) linhas.push(`FREELLMAPI_URL=${ROUTER_URL}`);
+// grava (ou apaga, com null) variáveis no .env deste computador e já aplica no processo
+function gravarNoEnv(pares: Record<string, string | null>) {
+  const nomes = Object.keys(pares);
+  const linhas = (existsSync(ENV_FILE) ? readFileSync(ENV_FILE, 'utf8').split(/\r?\n/) : [])
+    .filter((l) => l.trim() && !nomes.some((n) => new RegExp(`^\\s*${n}\\s*=`).test(l)));
+  for (const [nome, valor] of Object.entries(pares)) {
+    if (valor === null) delete process.env[nome];
+    else { linhas.push(`${nome}=${valor}`); process.env[nome] = valor; }
+  }
   mkdirSync(path.dirname(ENV_FILE), { recursive: true });
   writeFileSync(ENV_FILE, `${linhas.join('\n')}\n`, { mode: 0o600 });
-  process.env.FREELLMAPI_KEY = chave;
+}
+const soPessoalConfig = (res: Response) => { if (process.env.GYDE_MODE !== 'publico') return true; res.status(403).json({ error: 'No modo público as chaves são configuradas no servidor.' }); return false; };
+app.put('/api/config/chave-freellmapi', (req, res) => {
+  if (!soPessoalConfig(res)) return;
+  const chave = String(req.body?.chave ?? '').trim();
+  if (!CHAVE_FREELLMAPI.test(chave)) return res.status(400).json({ error: 'Isso não parece a chave do FreeLLMAPI (ela começa com "freellmapi-"). Use o "Copy Key" no ícone do FreeLLMAPI.' });
+  gravarNoEnv({ FREELLMAPI_KEY: chave, ...(process.env.FREELLMAPI_URL ? {} : { FREELLMAPI_URL: ROUTER_URL }) });
   provedores.definirChave(chave);
+  res.json({ ok: true });
+});
+// Imagens (Cloudflare Workers AI): confere a conta e o token antes de gravar. A conferência lista os modelos,
+// que não gasta a cota diária de imagens.
+app.put('/api/config/imagens', asyncRoute(async (req, res) => {
+  if (!soPessoalConfig(res)) return;
+  const conta = String(req.body?.conta ?? '').match(/[0-9a-fA-F]{32}/)?.[0]?.toLowerCase(); // aceita o ID com espaços ou texto junto
+  const token = String(req.body?.token ?? '').trim();
+  if (!conta) return res.status(400).json({ error: 'O Account ID tem 32 caracteres, só números e letras de a até f. Ele fica no painel da Cloudflare, no menu da conta ("Copy account ID").' });
+  if (!/^[A-Za-z0-9_-]{30,200}$/.test(token)) return res.status(400).json({ error: 'Isso não parece um API Token da Cloudflare. Crie um com o modelo "Workers AI" e cole aqui.' });
+  let r: globalThis.Response;
+  try {
+    r = await fetch(`${CF_API}/client/v4/accounts/${conta}/ai/models/search?per_page=1`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15_000) });
+  } catch { return res.status(502).json({ error: 'Não consegui falar com a Cloudflare. Confira a internet e tente de novo.' }); }
+  if (r.status === 401 || r.status === 403) return res.status(400).json({ error: 'A Cloudflare recusou: confira se o token tem a permissão "Workers AI" e se o Account ID é da mesma conta.' });
+  if (!r.ok) return res.status(502).json({ error: `A Cloudflare respondeu com erro ${r.status}. Tente de novo daqui a pouco.` });
+  gravarNoEnv({ CLOUDFLARE_ACCOUNT_ID: conta, CLOUDFLARE_API_TOKEN: token });
+  res.json({ ok: true });
+}));
+app.delete('/api/config/imagens', (_req, res) => {
+  if (!soPessoalConfig(res)) return;
+  gravarNoEnv({ CLOUDFLARE_ACCOUNT_ID: null, CLOUDFLARE_API_TOKEN: null });
   res.json({ ok: true });
 });
 // Cópia de segurança (modo pessoal: o banco tem todas as contas deste computador). Restaurar vale na próxima abertura.

@@ -27,6 +27,7 @@
   let tokenNovo = $state('');
   let plano = $state<{ carregando: boolean; erro: string; dados: TPlano | null }>({ carregando: false, erro: '', dados: null });
   let chave = $state({ configurada: null as boolean | null, texto: '', salvando: false });
+  let imagens = $state({ ligadas: null as boolean | null, conta: '', token: '', salvando: false });
 
   export async function abrir(qual: Aba = 'geral') {
     aba = qual; tema = temaSalvo(); tokenNovo = '';
@@ -68,7 +69,9 @@
     catch (e) { console.error('[Gyde] Configurações > Prática:', e); plano = { carregando: false, erro: mensagemDe(e), dados: null }; }
   }
 
-  async function carregarChave() { try { chave.configurada = (await pedir('/api/status', C.Status)).keyConfigured; } catch { chave.configurada = null; } }
+  async function carregarChave() {
+    try { const s = await pedir('/api/status', C.Status); chave.configurada = s.keyConfigured; imagens.ligadas = s.imagesEnabled; } catch { chave.configurada = null; imagens.ligadas = null; }
+  }
   // a chave vai direto para o .env deste computador; a tela nunca recebe ela de volta
   async function salvarChave(e: SubmitEvent) {
     e.preventDefault();
@@ -81,6 +84,23 @@
       dispatchEvent(new Event('gyde:status')); // a faixa de aviso do topo confere de novo
     } catch (err) { toast(mensagemDe(err)); }
     chave.salvando = false;
+  }
+
+  // imagens (Cloudflare): o servidor confere conta e token antes de gravar; o token nunca volta para a tela
+  async function salvarImagens(e: SubmitEvent) {
+    e.preventDefault();
+    imagens.salvando = true;
+    try {
+      await enviar('/api/config/imagens', { method: 'PUT', body: JSON.stringify({ conta: imagens.conta, token: imagens.token }) });
+      imagens.ligadas = true; imagens.conta = ''; imagens.token = '';
+      toast('Imagens ligadas: use o botão Imagem no chat');
+      dispatchEvent(new Event('gyde:status'));
+    } catch (err) { toast(mensagemDe(err)); }
+    imagens.salvando = false;
+  }
+  async function desligarImagens() {
+    if (!confirm('Desligar a geração de imagens? A conta e o token da Cloudflare saem deste computador.')) return;
+    try { await enviar('/api/config/imagens', { method: 'DELETE' }); imagens.ligadas = false; toast('Imagens desligadas'); dispatchEvent(new Event('gyde:status')); } catch (err) { toast(mensagemDe(err)); }
   }
 
   async function mudarModo(modo: string) {
@@ -174,6 +194,19 @@
                 <button class="btn small primary" disabled={!chave.texto.trim() || chave.salvando}>Salvar</button>
               </span>
             </form>
+            {#if imagens.ligadas}
+              <div class="config-linha"><div><b>Gerar imagens</b><small>Ligado (Cloudflare Workers AI, cota diária grátis). Use o botão Imagem no chat.</small></div>
+                <button type="button" class="btn small ghost" onclick={desligarImagens}>Desligar</button></div>
+            {:else if imagens.ligadas === false}
+              <form class="config-linha config-chave" onsubmit={salvarImagens}>
+                <div><b>Gerar imagens (opcional)</b><small>Grátis com uma conta da <a href="https://dash.cloudflare.com" target="_blank" rel="noopener noreferrer">Cloudflare</a>: copie o Account ID (menu da conta) e crie um API Token com o modelo "Workers AI".</small></div>
+                <span class="config-chave-campo config-imagens-campos">
+                  <input type="text" autocomplete="off" spellcheck="false" placeholder="Account ID" aria-label="Account ID da Cloudflare" bind:value={imagens.conta}>
+                  <input type="password" autocomplete="off" spellcheck="false" placeholder="API Token" aria-label="API Token da Cloudflare" bind:value={imagens.token}>
+                  <button class="btn small primary" disabled={!imagens.conta.trim() || !imagens.token.trim() || imagens.salvando}>{imagens.salvando ? 'Conferindo…' : 'Ligar'}</button>
+                </span>
+              </form>
+            {/if}
             <dl class="config-dl">
               <div><dt>Em uso agora</dt><dd><b>{NOME_PROVEDOR[d.ativo]}</b></dd></div>
               <div><dt>FreeLLMAPI</dt><dd>{#if d.online.disponivel}<span class="ok">conectado</span>{:else}<span class="ruim">sem resposta ou sem chave</span>{/if}</dd></div>

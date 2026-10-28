@@ -132,8 +132,8 @@ No fim aparece **"Tudo pronto!"**. Digite `s` e Enter para abrir o Gyde.
 | O quê | Como |
 |---|---|
 | **Forja** (agente que mexe no seu projeto) | No menu **Forja**, clique em **Abrir pasta do projeto**, escolha a pasta e converse. Ela escreve, testa e documenta sozinha, e mostra quanto tempo levou. |
-| Gerar imagens | Na pasta `configurar`, rode `configurar-imagens.bat` |
-| Voz mais natural | Na pasta `configurar`, rode `configurar-voz.bat` (usa a mesma chave do Google AI Studio) |
+| Gerar imagens | Em **Configurações > IA e modelos**, cole o Account ID e um API Token da Cloudflare (grátis, com cota diária) |
+| Copiar ou mudar de computador | Em **Configurações > Privacidade e dados**, baixe a cópia de segurança e restaure no outro Gyde |
 | Extensão do Chrome | Siga o `LEIA-ME.md` da pasta `pacotes\extensao-chrome` |
 | Extensão do VS Code | Na pasta `configurar`, rode `instalar-vscode.bat` |
 | Instalar como app | No Gyde, botão **Instalar o Gyde como app** na barra lateral |

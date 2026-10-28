@@ -128,7 +128,7 @@ e **Extensões** (tokens). Cada opção salva na hora.
 - **Turmas:** o professor cria a turma, passa exercícios com prazo e acompanha quem fez.
 - **Memória:** o Gyde lembra o que você pedir para ele lembrar (dá para ver e apagar).
 - **Revisar projeto inteiro:** anexe uma pasta ou um `.zip` e peça a revisão.
-- **Imagens e voz:** gera imagens e lê as respostas em voz alta.
+- **Imagens e voz:** gera imagens (Cloudflare, ligado em Configurações > IA) e lê as respostas em voz alta com a voz do Windows.
 - **App de desktop:** janela própria (Electron), seletor de pasta nativo e atualização pelo GitHub. Também dá para instalar pelo navegador como app. Tema claro e escuro.
 - **Vídeo de abertura** em 3D, com narração e legendas.
 
@@ -200,7 +200,7 @@ O Gyde pode usar um modelo que roda no seu computador pelo [Ollama](https://olla
 
 | Funciona sem internet | Funciona offline depois de instalar o Ollama e baixar um modelo | Precisa de internet |
 |---|---|---|
-| App, contas, histórico, Prática (editor e testes), rodar código e passo a passo, skills, turmas, memória salva | Chat, Forja, dicas da Prática e títulos de conversa (com o modelo local) | Modelos online (FreeLLMAPI), gerar imagens (Cloudflare), voz natural (Gemini), extensão do Chrome no modo agente |
+| App, contas, histórico, Prática (editor e testes), rodar código e passo a passo, skills, turmas, memória salva | Chat, Forja, dicas da Prática e títulos de conversa (com o modelo local) | Modelos online (FreeLLMAPI), gerar imagens (Cloudflare), extensão do Chrome no modo agente |
 
 Modelos locais pequenos são bem mais simples e lentos que os online, principalmente em tarefas grandes de programação.
 Num computador com 8 GB de RAM e sem placa de vídeo, use modelos de até 3 bilhões de parâmetros.
@@ -240,9 +240,8 @@ PORT=3210                      # porta do Gyde
 GYDE_MODO_IA=auto              # auto | online | offline
 OLLAMA_URL=http://127.0.0.1:11434
 OLLAMA_MODELO=qwen2.5:3b
-CLOUDFLARE_ACCOUNT_ID=         # gerar imagens (configurar\configurar-imagens.bat)
+CLOUDFLARE_ACCOUNT_ID=         # gerar imagens (Configurações > IA e modelos)
 CLOUDFLARE_API_TOKEN=
-GEMINI_API_KEY=                # voz natural (configurar\configurar-voz.bat)
 ```
 
 Para rodar sem os `.bat`: `npm install`, `npm run build` e `npm start` (Node.js 22.18 ou mais novo). `npm run desktop` abre o app de desktop a partir do código.
@@ -283,7 +282,7 @@ Confere os tipos (servidor, desktop e interface, com `tsc` e `svelte-check`) e r
 - Exercícios guiados (Java, SQL, C#...) não têm correção automática: dependem do chat e de você marcar como feito.
 - A Forja e a janela de escolher pasta só funcionam no Windows e com o Gyde no modo pessoal (rodando no seu PC).
 - O instalador do app de desktop não tem assinatura digital (custa dinheiro), então o Windows mostra o aviso do SmartScreen.
-- No app de desktop, os scripts da pasta `configurar/` (imagens, voz, e-mail) não se aplicam: eles gravam no `.env` da pasta do código.
+- O envio de e-mail (`configurar-email.bat`, só para o modo público) grava no `.env` da pasta do código, não no app de desktop.
 - A moderação depende das instruções do Gyde e do provedor; não há um filtro de conteúdo separado.
 - Imagens geradas ficam acessíveis para qualquer conta logada no mesmo Gyde que tenha o link (os nomes são aleatórios).
 
@@ -320,7 +319,7 @@ instaladores e a janela de escolher pasta do modo navegador são do Windows, e n
 | `instalar.bat` | Instala tudo na primeira vez (pelo código) |
 | `iniciar.bat` | Abre o Gyde no dia a dia (pelo código) |
 | `COMO-INSTALAR.md` | Passo a passo de instalação |
-| `configurar/` | Extras: imagens, voz, e-mail, trocar senha, extensão do VS Code |
+| `configurar/` | Extras: e-mail (modo público), trocar senha, extensão do VS Code |
 | `pacotes/servidor/` | Servidor: `server.ts`, banco e migrações (`banco.ts`, `migracoes.ts`), Forja (`codigo-agente.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), modelos (`motor.ts`), Prática (`pratica-servidor.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
 | `pacotes/interface/` | Interface em Svelte 5 + Vite: chat, Forja, Prática, Skills, Turmas, Configurações e entrada (`src/`) |
 | `pacotes/compartilhado/` | Contratos (Zod) usados pelo servidor e pela interface |

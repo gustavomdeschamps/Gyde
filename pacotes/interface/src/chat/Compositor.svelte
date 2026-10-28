@@ -73,7 +73,7 @@
     ({ arquivos: entradaArquivos, pasta: entradaPasta, zip: entradaZip })[qual]?.click();
   }
   function modoImagem() {
-    if (!chat.imagensAtivas) { toast('Imagens ainda não configuradas: rode o configurar-imagens.bat (pasta configurar do Gyde)'); return; }
+    if (!chat.imagensAtivas) { toast('Imagens ainda não ligadas: configure em Configurações > IA e modelos'); return; }
     chat.modoImagem = !chat.modoImagem;
     campo?.focus();
   }

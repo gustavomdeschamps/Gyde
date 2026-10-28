@@ -538,3 +538,5 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 label.btn { cursor: pointer; }
 label.btn.desligado { opacity: .6; pointer-events: none; }
 .gate-importar { margin-top: 14px; text-align: center; }
+.config-imagens-campos { flex-basis: 100%; flex-wrap: wrap; }
+.config-imagens-campos input { flex: 1 1 160px; }
