@@ -58,21 +58,28 @@ export async function carregarConversas() {
   chat.listaCarregada = true;
 }
 
+// cada abertura ganha um número; uma resposta que chega depois de outra abertura (ou de "Nova conversa") é ignorada,
+// senão a conversa antiga voltaria para a tela por cima da nova
+let ultimaAbertura = 0;
 export async function abrirConversa(id: string, { manterRolagem = false } = {}) {
+  const esta = ++ultimaAbertura;
   try {
     const c = await pedir(`/api/conversations/${id}`, C.Conversa);
+    if (esta !== ultimaAbertura) return;
     chat.convId = c.id; chat.titulo = c.title === 'Nova conversa' ? '' : c.title; chat.modeloConversa = c.model;
     chat.mensagens = c.messages ?? []; chat.resposta = null; chat.temporaria = null;
     chat.modelo = c.model.replace(/^bugo-/, 'gyde-');
     document.title = c.title === 'Nova conversa' ? 'Gyde' : `${c.title} · Gyde`;
     if (!manterRolagem) chat.rolar++;
   } catch {
+    if (esta !== ultimaAbertura) return;
     toast('Conversa não encontrada');
     location.hash = '#/';
   }
 }
 
 export function novaConversa() {
+  ultimaAbertura++;
   controle?.abort();
   Object.assign(chat, { convId: null, titulo: '', modeloConversa: null, mensagens: [], resposta: null, temporaria: null });
   chat.modelo = salvo();

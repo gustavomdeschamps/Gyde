@@ -1,6 +1,7 @@
 // Provedores de IA do Gyde: online (FreeLLMAPI) ou offline (Ollama, modelo rodando no próprio computador).
 // Todos os módulos chamam `router(caminho, init)` no formato da API da OpenAI; aqui se decide para onde vai.
 // Também guarda o consumo REAL informado pelo provedor (cabeçalhos e campo usage). Nada é estimado aqui.
+import { z } from 'zod';
 import type { Uso } from './uso.ts';
 import type { Registro, RouterInit, Provedor, UsoInformado } from './tipos.ts';
 import { erroGyde, comoErro } from './tipos.ts';
@@ -24,10 +25,12 @@ export interface ResumoProvedores {
   mes: UsoMes | null;
 }
 // resposta da rota /v1/usage do FreeLLMAPI (só os campos usados)
-interface UsoFreeLLMAPI {
-  month: string; resetsAt: string; requests: number; tokens: number;
-  byKey?: { enabled: boolean; platform: string; requests: number; tokens: number; requestCap: number | null; tokenCap: number | null }[];
-}
+// resposta do /v1/usage do FreeLLMAPI. Conferida antes de usar: outro formato (versão diferente do FreeLLMAPI)
+// vira "não informado" na tela em vez de números quebrados
+const UsoFreeLLMAPI = z.object({
+  month: z.string(), resetsAt: z.string(), requests: z.number(), tokens: z.number(),
+  byKey: z.array(z.object({ enabled: z.boolean(), platform: z.string(), requests: z.number(), tokens: z.number(), requestCap: z.number().nullable(), tokenCap: z.number().nullable() })).optional(),
+});
 
 export interface OpcoesProvedores { routerUrl: string; routerKey: string; ollamaUrl: string; ollamaModelo: string; modo: string; uso?: Uso }
 export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl, ollamaModelo, modo, uso }: OpcoesProvedores) {
@@ -153,8 +156,9 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
       if (Date.now() - usoMes.em > 30 * SEGUNDO) {
         try {
           const r = await fetch(`${routerUrl}/v1/usage`, { headers: { Authorization: `Bearer ${routerKey}` }, signal: AbortSignal.timeout(3000) });
-          if (r.ok) {
-            const u = await r.json() as UsoFreeLLMAPI;
+          const lido = r.ok ? UsoFreeLLMAPI.safeParse(await r.json()) : null;
+          if (lido?.success) {
+            const u = lido.data;
             const caps = (u.byKey || []).filter((k) => k.enabled).map((k) => ({ provedor: k.platform, pedidos: k.requests, tokens: k.tokens, limitePedidos: k.requestCap, limiteTokens: k.tokenCap }));
             usoMes = { dados: { mes: u.month, renovaEm: u.resetsAt, pedidos: u.requests, tokens: u.tokens, porChave: caps }, em: Date.now() };
           }

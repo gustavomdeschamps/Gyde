@@ -1,8 +1,8 @@
 // Base dos testes de navegador do Gyde. Cada teste sobe o próprio servidor (pasta de dados temporária, porta livre,
 // contratos em modo estrito) e abre um Chrome/Edge sem janela pelo protocolo de depuração. Nada toca nos dados reais.
 // Navegador: variável GYDE_NAVEGADOR, ou o Edge/Chrome instalado no lugar de sempre.
-import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -119,9 +119,31 @@ export async function abrirNavegador({ largura = 1280, altura = 860, movel = fal
       await avaliar(`(async()=>{ localStorage.setItem('gyde-intro-vista','1'); await fetch('/api/auth/login',{method:'POST',headers:{'x-gyde':'1','Content-Type':'application/json'},body:${JSON.stringify(JSON.stringify({ email, password: senha }))}}); return 1; })()`);
     },
     async fechar() {
-      ws.close(); proc.kill();
+      ws.close();
+      // no Windows o kill não derruba os processos filhos do navegador
+      if (process.platform === 'win32') spawnSync('taskkill', ['/pid', String(proc.pid), '/t', '/f'], { stdio: 'ignore' }); else proc.kill();
       await new Promise((r) => (proc.exitCode !== null ? r() : proc.once('exit', r)));
       await espera(300); try { rmSync(perfil, { recursive: true, force: true }); } catch { /* perfil preso */ }
     },
   };
+}
+
+// projeto pequeno para a Forja: soma.js com bug, teste que falha, e um .env FALSO que ela nunca pode ler
+export function criarProjetoForja() {
+  const pasta = mkdtempSync(path.join(tmpdir(), 'gyde-e2e-proj-'));
+  const f = (nome, texto) => writeFileSync(path.join(pasta, nome), texto);
+  const chaveFalsa = ['AIza', 'Sy', 'FALSO'.repeat(5), '12345'].join('');
+  f('package.json', JSON.stringify({ name: 'proj-forja', version: '1.0.0', scripts: { test: 'node teste.js' } }, null, 2));
+  f('soma.js', `// chave antiga: ${chaveFalsa}
+function soma(a, b) {
+  return a - b;
+}
+module.exports = { soma };
+`);
+  f('teste.js', `const { soma } = require('./soma.js');
+if (soma(2, 3) !== 5) { console.log('FALHOU: soma(2, 3) deu ' + soma(2, 3)); process.exit(1); }
+console.log('OK');
+`);
+  f('.env', `${['API_KEY=', 'SEGREDOFALSO', '1234567890'].join('')}\n`);
+  return { pasta, ler: (nome) => readFileSync(path.join(pasta, nome), 'utf8'), apagar: () => rmSync(pasta, { recursive: true, force: true }) };
 }
