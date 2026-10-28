@@ -91,7 +91,7 @@ try {
     $lnk = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $desktop 'Gyde.lnk'))
     $lnk.TargetPath = Join-Path $root 'iniciar.bat'
     $lnk.WorkingDirectory = $root
-    $lnk.IconLocation = Join-Path $root 'app\public\gyde.ico'
+    $lnk.IconLocation = Join-Path $root 'app\web\public\gyde.ico'
     $lnk.Description = 'Gyde - seu guia na programacao'
     $lnk.Save()
     Ok 'Atalho "Gyde" criado na Area de Trabalho'

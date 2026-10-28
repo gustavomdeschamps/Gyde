@@ -5,7 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { hashPassword } from '../../app/auth.js';
+import { hashPassword } from '../../app/auth.ts';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const dbFile = path.join(process.env.DATA_DIR || path.join(ROOT, 'data'), 'chat.db');
