@@ -6,11 +6,13 @@ import { mkdtempSync, existsSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { createRequire } from 'node:module';
 import { RAIZ, portaLivre } from './ajuda.mjs';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let falhas = 0;
 const ok = (n, c, x = '') => { if (!c) falhas++; console.log(`${c ? 'PASSOU' : 'FALHOU'}  ${n}${x ? `  (${x})` : ''}`); };
-const EXE = process.argv[2] ? path.resolve(process.argv[2]) : path.join(RAIZ, 'node_modules', 'electron', 'dist', process.platform === 'win32' ? 'electron.exe' : 'electron');
+// require('electron') devolve o executável e baixa o binário na primeira vez (num clone novo, como no CI, ele ainda não existe)
+const EXE = process.argv[2] ? path.resolve(process.argv[2]) : createRequire(import.meta.url)('electron');
 const ARGS = process.argv[2] ? [] : [RAIZ];
 const PORTA_DEPURACAO = await portaLivre();
 const dados = mkdtempSync(path.join(tmpdir(), 'gyde-desktop-'));
