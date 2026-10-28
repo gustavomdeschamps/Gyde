@@ -4,7 +4,7 @@
   "private": true,
   "description": "Gyde, a IA que ensina programação para iniciantes, com os modelos grátis do FreeLLMAPI.",
   "type": "module",
-  "main": "app/server.ts",
+  "main": "desktop/main.ts",
   "engines": {
     "node": ">=22.18"
   },
@@ -14,11 +14,14 @@
     "dev:web": "vite --config app/web/vite.config.ts",
     "build": "vite build --config app/web/vite.config.ts",
     "check": "tsc -p . && svelte-check --tsconfig app/web/tsconfig.json --fail-on-warnings",
-    "test": "npm run check && node --test app/testes/*.test.mjs"
+    "test": "npm run check && node --test app/testes/*.test.mjs",
+    "desktop": "npm run build && electron .",
+    "dist:win": "npm run build && electron-builder --win --publish never"
   },
   "dependencies": {
     "@highlightjs/cdn-assets": "^11.12.0",
     "dompurify": "^3.2.6",
+    "electron-updater": "^6.8.11",
     "express": "^5.1.0",
     "fflate": "^0.8.3",
     "marked": "^16.1.1",
@@ -32,9 +35,57 @@
     "@types/express": "^5.0.6",
     "@types/node": "^24.19.2",
     "@types/nodemailer": "^8.0.2",
+    "electron": "^45.1.0",
+    "electron-builder": "^26.18.0",
+    "esbuild": "^0.28.2",
     "svelte": "^5.57.3",
     "svelte-check": "^4.7.7",
     "typescript": "^5.9.3",
     "vite": "^6.4.5"
+  },
+  "author": "Gustavo Moreira Deschamps",
+  "build": {
+    "appId": "dev.gyde.app",
+    "productName": "Gyde",
+    "copyright": "Gustavo Moreira Deschamps",
+    "directories": {
+      "output": "dist-desktop"
+    },
+    "files": [
+      "package.json",
+      "desktop/**",
+      "app/*.ts",
+      "app/*.ps1",
+      "app/dist/**",
+      "app/skills-catalogo/**",
+      "app/web/public/icon-512.png",
+      "!app/dist/**/*.map"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "app/web/public/icon-512.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Gyde",
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "gustavomdeschamps",
+        "repo": "Gyde"
+      }
+    ]
   }
 }

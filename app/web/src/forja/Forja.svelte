@@ -63,10 +63,14 @@
   }
   $effect(() => { void id; carregar(); });
 
+  // no app de desktop a janela de pasta é a nativa; no navegador, o servidor abre a do Windows
+  const desktop = (window as { gydeDesktop?: { escolherPasta: () => Promise<string | null> } }).gydeDesktop;
+  const escolherPasta = async () => (desktop ? desktop.escolherPasta() : (await enviar<{ pasta: string | null }>('/api/codigo/escolher-pasta', { method: 'POST' })).pasta);
+
   async function conectarPasta(): Promise<boolean> {
     ocupadoBotao = true; menuAberto = false;
     try {
-      const { pasta } = await enviar<{ pasta: string | null }>('/api/codigo/escolher-pasta', { method: 'POST' });
+      const pasta = await escolherPasta();
       if (!pasta) return false; // cancelou a janela
       const r = await enviar<{ id: string }>('/api/codigo/sessoes', corpo({ pasta }));
       location.hash = `#/agente/${r.id}`;
@@ -77,7 +81,7 @@
   async function reconectar() {
     ocupadoBotao = true;
     try {
-      const { pasta } = await enviar<{ pasta: string | null }>('/api/codigo/escolher-pasta', { method: 'POST' });
+      const pasta = await escolherPasta();
       if (pasta) { await pedir(`/api/codigo/sessoes/${id}/reconectar`, C.Reconexao, corpo({ pasta })); toast('Pasta reconectada. O histórico continua.'); await carregar(); }
     } catch (e) { toast(mensagemDe(e)); } finally { ocupadoBotao = false; }
   }

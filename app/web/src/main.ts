@@ -113,6 +113,8 @@ async function conferirStatus() {
   return false;
 }
 
+addEventListener('gyde:status', () => { conferirStatus(); }); // ex.: chave salva nas Configurações
+
 // login -> quiz (só na primeira vez) -> app
 async function iniciar() {
   let me: { user: Usuario | null; mode?: string; emailMode?: string };

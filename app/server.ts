@@ -43,12 +43,15 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 // O .env do Gyde sempre vence variáveis do Windows com o mesmo nome
 // (process.loadEnvFile não sobrescreve as que já existem).
 const BASE = path.join(ROOT, '..'); // pasta principal do Gyde (.env, data/, node_modules/)
-const ENV_FILE = path.join(BASE, '.env');
-if (existsSync(ENV_FILE)) Object.assign(process.env, parseEnv(readFileSync(ENV_FILE, 'utf8')));
+// no app de desktop o .env fica na pasta de dados do usuário (GYDE_ENV_FILE), não na pasta do programa
+const ENV_FILE = process.env.GYDE_ENV_FILE ? path.resolve(process.env.GYDE_ENV_FILE) : path.join(BASE, '.env');
+if (existsSync(ENV_FILE)) {
+  const doDesktop = process.env.GYDE_DESKTOP === '1' ? { PORT: process.env.PORT, DATA_DIR: process.env.DATA_DIR } : {};
+  Object.assign(process.env, parseEnv(readFileSync(ENV_FILE, 'utf8')), doDesktop); // porta e pasta de dados são do app de desktop
+}
 
 const PORT = Number(process.env.PORT || 3210);
 const ROUTER_URL = (process.env.FREELLMAPI_URL || 'http://127.0.0.1:31415').replace(/\/+$/, '');
-const ROUTER_KEY = process.env.FREELLMAPI_KEY || '';
 // IA offline: Ollama no próprio computador. GYDE_MODO_IA = online | offline | auto (padrão: auto)
 const OLLAMA_URL = (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
 const OLLAMA_MODELO = process.env.OLLAMA_MODELO || 'qwen2.5:3b';
@@ -117,7 +120,7 @@ const now = () => (lastTs = Math.max(Date.now(), lastTs + 1));
 
 // ---------- Provedor de IA (FreeLLMAPI online ou Ollama offline) ----------
 const uso = criarUso(db); // registro de uso do Gyde (uso.js): um registro por pedido, com o que o provedor informou
-const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: ROUTER_KEY, ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso });
+const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: process.env.FREELLMAPI_KEY || '', ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso });
 const router = provedores.router;
 
 // Converte uma mensagem salva para o formato de chat da OpenAI.
@@ -316,7 +319,7 @@ app.get('/api/status', asyncRoute(async (_req, res) => {
   const u = await provedores.resumo({ mostrarConta: false });
   let desatualizado = false;
   try { desatualizado = impressaoDoCodigo() !== VERSAO_INICIO; } catch { /* sem como checar */ }
-  responder(res, C.Status, { keyConfigured: Boolean(ROUTER_KEY), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagesEnabled(), desatualizado });
+  responder(res, C.Status, { keyConfigured: provedores.temChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagesEnabled(), desatualizado });
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).
@@ -325,6 +328,21 @@ app.get('/api/uso', asyncRoute(async (req, res) => {
   responder(res, C.Uso, { ...(await provedores.resumo({ mostrarConta: pessoal })), gyde: uso.resumo(req.user.id, { mostrarInternas: pessoal }) });
 }));
 app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); res.json({ ok: true }); });
+// Chave do FreeLLMAPI (modo pessoal): grava no .env deste computador e passa a valer na hora. Nunca é devolvida.
+const CHAVE_FREELLMAPI = /^freellmapi-[A-Za-z0-9_-]{8,200}$/;
+app.put('/api/config/chave-freellmapi', (req, res) => {
+  if (process.env.GYDE_MODE === 'publico') return res.status(403).json({ error: 'No modo público a chave é configurada no servidor.' });
+  const chave = String(req.body?.chave ?? '').trim();
+  if (!CHAVE_FREELLMAPI.test(chave)) return res.status(400).json({ error: 'Isso não parece a chave do FreeLLMAPI (ela começa com "freellmapi-"). Use o "Copy Key" no ícone do FreeLLMAPI.' });
+  const linhas = (existsSync(ENV_FILE) ? readFileSync(ENV_FILE, 'utf8').split(/\r?\n/) : []).filter((l) => l.trim() && !/^\s*FREELLMAPI_KEY\s*=/.test(l));
+  linhas.push(`FREELLMAPI_KEY=${chave}`);
+  if (!linhas.some((l) => /^\s*FREELLMAPI_URL\s*=/.test(l))) linhas.push(`FREELLMAPI_URL=${ROUTER_URL}`);
+  mkdirSync(path.dirname(ENV_FILE), { recursive: true });
+  writeFileSync(ENV_FILE, `${linhas.join('\n')}\n`, { mode: 0o600 });
+  process.env.FREELLMAPI_KEY = chave;
+  provedores.definirChave(chave);
+  res.json({ ok: true });
+});
 // Trocar entre online, offline e automático (só no modo pessoal: vale para o Gyde inteiro).
 app.post('/api/uso/modo', (req, res) => {
   if (process.env.GYDE_MODE === 'publico') return res.status(403).json({ error: 'No modo público o modo da IA é definido no servidor.' });
@@ -594,6 +612,6 @@ app.use((err: ErroGyde, _req: Request, res: Response, _next: NextFunction) => {
 
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`\n  Gyde rodando em http://127.0.0.1:${PORT}`);
-  console.log(`  FreeLLMAPI: ${ROUTER_URL}  |  chave: ${ROUTER_KEY ? 'configurada' : 'FALTANDO (rode configurar\\configurar-chave.bat)'}`);
+  console.log(`  FreeLLMAPI: ${ROUTER_URL}  |  chave: ${provedores.temChave() ? 'configurada' : 'FALTANDO (rode configurar\\configurar-chave.bat)'}`);
   console.log(`  IA: modo ${process.env.GYDE_MODO_IA || 'auto'}  |  offline: Ollama ${OLLAMA_MODELO}\n`);
 });

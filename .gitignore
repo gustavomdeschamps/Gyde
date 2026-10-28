@@ -5,3 +5,4 @@ data/
 .claude/
 extensoes/vscode/*.vsix
 app/dist/
+dist-desktop/

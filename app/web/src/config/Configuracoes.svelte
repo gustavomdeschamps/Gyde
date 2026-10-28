@@ -25,6 +25,7 @@
   let tokens = $state<TTokens['tokens']>([]);
   let tokenNovo = $state('');
   let plano = $state<{ carregando: boolean; erro: string; dados: TPlano | null }>({ carregando: false, erro: '', dados: null });
+  let chave = $state({ configurada: null as boolean | null, texto: '', salvando: false });
 
   export async function abrir(qual: Aba = 'geral') {
     aba = qual; tema = temaSalvo(); tokenNovo = '';
@@ -33,7 +34,7 @@
     if (!dialogo?.open) dialogo?.showModal();
   }
   // ao trocar de aba, busca os dados dela (untrack: o carregamento escreve estado e não pode reativar o efeito)
-  $effect(() => { const a = aba; untrack(() => { if (a === 'uso' || a === 'ia') atualizarUso(); if (a === 'pratica') carregarPlano(); }); });
+  $effect(() => { const a = aba; untrack(() => { if (a === 'uso' || a === 'ia') atualizarUso(); if (a === 'ia') carregarChave(); if (a === 'pratica') carregarPlano(); }); });
 
   const salvar = async (dados: Partial<C.TPreferencias>) => {
     try { pref = await pedir('/api/settings', C.Preferencias, { method: 'PUT', body: JSON.stringify(dados) }); toast('Salvo'); } catch (e) { toast(mensagemDe(e)); }
@@ -64,6 +65,21 @@
     plano = { carregando: true, erro: '', dados: plano.dados };
     try { plano = { carregando: false, erro: '', dados: (await pedir('/api/pratica', C.EstadoPratica)).plano }; }
     catch (e) { console.error('[Gyde] Configurações > Prática:', e); plano = { carregando: false, erro: mensagemDe(e), dados: null }; }
+  }
+
+  async function carregarChave() { try { chave.configurada = (await pedir('/api/status', C.Status)).keyConfigured; } catch { chave.configurada = null; } }
+  // a chave vai direto para o .env deste computador; a tela nunca recebe ela de volta
+  async function salvarChave(e: SubmitEvent) {
+    e.preventDefault();
+    chave.salvando = true;
+    try {
+      await enviar('/api/config/chave-freellmapi', { method: 'PUT', body: JSON.stringify({ chave: chave.texto }) });
+      chave.texto = ''; chave.configurada = true;
+      toast('Chave salva neste computador');
+      atualizarUso();
+      dispatchEvent(new Event('gyde:status')); // a faixa de aviso do topo confere de novo
+    } catch (err) { toast(mensagemDe(err)); }
+    chave.salvando = false;
   }
 
   async function mudarModo(modo: string) {
@@ -136,6 +152,13 @@
                 <option value="offline" disabled={!d.offline.disponivel}>Só offline ({d.offline.modelo}){d.offline.disponivel ? '' : ' · indisponível'}</option>
               </select>
             </div>
+            <form class="config-linha config-chave" onsubmit={salvarChave}>
+              <div><b>Chave do FreeLLMAPI</b><small>{chave.configurada ? 'Configurada neste computador. Para trocar, cole a nova.' : 'No ícone do FreeLLMAPI na bandeja, clique em "Copy Key" e cole aqui.'}</small></div>
+              <span class="config-chave-campo">
+                <input type="password" autocomplete="off" spellcheck="false" placeholder={chave.configurada ? '••••••••' : 'freellmapi-…'} aria-label="Chave do FreeLLMAPI" bind:value={chave.texto}>
+                <button class="btn small primary" disabled={!chave.texto.trim() || chave.salvando}>Salvar</button>
+              </span>
+            </form>
             <dl class="config-dl">
               <div><dt>Em uso agora</dt><dd><b>{NOME_PROVEDOR[d.ativo]}</b></dd></div>
               <div><dt>FreeLLMAPI</dt><dd>{#if d.online.disponivel}<span class="ok">conectado</span>{:else}<span class="ruim">sem resposta ou sem chave</span>{/if}</dd></div>

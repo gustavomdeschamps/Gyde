@@ -30,7 +30,8 @@ interface UsoFreeLLMAPI {
 }
 
 export interface OpcoesProvedores { routerUrl: string; routerKey: string; ollamaUrl: string; ollamaModelo: string; modo: string; uso?: Uso }
-export function criarProvedores({ routerUrl, routerKey, ollamaUrl, ollamaModelo, modo, uso }: OpcoesProvedores) {
+export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl, ollamaModelo, modo, uso }: OpcoesProvedores) {
+  let routerKey = chaveInicial; // pode mudar sem reiniciar (Configurações > IA)
   // modo: 'online' (só FreeLLMAPI), 'offline' (só Ollama) ou 'auto' (FreeLLMAPI; se ele não responder, Ollama)
   const cfg: { modo: ModoIA } = { modo: ehModo(modo) ? modo : 'auto' };
   const saude = { online: false, offline: false, em: 0, modelosLocais: [] as string[] };
@@ -175,6 +176,8 @@ export function criarProvedores({ routerUrl, routerKey, ollamaUrl, ollamaModelo,
   return {
     router, resumo, ativo, tokensDe,
     definirModo(m: unknown): ModoIA { if (ehModo(m)) { cfg.modo = m; saude.em = 0; } return cfg.modo; },
+    definirChave(chave: string) { routerKey = chave; saude.em = 0; },
+    temChave: () => Boolean(routerKey),
   };
 }
 export type Provedores = ReturnType<typeof criarProvedores>;
