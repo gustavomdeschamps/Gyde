@@ -6,6 +6,7 @@ import { pedir, enviar as enviarApi, corpo, mensagemDe } from '../api.ts';
 import { toast } from '../util.ts';
 import { registrarUltima, atualizarUso, uso, nomeModelo, numero, type Consumo } from '../config/uso.svelte.ts';
 import { projectFromFolder, projectFromZip } from '../projeto.ts';
+import { lerEventos } from './sse.ts';
 
 export const MODELO_PADRAO = 'gyde-1';
 const LADO_MAX_IMAGEM = 1600;
@@ -214,12 +215,9 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
     for (;;) {
       const { value, done } = await leitor.read();
       if (done) break;
-      buffer += value;
-      let sep;
-      while ((sep = buffer.indexOf('\n\n')) !== -1) {
-        const bruto = buffer.slice(0, sep); buffer = buffer.slice(sep + 2);
-        if (!bruto.startsWith('data: ')) continue;
-        const ev = JSON.parse(bruto.slice(6)) as { type: string; [k: string]: unknown };
+      const lidos = lerEventos(buffer + value);
+      buffer = lidos.resto;
+      for (const ev of lidos.eventos) {
         if (ev.type === 'user') { chat.mensagens.push(C.Mensagem.parse(ev.message)); chat.temporaria = null; }
         else if (ev.type === 'skills' && chat.resposta) chat.resposta.skills = ev.skills as SkillAtiva[];
         else if (ev.type === 'status' && chat.resposta) chat.resposta.status = String(ev.text);

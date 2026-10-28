@@ -2,7 +2,7 @@ import { desktop } from './desktop.ts';
 
 // Voz: ler respostas em voz alta (voz do próprio Windows/navegador) e ditado (fala vira texto).
 
-function textoParaFala(markdown: string) {
+export function textoParaFala(markdown: string) {
   return markdown
     .replace(/```[\s\S]*?```/g, ' (tem um bloco de código aqui na tela) ')
     .replace(/`([^`]+)`/g, '$1')

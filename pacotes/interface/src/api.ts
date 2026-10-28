@@ -5,8 +5,12 @@ import type { z } from 'zod';
 const CABECALHO = { 'x-gyde': '1' };
 
 export class ErroContrato extends Error {
-  constructor(public url: string, public problemas: string) {
+  url: string;
+  problemas: string;
+  constructor(url: string, problemas: string) {
     super('O servidor do Gyde respondeu num formato diferente do desta tela. Isso acontece quando o Gyde é atualizado sem reiniciar: feche o Gyde (o app ou a janela do iniciar.bat) e abra de novo.');
+    this.url = url;
+    this.problemas = problemas;
   }
 }
 

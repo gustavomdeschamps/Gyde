@@ -17,10 +17,18 @@ export const LANG_LABEL: Record<string, string> = { python: 'Python', javascript
 export const FILE_EXT: Record<string, string> = { python: 'py', javascript: 'js' };
 export const NIVEL_NOME: Record<string, string> = { basico: 'básico', intermediario: 'intermediário', avancado: 'avançado' };
 
-// Mostra valores no jeito da linguagem (True/None em Python).
+// Mostra valores no jeito da linguagem (True/False/None em Python). Monta pela estrutura do valor, para não mexer
+// em textos que contêm as palavras true, false ou null.
+function emPython(v: unknown): string {
+  if (v === true) return 'True';
+  if (v === false) return 'False';
+  if (v === null || v === undefined) return 'None';
+  if (Array.isArray(v)) return `[${v.map(emPython).join(', ')}]`;
+  if (typeof v === 'object') return `{${Object.entries(v).map(([k, x]) => `${JSON.stringify(k)}: ${emPython(x)}`).join(', ')}}`;
+  return JSON.stringify(v);
+}
 export function mostrar(v: unknown, lang: string): string {
   if (v === '__undefined__') return 'undefined';
-  const json = JSON.stringify(v);
-  if (lang !== 'python' || json === undefined) return json ?? String(v);
-  return json.replace(/\btrue\b/g, 'True').replace(/\bfalse\b/g, 'False').replace(/\bnull\b/g, 'None');
+  if (lang === 'python') return emPython(v);
+  return JSON.stringify(v) ?? String(v);
 }
