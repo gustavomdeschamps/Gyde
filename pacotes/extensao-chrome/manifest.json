@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Gyde — seu guia na programação",
   "short_name": "Gyde",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Converse com o Gyde num painel lateral: ele lê a página, a seleção ou um print e, no modo agente, faz sozinho o que você pedir na aba aberta.",
   "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
   "action": { "default_title": "Abrir o Gyde", "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png" } },

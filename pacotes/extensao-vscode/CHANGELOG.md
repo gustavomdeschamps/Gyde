@@ -1,5 +1,8 @@
 # Novidades
 
+## 1.1.1
+- As mensagens de conexão citam também o app de desktop do Gyde, além do `iniciar.bat`.
+
 ## 1.1.0
 - Visual novo do painel: cabeçalho com a logo, tela inicial com atalhos (explicar seleção, revisar arquivo,
   explicar erro, pedir exercício), respostas com a logo do Gyde e caixa de mensagem nova.

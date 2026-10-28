@@ -1,7 +1,7 @@
 // Motor do Gyde: cada modo usa uma cadeia dos melhores modelos do FreeLLMAPI para programar.
 // Atenção: os nomes são apelidos do FreeLLMAPI; quem responde de fato vem no cabeçalho x-routed-via
 // (ex.: "claude-sonnet-4-5" foi atendido pelo Qwen 3.8 via Groq nos testes). A tela mostra o modelo real.
-// No modo offline (provedores.js) todo nome de modelo vira o modelo local do Ollama.
+// No modo offline (provedores.ts) todo nome de modelo vira o modelo local do Ollama.
 // Se um modelo falhar (fora do ar, cota, resposta inválida), o próximo assume sem o usuário ver erro.
 // Toda cadeia termina em 'auto' para funcionar com qualquer conjunto de chaves que a pessoa tiver no FreeLLMAPI.
 

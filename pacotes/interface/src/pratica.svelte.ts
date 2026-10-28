@@ -1,4 +1,4 @@
-// Página da Prática: monta o componente Svelte (pratica/Pratica.svelte) com a mesma interface que o app.js já usa.
+// Página da Prática: monta o componente Svelte (pratica/Pratica.svelte) com a interface que o main.ts usa.
 import { mount } from 'svelte';
 import * as C from '$contratos';
 import { pedir } from './api.ts';

@@ -267,7 +267,7 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
   });
 
   r.post('/forgot', wrap(async (req, res) => {
-    if (personal) return res.status(400).json({ local: true, error: 'No modo pessoal, troque a senha com o redefinir-senha.bat (pasta configurar do Gyde).' });
+    if (personal) return res.status(400).json({ local: true, error: 'No modo pessoal não há e-mail: troque a senha pela tela "Esqueci minha senha" do app de desktop ou com o redefinir-senha.bat (pasta configurar do Gyde).' });
     const email = normEmail(req.body?.email);
     if (!codeLimiter(`forgot:${email}`) || !codeLimiter(`forgot-ip:${ipKey(req)}`)) {
       return res.status(429).json({ error: 'Espere alguns minutos antes de pedir outro código.' });
@@ -291,6 +291,25 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
     q.deleteUserSessions.run(user.id); // derruba sessões antigas
     startSession(res, user.id);
     res.json({ user: publicUser(q.userById.get(user.id)!) });
+  }));
+
+  // App de desktop, modo pessoal: troca de senha sem e-mail. Só o processo principal do Electron conhece o segredo
+  // (gerado a cada abertura) e ele só chama esta rota depois de a pessoa confirmar numa janela nativa do Windows.
+  const SEGREDO_DESKTOP = process.env.GYDE_SEGREDO_DESKTOP || '';
+  r.post('/redefinir-local', wrap(async (req, res) => {
+    const enviado = Buffer.from(String(req.get('x-gyde-desktop') || ''));
+    const esperado = Buffer.from(SEGREDO_DESKTOP);
+    if (!personal || !SEGREDO_DESKTOP || enviado.length !== esperado.length || !timingSafeEqual(enviado, esperado)) {
+      return res.status(403).json({ error: 'Só o app de desktop do Gyde pode trocar a senha assim.' });
+    }
+    const user = q.userByEmail.get(normEmail(req.body?.email));
+    if (!user) return res.status(400).json({ error: 'Não existe conta com esse e-mail neste computador.' });
+    const pwProblem = passwordProblem(req.body?.password);
+    if (pwProblem) return res.status(400).json({ error: pwProblem });
+    q.setPassword.run(await hashPassword(req.body.password), user.id);
+    q.setVerified.run(user.id);
+    q.deleteUserSessions.run(user.id); // sai de todos os lugares onde estava logada
+    res.json({ ok: true });
   }));
 
   r.get('/me', (req, res) => {

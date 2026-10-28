@@ -29,7 +29,7 @@ async function api(path, options = {}) {
       headers: { Authorization: `Bearer ${state.token}`, 'x-gyde': '1', ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers },
     });
   } catch {
-    throw new Error('Não consegui falar com o Gyde. Ele está aberto (iniciar.bat)?');
+    throw new Error('Não consegui falar com o Gyde. Ele está aberto (o app do Gyde ou o iniciar.bat)?');
   }
   if (res.status === 401) throw Object.assign(new Error('Token inválido ou revogado. Gere outro em Configurações.'), { auth: true });
   if (!res.ok) {

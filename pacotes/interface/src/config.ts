@@ -1,4 +1,4 @@
-// Configurações e indicador de uso: monta os componentes Svelte e devolve o que o app.js usa.
+// Configurações e indicador de uso: monta os componentes Svelte e devolve o que o main.ts usa.
 import { mount } from 'svelte';
 import Configuracoes from './config/Configuracoes.svelte';
 import UsoChip from './config/UsoChip.svelte';

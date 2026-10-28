@@ -87,7 +87,7 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
     const provedor = await ativo();
     const offline = provedor === 'offline';
     if (!offline && !routerKey) {
-      throw erroGyde('Chave do FreeLLMAPI não configurada. Rode o configurar\\configurar-chave.bat.', { status: 503 });
+      throw erroGyde('Chave do FreeLLMAPI não configurada. Cole a chave em Configurações > IA e modelos.', { status: 503 });
     }
     let body = init.body;
     if (typeof body === 'string') {

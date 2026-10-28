@@ -5,10 +5,10 @@ ou um print da tela, e te explica.
 
 ## Instalar
 
-1. Deixe o Gyde rodando (`iniciar.bat`).
+1. Deixe o Gyde aberto (o app do Gyde ou o `iniciar.bat`).
 2. No Chrome, abra `chrome://extensions`.
 3. Ligue o **Modo do desenvolvedor** (canto superior direito).
-4. Clique em **Carregar sem compactação** e escolha esta pasta (`extensoes\chrome`, dentro da pasta do Gyde).
+4. Clique em **Carregar sem compactação** e escolha esta pasta (`pacotes\extensao-chrome`, dentro da pasta do Gyde).
 5. Fixe o ícone do Gyde na barra (ícone de peça de quebra-cabeça → alfinete).
 
 ## Conectar

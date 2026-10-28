@@ -1,6 +1,6 @@
 {
   "name": "@gyde/extensao-chrome",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "type": "module",
   "description": "Extensão do Gyde para o Chrome. Gere o .zip com npm run empacotar.",

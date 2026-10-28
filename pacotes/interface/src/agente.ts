@@ -1,4 +1,4 @@
-// Página da Forja: monta o componente Svelte (forja/Forja.svelte) com a mesma interface que o app.js já usa.
+// Página da Forja: monta o componente Svelte (forja/Forja.svelte) com a interface que o main.ts usa.
 import { mount, unmount } from 'svelte';
 import * as C from '$contratos';
 import { pedir, mensagemDe } from './api.ts';

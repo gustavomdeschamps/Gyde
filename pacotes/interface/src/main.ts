@@ -104,9 +104,12 @@ async function conferirStatus() {
     chat.imagensAtivas = s.imagesEnabled;
     atualizarUso();
     // código novo no disco, servidor antigo na memória: telas e servidor não combinam
-    if (s.desatualizado) { aviso('O Gyde foi atualizado, mas o servidor ainda está rodando a versão anterior. Feche a janela do iniciar.bat e abra de novo para terminar a atualização.'); return true; }
+    if (s.desatualizado) { aviso('O Gyde foi atualizado, mas o servidor ainda está rodando a versão anterior. Feche o Gyde (o app ou a janela do iniciar.bat) e abra de novo para terminar a atualização.'); return true; }
     if (s.keyConfigured && !s.routerOnline && s.iaAtiva === 'offline') { aviso('Sem conexão com o FreeLLMAPI: usando o modelo local (offline). Ele é mais simples e mais lento.'); return true; }
-    if (!s.keyConfigured) aviso('A chave do FreeLLMAPI ainda não foi configurada. Clique em <b>Copy Key</b> no ícone do FreeLLMAPI e rode <code>configurar-chave.bat</code> (pasta <b>configurar</b> do Gyde).', true);
+    if (!s.keyConfigured) {
+      aviso('A chave do FreeLLMAPI ainda não foi configurada. No ícone do FreeLLMAPI, clique em <b>Copy Key</b> e cole em <button type="button" class="link" id="bannerConfigIa">Configurações &gt; IA e modelos</button>.', true);
+      $('#bannerConfigIa')?.addEventListener('click', () => config.abrir('ia'));
+    }
     else if (!s.routerOnline) aviso('O FreeLLMAPI não está respondendo. Abra o app FreeLLMAPI (ícone na bandeja) e recarregue a página.');
     else { banner.hidden = true; return true; }
   } catch { aviso('Não consegui falar com o servidor do Gyde.'); }

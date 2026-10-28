@@ -80,7 +80,7 @@ if ($temChave) {
         Set-Clipboard -Value ' '
         Ok 'Chave salva'
     } else {
-        Aviso 'Nao achei a chave na area de transferencia. Depois rode o configurar\configurar-chave.bat.'
+        Aviso 'Nao achei a chave na area de transferencia. Depois cole a chave no Gyde, em Configuracoes > IA e modelos.'
     }
 }
 

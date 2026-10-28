@@ -119,7 +119,7 @@ let lastTs = 0;
 const now = () => (lastTs = Math.max(Date.now(), lastTs + 1));
 
 // ---------- Provedor de IA (FreeLLMAPI online ou Ollama offline) ----------
-const uso = criarUso(db); // registro de uso do Gyde (uso.js): um registro por pedido, com o que o provedor informou
+const uso = criarUso(db); // registro de uso do Gyde (uso.ts): um registro por pedido, com o que o provedor informou
 const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: process.env.FREELLMAPI_KEY || '', ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso });
 const router = provedores.router;
 
@@ -298,7 +298,7 @@ app.use(['/api', '/images'], (req, res, next) => {
 // Skills instaláveis (catálogo em skills-catalogo/*.md + skills próprias de cada pessoa).
 const skillsSystem = setupSkills(app, db, { root: ROOT });
 
-// Memória entre conversas (memoria.js).
+// Memória entre conversas (memoria.ts).
 const memory = setupMemoria(app, db, { router, getSetting, setSetting });
 
 // Versão do código: se os arquivos do Gyde mudarem no disco depois que o servidor iniciou (atualização sem reiniciar
@@ -393,11 +393,11 @@ app.delete('/api/conversations/:id', (req, res) => {
   res.status(204).end();
 });
 
-// ---------- Prática: exercícios, projetos, revisão, desafio do dia, amigos (pratica-servidor.js) ----------
+// ---------- Prática: exercícios, projetos, revisão, desafio do dia, amigos (pratica-servidor.ts) ----------
 setupPratica(app, db, { router, profileSummary, asyncRoute, uso });
-setupTurmas(app, db); // modo turma (turmas.js)
-setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão (agente.js)
-setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja (agente de código): trabalha numa pasta de projeto (codigo-agente.js)
+setupTurmas(app, db); // modo turma (turmas.ts)
+setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão (agente.ts)
+setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja (agente de código): trabalha numa pasta de projeto (codigo-agente.ts)
 
 // ---------- Quiz de boas-vindas ----------
 app.get('/api/quiz', (_req, res) => responder(res, C.Questionario, { questions: publicQuiz() }));
@@ -601,7 +601,7 @@ app.get('/favicon.ico', (_req, res) => res.sendFile(path.join(DIST, 'gyde.ico'),
 // interface já compilada pelo Vite (npm run build). Arquivos com hash no nome podem ficar em cache por muito tempo.
 app.use('/assets', express.static(path.join(DIST, 'assets'), { maxAge: '1y', immutable: true }));
 app.use(express.static(DIST));
-app.get('/', (_req, res) => res.status(503).type('text').send('A interface do Gyde ainda não foi gerada. Rode: npm run build (o iniciar.bat faz isso sozinho).'));
+app.get('/', (_req, res) => res.status(503).type('text').send('A interface do Gyde ainda não foi gerada. Rode: npm run build (o iniciar.bat e o app de desktop já vêm com ela gerada).'));
 
 app.use((err: ErroGyde, _req: Request, res: Response, _next: NextFunction) => {
   const status = err.status || 500;
@@ -612,6 +612,6 @@ app.use((err: ErroGyde, _req: Request, res: Response, _next: NextFunction) => {
 
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`\n  Gyde rodando em http://127.0.0.1:${PORT}`);
-  console.log(`  FreeLLMAPI: ${ROUTER_URL}  |  chave: ${provedores.temChave() ? 'configurada' : 'FALTANDO (rode configurar\\configurar-chave.bat)'}`);
+  console.log(`  FreeLLMAPI: ${ROUTER_URL}  |  chave: ${provedores.temChave() ? 'configurada' : 'FALTANDO (cole em Configurações > IA e modelos)'}`);
   console.log(`  IA: modo ${process.env.GYDE_MODO_IA || 'auto'}  |  offline: Ollama ${OLLAMA_MODELO}\n`);
 });

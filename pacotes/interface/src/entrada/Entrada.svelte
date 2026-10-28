@@ -13,6 +13,9 @@
   let caixa: HTMLElement | undefined = $state();
 
   const pessoal = $derived(modo === 'pessoal');
+  // no app de desktop a troca de senha é feita aqui mesmo, com confirmação numa janela do Windows
+  const desktop = (window as { gydeDesktop?: { redefinirSenha?: (email: string, senha: string) => Promise<{ ok: boolean; cancelado?: boolean; erro?: string }> } }).gydeDesktop;
+  let trocada = $state(false);
   const SENHA_DICA = 'Mínimo de 8 caracteres, com letras e números.';
 
   function ir(t: Tela, d: 'next' | null = null) {
@@ -50,6 +53,14 @@
   async function reenviar() {
     const r = await post('/api/auth/resend', { email });
     if (r.ok) { reenviado = true; erro = ''; } else mostrarErro(r.json.error || 'Não deu para reenviar agora.');
+  }
+  async function trocarLocal(e: SubmitEvent) {
+    e.preventDefault();
+    ocupado = true;
+    const r = await desktop!.redefinirSenha!(email, senha);
+    ocupado = false;
+    if (r.ok) { trocada = true; senha = ''; erro = ''; }
+    else if (!r.cancelado) mostrarErro(r.erro || 'Não deu para trocar a senha agora.');
   }
   const soDigitos = () => { codigo = codigo.replace(/\D/g, '').slice(0, 6); };
 </script>
@@ -103,6 +114,21 @@
           <button type="button" class="link" disabled={reenviado} onclick={reenviar}>{reenviado ? 'Código reenviado' : 'Reenviar código'}</button>
           <button type="button" class="link" onclick={() => ir('login')}>Voltar</button>
         </div>
+      {:else if tela === 'senhaLocal' && desktop?.redefinirSenha}
+        <h1>Trocar senha</h1>
+        {#if trocada}
+          <p class="gate-sub">Senha trocada. Entre com a senha nova.</p>
+          <button type="button" class="btn primary wide" onclick={() => { trocada = false; ir('login'); }}>Voltar para entrar</button>
+        {:else}
+          <p class="gate-sub">A conta fica só neste computador, então a troca é feita aqui. O Windows vai pedir para você confirmar.</p>
+          <form class="gate-form" novalidate onsubmit={trocarLocal}>
+            <label>E-mail da conta<input name="email" type="email" autocomplete="email" required bind:value={email} disabled={ocupado}></label>
+            <label>Nova senha<input name="password" type="password" autocomplete="new-password" minlength="8" required bind:value={senha} disabled={ocupado}><small>{SENHA_DICA}</small></label>
+            {@render campoErro()}
+            <button class="btn primary wide" disabled={ocupado}>Trocar senha</button>
+          </form>
+          <div class="gate-links"><button type="button" class="link" onclick={() => ir('login')}>Voltar</button></div>
+        {/if}
       {:else if tela === 'senhaLocal'}
         <h1>Esqueceu a senha?</h1>
         <p class="gate-sub">No modo pessoal a conta fica só neste computador, então a troca é feita aqui mesmo:</p>

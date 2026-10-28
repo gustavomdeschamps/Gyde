@@ -1,8 +1,9 @@
-// App de desktop do Gyde (Electron): sobe o servidor do Gyde num processo separado, numa porta livre só deste
-// computador, e abre a interface numa janela própria. Os dados e o .env ficam na pasta do usuário
+// App de desktop do Gyde (Electron): sobe o servidor do Gyde num processo separado, numa porta só deste computador
+// (a 3210, ou outra livre se ela estiver ocupada), e abre a interface numa janela própria. Os dados e o .env ficam na pasta do usuário
 // (%APPDATA%\Gyde), não na pasta do programa, então atualizar ou reinstalar não apaga nada.
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell, utilityProcess, type UtilityProcess } from 'electron';
 import { createServer } from 'node:net';
+import { randomBytes } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 
@@ -16,23 +17,28 @@ let servidor: UtilityProcess | null = null;
 let janela: BrowserWindow | null = null;
 let saindo = false;
 let endereco = '';
+// segredo desta abertura: só o processo principal conhece (a página não), e o servidor exige nas rotas do desktop
+const SEGREDO = randomBytes(32).toString('hex');
 
-// porta livre só no 127.0.0.1 (o sistema escolhe; outro programa não consegue pegar a mesma depois de solta)
-const portaLivre = () => new Promise<number>((ok, falha) => {
+// porta só no 127.0.0.1. Prefere a 3210, que é onde as extensões do VS Code e do Chrome procuram o Gyde;
+// se ela estiver ocupada (ex.: o iniciar.bat aberto), o sistema escolhe outra livre
+const PORTA_PADRAO = 3210;
+const tentarPorta = (porta: number) => new Promise<number | null>((ok) => {
   const s = createServer();
-  s.once('error', falha);
-  s.listen(0, '127.0.0.1', () => { const { port } = s.address() as { port: number }; s.close(() => ok(port)); });
+  s.once('error', () => ok(null));
+  s.listen(porta, '127.0.0.1', () => { const { port } = s.address() as { port: number }; s.close(() => ok(port)); });
 });
+const escolherPorta = async () => (await tentarPorta(PORTA_PADRAO)) ?? (await tentarPorta(0))!;
 
 async function subirServidor() {
-  const porta = await portaLivre();
+  const porta = await escolherPorta();
   const pastaDados = path.join(DADOS, 'dados');
   mkdirSync(pastaDados, { recursive: true });
   const saida: string[] = [];
   servidor = utilityProcess.fork(path.join(RAIZ, 'pacotes', 'servidor', 'server.ts'), [], {
     serviceName: 'Servidor do Gyde',
     stdio: 'pipe',
-    env: { ...process.env, GYDE_DESKTOP: '1', PORT: String(porta), DATA_DIR: pastaDados, GYDE_ENV_FILE: path.join(DADOS, '.env') },
+    env: { ...process.env, GYDE_DESKTOP: '1', GYDE_SEGREDO_DESKTOP: SEGREDO, PORT: String(porta), DATA_DIR: pastaDados, GYDE_ENV_FILE: path.join(DADOS, '.env') },
   });
   const guardar = (d: Buffer) => { saida.push(String(d)); if (saida.length > 60) saida.shift(); };
   servidor.stdout?.on('data', guardar);
@@ -79,6 +85,25 @@ ipcMain.handle('gyde:escolher-pasta', async (e) => {
   const opcoes = { title: 'Escolha a pasta do projeto', properties: ['openDirectory' as const] };
   const r = dono ? await dialog.showOpenDialog(dono, opcoes) : await dialog.showOpenDialog(opcoes);
   return r.canceled ? null : r.filePaths[0] ?? null;
+});
+
+// esqueceu a senha (modo pessoal, sem e-mail): a troca só acontece depois de confirmar numa janela nativa,
+// então um script na página não consegue trocar a senha de ninguém sozinho
+ipcMain.handle('gyde:redefinir-senha', async (e, email: unknown, senha: unknown) => {
+  const dono = BrowserWindow.fromWebContents(e.sender);
+  const conta = String(email ?? '').trim().slice(0, 254);
+  const opcoes = { type: 'warning' as const, buttons: ['Trocar a senha', 'Cancelar'], defaultId: 1, cancelId: 1, title: 'Trocar senha',
+    message: `Trocar a senha da conta ${conta} neste computador?`, detail: 'A conta sai de todos os lugares onde estava aberta e passa a entrar com a senha nova.' };
+  const { response } = dono ? await dialog.showMessageBox(dono, opcoes) : await dialog.showMessageBox(opcoes);
+  if (response !== 0) return { ok: false, cancelado: true };
+  try {
+    const r = await fetch(`${endereco}/api/auth/redefinir-local`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-gyde': '1', 'x-gyde-desktop': SEGREDO },
+      body: JSON.stringify({ email: conta, password: String(senha ?? '') }),
+    });
+    const corpo = await r.json().catch(() => ({})) as { error?: string };
+    return r.ok ? { ok: true } : { ok: false, erro: corpo.error || `Erro ${r.status}` };
+  } catch { return { ok: false, erro: 'Não consegui falar com o servidor do Gyde.' }; }
 });
 
 // atualização automática: procura uma versão nova publicada no GitHub. Sem release publicada, não faz nada.

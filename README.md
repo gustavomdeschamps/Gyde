@@ -6,7 +6,7 @@
 
 <p align="center">
   Chat que explica o erro antes de corrigir · agente que programa sozinho no seu projeto · prática com XP ·
-  extensões para VS Code e Chrome. Em português, de graça, rodando no seu computador.
+  app de desktop e extensões para VS Code e Chrome. Em português, de graça, rodando no seu computador.
 </p>
 
 <p align="center">
@@ -86,7 +86,7 @@ O chat do Gyde com acesso a uma pasta do seu computador. A conversa funciona com
 e documenta. Você não precisa saber comandos de terminal.
 
 1. Abra a Forja e escreva o pedido (ou clique em **Conectar pasta do projeto**). A janela do Windows abre para você
-   escolher a pasta; o servidor do Gyde, que roda no mesmo PC, passa a ter acesso só a ela.
+   escolher a pasta (no app de desktop, a janela nativa); o servidor do Gyde, que roda no mesmo PC, passa a ter acesso só a ela.
 2. A Forja identifica o projeto (tecnologias, quantidade de arquivos, comando de testes) e mostra isso no topo.
 3. Cada ação aparece ao vivo (lendo, editando, executando), com o tempo que levou e as mudanças coloridas.
 4. No fim vem um resumo, montado pelo servidor e não pelo texto da IA, com os arquivos **criados, alterados e
@@ -117,8 +117,8 @@ e documenta. Você não precisa saber comandos de terminal.
 
 ### Configurações
 No menu lateral, **Configurações** reúne tudo em seções: **Geral** (tema automático, claro ou escuro; página inicial;
-vídeo de abertura; restaurar padrões), **IA e modelos** (estado real da conexão, modo online, offline ou automático,
-como o Gyde deve responder, memória), **Uso e limites**, **Prática** (suas respostas, nível medido e desempenho;
+vídeo de abertura; restaurar padrões), **IA e modelos** (chave do FreeLLMAPI, estado real da conexão, modo online,
+offline ou automático, como o Gyde deve responder, memória), **Uso e limites**, **Prática** (suas respostas, nível medido e desempenho;
 refazer o questionário), **Privacidade e dados** (o que fica no PC, o que vai para a IA, apagar conversas e registros)
 e **Extensões** (tokens). Cada opção salva na hora.
 
@@ -129,7 +129,7 @@ e **Extensões** (tokens). Cada opção salva na hora.
 - **Memória:** o Gyde lembra o que você pedir para ele lembrar (dá para ver e apagar).
 - **Revisar projeto inteiro:** anexe uma pasta ou um `.zip` e peça a revisão.
 - **Imagens e voz:** gera imagens e lê as respostas em voz alta.
-- **App:** instale pelo navegador como um aplicativo. Tema claro e escuro.
+- **App de desktop:** janela própria (Electron), seletor de pasta nativo e atualização pelo GitHub. Também dá para instalar pelo navegador como app. Tema claro e escuro.
 - **Vídeo de abertura** em 3D, com narração e legendas.
 
 ## Extensões
@@ -137,20 +137,20 @@ e **Extensões** (tokens). Cada opção salva na hora.
 ### VS Code
 O Gyde dentro do editor: chat na barra lateral e, com o botão direito, **Explicar com o Gyde**,
 **Revisar com o Gyde** e **Explicar o erro desta linha**. A resposta tem o botão **Inserir no editor**.
-Veja [extensoes/vscode](extensoes/vscode/README.md).
+Veja [pacotes/extensao-vscode](pacotes/extensao-vscode/README.md).
 
 <p align="center"><img src="docs/imagens/vscode.jpg" alt="Extensão do Gyde no VS Code" width="88%"></p>
 
 ### Chrome
 Painel lateral que lê a página, a seleção ou um print, e um **modo agente**: você dá o comando e ele faz sozinho
 na aba, com uma seta que clica e digita (e para antes de compras, exclusões e senhas).
-Veja [extensoes/chrome](extensoes/chrome/LEIA-ME.md).
+Veja [pacotes/extensao-chrome](pacotes/extensao-chrome/LEIA-ME.md).
 
 ## Como funciona
 
 ```mermaid
 flowchart LR
-    V["Você"] --> N["Navegador<br/>(chat, Prática, Forja)"]
+    V["Você"] --> N["App de desktop ou navegador<br/>(chat, Prática, Forja)"]
     VS["VS Code / Chrome"] --> G
     N --> G["Gyde<br/>(no seu computador)"]
     G --> F["FreeLLMAPI<br/>(no seu computador)"]
@@ -162,13 +162,18 @@ O Gyde tenta uma fila de modelos bons para programar. Se um estiver ocupado ou f
 Cada resposta mostra, embaixo, o **modelo que respondeu de verdade** (os nomes do FreeLLMAPI são apelidos: o
 "claude-sonnet-4-5" de lá, por exemplo, foi atendido pelo Qwen nos testes) e os tokens usados.
 
+**Por dentro:** tudo em TypeScript estrito. O servidor é Node.js com Express e o SQLite que já vem no Node, com o
+esquema do banco em migrações numeradas (cópia do banco antes de cada atualização). A interface é Svelte 5 com Vite.
+Servidor e interface conferem cada resposta pelos mesmos contratos (Zod), então uma tela nunca recebe um formato que
+não espera sem avisar. O app de desktop é Electron: sobe o servidor num processo separado e abre a interface.
+
 ## Uso, cotas e limites
 
 Em **Configurações > Uso e limites** (ou clicando no indicador do rodapé do chat), cada conceito aparece separado:
 
 | O quê | O que é | De onde vem |
 |---|---|---|
-| **Uso do Gyde** | Pedidos seus (mensagem do chat, tarefa da Forja, dica da Prática), hoje e nos últimos 7 dias, separados em concluídos, com falha, cancelados e barrados por limite | Registro do próprio Gyde, no banco local (`uso.js`) |
+| **Uso do Gyde** | Pedidos seus (mensagem do chat, tarefa da Forja, dica da Prática), hoje e nos últimos 7 dias, separados em concluídos, com falha, cancelados e barrados por limite | Registro do próprio Gyde, no banco local (`uso.ts`) |
 | **Chamadas** | Quantas vezes o Gyde falou com o provedor. Trocas de modelo e rodadas da Forja geram várias chamadas num pedido, e o pedido conta uma vez só | Registro do Gyde |
 | **Tokens** | Entrada e saída do modelo | Campo `usage` da resposta do provedor. Se ele não manda, aparece "não informado", nunca estimado |
 | **Cota do provedor** | Pedidos por minuto livres e a hora em que renova; consumo do mês na conta do FreeLLMAPI | Cabeçalhos `x-ratelimit-*` e a rota `/v1/usage` do FreeLLMAPI |
@@ -205,20 +210,25 @@ Num computador com 8 GB de RAM e sem placa de vídeo, use modelos de até 3 bilh
 **Siga o [COMO-INSTALAR.md](COMO-INSTALAR.md)**: o passo a passo completo, feito para quem nunca instalou nada
 parecido. Leva uns 15 minutos.
 
-Resumo:
+Resumo, pelo código:
 
 1. Baixe este repositório (**Code → Download ZIP**) e extraia numa pasta fixa.
 2. Instale o [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi/releases/latest) e coloque pelo menos uma chave grátis (ex.: Google AI Studio).
 3. Dê dois cliques em **`instalar.bat`**.
 4. Use o **`iniciar.bat`** sempre que quiser abrir o Gyde. Ele roda em http://127.0.0.1:3210.
 
+**App de desktop:** `npm run dist:win` gera o instalador do Windows (`dist-desktop/Gyde Setup x.y.z.exe`). Ainda não há
+versão publicada em Releases. O instalador não tem assinatura digital paga, então o Windows mostra um aviso do
+SmartScreen. No app, os dados e o `.env` ficam em `%APPDATA%\Gyde`.
+
 > Cada pessoa tem o próprio Gyde: a conta, as conversas e o progresso ficam no computador de quem instalou,
 > e cada um usa as próprias chaves grátis de IA.
 
 ## Configuração (.env)
 
-O `instalar.bat` e os scripts da pasta `configurar/` criam o `.env` para você. Se quiser editar à mão, ele fica na
-pasta principal do Gyde e **nunca vai para o GitHub**. Exemplo (sem chaves de verdade):
+A chave do FreeLLMAPI é colada em **Configurações > IA e modelos** (ou pelo `instalar.bat`); os scripts da pasta
+`configurar/` cuidam dos extras. Se quiser editar à mão, o `.env` fica na pasta principal do Gyde (no app de desktop,
+em `%APPDATA%\Gyde`) e **nunca vai para o GitHub**. Exemplo (sem chaves de verdade):
 
 ```ini
 # obrigatório para os modelos online
@@ -235,13 +245,14 @@ CLOUDFLARE_API_TOKEN=
 GEMINI_API_KEY=                # voz natural (configurar\configurar-voz.bat)
 ```
 
-Para rodar sem os `.bat`: `npm install` e depois `npm start` (Node.js 22.18 ou mais novo).
+Para rodar sem os `.bat`: `npm install`, `npm run build` e `npm start` (Node.js 22.18 ou mais novo). `npm run desktop` abre o app de desktop a partir do código.
 
 ### Atualizar o Gyde
 
 Baixe a versão nova (ou `git pull`) e **feche e abra de novo o `iniciar.bat`**. O servidor só lê o código quando
 inicia; se ele continuar aberto, a tela avisa: "O Gyde foi atualizado, mas o servidor ainda está rodando a versão
-anterior". Suas contas, conversas e progresso ficam na pasta `data/` e não são tocados.
+anterior". Suas contas, conversas e progresso ficam na pasta `data/` e não são tocados. Quando uma versão nova muda
+o banco, o Gyde guarda uma cópia dele em `data/copias-banco` antes (as 5 mais recentes).
 
 ## Testes
 
@@ -249,12 +260,19 @@ anterior". Suas contas, conversas e progresso ficam na pasta `data/` e não são
 npm test
 ```
 
-Roda os testes automáticos de `app/testes/` (19 testes, sem internet e sem gastar cota):
+Confere os tipos (servidor, desktop e interface, com `tsc` e `svelte-check`) e roda os testes automáticos de
+`pacotes/servidor/testes` e `pacotes/interface/testes`, sem internet e sem gastar cota:
 - **segurança:** caminhos fora da pasta, arquivos de senha, classificação de comandos, remoção de segredos;
 - **uso:** pedidos x chamadas, tokens só quando informados, cancelados e limite por minuto (com um provedor falso local);
 - **Prática:** mais de 10 mil combinações das alternativas reais do questionário, cada linguagem, níveis, respostas
   inválidas ou faltando, progresso parcial e completo. A regra testada: toda resposta válida vira um plano com próximo
-  passo (ou um novo desafio), sem chamar IA.
+  passo (ou um novo desafio), sem chamar IA;
+- **contratos:** as regras dos formatos de resposta e o modo estrito do servidor;
+- **migrações:** banco novo, banco antigo com dados, versão mais nova recusada, migração com falha desfeita, cópia;
+- **troca de senha do app de desktop:** só com o segredo do app e só no modo pessoal (sobe um servidor temporário);
+- **Forja:** o estado das tarefas na tela (eventos, duração, pendências).
+
+`npm run extensoes` gera o `.vsix` do VS Code e o `.zip` da Chrome Web Store.
 
 ## Limitações conhecidas
 
@@ -264,6 +282,8 @@ Roda os testes automáticos de `app/testes/` (19 testes, sem internet e sem gast
 - O **Desfazer** da Forja guarda as 10 últimas tarefas de cada conversa e não copia arquivos maiores que 2 MB.
 - Exercícios guiados (Java, SQL, C#...) não têm correção automática: dependem do chat e de você marcar como feito.
 - A Forja e a janela de escolher pasta só funcionam no Windows e com o Gyde no modo pessoal (rodando no seu PC).
+- O instalador do app de desktop não tem assinatura digital (custa dinheiro), então o Windows mostra o aviso do SmartScreen.
+- No app de desktop, os scripts da pasta `configurar/` (imagens, voz, e-mail) não se aplicam: eles gravam no `.env` da pasta do código.
 - A moderação depende das instruções do Gyde e do provedor; não há um filtro de conteúdo separado.
 - Imagens geradas ficam acessíveis para qualquer conta logada no mesmo Gyde que tenha o link (os nomes são aleatórios).
 
@@ -282,32 +302,35 @@ Sim. O Gyde é grátis e usa os limites grátis dos serviços de IA (Google, Gro
 Para os modelos online, sim. Sem internet, dá para usar um modelo local pelo Ollama (veja "IA offline").
 
 **Meus dados vão para algum lugar?**
-Sua conta, conversas e progresso ficam na pasta `data` do seu computador. As mensagens vão só para o serviço de IA
-que responde.
+Sua conta, conversas e progresso ficam na pasta `data` do seu computador (no app de desktop, em `%APPDATA%\Gyde`).
+As mensagens vão só para o serviço de IA que responde.
 
 **E quando o limite grátis acabar?**
 O FreeLLMAPI troca de serviço quando um deles esgota. Se acabar o limite por minuto do próprio FreeLLMAPI, o Gyde
 diz quando renova e, se você tiver o Ollama, oferece o modelo local. Veja em **Configurações > Uso e limites**.
 
 **Funciona no Mac ou no Linux?**
-Foi feito e testado no Windows. O servidor é Node.js e roda em outros sistemas, mas os instaladores e a janela de
-escolher pasta da Forja são do Windows.
+Foi feito e testado no Windows. O servidor é Node.js e o app é Electron, que rodam em outros sistemas, mas os
+instaladores e a janela de escolher pasta do modo navegador são do Windows, e nada foi testado no Mac ou no Linux.
 
 ## Estrutura do projeto
 
 | Pasta ou arquivo | Para que serve |
 |---|---|
-| `instalar.bat` | Instala tudo na primeira vez |
-| `iniciar.bat` | Abre o Gyde no dia a dia |
+| `instalar.bat` | Instala tudo na primeira vez (pelo código) |
+| `iniciar.bat` | Abre o Gyde no dia a dia (pelo código) |
 | `COMO-INSTALAR.md` | Passo a passo de instalação |
-| `configurar/` | Extras: chave do FreeLLMAPI, imagens, voz, e-mail, trocar senha, extensão do VS Code |
-| `extensoes/` | Extensões para VS Code (`vscode/`) e Chrome (`chrome/`) |
-| `app/` | O programa: servidor (`server.ts`), Forja (`codigo-agente.js`), provedores online/offline (`provedores.js`), registro de uso (`uso.js`), proteções (`seguranca.js`), modelos (`motor.js`), Prática (`pratica-servidor.js`), interface (`public/`), skills (`skills-catalogo/`) e testes (`testes/`) |
-| `docs/` | Imagens desta página |
+| `configurar/` | Extras: imagens, voz, e-mail, trocar senha, extensão do VS Code |
+| `pacotes/servidor/` | Servidor: `server.ts`, banco e migrações (`banco.ts`, `migracoes.ts`), Forja (`codigo-agente.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), modelos (`motor.ts`), Prática (`pratica-servidor.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
+| `pacotes/interface/` | Interface em Svelte 5 + Vite: chat, Forja, Prática, Skills, Turmas, Configurações e entrada (`src/`) |
+| `pacotes/compartilhado/` | Contratos (Zod) usados pelo servidor e pela interface |
+| `pacotes/desktop/` | App de desktop (Electron). O instalador é gerado com `npm run dist:win` |
+| `pacotes/extensao-vscode/`, `pacotes/extensao-chrome/` | Extensões para o VS Code e o Chrome |
+| `docs/` | Imagens desta página e o plano da reestruturação |
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).
 
-Esqueceu a senha? Rode `configurar\redefinir-senha.bat`.
+Esqueceu a senha? No app de desktop, use **Esqueci minha senha** na entrada; pelo código, rode `configurar\redefinir-senha.bat`.
 
 O Gyde foi feito para rodar no seu próprio computador: o servidor só aceita conexões do próprio PC (127.0.0.1).
 
