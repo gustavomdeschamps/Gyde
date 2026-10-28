@@ -1,6 +1,6 @@
 // Telas de entrada do Gyde: login, cadastro, confirmação de e-mail, troca de senha e quiz.
 import hljs from '@highlightjs/cdn-assets/es/highlight.min.js';
-import { confetti } from './runner.js';
+import { confetti } from './runner.ts';
 
 const HEADERS = { 'Content-Type': 'application/json', 'x-gyde': '1' };
 

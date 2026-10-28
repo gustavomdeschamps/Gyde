@@ -12,16 +12,16 @@ const LOCKS = /(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|poetry\.lock|compo
 const SECRET = /(^|\/)\.env$|\.pem$|\.key$|id_rsa/i;
 
 // Arquivos mais importantes primeiro: README, configuração, depois o resto por profundidade.
-function priority(path) {
+function priority(path: string) {
   if (/(^|\/)readme/i.test(path)) return 0;
   if (/(^|\/)(package\.json|requirements\.txt|pom\.xml|build\.gradle|cargo\.toml|go\.mod)$/i.test(path)) return 1;
   if (/(^|\/)(main|app|index|server)\.\w+$/i.test(path)) return 2;
   return 3 + path.split('/').length;
 }
 
-function tree(paths) {
-  const lines = [];
-  const seen = new Set();
+function tree(paths: string[]) {
+  const lines: string[] = [];
+  const seen = new Set<string>();
   for (const p of [...paths].sort()) {
     const parts = p.split('/');
     for (let i = 0; i < parts.length; i++) {
@@ -34,8 +34,8 @@ function tree(paths) {
   return lines.slice(0, 400).join('\n');
 }
 
-// entries: [{ path, size, read: () => Promise<string> }]
-async function bundle(name, entries) {
+interface Entrada { path: string; size: number; read: () => Promise<string> }
+async function bundle(name: string, entries: Entrada[]) {
   const kept = entries.filter((e) => !SKIP_DIRS.test(e.path) && !SECRET.test(e.path) && !LOCKS.test(e.path) && (CODE_EXT.test(e.path) || SPECIAL.test(e.path)));
   const skipped = entries.length - kept.length;
   kept.sort((a, b) => priority(a.path) - priority(b.path));
@@ -43,7 +43,7 @@ async function bundle(name, entries) {
   let included = 0;
   for (const e of kept.slice(0, MAX_FILES)) {
     if (text.length >= MAX_TOTAL) break;
-    let content;
+    let content: string;
     try { content = await e.read(); } catch { continue; }
     if (/\u0000/.test(content.slice(0, 2000))) continue; // binário disfarçado
     const cut = content.length > MAX_FILE ? `${content.slice(0, MAX_FILE)}\n[... arquivo cortado ...]` : content;
@@ -52,11 +52,11 @@ async function bundle(name, entries) {
     text += block;
     included++;
   }
-  return { kind: 'file', name: `Projeto: ${name} (${included} de ${kept.length} arquivos)`, text, sub: `Projeto · ${included} arquivos` };
+  return { kind: 'file' as const, name: `Projeto: ${name} (${included} de ${kept.length} arquivos)`, text, sub: `Projeto · ${included} arquivos` };
 }
 
 // <input webkitdirectory> -> FileList
-export function projectFromFolder(fileList) {
+export function projectFromFolder(fileList: FileList) {
   const files = [...fileList];
   const root = files[0]?.webkitRelativePath.split('/')[0] || 'projeto';
   return bundle(root, files.map((f) => ({
@@ -66,17 +66,17 @@ export function projectFromFolder(fileList) {
   })));
 }
 
-export async function projectFromZip(file) {
+export async function projectFromZip(file: File) {
   const data = unzipSync(new Uint8Array(await file.arrayBuffer()), {
     filter: (f) => !f.name.endsWith('/') && f.originalSize < 2_000_000 && !SKIP_DIRS.test(f.name),
   });
-  let paths = Object.keys(data);
+  const paths = Object.keys(data);
   // Zips costumam ter uma pasta raiz única: tira ela do caminho.
   const first = paths[0]?.split('/')[0];
   const common = first && paths.every((p) => p.startsWith(`${first}/`));
   return bundle(file.name.replace(/\.zip$/i, ''), paths.map((p) => ({
-    path: common ? p.slice(first.length + 1) : p,
-    size: data[p].length,
-    read: async () => strFromU8(data[p]),
+    path: common ? p.slice(first!.length + 1) : p,
+    size: data[p]!.length,
+    read: async () => strFromU8(data[p]!),
   })));
 }

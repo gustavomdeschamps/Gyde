@@ -4,7 +4,7 @@
   import * as C from '$contratos';
   import type { TEstadoPratica, TPasso } from '$contratos';
   import { pedir, corpo, mensagemDe } from '../api.ts';
-  import { TRACK_ICONS } from '../icones.js';
+  import { TRACK_ICONS } from '../icones.ts';
   import { icons, LANG_LABEL, NIVEL_NOME } from './icones.ts';
 
   let { dados, toast, onatualizar, abrirNoChat, fazerQuiz }: {

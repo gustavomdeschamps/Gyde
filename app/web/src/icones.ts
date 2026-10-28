@@ -1,5 +1,5 @@
 // Ícones das trilhas e projetos da Prática (SVG, para não depender de letras ou emojis).
-export const TRACK_ICONS = {
+export const TRACK_ICONS: Record<string, string> = {
   python: `<svg viewBox="0 0 24 24" aria-hidden="true">
     <path stroke="none" fill="#3776AB" d="M11.9 2C6.9 2 7.2 4.2 7.2 4.2v2.3H12v.7H5.3S2 6.8 2 11.9s2.9 4.9 2.9 4.9h1.7v-2.4s-.1-2.9 2.8-2.9h4.8s2.7 0 2.7-2.6V4.6S17.3 2 11.9 2z"/>
     <circle cx="9.3" cy="4.4" r=".95" fill="#fff" stroke="none"/>

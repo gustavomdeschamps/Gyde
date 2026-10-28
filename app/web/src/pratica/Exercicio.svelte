@@ -3,8 +3,8 @@
   import * as C from '$contratos';
   import type { TEstadoPratica } from '$contratos';
   import { pedir, enviar, corpo, mensagemDe } from '../api.ts';
-  import { execute, confetti } from '../runner.js';
-  import { openTrace } from '../passo-a-passo.js';
+  import { execute, confetti } from '../runner.ts';
+  import { openTrace } from '../passo-a-passo.ts';
   import { icons, LANG_LABEL, FILE_EXT, mostrar } from './icones.ts';
   import Editor from './Editor.svelte';
 

@@ -5,7 +5,7 @@ import type { TMensagem, TResumoConversa } from '$contratos';
 import { pedir, enviar as enviarApi, corpo, mensagemDe } from '../api.ts';
 import { toast } from '../util.ts';
 import { registrarUltima, atualizarUso, uso, nomeModelo, numero, type Consumo } from '../config/uso.svelte.ts';
-import { projectFromFolder, projectFromZip } from '../projeto.js';
+import { projectFromFolder, projectFromZip } from '../projeto.ts';
 
 export const MODELO_PADRAO = 'gyde-1';
 const LADO_MAX_IMAGEM = 1600;

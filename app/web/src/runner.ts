@@ -2,22 +2,25 @@
 // Usado pelo chat (botão Executar e Passo a passo) e pela Prática.
 
 const RUN_TIMEOUT_MS = 6000;
-export const RUNNABLE = { python: 'python', py: 'python', javascript: 'javascript', js: 'javascript' };
+export type Linguagem = 'python' | 'javascript';
+export interface ResultadoExecucao { ok?: boolean; timeout?: boolean; error?: string; logs?: string[]; [k: string]: unknown }
+export interface PedidoExecucao { mode: 'run' | 'check' | 'trace'; code: string; fn?: string; tests?: unknown[] }
 
-const workers = {};
-function getWorker(lang) {
+export const RUNNABLE: Record<string, Linguagem> = { python: 'python', py: 'python', javascript: 'javascript', js: 'javascript' };
+
+const workers: Partial<Record<Linguagem, { w: Worker; ready: Promise<void> }>> = {};
+function getWorker(lang: Linguagem) {
   if (!workers[lang]) {
     const w = new Worker(`/runners/${lang === 'python' ? 'py' : 'js'}-worker.js`);
-    workers[lang] = { w, ready: lang !== 'python' ? Promise.resolve() : new Promise((res) => {
-      const onReady = (e) => { if (e.data?.type === 'ready') { w.removeEventListener('message', onReady); res(); } };
+    workers[lang] = { w, ready: lang !== 'python' ? Promise.resolve() : new Promise<void>((res) => {
+      const onReady = (e: MessageEvent) => { if (e.data?.type === 'ready') { w.removeEventListener('message', onReady); res(); } };
       w.addEventListener('message', onReady);
     }) };
   }
-  return workers[lang];
+  return workers[lang]!;
 }
 
-// payload: { mode: 'run' | 'check' | 'trace', code, fn?, tests? }
-export async function execute(lang, payload, onLoading) {
+export async function execute(lang: Linguagem, payload: PedidoExecucao, onLoading?: () => void): Promise<ResultadoExecucao> {
   const entry = getWorker(lang);
   let loaded = false;
   setTimeout(() => { if (!loaded) onLoading?.(); }, 150);
@@ -29,7 +32,7 @@ export async function execute(lang, payload, onLoading) {
       delete workers[lang]; // o próximo uso cria um worker novo
       resolve({ ok: false, timeout: true, error: `Tempo esgotado (${RUN_TIMEOUT_MS / 1000}s). O código pode estar num laço infinito — confira a condição de parada.`, logs: [] });
     }, RUN_TIMEOUT_MS);
-    const onMsg = (e) => {
+    const onMsg = (e: MessageEvent) => {
       if (e.data?.type === 'ready') return;
       clearTimeout(timer);
       entry.w.removeEventListener('message', onMsg);
