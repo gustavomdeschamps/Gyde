@@ -252,7 +252,7 @@ async function improveImagePrompt(text: string) {
 
 async function generateImage(prompt: string, signal: AbortSignal) {
   if (!imagesEnabled()) {
-    throw erroGyde('A geração de imagens ainda não foi configurada. Rode o configurar\\configurar-imagens.bat.', { status: 503 });
+    throw erroGyde('A geração de imagens ainda não foi ligada. Configure em Configurações > IA e modelos.', { status: 503 });
   }
   let res: globalThis.Response;
   try {
