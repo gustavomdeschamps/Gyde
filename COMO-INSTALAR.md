@@ -81,7 +81,7 @@ https://freellmapi.co/models.html.
 **Deixe o FreeLLMAPI aberto** e dê dois cliques em **`instalar.bat`** (na pasta do Gyde).
 Vai abrir uma janela preta que faz 5 coisas. Ela vai pedindo o que precisa:
 
-1. **Node.js** — o Gyde precisa do Node.js 22.13 ou mais novo.
+1. **Node.js** — o Gyde precisa do Node.js 22.18 ou mais novo.
    Se não tiver, o instalador pergunta se pode instalar: digite `s` e Enter.
    Quando terminar, **feche a janela e abra o `instalar.bat` de novo**.
 2. **Dependências** — baixa o que o Gyde usa. Só esperar.

@@ -2,9 +2,9 @@
 // Testa por combinações das alternativas REAIS do quiz (quiz.js), com e sem progresso.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { QUIZ, gradeQuiz } from '../quiz.js';
-import { planoDe, GUIADOS, TECNOLOGIAS, findGuiado } from '../pratica-plano.js';
-import { TRACKS, findExercise } from '../pratica-dados.js';
+import { QUIZ, gradeQuiz } from '../quiz.ts';
+import { planoDe, GUIADOS, TECNOLOGIAS, findGuiado } from '../pratica-plano.ts';
+import { TRACKS, findExercise } from '../pratica-dados.ts';
 
 const pergunta = (id) => QUIZ.find((q) => q.id === id);
 const conhecimento = QUIZ.filter((q) => q.kind === 'knowledge');

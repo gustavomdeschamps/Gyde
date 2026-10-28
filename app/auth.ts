@@ -1,33 +1,39 @@
 // Cadastro, login, confirmação de e-mail e sessões do Gyde.
 import { randomBytes, randomInt, randomUUID, scrypt as scryptCb, createHash, timingSafeEqual } from 'node:crypto';
-import { promisify } from 'node:util';
 import express from 'express';
 import nodemailer from 'nodemailer';
+import type { Express, Request, Response, NextFunction } from 'express';
+import type { ScryptOptions } from 'node:crypto';
+import type { Db, Usuario } from './tipos.ts';
+import { consulta, comoErro, erroGyde } from './tipos.ts';
 
-const scrypt = promisify(scryptCb);
+interface LinhaUsuario extends Usuario { password_hash: string; email_verified: number; onboarded: number; created_at: number }
+
+const scrypt = (senha: string, sal: Buffer, tamanho: number, opcoes: ScryptOptions) =>
+  new Promise<Buffer>((ok, falha) => scryptCb(senha, sal, tamanho, opcoes, (e, chave) => (e ? falha(e) : ok(chave))));
 const SESSION_COOKIE = 'gyde_session';
 const SESSION_DAYS = 30;
 const CODE_MINUTES = 15;
 const MAX_CODE_ATTEMPTS = 5;
 
-const sha256 = (s) => createHash('sha256').update(s).digest('hex');
-const normEmail = (e) => String(e || '').trim().toLowerCase();
-const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e) && e.length <= 254;
+const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
+const normEmail = (e: unknown) => String(e || '').trim().toLowerCase();
+const validEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e) && e.length <= 254;
 
-export async function hashPassword(password) {
+export async function hashPassword(password: string) {
   const salt = randomBytes(16);
   const key = await scrypt(password, salt, 64, { N: 16384, r: 8, p: 1 });
   return `scrypt$${salt.toString('hex')}$${key.toString('hex')}`;
 }
 
-async function checkPassword(password, stored) {
+async function checkPassword(password: string, stored: string) {
   const [, saltHex, keyHex] = String(stored).split('$');
   if (!saltHex || !keyHex) return false;
   const key = await scrypt(password, Buffer.from(saltHex, 'hex'), 64, { N: 16384, r: 8, p: 1 });
   return timingSafeEqual(key, Buffer.from(keyHex, 'hex'));
 }
 
-function passwordProblem(p) {
+function passwordProblem(p: unknown) {
   if (typeof p !== 'string' || p.length < 8) return 'A senha precisa ter pelo menos 8 caracteres.';
   if (p.length > 200) return 'Senha longa demais.';
   if (!/[A-Za-z]/.test(p) || !/\d/.test(p)) return 'Use letras e números na senha.';
@@ -35,9 +41,9 @@ function passwordProblem(p) {
 }
 
 // Limite simples em memória: no máximo `max` tentativas por chave dentro da janela.
-function makeLimiter(max, windowMs) {
-  const hits = new Map();
-  return (key) => {
+function makeLimiter(max: number, windowMs: number) {
+  const hits = new Map<string, number[]>();
+  return (key: string) => {
     const now = Date.now();
     const list = (hits.get(key) || []).filter((t) => now - t < windowMs);
     list.push(now);
@@ -46,8 +52,8 @@ function makeLimiter(max, windowMs) {
   };
 }
 
-function parseCookies(header = '') {
-  const out = {};
+function parseCookies(header = ''): Record<string, string> {
+  const out: Record<string, string> = {};
   for (const part of header.split(';')) {
     const i = part.indexOf('=');
     if (i > 0) out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
@@ -55,7 +61,7 @@ function parseCookies(header = '') {
   return out;
 }
 
-export function setupAuth(app, db, { log = console } = {}) {
+export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<Console, 'log' | 'error'> } = {}) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
@@ -83,21 +89,21 @@ export function setupAuth(app, db, { log = console } = {}) {
   `);
 
   const q = {
-    userByEmail: db.prepare('SELECT * FROM users WHERE email = ?'),
-    userById: db.prepare('SELECT * FROM users WHERE id = ?'),
-    countUsers: db.prepare('SELECT COUNT(*) AS n FROM users'),
+    userByEmail: consulta<LinhaUsuario>(db, 'SELECT * FROM users WHERE email = ?'),
+    userById: consulta<LinhaUsuario>(db, 'SELECT * FROM users WHERE id = ?'),
+    countUsers: consulta<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM users'),
     insertUser: db.prepare('INSERT INTO users (id, email, name, password_hash, created_at) VALUES (?, ?, ?, ?, ?)'),
     setVerified: db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?'),
     setPassword: db.prepare('UPDATE users SET password_hash = ? WHERE id = ?'),
     insertSession: db.prepare('INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)'),
-    sessionUser: db.prepare(`SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id
+    sessionUser: consulta<LinhaUsuario>(db, `SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id
                              WHERE s.token_hash = ? AND s.expires_at > ?`),
     deleteSession: db.prepare('DELETE FROM sessions WHERE token_hash = ?'),
     deleteUserSessions: db.prepare('DELETE FROM sessions WHERE user_id = ?'),
     purgeSessions: db.prepare('DELETE FROM sessions WHERE expires_at <= ?'),
     upsertCode: db.prepare(`INSERT INTO email_codes (user_id, purpose, code_hash, expires_at, attempts) VALUES (?, ?, ?, ?, 0)
                             ON CONFLICT(user_id, purpose) DO UPDATE SET code_hash = excluded.code_hash, expires_at = excluded.expires_at, attempts = 0`),
-    getCode: db.prepare('SELECT * FROM email_codes WHERE user_id = ? AND purpose = ?'),
+    getCode: consulta<{ user_id: string; purpose: string; code_hash: string; expires_at: number; attempts: number }>(db, 'SELECT * FROM email_codes WHERE user_id = ? AND purpose = ?'),
     bumpCode: db.prepare('UPDATE email_codes SET attempts = attempts + 1 WHERE user_id = ? AND purpose = ?'),
     deleteCode: db.prepare('DELETE FROM email_codes WHERE user_id = ? AND purpose = ?'),
   };
@@ -119,7 +125,8 @@ export function setupAuth(app, db, { log = console } = {}) {
     : null;
   const mailFrom = process.env.MAIL_FROM || (process.env.SMTP_USER ? `Gyde <${process.env.SMTP_USER}>` : 'Gyde');
 
-  async function sendCode(user, purpose) {
+  type Proposito = 'verify' | 'reset';
+  async function sendCode(user: LinhaUsuario, purpose: Proposito) {
     const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
     q.upsertCode.run(user.id, purpose, sha256(code), Date.now() + CODE_MINUTES * 60_000);
     const subject = purpose === 'verify' ? `${code} é o seu código do Gyde` : `${code} é o código para trocar sua senha do Gyde`;
@@ -136,18 +143,19 @@ export function setupAuth(app, db, { log = console } = {}) {
         log.log(`\n  [Gyde] Código de ${purpose === 'verify' ? 'confirmação' : 'troca de senha'} para ${user.email}: ${code}\n`);
         return { delivered: false };
       }
-      throw Object.assign(new Error('O envio de e-mail ainda não foi configurado. Rode o configurar-email.bat (pasta configurar do Gyde).'), { status: 503 });
+      throw erroGyde('O envio de e-mail ainda não foi configurado. Rode o configurar-email.bat (pasta configurar do Gyde).', { status: 503 });
     }
     try {
       await transporter.sendMail({ from: mailFrom, to: user.email, subject, text, html });
-    } catch (err) {
+    } catch (e) {
+      const err = comoErro(e) as Error & { code?: string };
       log.error('[Gyde] Falha ao enviar e-mail:', err.code || '', err.message);
-      throw Object.assign(new Error('Não consegui enviar o e-mail agora. Confira o endereço e tente de novo em instantes.'), { status: 502 });
+      throw erroGyde('Não consegui enviar o e-mail agora. Confira o endereço e tente de novo em instantes.', { status: 502 });
     }
     return { delivered: true };
   }
 
-  function checkCode(user, purpose, code) {
+  function checkCode(user: LinhaUsuario, purpose: Proposito, code: unknown) {
     const row = q.getCode.get(user.id, purpose);
     if (!row || row.expires_at < Date.now()) return 'O código expirou. Peça um novo.';
     if (row.attempts >= MAX_CODE_ATTEMPTS) return 'Muitas tentativas erradas. Peça um novo código.';
@@ -159,13 +167,13 @@ export function setupAuth(app, db, { log = console } = {}) {
 
   // ---------- Sessão ----------
   const secureCookie = process.env.COOKIE_SECURE === '1';
-  function startSession(res, userId) {
+  function startSession(res: Response, userId: string) {
     const token = randomBytes(32).toString('hex');
     const expires = Date.now() + SESSION_DAYS * 86_400_000;
     q.insertSession.run(sha256(token), userId, expires);
     res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}${secureCookie ? '; Secure' : ''}`);
   }
-  function clearCookie(res) {
+  function clearCookie(res: Response) {
     res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secureCookie ? '; Secure' : ''}`);
   }
   // Tokens de extensão (Authorization: Bearer gyde_...). Guardamos só o hash.
@@ -177,15 +185,15 @@ export function setupAuth(app, db, { log = console } = {}) {
     last_used INTEGER
   )`);
   const tq = {
-    user: db.prepare('SELECT u.* FROM api_tokens t JOIN users u ON u.id = t.user_id WHERE t.token_hash = ?'),
+    user: consulta<LinhaUsuario>(db, 'SELECT u.* FROM api_tokens t JOIN users u ON u.id = t.user_id WHERE t.token_hash = ?'),
     touch: db.prepare('UPDATE api_tokens SET last_used = ? WHERE token_hash = ?'),
-    list: db.prepare('SELECT substr(token_hash, 1, 12) AS id, name, created_at, last_used FROM api_tokens WHERE user_id = ? ORDER BY created_at DESC'),
+    list: consulta<{ id: string; name: string; created_at: number; last_used: number | null }>(db, 'SELECT substr(token_hash, 1, 12) AS id, name, created_at, last_used FROM api_tokens WHERE user_id = ? ORDER BY created_at DESC'),
     insert: db.prepare('INSERT INTO api_tokens (token_hash, user_id, name, created_at) VALUES (?, ?, ?, ?)'),
     remove: db.prepare('DELETE FROM api_tokens WHERE user_id = ? AND substr(token_hash, 1, 12) = ?'),
-    count: db.prepare('SELECT COUNT(*) AS n FROM api_tokens WHERE user_id = ?'),
+    count: consulta<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM api_tokens WHERE user_id = ?'),
   };
 
-  function currentUser(req) {
+  function currentUser(req: Request): LinhaUsuario | null {
     const bearer = /^Bearer (gyde_[0-9a-f]{48})$/.exec(req.get('authorization') || '')?.[1];
     if (bearer) {
       const h = sha256(bearer);
@@ -197,7 +205,7 @@ export function setupAuth(app, db, { log = console } = {}) {
     if (!token || !/^[0-9a-f]{64}$/.test(token)) return null;
     return q.sessionUser.get(sha256(token), Date.now()) || null;
   }
-  const publicUser = (u) => ({
+  const publicUser = (u: LinhaUsuario) => ({
     id: u.id, email: u.email, name: u.name, emailVerified: Boolean(u.email_verified),
     onboarded: Boolean(u.onboarded), profile: JSON.parse(u.profile || '{}'),
   });
@@ -210,9 +218,9 @@ export function setupAuth(app, db, { log = console } = {}) {
 
   const loginLimiter = makeLimiter(10, 15 * 60_000);
   const codeLimiter = makeLimiter(5, 15 * 60_000);
-  const ipKey = (req) => req.ip || req.socket.remoteAddress || 'local';
+  const ipKey = (req: Request) => req.ip || req.socket.remoteAddress || 'local';
   const r = express.Router();
-  const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+  const wrap = (fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) => (req: Request, res: Response, next: NextFunction) => Promise.resolve(fn(req, res, next)).catch(next);
 
   r.post('/register', wrap(async (req, res) => {
     const email = normEmail(req.body?.email);
@@ -234,12 +242,12 @@ export function setupAuth(app, db, { log = console } = {}) {
       const id = randomUUID();
       q.insertUser.run(id, email, name, await hashPassword(password), Date.now());
     }
-    user = q.userByEmail.get(email);
+    user = q.userByEmail.get(email)!;
     if (personal) {
       // Modo pessoal: a conta só existe neste computador, então não há e-mail para confirmar.
       q.setVerified.run(user.id);
       startSession(res, user.id);
-      return res.status(201).json({ user: publicUser(q.userById.get(user.id)) });
+      return res.status(201).json({ user: publicUser(q.userById.get(user.id)!) });
     }
     const { delivered } = await sendCode(user, 'verify');
     res.status(201).json({ needsVerification: true, email, delivered });
@@ -253,7 +261,7 @@ export function setupAuth(app, db, { log = console } = {}) {
     if (problem) return res.status(400).json({ error: problem });
     q.setVerified.run(user.id);
     startSession(res, user.id);
-    res.json({ user: publicUser(q.userById.get(user.id)) });
+    res.json({ user: publicUser(q.userById.get(user.id)!) });
   }));
 
   r.post('/resend', wrap(async (req, res) => {
@@ -313,7 +321,7 @@ export function setupAuth(app, db, { log = console } = {}) {
     q.setVerified.run(user.id); // quem recebeu o código no e-mail provou que é dono dele
     q.deleteUserSessions.run(user.id); // derruba sessões antigas
     startSession(res, user.id);
-    res.json({ user: publicUser(q.userById.get(user.id)) });
+    res.json({ user: publicUser(q.userById.get(user.id)!) });
   }));
 
   r.get('/me', (req, res) => {
@@ -324,7 +332,7 @@ export function setupAuth(app, db, { log = console } = {}) {
   app.use('/api/auth', express.json({ limit: '20kb' }), r);
 
   // Exige login (e e-mail confirmado) no resto da API.
-  function requireAuth(req, res, next) {
+  function requireAuth(req: Request, res: Response, next: NextFunction) {
     const user = currentUser(req);
     if (!user || !user.email_verified) return res.status(401).json({ error: 'Faça login para continuar.' });
     req.user = user;
@@ -332,13 +340,13 @@ export function setupAuth(app, db, { log = console } = {}) {
   }
 
   // Gerenciar tokens de extensão (exige login normal pelo site, não pelo próprio token).
-  const viaCookie = (req, res, next) => {
+  const viaCookie = (req: Request, res: Response, next: NextFunction) => {
     if (req.get('authorization')) return res.status(403).json({ error: 'Gerencie os tokens pelo site do Gyde.' });
     requireAuth(req, res, next);
   };
   app.get('/api/tokens', viaCookie, (req, res) => res.json({ tokens: tq.list.all(req.user.id) }));
   app.post('/api/tokens', express.json({ limit: '4kb' }), viaCookie, (req, res) => {
-    if (tq.count.get(req.user.id).n >= 10) return res.status(400).json({ error: 'Limite de 10 tokens. Revogue um antigo.' });
+    if ((tq.count.get(req.user.id)?.n ?? 0) >= 10) return res.status(400).json({ error: 'Limite de 10 tokens. Revogue um antigo.' });
     const name = String(req.body?.name || 'Extensão').trim().slice(0, 60) || 'Extensão';
     const token = `gyde_${randomBytes(24).toString('hex')}`;
     tq.insert.run(sha256(token), req.user.id, name, Date.now());
@@ -349,5 +357,5 @@ export function setupAuth(app, db, { log = console } = {}) {
     res.json({ tokens: tq.list.all(req.user.id) });
   });
 
-  return { requireAuth, publicUser, smtpReady, firstUser: () => q.countUsers.get().n === 1 };
+  return { requireAuth, publicUser, smtpReady, firstUser: () => q.countUsers.get()?.n === 1 };
 }

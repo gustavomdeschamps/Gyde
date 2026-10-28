@@ -2,7 +2,10 @@
 // numerados) e o Gyde devolve UMA próxima ação. A extensão executa sozinha (ou pede permissão,
 // se a pessoa preferir); ações sem volta param para confirmar e senhas ficam sempre com a pessoa.
 
-import { CADEIAS, completar, extrairJson } from './motor.js';
+import { CADEIAS, completar, extrairJson } from './motor.ts';
+import type { Express } from 'express';
+import type { Router, AsyncRoute } from './tipos.ts';
+import { comoErro } from './tipos.ts';
 const MAX_STEPS = 25;
 const TIPOS = new Set(['clicar', 'digitar', 'selecionar', 'rolar', 'abrir', 'voltar', 'concluir', 'perguntar']);
 
@@ -33,17 +36,18 @@ const SYSTEM = [
 ].join('\n');
 
 // Nomes que alguns modelos usam em inglês para as mesmas ações.
-const SINONIMOS = { click: 'clicar', type: 'digitar', fill: 'digitar', select: 'selecionar', scroll: 'rolar', open: 'abrir', navigate: 'abrir', goto: 'abrir', back: 'voltar', ask: 'perguntar', done: 'concluir', finish: 'concluir' };
-export function parseAction(text) {
+const SINONIMOS: Record<string, string> = { click: 'clicar', type: 'digitar', fill: 'digitar', select: 'selecionar', scroll: 'rolar', open: 'abrir', navigate: 'abrir', goto: 'abrir', back: 'voltar', ask: 'perguntar', done: 'concluir', finish: 'concluir' };
+export interface Acao { tipo: string; alvo?: number; texto?: string; enviar?: boolean; direcao?: 'cima' | 'baixo'; url?: string }
+export function parseAction(text: string): { explicacao: string; acao: Acao; confirmar: boolean } | null {
   const obj = extrairJson(text);
   if (!obj) return null;
-  const a = { ...(obj.acao || obj.action || obj) };
+  const a: Record<string, any> = { ...(obj.acao || obj.action || obj) };
   a.tipo = String(a.tipo || a.type || '').toLowerCase();
   a.tipo = SINONIMOS[a.tipo] || a.tipo;
   if (a.alvo === undefined) a.alvo = a.target ?? a.elemento;
   if (a.texto === undefined) a.texto = a.text ?? a.valor;
   if (!TIPOS.has(a.tipo)) return null;
-  const acao = { tipo: a.tipo };
+  const acao: Acao = { tipo: a.tipo };
   if (['clicar', 'digitar', 'selecionar'].includes(a.tipo)) {
     acao.alvo = Number.parseInt(a.alvo, 10);
     if (!Number.isInteger(acao.alvo)) return null;
@@ -61,7 +65,7 @@ export function parseAction(text) {
   return { explicacao: String(obj.explicacao || '').slice(0, 400), acao, confirmar: Boolean(obj.confirmar || a.confirmar) };
 }
 
-export function setupAgente(app, { router, asyncRoute }) {
+export function setupAgente(app: Express, { router, asyncRoute }: { router: Router; asyncRoute: AsyncRoute }) {
   app.post('/api/agente/passo', asyncRoute(async (req, res) => {
     const objetivo = String(req.body?.objetivo || '').trim().slice(0, 1000);
     const pagina = req.body?.pagina || {};
@@ -71,8 +75,8 @@ export function setupAgente(app, { router, asyncRoute }) {
       return res.json({ explicacao: 'Cheguei ao limite de passos desta tarefa.', acao: { tipo: 'concluir', texto: `Parei depois de ${MAX_STEPS} passos. Se faltar algo, peça de novo com mais detalhes.` } });
     }
     const elementos = (Array.isArray(pagina.elementos) ? pagina.elementos : []).slice(0, 150)
-      .map((e) => `[${Number(e.n)}] ${String(e.desc || '').slice(0, 160)}`).join('\n');
-    const passos = historico.map((h, i) => `${i + 1}. ${String(h).slice(0, 300)}`).join('\n') || '(nenhuma ainda)';
+      .map((e: { n?: unknown; desc?: unknown }) => `[${Number(e.n)}] ${String(e.desc || '').slice(0, 160)}`).join('\n');
+    const passos = historico.map((h: unknown, i: number) => `${i + 1}. ${String(h).slice(0, 300)}`).join('\n') || '(nenhuma ainda)';
     const user = [
       `OBJETIVO: ${objetivo}`,
       `AÇÕES JÁ FEITAS:\n${passos}`,
@@ -89,7 +93,7 @@ export function setupAgente(app, { router, asyncRoute }) {
       });
       res.json(parseAction(texto));
     } catch (err) {
-      res.status(502).json({ error: `Não consegui decidir o próximo passo agora (${err.message}). Tente de novo em alguns segundos.` });
+      res.status(502).json({ error: `Não consegui decidir o próximo passo agora (${comoErro(err).message}). Tente de novo em alguns segundos.` });
     }
   }));
 }

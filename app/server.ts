@@ -5,18 +5,32 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSy
 import { fileURLToPath } from 'node:url';
 import { parseEnv } from 'node:util';
 import path from 'node:path';
-import { setupAuth } from './auth.js';
-import { publicQuiz, gradeQuiz } from './quiz.js';
-import { setupPratica } from './pratica-servidor.js';
-import { setupMemoria } from './memoria.js';
-import { setupTurmas } from './turmas.js';
-import { setupAgente } from './agente.js';
-import { cadeiaDe, CADEIAS } from './motor.js';
-import { setupCodigoAgente } from './codigo-agente.js';
-import { setupSkills } from './skills-sistema.js';
-import { criarProvedores } from './provedores.js';
-import { criarUso } from './uso.js';
-import { ARQUIVO_SECRETO, redigir } from './seguranca.js';
+import { setupAuth } from './auth.ts';
+import { publicQuiz, gradeQuiz } from './quiz.ts';
+import { setupPratica } from './pratica-servidor.ts';
+import { setupMemoria } from './memoria.ts';
+import { setupTurmas } from './turmas.ts';
+import { setupAgente } from './agente.ts';
+import { cadeiaDe, CADEIAS } from './motor.ts';
+import { setupCodigoAgente } from './codigo-agente.ts';
+import { setupSkills } from './skills-sistema.ts';
+import { criarProvedores } from './provedores.ts';
+import { criarUso } from './uso.ts';
+import { ARQUIVO_SECRETO, redigir } from './seguranca.ts';
+import type { Request, Response, NextFunction } from 'express';
+import type { Usuario, MensagemIA, ParteConteudo, ErroGyde, AsyncRoute, UsoInformado } from './tipos.ts';
+import { consulta, comoErro, erroGyde } from './tipos.ts';
+import type { SkillListada } from './skills-sistema.ts';
+import type { Perfil } from './pratica-plano.ts';
+
+// Formatos guardados no banco
+interface Anexo { kind: 'file' | 'image'; name?: string; text?: string; dataUrl?: string }
+interface Conversa { id: string; user_id: string | null; title: string; model: string; pinned: number; created_at: number; updated_at: number }
+interface LinhaMensagem { id: string; conversation_id: string; role: 'user' | 'assistant'; content: string; attachments: string; model: string | null; created_at: number }
+type Mensagem = Omit<LinhaMensagem, 'attachments'> & { attachments: Anexo[] };
+// Resposta de chat do provedor (formato OpenAI), sem streaming e em streaming
+interface RespostaChat { choices?: { message?: { content?: string } }[] }
+interface PedacoStream { error?: { message?: string }; model?: string; usage?: UsoInformado; choices?: { delta?: { content?: string } }[] }
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 // O .env do Gyde sempre vence variáveis do Windows com o mesmo nome
@@ -34,7 +48,7 @@ const OLLAMA_MODELO = process.env.OLLAMA_MODELO || 'qwen2.5:3b';
 const MAX_ATTACHMENT_TEXT = 100_000; // caracteres por anexo enviados ao modelo (projetos inteiros cabem)
 
 // Modelos da marca: nomes que o usuário vê -> roteamento real no FreeLLMAPI.
-const GYDE_MODELS = {
+const GYDE_MODELS: Record<string, { route: string; label: string; hint: string }> = {
   'gyde-1': { route: 'auto', label: 'Gyde 1', hint: 'Escolhe sozinho entre os melhores modelos grátis para programar (Qwen, GPT-OSS, Codestral...) e troca se um falhar' },
   'gyde-1-pro': { route: 'fusion', label: 'Gyde 1 Pro', hint: 'Usa os modelos maiores e o Fusion (vários modelos respondem e um juiz junta): o mais forte, um pouco mais lento' },
 };
@@ -94,31 +108,31 @@ db.exec(`UPDATE conversations SET model = 'gyde' || substr(model, 5) WHERE model
          UPDATE messages SET model = 'gyde' || substr(model, 5) WHERE model LIKE 'bugo-%';`);
 
 const q = {
-  listConvs: db.prepare(`SELECT id, title, model, pinned, updated_at FROM conversations WHERE user_id = ?
+  listConvs: consulta<Omit<Conversa, 'user_id' | 'created_at'>>(db, `SELECT id, title, model, pinned, updated_at FROM conversations WHERE user_id = ?
                          ORDER BY pinned DESC, updated_at DESC LIMIT 500`),
-  searchConvs: db.prepare(`SELECT DISTINCT c.id, c.title, c.model, c.pinned, c.updated_at FROM conversations c
+  searchConvs: consulta<Omit<Conversa, 'user_id' | 'created_at'>>(db, `SELECT DISTINCT c.id, c.title, c.model, c.pinned, c.updated_at FROM conversations c
                            LEFT JOIN messages m ON m.conversation_id = c.id
                            WHERE c.user_id = ? AND (c.title LIKE ? OR m.content LIKE ?)
                            ORDER BY c.pinned DESC, c.updated_at DESC LIMIT 200`),
-  getConv: db.prepare('SELECT * FROM conversations WHERE id = ? AND user_id = ?'),
+  getConv: consulta<Conversa>(db, 'SELECT * FROM conversations WHERE id = ? AND user_id = ?'),
   insertConv: db.prepare('INSERT INTO conversations (id, user_id, title, model, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'),
   touchConv: db.prepare('UPDATE conversations SET updated_at = ? WHERE id = ?'),
   deleteConv: db.prepare('DELETE FROM conversations WHERE id = ? AND user_id = ?'),
   claimOrphans: db.prepare('UPDATE conversations SET user_id = ? WHERE user_id IS NULL'),
-  getMessages: db.prepare('SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at, rowid'),
-  getMessage: db.prepare('SELECT * FROM messages WHERE id = ? AND conversation_id = ?'),
+  getMessages: consulta<LinhaMensagem>(db, 'SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at, rowid'),
+  getMessage: consulta<LinhaMensagem>(db, 'SELECT * FROM messages WHERE id = ? AND conversation_id = ?'),
   insertMessage: db.prepare(`INSERT INTO messages (id, conversation_id, role, content, attachments, model, created_at)
                              VALUES (?, ?, ?, ?, ?, ?, ?)`),
   deleteFrom: db.prepare('DELETE FROM messages WHERE conversation_id = ? AND (created_at > ? OR (created_at = ? AND rowid >= ?))'),
-  rowidOf: db.prepare('SELECT rowid AS r, created_at FROM messages WHERE id = ? AND conversation_id = ?'),
-  getSetting: db.prepare('SELECT value FROM settings WHERE key = ?'),
+  rowidOf: consulta<{ r: number; created_at: number }>(db, 'SELECT rowid AS r, created_at FROM messages WHERE id = ? AND conversation_id = ?'),
+  getSetting: consulta<{ value: string }>(db, 'SELECT value FROM settings WHERE key = ?'),
   setSetting: db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value'),
 };
 
 // Preferências são guardadas por usuário: chave "<userId>:<nome>".
-const getSetting = (userId, key, fallback = '') => q.getSetting.get(`${userId}:${key}`)?.value ?? fallback;
-const setSetting = (userId, key, value) => q.setSetting.run(`${userId}:${key}`, value);
-const parseMessage = (m) => ({ ...m, attachments: JSON.parse(m.attachments) });
+const getSetting = (userId: string, key: string, fallback = ''): string => q.getSetting.get(`${userId}:${key}`)?.value ?? fallback;
+const setSetting = (userId: string, key: string, value: string) => q.setSetting.run(`${userId}:${key}`, value);
+const parseMessage = (m: LinhaMensagem): Mensagem => ({ ...m, attachments: JSON.parse(m.attachments) as Anexo[] });
 // created_at precisa ser estritamente crescente dentro de uma conversa.
 let lastTs = 0;
 const now = () => (lastTs = Math.max(Date.now(), lastTs + 1));
@@ -129,7 +143,7 @@ const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: ROUTER_KE
 const router = provedores.router;
 
 // Converte uma mensagem salva para o formato de chat da OpenAI.
-function toApiMessage(m) {
+function toApiMessage(m: Mensagem): MensagemIA {
   if (m.role !== 'user' || m.attachments.length === 0) return { role: m.role, content: m.content };
   const files = m.attachments.filter((a) => a.kind === 'file');
   const images = m.attachments.filter((a) => a.kind === 'image');
@@ -137,39 +151,41 @@ function toApiMessage(m) {
   for (const f of files) {
     // arquivos de senhas nunca vão para o modelo; segredos dentro dos outros viram [segredo removido]
     if (ARQUIVO_SECRETO.test(f.name || '')) { text += `\n\n--- Arquivo anexado: ${f.name} (não enviado: é um arquivo de senhas ou chaves) ---`; continue; }
-    text += `\n\n--- Arquivo anexado: ${f.name} ---\n${redigir(f.text.slice(0, MAX_ATTACHMENT_TEXT))}`;
-    if (f.text.length > MAX_ATTACHMENT_TEXT) text += '\n[arquivo cortado por ser muito grande]';
+    const conteudo = f.text ?? '';
+    text += `\n\n--- Arquivo anexado: ${f.name} ---\n${redigir(conteudo.slice(0, MAX_ATTACHMENT_TEXT))}`;
+    if (conteudo.length > MAX_ATTACHMENT_TEXT) text += '\n[arquivo cortado por ser muito grande]';
   }
   if (images.length === 0) return { role: 'user', content: text };
   return {
     role: 'user',
-    content: [{ type: 'text', text }, ...images.map((i) => ({ type: 'image_url', image_url: { url: i.dataUrl } }))],
+    content: [{ type: 'text', text }, ...images.map((i): ParteConteudo => ({ type: 'image_url', image_url: { url: i.dataUrl ?? '' } }))],
   };
 }
 
 // Resumo do perfil (vindo do quiz de boas-vindas) para o modelo adaptar as respostas.
-function profileSummary(user) {
-  const p = JSON.parse(user.profile || '{}');
+function profileSummary(user: Usuario): string {
+  let p: Perfil;
+  try { p = JSON.parse(user.profile || '{}') as Perfil; } catch { p = {}; }
   if (!p.level) return '';
   const parts = [
     `Nome: ${user.name}.`,
     `Nível estimado em programação: ${p.levelLabel} (acertou ${p.score} de ${p.total} perguntas do quiz).`,
   ];
-  if (p.languages?.length) parts.push(`Linguagens que usa ou quer aprender: ${p.languages.join(', ')}.`);
+  if (Array.isArray(p.languages) && p.languages.length) parts.push(`Linguagens que usa ou quer aprender: ${p.languages.join(', ')}.`);
   if (p.goal) parts.push(`Objetivo: ${p.goal}.`);
   if (p.style) parts.push(`Prefere explicações: ${p.style}.`);
   if (p.weak?.length) parts.push(`Pontos para reforçar (errou no quiz): ${p.weak.join(', ')}.`);
-  const guide = {
+  const guide = ({
     zero: 'Explique tudo do zero, sem assumir nenhum conhecimento; use analogias do dia a dia e passos bem pequenos.',
     basic: 'Assuma só o básico (variáveis, if, loops); explique conceitos novos antes de usá-los.',
     intermediate: 'Pode usar termos técnicos comuns, mas explique os menos conhecidos; foque em boas práticas.',
     advanced: 'Seja direto e técnico; aprofunde em desempenho, arquitetura e casos de borda.',
-  }[p.level];
+  } as Record<string, string>)[p.level];
   if (guide) parts.push(guide);
   return parts.join(' ');
 }
 
-function buildPrompt(history, user, activeSkills = []) {
+function buildPrompt(history: Mensagem[], user: Usuario, activeSkills: SkillListada[] = []): MensagemIA[] {
   const system = [
     [
       'Você é o Gyde, um tutor de programação simpático para iniciantes brasileiros.',
@@ -205,7 +221,7 @@ function buildPrompt(history, user, activeSkills = []) {
   return [{ role: 'system', content: system.join('\n\n') }, ...history.map(toApiMessage)];
 }
 
-async function generateTitle(convId, firstUserText) {
+async function generateTitle(convId: string, firstUserText: string) {
   try {
     const res = await router('/v1/chat/completions', {
       method: 'POST',
@@ -218,7 +234,7 @@ async function generateTitle(convId, firstUserText) {
         ],
       }),
     });
-    const json = await res.json();
+    const json = await res.json() as RespostaChat;
     const title = (json.choices?.[0]?.message?.content || '').replace(/["*#\n]/g, '').trim().slice(0, 80);
     if (title) db.prepare('UPDATE conversations SET title = ? WHERE id = ?').run(title, convId);
     return title;
@@ -228,7 +244,7 @@ async function generateTitle(convId, firstUserText) {
 }
 
 // Modelos de imagem entendem melhor inglês: o Gyde reescreve o pedido antes de gerar.
-async function improveImagePrompt(text) {
+async function improveImagePrompt(text: string) {
   try {
     const res = await router('/v1/chat/completions', {
       method: 'POST',
@@ -241,18 +257,18 @@ async function improveImagePrompt(text) {
         ],
       }),
     });
-    const json = await res.json();
+    const json = await res.json() as RespostaChat;
     return (json.choices?.[0]?.message?.content || '').trim() || text;
   } catch {
     return text;
   }
 }
 
-async function generateImage(prompt, signal) {
+async function generateImage(prompt: string, signal: AbortSignal) {
   if (!imagesEnabled()) {
-    throw Object.assign(new Error('A geração de imagens ainda não foi configurada. Rode o configurar\\configurar-imagens.bat.'), { status: 503 });
+    throw erroGyde('A geração de imagens ainda não foi configurada. Rode o configurar\\configurar-imagens.bat.', { status: 503 });
   }
-  let res;
+  let res: globalThis.Response;
   try {
     res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/ai/run/${IMAGE_MODEL}`, {
       method: 'POST',
@@ -261,18 +277,18 @@ async function generateImage(prompt, signal) {
       body: JSON.stringify({ prompt: prompt.slice(0, 2000), steps: 6 }),
     });
   } catch (cause) {
-    if (cause.name === 'AbortError') throw cause;
-    throw Object.assign(new Error('Não consegui falar com a Cloudflare. Verifique sua internet.'), { status: 502 });
+    if (comoErro(cause).name === 'AbortError') throw cause;
+    throw erroGyde('Não consegui falar com a Cloudflare. Verifique sua internet.', { status: 502 });
   }
-  const json = await res.json().catch(() => ({}));
+  const json = await res.json().catch(() => ({})) as { result?: { image?: string }; errors?: { message?: string }[] };
   if (!res.ok || !json.result?.image) {
     const msg = json.errors?.[0]?.message || `HTTP ${res.status}`;
     const hint = res.status === 401 || res.status === 403 ? ' Confira o Account ID e o token (precisa da permissão Workers AI).'
       : res.status === 429 ? ' A cota grátis de hoje acabou; tente amanhã.' : '';
-    throw Object.assign(new Error(`A Cloudflare não gerou a imagem: ${msg}.${hint}`), { status: 502 });
+    throw erroGyde(`A Cloudflare não gerou a imagem: ${msg}.${hint}`, { status: 502 });
   }
   const id = randomUUID();
-  writeFileSync(path.join(IMAGES_DIR, `${id}.jpg`), Buffer.from(json.result.image, 'base64'));
+  writeFileSync(path.join(IMAGES_DIR, `${id}.jpg`), Buffer.from(json.result?.image ?? '', 'base64'));
   return `/images/${id}.jpg`;
 }
 
@@ -280,7 +296,7 @@ async function generateImage(prompt, signal) {
 const app = express();
 app.use(express.json({ limit: '30mb' }));
 
-const asyncRoute = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const asyncRoute: AsyncRoute = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 // Cadastro/login (/api/auth/*). Tudo abaixo de /api exige usuário logado, menos o status.
 const { requireAuth } = setupAuth(app, db);
@@ -290,7 +306,7 @@ app.use(['/api', '/images'], (req, res, next) => {
   requireAuth(req, res, () => {
     // Conversas criadas antes do login existir ficam com a primeira conta confirmada.
     if (!orphansClaimed) {
-      const first = db.prepare('SELECT id FROM users WHERE email_verified = 1 ORDER BY created_at LIMIT 1').get();
+      const first = consulta<{ id: string }>(db, 'SELECT id FROM users WHERE email_verified = 1 ORDER BY created_at LIMIT 1').get();
       if (first?.id === req.user.id) q.claimOrphans.run(req.user.id);
       if (first) orphansClaimed = true;
     }
@@ -310,7 +326,7 @@ const impressaoDoCodigo = () => {
   const pastas = [ROOT, path.join(ROOT, 'public')];
   let h = 0;
   for (const dir of pastas) for (const f of readdirSync(dir).sort()) {
-    if (!/\.(js|mjs|html|css)$/.test(f)) continue;
+    if (!/\.(ts|js|mjs|html|css)$/.test(f)) continue;
     const t = statSync(path.join(dir, f)).mtimeMs;
     for (const c of `${f}:${t}`) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   }
@@ -339,7 +355,7 @@ app.post('/api/uso/modo', (req, res) => {
 
 app.get('/api/models', asyncRoute(async (_req, res) => {
   const r = await router('/v1/models');
-  const json = await r.json();
+  const json = await r.json() as { data?: { id: string; available?: boolean }[] };
   const available = new Set((json.data || []).filter((m) => m.available !== false).map((m) => m.id));
   res.json({
     brand: Object.entries(GYDE_MODELS).map(([id, m]) => ({ id, label: m.label, hint: m.hint })),
@@ -395,8 +411,10 @@ app.post('/api/profile', (req, res) => {
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return res.status(400).json({ error: 'Respostas do questionário inválidas.' });
   const { profile, results } = gradeQuiz(answers); // alternativas que não existem são descartadas
   // refazer o questionário atualiza o perfil sem apagar o progresso; guarda os resultados anteriores para mostrar a evolução
-  const antes = JSON.parse(req.user.profile || '{}');
-  if (antes.level) profile.anteriores = [{ em: antes.takenAt, nivel: antes.levelLabel, acertos: antes.score, total: antes.total }, ...(antes.anteriores || [])].slice(0, 5);
+  let antes: Perfil = {};
+  try { antes = JSON.parse(req.user.profile || '{}') as Perfil; } catch { /* perfil antigo inválido: começa do zero */ }
+  const anteriores = antes.level ? [{ em: antes.takenAt, nivel: antes.levelLabel, acertos: antes.score, total: antes.total }, ...(antes.anteriores || [])].slice(0, 5) : undefined;
+  if (anteriores) Object.assign(profile, { anteriores }); // [{ em: antes.takenAt, nivel: antes.levelLabel, acertos: antes.score, total: antes.total }, ...(antes.anteriores || [])].slice(0, 5);
   db.prepare('UPDATE users SET profile = ?, onboarded = 1 WHERE id = ?').run(JSON.stringify(profile), req.user.id);
   res.json({ profile, results });
 });
@@ -409,7 +427,7 @@ app.post('/api/profile/skip', (req, res) => {
 
 // Preferências da conta (ficam no banco, valem em qualquer navegador). Tema e animação ficam no navegador.
 const PAGINAS_INICIAIS = ['chat', 'pratica', 'agente'];
-const lerPreferencias = (userId) => ({
+const lerPreferencias = (userId: string) => ({
   about_user: getSetting(userId, 'about_user'),
   response_style: getSetting(userId, 'response_style'),
   pagina_inicial: getSetting(userId, 'pagina_inicial', 'chat'),
@@ -447,10 +465,10 @@ app.post('/api/extract', express.raw({ type: () => true, limit: '30mb' }), async
  * body: { content, attachments, model, mode: 'new' | 'regenerate' | 'edit' | 'retry', messageId, kind: 'chat' | 'image' }
  */
 app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
-  const conv = q.getConv.get(req.params.id, req.user.id);
+  const conv = q.getConv.get(String(req.params.id), req.user.id);
   if (!conv) return res.status(404).json({ error: 'Conversa não encontrada.' });
 
-  const { content = '', attachments = [], model, mode = 'new', messageId } = req.body || {};
+  const { content = '', attachments = [], model, mode = 'new', messageId } = (req.body || {}) as { content?: unknown; attachments?: Anexo[]; model?: string; mode?: string; messageId?: string };
   let isImage = req.body?.kind === 'image';
   // "Gerar de novo" numa imagem gera outra imagem.
   if (mode === 'regenerate' && messageId) isImage ||= /^!\[/.test(q.getMessage.get(messageId, conv.id)?.content || '');
@@ -463,7 +481,7 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
     if (!target) return res.status(400).json({ error: 'Mensagem de referência inválida.' });
     q.deleteFrom.run(conv.id, target.created_at, target.created_at, target.r);
   }
-  let userMessage = null;
+  let userMessage: { id: string; role: 'user'; content: string; attachments: Anexo[]; created_at: number } | null = null;
   if (mode === 'new' || mode === 'edit') {
     if (!String(content).trim() && attachments.length === 0) return res.status(400).json({ error: 'Mensagem vazia.' });
     userMessage = { id: randomUUID(), role: 'user', content: String(content), attachments, created_at: now() };
@@ -479,9 +497,10 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
     'Cache-Control': 'no-cache, no-transform',
     Connection: 'keep-alive',
   });
-  const send = (event) => res.write(`data: ${JSON.stringify(event)}\n\n`);
+  const send = (event: Record<string, unknown>) => res.write(`data: ${JSON.stringify(event)}\n\n`);
   if (userMessage) send({ type: 'user', message: userMessage });
-  const activeSkills = skillsSystem.activeFor(req.user.id, history.at(-1).content);
+  const ultima = history.at(-1)!;
+  const activeSkills = skillsSystem.activeFor(req.user.id, ultima.content);
   if (activeSkills.length) send({ type: 'skills', skills: activeSkills.map((s) => ({ id: s.id, nome: s.nome, simbolo: s.simbolo })) });
 
   const controller = new AbortController();
@@ -489,28 +508,29 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
 
   let answer = '';
   let servedModel = chosenModel;
-  let consumo = null; // { modelo, tokens, provedor } informados pelo provedor
-  let failure = null;
+  type Consumo = { provedor: string; modelo: string | null; tokens: ReturnType<typeof provedores.tokensDe> };
+  let consumo: Consumo | null = null; // informados pelo provedor
+  let failure: ErroGyde | null = null;
   const started = Date.now();
   const registro = uso.iniciar(req.user.id, isImage ? 'imagem' : 'chat');
   try {
     if (isImage) {
-      const request = history.at(-1).content;
+      const request = ultima.content;
       send({ type: 'status', text: 'Criando a imagem…' });
       const prompt = await improveImagePrompt(request);
       const url = await generateImage(prompt, controller.signal);
-      servedModel = IMAGE_MODEL.split('/').pop();
+      servedModel = IMAGE_MODEL.split('/').pop() ?? IMAGE_MODEL;
       const alt = request.replace(/[[\]\n]/g, ' ').slice(0, 120);
       answer = `![${alt}](${url})\n\n*Prompt usado:* ${prompt.replace(/\n/g, ' ')}`;
       send({ type: 'delta', text: answer });
     } else {
     // Motor do Gyde: tenta os modelos da cadeia em ordem; troca de modelo se um falhar antes de responder.
     // mensagem com imagem: só modelos que enxergam (senão a imagem seria ignorada)
-    const comImagem = history.at(-1).attachments?.some((x) => x.kind === 'image');
-    const cadeia = comImagem ? CADEIAS.visao : cadeiaDe(String(chosenModel).replace(/^bugo-/, 'gyde-'));
+    const comImagem = ultima.attachments?.some((x) => x.kind === 'image');
+    const cadeia = comImagem ? CADEIAS.visao! : cadeiaDe(String(chosenModel).replace(/^bugo-/, 'gyde-'));
     const mensagens = buildPrompt(history, req.user, activeSkills);
     for (let tentativa = 0; tentativa < cadeia.length; tentativa++) {
-    const modeloAtual = cadeia[tentativa];
+    const modeloAtual = cadeia[tentativa]!;
     try {
     const upstream = await router('/v1/chat/completions', {
       method: 'POST',
@@ -519,7 +539,9 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
       body: JSON.stringify({ model: modeloAtual, stream: true, messages: mensagens }),
     });
     const via = upstream.headers.get('x-routed-via');
-    consumo = { provedor: await provedores.ativo(), modelo: via || null, tokens: null };
+    const atual: Consumo = { provedor: await provedores.ativo(), modelo: via || null, tokens: null };
+    consumo = atual;
+    if (!upstream.body) throw erroGyde('O provedor respondeu sem conteúdo.', { status: 502 });
     const decoder = new TextDecoder();
     let buffer = '';
     for await (const chunk of upstream.body) {
@@ -531,12 +553,12 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
         if (!line.startsWith('data:')) continue;
         const data = line.slice(5).trim();
         if (data === '[DONE]') continue;
-        let json;
-        try { json = JSON.parse(data); } catch { continue; }
-        if (json.error) throw Object.assign(new Error(json.error.message || 'Erro no provedor.'), { status: 502 });
+        let json: PedacoStream;
+        try { json = JSON.parse(data) as PedacoStream; } catch { continue; }
+        if (json.error) throw erroGyde(json.error.message || 'Erro no provedor.', { status: 502 });
         if (json.model && !GYDE_MODELS[chosenModel]) servedModel = json.model;
-        if (json.model && !consumo.modelo) consumo.modelo = json.model;
-        if (json.usage) { consumo.tokens = provedores.tokensDe(json.usage); registro.tokens(json.usage); }
+        if (json.model && !atual.modelo) atual.modelo = json.model;
+        if (json.usage) { atual.tokens = provedores.tokensDe(json.usage); registro.tokens(json.usage); }
         const delta = json.choices?.[0]?.delta?.content;
         if (delta) {
           answer += delta;
@@ -545,12 +567,14 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
       }
     }
     if (answer) break;
-    } catch (err) {
+    } catch (e) {
+      const err = comoErro(e);
       if (err.name === 'AbortError' || answer || err.final || err.status === 429 || tentativa === cadeia.length - 1) throw err; // já respondeu algo, offline ou limite: não recomeça
     }
     }
     }
-  } catch (err) {
+  } catch (e) {
+    const err = comoErro(e);
     if (err.name !== 'AbortError') failure = err;
   }
   registro.fim(controller.signal.aborted ? 'cancelado' : answer ? 'ok' : uso.resultadoDe(failure), failure?.message);
@@ -574,7 +598,7 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
 }));
 
 // ---------- Arquivos estáticos ----------
-const nm = (p) => path.join(BASE, 'node_modules', p);
+const nm = (p: string) => path.join(BASE, 'node_modules', p);
 app.use('/images', express.static(IMAGES_DIR, { maxAge: '30d', immutable: true }));
 app.use('/vendor/marked', express.static(nm('marked/lib')));
 app.use('/vendor/dompurify', express.static(nm('dompurify/dist')));
@@ -583,7 +607,7 @@ app.use('/vendor/hljs', express.static(nm('@highlightjs/cdn-assets')));
 app.get('/favicon.ico', (_req, res) => res.sendFile(path.join(ROOT, 'public', 'gyde.ico'), { maxAge: 0 }));
 app.use(express.static(path.join(ROOT, 'public')));
 
-app.use((err, _req, res, _next) => {
+app.use((err: ErroGyde, _req: Request, res: Response, _next: NextFunction) => {
   const status = err.status || 500;
   if (status >= 500 && status !== 502 && status !== 503) console.error(err);
   if (res.headersSent) return res.end();

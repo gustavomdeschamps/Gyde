@@ -3,9 +3,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
-import { criarUso } from '../uso.js';
-import { criarProvedores } from '../provedores.js';
-import { completar } from '../motor.js';
+import { criarUso } from '../uso.ts';
+import { criarProvedores } from '../provedores.ts';
+import { completar } from '../motor.ts';
 
 // provedor falso: /health ok; o modelo "cheio" dá 429 só dele; "sem-uso" responde sem tokens; "estoura" acaba o minuto
 function provedorFalso() {

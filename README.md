@@ -12,7 +12,7 @@
 <p align="center">
   <img alt="Grátis" src="https://img.shields.io/badge/pre%C3%A7o-gr%C3%A1tis-2563eb">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-1e3a8a">
-  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-22.13%2B-3b82f6">
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-22.18%2B-3b82f6">
   <img alt="Licença MIT" src="https://img.shields.io/badge/licen%C3%A7a-MIT-5b8cff">
   <img alt="Em português" src="https://img.shields.io/badge/idioma-portugu%C3%AAs-93c5fd">
 </p>
@@ -235,7 +235,7 @@ CLOUDFLARE_API_TOKEN=
 GEMINI_API_KEY=                # voz natural (configurar\configurar-voz.bat)
 ```
 
-Para rodar sem os `.bat`: `npm install` e depois `npm start` (Node.js 22.13 ou mais novo).
+Para rodar sem os `.bat`: `npm install` e depois `npm start` (Node.js 22.18 ou mais novo).
 
 ### Atualizar o Gyde
 
@@ -302,7 +302,7 @@ escolher pasta da Forja são do Windows.
 | `COMO-INSTALAR.md` | Passo a passo de instalação |
 | `configurar/` | Extras: chave do FreeLLMAPI, imagens, voz, e-mail, trocar senha, extensão do VS Code |
 | `extensoes/` | Extensões para VS Code (`vscode/`) e Chrome (`chrome/`) |
-| `app/` | O programa: servidor (`server.js`), Forja (`codigo-agente.js`), provedores online/offline (`provedores.js`), registro de uso (`uso.js`), proteções (`seguranca.js`), modelos (`motor.js`), Prática (`pratica-servidor.js`), interface (`public/`), skills (`skills-catalogo/`) e testes (`testes/`) |
+| `app/` | O programa: servidor (`server.ts`), Forja (`codigo-agente.js`), provedores online/offline (`provedores.js`), registro de uso (`uso.js`), proteções (`seguranca.js`), modelos (`motor.js`), Prática (`pratica-servidor.js`), interface (`public/`), skills (`skills-catalogo/`) e testes (`testes/`) |
 | `docs/` | Imagens desta página |
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).

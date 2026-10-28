@@ -5,16 +5,33 @@
 //   3. montada     — não há trilha: o plano é montado do catálogo local de exercícios guiados daquela tecnologia;
 //   4. inicial     — faltam dados (sem questionário, nada escolhido): plano básico de lógica e Python.
 // Exercícios guiados não rodam testes no navegador: a pessoa resolve e o Gyde corrige no chat.
-import { TRACKS } from './pratica-dados.js';
+import { TRACKS } from './pratica-dados.ts';
+import type { Trilha } from './pratica-dados.ts';
+
+export type NivelPlano = 'basico' | 'intermediario' | 'avancado';
+export type TipoPlano = 'trilha' | 'adaptada' | 'montada' | 'inicial';
+export interface Guiado { id: string; tecnologia: string; nivel: NivelPlano; topico: string; titulo: string; enunciado: string }
+// Perfil salvo do questionário (quiz.ts). Tudo opcional: perfis antigos ou incompletos também viram plano.
+export interface Perfil {
+  level?: string; levelLabel?: string; score?: number; total?: number; experience?: string | null; languages?: unknown;
+  goal?: string | null; style?: string | null; weak?: string[]; takenAt?: number;
+  anteriores?: { em?: number; nivel?: string; acertos?: number; total?: number }[];
+}
+export type Progresso = Record<string, { done: boolean; fails?: number; code?: string }>;
+export type Passo =
+  | { tipo: 'trilha'; trackId: string; exerciseId: string; titulo: string; tecnologia?: string }
+  | { tipo: 'guiado'; id: string; titulo: string; tecnologia: string }
+  | { tipo: 'chat'; titulo: string };
+export interface Foco { tecnologia: string; tipo: 'trilha' | 'adaptado' | 'guiado'; trilhas: string[]; guiados: number }
 
 export const TECNOLOGIAS = ['Python', 'JavaScript', 'Java', 'C / C++', 'C#', 'PHP', 'HTML e CSS', 'SQL', 'Kotlin', 'Lógica'];
-const TRILHAS_DA = { Python: ['python-basico', 'proj-adivinhacao'], JavaScript: ['js-zero', 'proj-tarefas'], 'Lógica': ['logica'], 'HTML e CSS': ['js-zero', 'proj-tarefas'] };
-const NIVEIS = ['basico', 'intermediario', 'avancado'];
-const NOME_NIVEL = { basico: 'básico', intermediario: 'intermediário', avancado: 'avançado' };
+const TRILHAS_DA: Record<string, string[]> = { Python: ['python-basico', 'proj-adivinhacao'], JavaScript: ['js-zero', 'proj-tarefas'], 'Lógica': ['logica'], 'HTML e CSS': ['js-zero', 'proj-tarefas'] };
+const NIVEIS: NivelPlano[] = ['basico', 'intermediario', 'avancado'];
+const NOME_NIVEL: Record<NivelPlano, string> = { basico: 'básico', intermediario: 'intermediário', avancado: 'avançado' };
 
 // Catálogo local de exercícios guiados (enunciados revisados; a correção é feita pelo Gyde no chat).
 // [tecnologia, nível, tópico, título, enunciado]
-const C = [
+const C: [string, NivelPlano, string, string, string][] = [
   ['Lógica', 'basico', 'variáveis', 'Troca de valores', 'Escreva os passos (pseudocódigo ou na linguagem que preferir) para trocar os valores de duas variáveis a e b. Ex.: a = 3, b = 7 vira a = 7, b = 3.'],
   ['Lógica', 'basico', 'condições', 'Maior de idade', 'Leia uma idade e mostre "maior de idade" se for 18 ou mais, senão "menor de idade". Pense também em idades negativas.'],
   ['Lógica', 'intermediario', 'laços', 'Tabuada', 'Mostre a tabuada de um número n de 1 a 10, no formato "n x i = resultado".'],
@@ -76,52 +93,52 @@ const C = [
   ['Kotlin', 'avancado', 'null safety', 'Sem NullPointerException', 'Escreva uma função que recebe String? e devolve o tamanho, usando ?. e ?: sem !!. Explique cada operador.'],
   ['Kotlin', 'avancado', 'coroutines', 'Coroutines', 'Use coroutines (launch e delay) para rodar duas tarefas ao mesmo tempo e mostrar quando cada uma termina.'],
 ];
-const slug = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-export const GUIADOS = C.map(([tecnologia, nivel, topico, titulo, enunciado]) => ({ id: `g-${slug(tecnologia)}-${slug(titulo)}`, tecnologia, nivel, topico, titulo, enunciado }));
-export const findGuiado = (id) => GUIADOS.find((g) => g.id === id) || null;
+const slug = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+export const GUIADOS: Guiado[] = C.map(([tecnologia, nivel, topico, titulo, enunciado]) => ({ id: `g-${slug(tecnologia)}-${slug(titulo)}`, tecnologia, nivel, topico, titulo, enunciado }));
+export const findGuiado = (id: string): Guiado | null => GUIADOS.find((g) => g.id === id) || null;
 
 // Tecnologias quando a pessoa não escolheu nenhuma: deduz pelo objetivo.
-const PELO_OBJETIVO = {
+const PELO_OBJETIVO: Record<string, string[]> = {
   'Ir bem no curso ou na escola': ['Lógica', 'Python'],
   'Conseguir meu primeiro emprego': ['JavaScript', 'SQL'],
   'Criar meus próprios apps e sites': ['HTML e CSS', 'JavaScript'],
   'Criar jogos': ['Python', 'Lógica'],
   'Faculdade, vestibular ou olimpíada': ['Lógica', 'Python'],
 };
-const NIVEL_DO_QUIZ = { zero: 'basico', basic: 'basico', intermediate: 'intermediario', advanced: 'avancado' };
-const NIVEL_DA_EXPERIENCIA = { 'Nunca programei': 'basico', 'Já fiz alguns exercícios': 'basico', 'Programo com frequência': 'intermediario', 'Faço projetos grandes ou trabalho com isso': 'avancado' };
+const NIVEL_DO_QUIZ: Record<string, NivelPlano> = { zero: 'basico', basic: 'basico', intermediate: 'intermediario', advanced: 'avancado' };
+const NIVEL_DA_EXPERIENCIA: Record<string, NivelPlano> = { 'Nunca programei': 'basico', 'Já fiz alguns exercícios': 'basico', 'Programo com frequência': 'intermediario', 'Faço projetos grandes ou trabalho com isso': 'avancado' };
 
-export function planoDe(perfil, progress = {}) {
-  const p = perfil && typeof perfil === 'object' ? perfil : {};
+export function planoDe(perfil: unknown, progress: Progresso = {}) {
+  const p: Perfil = perfil && typeof perfil === 'object' && !Array.isArray(perfil) ? perfil as Perfil : {};
   const temQuiz = Boolean(p.level);
-  const feito = (id) => Boolean(progress[id]?.done);
-  const trilha = (id) => TRACKS.find((t) => t.id === id);
-  const feitos = (t) => t.exercises.filter((e) => feito(e.id)).length;
-  const completa = (t) => feitos(t) === t.exercises.length;
+  const feito = (id: string) => Boolean(progress[id]?.done);
+  const trilha = (id: string) => TRACKS.find((t) => t.id === id);
+  const feitos = (t: Trilha) => t.exercises.filter((e) => feito(e.id)).length;
+  const completa = (t: Trilha) => feitos(t) === t.exercises.length;
 
   // ---- tecnologias e nível (só valores conhecidos; o resto é ignorado)
-  const declaradas = (Array.isArray(p.languages) ? p.languages : []).filter((l) => TECNOLOGIAS.includes(l));
-  const peloObjetivo = PELO_OBJETIVO[p.goal] || [];
+  const declaradas = (Array.isArray(p.languages) ? p.languages : []).filter((l): l is string => typeof l === 'string' && TECNOLOGIAS.includes(l));
+  const peloObjetivo = (p.goal && PELO_OBJETIVO[p.goal]) || [];
   const tecnologias = declaradas.length ? declaradas : peloObjetivo.length ? peloObjetivo : ['Lógica', 'Python'];
-  const nivel = NIVEL_DO_QUIZ[p.level] || NIVEL_DA_EXPERIENCIA[p.experience] || 'basico';
+  const nivel: NivelPlano = (p.level && NIVEL_DO_QUIZ[p.level]) || (p.experience && NIVEL_DA_EXPERIENCIA[p.experience]) || 'basico';
   const iNivel = NIVEIS.indexOf(nivel);
 
   // ---- focos: para cada tecnologia, trilha pronta (com testes) ou exercícios guiados do catálogo
-  const focos = tecnologias.slice(0, 4).map((tec) => {
+  const focos: Foco[] = tecnologias.slice(0, 4).map((tec): Foco => {
     const trilhas = (TRILHAS_DA[tec] || []).filter((id) => trilha(id));
     const guiados = GUIADOS.filter((g) => g.tecnologia === tec);
     if (tec === 'HTML e CSS') return { tecnologia: tec, tipo: 'adaptado', trilhas, guiados: guiados.length };
     return trilhas.length ? { tecnologia: tec, tipo: 'trilha', trilhas, guiados: guiados.length } : { tecnologia: tec, tipo: 'guiado', trilhas: [], guiados: guiados.length };
   });
   const tipos = new Set(focos.map((f) => f.tipo));
-  const tipo = !temQuiz && !declaradas.length && !peloObjetivo.length ? 'inicial'
+  const tipo: TipoPlano = !temQuiz && !declaradas.length && !peloObjetivo.length ? 'inicial'
     : tipos.size === 1 && tipos.has('trilha') ? 'trilha'
       : tipos.has('trilha') || tipos.has('adaptado') ? 'adaptada' : 'montada';
 
   // ---- ordem das trilhas com testes (o mais indicado primeiro; concluídas vão para o fim)
-  const motivos = {};
-  const pontos = (t) => {
-    const m = []; let n = 0;
+  const motivos: Record<string, string[]> = {};
+  const pontos = (t: Trilha) => {
+    const m: string[] = []; let n = 0;
     if (completa(t)) return { n: -100, m: ['concluída'] };
     const daTec = focos.find((f) => f.trilhas.includes(t.id));
     if (daTec) { n += 3; m.push(declaradas.length ? `você escolheu ${daTec.tecnologia}` : 'combina com o seu objetivo'); }
@@ -148,27 +165,27 @@ export function planoDe(perfil, progress = {}) {
     .map((g) => ({ ...g, feito: feito(g.id) }));
 
   // ---- próximo passo: trilha recomendada, senão guiado pendente, senão qualquer trilha pendente
-  let proximo = null;
-  const rec = recomendada && trilha(recomendada);
+  let proximo: Passo | null = null;
+  const rec = recomendada ? trilha(recomendada) : undefined;
   const exRec = rec?.exercises.find((e) => !feito(e.id));
   const guiadoPendente = guiadosDoPlano.find((g) => !g.feito);
   const guiadoPrimeiro = focos[0] && focos[0].tipo !== 'trilha';
   if (guiadoPrimeiro && guiadoPendente) proximo = { tipo: 'guiado', id: guiadoPendente.id, titulo: guiadoPendente.titulo, tecnologia: guiadoPendente.tecnologia };
-  else if (exRec) proximo = { tipo: 'trilha', trackId: rec.id, exerciseId: exRec.id, titulo: exRec.title, tecnologia: rec.id === 'logica' ? 'Lógica' : rec.lang === 'python' ? 'Python' : 'JavaScript' };
+  else if (rec && exRec) proximo = { tipo: 'trilha', trackId: rec.id, exerciseId: exRec.id, titulo: exRec.title, tecnologia: rec.id === 'logica' ? 'Lógica' : rec.lang === 'python' ? 'Python' : 'JavaScript' };
   else if (guiadoPendente) proximo = { tipo: 'guiado', id: guiadoPendente.id, titulo: guiadoPendente.titulo, tecnologia: guiadoPendente.tecnologia };
   // tudo do plano feito: oferece um desafio novo (guiado de nível acima ou qualquer trilha pendente), sem erro
-  let novoDesafio = null;
+  let novoDesafio: Passo | null = null;
   if (!proximo) {
     const acima = GUIADOS.find((g) => tecnologias.includes(g.tecnologia) && !feito(g.id) && NIVEIS.indexOf(g.nivel) >= iNivel);
     const outraTrilha = ordem.map(trilha).find((t) => t && !completa(t));
     const ex = outraTrilha?.exercises.find((e) => !feito(e.id));
     novoDesafio = acima ? { tipo: 'guiado', id: acima.id, titulo: acima.titulo, tecnologia: acima.tecnologia }
-      : ex ? { tipo: 'trilha', trackId: outraTrilha.id, exerciseId: ex.id, titulo: ex.title }
+      : outraTrilha && ex ? { tipo: 'trilha', trackId: outraTrilha.id, exerciseId: ex.id, titulo: ex.title }
         : { tipo: 'chat', titulo: `Peça ao Gyde um desafio ${NOME_NIVEL[NIVEIS[Math.min(2, iNivel + 1)]]} de ${tecnologias[0]}` };
   }
 
   const tentados = Object.entries(progress);
-  return {
+  const plano = {
     versao: 2,
     tipo,
     explicacao: {
@@ -186,7 +203,7 @@ export function planoDe(perfil, progress = {}) {
     observado: {
       feitos: tentados.filter(([, v]) => v.done).length,
       tentativasComErro: tentados.reduce((s, [, v]) => s + (v.fails || 0), 0),
-      travados: tentados.filter(([, v]) => v.fails > 0 && !v.done).map(([id]) => id),
+      travados: tentados.filter(([, v]) => (v.fails || 0) > 0 && !v.done).map(([id]) => id),
     },
     focos,
     ordem,
@@ -198,4 +215,7 @@ export function planoDe(perfil, progress = {}) {
     novoDesafio,
     semTrilha: focos.filter((f) => f.tipo === 'guiado').map((f) => f.tecnologia),
   };
+  return plano;
 }
+
+export type Plano = ReturnType<typeof planoDe>;

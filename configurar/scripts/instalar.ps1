@@ -13,14 +13,14 @@ Write-Host '   Gyde - seu guia na programacao' -ForegroundColor Blue
 Write-Host '   Instalador' -ForegroundColor Blue
 Write-Host '==============================================' -ForegroundColor Blue
 
-# 1) Node.js 22.13 ou mais novo
+# 1) Node.js 22.18 ou mais novo (roda TypeScript direto, sem compilar)
 Passo 1 'Node.js'
 $nodeOk = $false
 try {
     $v = (& node -v) -replace '^v', ''
     $p = $v.Split('.') | ForEach-Object { [int]$_ }
-    $nodeOk = ($p[0] -gt 22) -or ($p[0] -eq 22 -and $p[1] -ge 13)
-    if ($nodeOk) { Ok "Node.js $v" } else { Aviso "Node.js $v e antigo demais (precisa 22.13 ou mais novo)." }
+    $nodeOk = ($p[0] -gt 22) -or ($p[0] -eq 22 -and $p[1] -ge 18)
+    if ($nodeOk) { Ok "Node.js $v" } else { Aviso "Node.js $v e antigo demais (precisa 22.18 ou mais novo)." }
 } catch { Aviso 'Node.js nao encontrado.' }
 if (-not $nodeOk) {
     $r = Read-Host '  Instalar o Node.js LTS agora pelo winget? (s/n)'

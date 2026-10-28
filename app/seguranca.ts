@@ -21,25 +21,25 @@ const PADROES = [
   /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, // JWT
   /((?:api[_-]?key|secret|token|passw(?:or)?d|senha|client[_-]?secret|auth)\s*["']?\s*[:=]\s*["']?)([^\s"'`,;]{8,})/gi,
 ];
-export function redigir(texto) {
+export function redigir(texto: unknown): string {
   let t = String(texto ?? '');
-  for (const p of PADROES) t = t.replace(p, (m, prefixo, valor) => (valor !== undefined && typeof prefixo === 'string' && /[:=]/.test(prefixo) ? `${prefixo}[segredo removido]` : '[segredo removido]'));
+  for (const p of PADROES) t = t.replace(p, (_m: string, prefixo?: unknown, valor?: unknown) => (valor !== undefined && typeof prefixo === 'string' && /[:=]/.test(prefixo) ? `${prefixo}[segredo removido]` : '[segredo removido]'));
   return t;
 }
 
 // Variáveis de ambiente que não passam para os comandos da Forja (ex.: as chaves do .env do próprio Gyde).
 const VAR_SECRETA = /(KEY|TOKEN|SECRET|PASS|PWD|SENHA|CREDENTIAL|SMTP|COOKIE|SESSION|AUTH|PRIVATE)/i;
-export function ambienteLimpo(extra = {}) {
-  const env = {};
+export function ambienteLimpo(extra: Record<string, string> = {}): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
   for (const [k, v] of Object.entries(process.env)) if (!VAR_SECRETA.test(k) && !/^(FREELLMAPI|CLOUDFLARE|GEMINI|GYDE_|OLLAMA)/i.test(k)) env[k] = v;
   return { ...env, ...extra };
 }
 
 // Resolve um caminho relativo dentro da pasta do projeto e garante que ele não escapa dela,
 // nem com "..", nem com caminho absoluto, nem por atalhos (links simbólicos/junções) que apontem para fora.
-export function caminhoSeguro(pastaReal, rel) {
+export function caminhoSeguro(pastaReal: string, rel: unknown): string {
   const alvo = path.resolve(pastaReal, String(rel ?? '.'));
-  const dentro = (p) => p === pastaReal || p.toLowerCase().startsWith(pastaReal.toLowerCase() + path.sep);
+  const dentro = (p: string) => p === pastaReal || p.toLowerCase().startsWith(pastaReal.toLowerCase() + path.sep);
   if (!dentro(alvo)) throw new Error(`O caminho "${rel}" está fora da pasta do projeto.`);
   // o pedaço que já existe é resolvido de verdade (segue links) e precisa continuar dentro
   let existente = alvo;
@@ -51,7 +51,8 @@ export function caminhoSeguro(pastaReal, rel) {
 }
 
 // Comandos: bloqueado (nunca roda), confirmar (só com o OK do usuário) ou livre.
-const BLOQUEADO = [
+type Regra = [RegExp, string];
+const BLOQUEADO: Regra[] = [
   [/\bformat(\.com)?\s+[a-z]:/i, 'formata um disco'], [/\b(shutdown|restart-computer|stop-computer|logoff)\b/i, 'desliga ou reinicia o computador'],
   [/\b(diskpart|bcdedit|vssadmin|wbadmin|bootrec)\b/i, 'mexe no disco ou na inicialização do Windows'],
   [/\breg(\.exe)?\s+(delete|add|import)\b/i, 'altera o registro do Windows'], [/\b(set-executionpolicy|set-mppreference|netsh\s+advfirewall)\b/i, 'desativa proteções do sistema'],
@@ -63,7 +64,7 @@ const BLOQUEADO = [
   [/(%[a-z_]*(key|token|secret|pass)[a-z_]*%|\$env:[a-z_]*(key|token|secret|pass))/i, 'tenta ler segredos das variáveis de ambiente'],
   [/(^|[\s"'\\/])\.env\b|\.(pem|key|ppk)\b|\bid_(rsa|ed25519)\b|\.ssh[\\/]/i, 'tenta ler arquivos de senhas ou chaves'],
 ];
-const CONFIRMAR = [
+const CONFIRMAR: Regra[] = [
   [/\b(rm|del|erase|rd|rmdir|remove-item|rimraf|unlink)\b/i, 'apaga arquivos'],
   [/\bgit\s+(push|reset\s+--hard|clean|checkout\s+--|restore|rebase|branch\s+-D|stash\s+drop|filter-branch)\b/i, 'altera ou publica o histórico do Git'],
   [/\b(npm|pnpm|yarn)\s+(publish|unpublish|deprecate)\b|\bvsce\s+publish\b|\btwine\s+upload\b/i, 'publica um pacote na internet'],
@@ -74,7 +75,8 @@ const CONFIRMAR = [
   [/(^|[^=\-\d])>{1,2}\s*[^|&;>=\s]+/, 'grava a saída do comando num arquivo'],
   [/\b(docker|kubectl|terraform|vercel|netlify|firebase\s+deploy|gh\s+(repo|release|pr\s+merge))\b/i, 'mexe em serviços externos ou faz deploy'],
 ];
-export function classificarComando(cmd) {
+export type NivelComando = 'bloqueado' | 'confirmar' | 'livre';
+export function classificarComando(cmd: unknown): { nivel: NivelComando; motivo: string } {
   const c = String(cmd || '');
   for (const [re, motivo] of BLOQUEADO) if (re.test(c)) return { nivel: 'bloqueado', motivo };
   for (const [re, motivo] of CONFIRMAR) if (re.test(c)) return { nivel: 'confirmar', motivo };

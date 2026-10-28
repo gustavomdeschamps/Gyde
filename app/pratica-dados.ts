@@ -1,7 +1,14 @@
 // Trilhas de Skills do Gyde. Cada exercício pede uma função; os testes rodam no navegador.
 // tests: [{ args: [...], expected }]  (comparação por igualdade profunda; números com tolerância)
 
-export const TRACKS = [
+export interface Teste { args: unknown[]; expected: unknown }
+export interface Exercicio { id: string; title: string; xp: number; fn: string; statement: string; starter: string; tests: Teste[] }
+export interface Trilha {
+  id: string; title: string; lang: 'python' | 'javascript'; color: string; icon: string; description: string;
+  projeto?: boolean; exercises: Exercicio[];
+}
+
+export const TRACKS: Trilha[] = [
   {
     id: 'python-basico',
     title: 'Primeiros passos em Python',
@@ -242,7 +249,7 @@ export const TRACKS = [
 ];
 
 // Pontos fracos do quiz -> exercícios recomendados para reforçar.
-export const TOPICO_EXERCICIOS = {
+export const TOPICO_EXERCICIOS: Record<string, string[]> = {
   'variáveis': ['py-area'],
   'texto vs. número': ['py-ola', 'js-saudacao'],
   'laços (for)': ['py-soma-ate', 'js-conta'],
@@ -253,7 +260,7 @@ export const TOPICO_EXERCICIOS = {
   'referências de listas': ['pt-concluir'],
 };
 
-export const findExercise = (id) => {
+export const findExercise = (id: string) => {
   for (const t of TRACKS) {
     const ex = t.exercises.find((e) => e.id === id);
     if (ex) return { track: t, ex };

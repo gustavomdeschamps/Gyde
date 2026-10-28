@@ -88,7 +88,8 @@ export const QUIZ = [
   },
 ];
 
-const LEVELS = {
+export type Nivel = 'zero' | 'basic' | 'intermediate' | 'advanced';
+const LEVELS: Record<Nivel, string> = {
   zero: 'iniciante absoluto',
   basic: 'iniciante',
   intermediate: 'intermediário',
@@ -98,25 +99,29 @@ const LEVELS = {
 // Versão sem as respostas, para mandar ao navegador.
 export const publicQuiz = () => QUIZ.map(({ answer, ...q }) => q);
 
-export function gradeQuiz(answers = {}) {
-  const pick = (id) => {
-    const q = QUIZ.find((x) => x.id === id);
+export interface Pergunta { id: string; kind: string; title: string; options: string[]; multi?: boolean; topic?: string; answer?: string; code?: Record<string, string> }
+export function gradeQuiz(answers: Record<string, unknown> = {}) {
+  function pick(id: string, multi: true): string[];
+  function pick(id: string): string | null;
+  function pick(id: string, _multi?: boolean): string[] | string | null {
+    const q = (QUIZ as Pergunta[]).find((x) => x.id === id);
+    if (!q) return null;
     const v = answers[id];
-    if (q.multi) return (Array.isArray(v) ? v : []).filter((o) => q.options.includes(o)).slice(0, 10);
-    return q.options.includes(v) ? v : null;
-  };
+    if (q.multi) return (Array.isArray(v) ? v : []).filter((o): o is string => q.options.includes(o)).slice(0, 10);
+    return typeof v === 'string' && q.options.includes(v) ? v : null;
+  }
   const knowledge = QUIZ.filter((q) => q.kind === 'knowledge');
   const results = knowledge.map((q) => ({ id: q.id, topic: q.topic, correct: answers[q.id] === q.answer, answer: q.answer, given: pick(q.id) }));
   const score = results.filter((r) => r.correct).length;
   const total = knowledge.length;
 
-  let level = score <= 1 ? 'zero' : score <= 3 ? 'basic' : score <= 6 ? 'intermediate' : 'advanced';
+  let level: Nivel = score <= 1 ? 'zero' : score <= 3 ? 'basic' : score <= 6 ? 'intermediate' : 'advanced';
   const experience = pick('experience');
   // Acertar tudo não faz de alguém avançado se nunca fez projeto; e quem trabalha com isso não é "zero".
-  if (level === 'advanced' && ['Nunca programei', 'Já fiz alguns exercícios'].includes(experience)) level = 'intermediate';
+  if (level === 'advanced' && (experience === 'Nunca programei' || experience === 'Já fiz alguns exercícios')) level = 'intermediate';
   if (level === 'zero' && experience === 'Faço projetos grandes ou trabalho com isso') level = 'basic';
 
-  const languages = pick('languages').filter((l) => l !== 'Ainda não sei');
+  const languages = pick('languages', true).filter((l) => l !== 'Ainda não sei');
   const profile = {
     level,
     levelLabel: LEVELS[level],

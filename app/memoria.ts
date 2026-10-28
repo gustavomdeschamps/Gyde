@@ -1,5 +1,10 @@
 // Memória do Gyde: fatos duradouros sobre a pessoa, lembrados entre conversas.
 import { randomUUID } from 'node:crypto';
+import type { Express } from 'express';
+import type { Db, Router, Usuario } from './tipos.ts';
+import { consulta } from './tipos.ts';
+
+interface Memoria { id: string; text: string; source: string; created_at: number }
 
 // Modelo direto (sem "raciocínio em voz alta") para tarefas internas; o automático fica de reserva.
 const UTIL_MODELS = [process.env.UTIL_MODEL || 'mistral-code', 'auto'];
@@ -7,27 +12,27 @@ const MAX_MEMORIES = 60;
 const MAX_LEN = 200;
 const REMEMBER = /\b(lembr[ea]|lembra|não esqueç|nao esqueç|guarde que|anota que|anote que)\b/i;
 
-export function setupMemoria(app, db, { router, getSetting, setSetting }) {
+export function setupMemoria(app: Express, db: Db, { router, getSetting, setSetting }: { router: Router; getSetting: (userId: string, chave: string, padrao?: string) => string; setSetting: (userId: string, chave: string, valor: string) => unknown }) {
   db.exec(`CREATE TABLE IF NOT EXISTS memories (
     id TEXT PRIMARY KEY, user_id TEXT NOT NULL, text TEXT NOT NULL, source TEXT NOT NULL, created_at INTEGER NOT NULL
   ); CREATE INDEX IF NOT EXISTS idx_mem_user ON memories(user_id, created_at);`);
   const q = {
-    list: db.prepare('SELECT id, text, source, created_at FROM memories WHERE user_id = ? ORDER BY created_at DESC'),
+    list: consulta<Memoria>(db, 'SELECT id, text, source, created_at FROM memories WHERE user_id = ? ORDER BY created_at DESC'),
     add: db.prepare('INSERT INTO memories (id, user_id, text, source, created_at) VALUES (?, ?, ?, ?, ?)'),
     del: db.prepare('DELETE FROM memories WHERE id = ? AND user_id = ?'),
     delAll: db.prepare('DELETE FROM memories WHERE user_id = ?'),
-    count: db.prepare('SELECT COUNT(*) AS n FROM memories WHERE user_id = ?'),
-    oldestAuto: db.prepare("SELECT id FROM memories WHERE user_id = ? AND source = 'auto' ORDER BY created_at LIMIT 1"),
+    count: consulta<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM memories WHERE user_id = ?'),
+    oldestAuto: consulta<{ id: string }>(db, "SELECT id FROM memories WHERE user_id = ? AND source = 'auto' ORDER BY created_at LIMIT 1"),
   };
-  const enabled = (userId) => getSetting(userId, 'memory_enabled', '1') === '1';
-  const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, '').trim();
+  const enabled = (userId: string) => getSetting(userId, 'memory_enabled', '1') === '1';
+  const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, '').trim();
 
-  function save(userId, text, source) {
+  function save(userId: string, text: unknown, source: 'auto' | 'manual' | 'pedido') {
     const clean = String(text).replace(/\s+/g, ' ').trim().slice(0, MAX_LEN);
     if (clean.length < 4) return false;
     const existing = q.list.all(userId).map((m) => norm(m.text));
     if (existing.includes(norm(clean))) return false;
-    while (q.count.get(userId).n >= MAX_MEMORIES) {
+    while ((q.count.get(userId)?.n ?? 0) >= MAX_MEMORIES) {
       const old = q.oldestAuto.get(userId);
       if (!old) return false;
       q.del.run(old.id, userId);
@@ -37,7 +42,7 @@ export function setupMemoria(app, db, { router, getSetting, setSetting }) {
   }
 
   // Texto para o prompt do sistema.
-  function promptFor(userId) {
+  function promptFor(userId: string) {
     if (!enabled(userId)) return '';
     const items = q.list.all(userId).slice(0, 30);
     if (!items.length) return '';
@@ -45,7 +50,7 @@ export function setupMemoria(app, db, { router, getSetting, setSetting }) {
   }
 
   // Depois de uma resposta: extrai fatos novos em segundo plano (não atrasa o chat).
-  async function learnFrom(user, history, answer) {
+  async function learnFrom(user: Usuario, history: { role: string; content: string }[], answer: string) {
     if (!enabled(user.id)) return;
     const userMsgs = history.filter((m) => m.role === 'user');
     const last = userMsgs.at(-1)?.content || '';
@@ -74,7 +79,7 @@ export function setupMemoria(app, db, { router, getSetting, setSetting }) {
           ],
         }),
       });
-      const json = await r.json();
+      const json = await r.json() as { choices?: { message?: { content?: string } }[] };
       const text = json.choices?.[0]?.message?.content || '';
       // Pega o último objeto JSON com "fatos" (alguns modelos escrevem texto antes).
       const match = [...text.matchAll(/\{[^{}]*"fatos"[^{}]*\}/g)].pop();
@@ -88,7 +93,7 @@ export function setupMemoria(app, db, { router, getSetting, setSetting }) {
     }
   }
 
-  const view = (userId) => ({ ativa: enabled(userId), itens: q.list.all(userId) });
+  const view = (userId: string) => ({ ativa: enabled(userId), itens: q.list.all(userId) });
   app.get('/api/memoria', (req, res) => res.json(view(req.user.id)));
   app.post('/api/memoria', (req, res) => {
     if (!save(req.user.id, req.body?.texto || '', 'manual')) return res.status(400).json({ error: 'Texto vazio, repetido ou memória cheia.' });

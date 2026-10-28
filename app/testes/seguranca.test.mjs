@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { classificarComando, redigir, caminhoSeguro, ARQUIVO_SECRETO, ambienteLimpo } from '../seguranca.js';
+import { classificarComando, redigir, caminhoSeguro, ARQUIVO_SECRETO, ambienteLimpo } from '../seguranca.ts';
 
 test('comandos perigosos são bloqueados', () => {
   for (const c of ['format c:', 'shutdown /s', 'del /s /q C:\\', 'rd /s /q c:', 'reg delete HKLM\\x', 'echo %FREELLMAPI_KEY%', 'echo $env:GEMINI_API_KEY', 'type .env', 'type C:\\Windows\\win.ini', 'Set-ExecutionPolicy Bypass']) {

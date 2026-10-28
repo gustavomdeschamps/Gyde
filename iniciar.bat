@@ -10,5 +10,5 @@ set "GYDE_PORT=3210"
 if exist .env for /f "tokens=2 delims==" %%p in ('findstr /b /c:"PORT=" .env') do set "GYDE_PORT=%%p"
 start "" /b cmd /c "timeout /t 2 /nobreak >nul & start http://127.0.0.1:%GYDE_PORT%"
 echo Deixe esta janela aberta enquanto usa o Gyde. Para fechar, feche esta janela.
-node app\server.js
+node app\server.ts
 pause

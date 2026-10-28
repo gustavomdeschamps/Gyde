@@ -5,7 +5,10 @@
 // Se um modelo falhar (fora do ar, cota, resposta inválida), o próximo assume sem o usuário ver erro.
 // Toda cadeia termina em 'auto' para funcionar com qualquer conjunto de chaves que a pessoa tiver no FreeLLMAPI.
 
-export const CADEIAS = {
+import type { Router, Registro, MensagemIA } from './tipos.ts';
+import { comoErro } from './tipos.ts';
+
+export const CADEIAS: Record<string, string[]> = {
   'gyde-1': ['claude-sonnet-4-5', 'qwen3.8-27b', 'gpt-oss-120b', 'codestral', 'auto'],
   'gyde-1-pro': ['claude-opus-4-5', 'claude-sonnet-4-5', 'gpt-oss-120b', 'fusion', 'auto'],
   agente: ['claude-sonnet-4-5', 'claude-opus-4-5', 'qwen3.8-27b', 'gpt-oss-120b', 'codestral', 'auto'],
@@ -15,22 +18,27 @@ export const CADEIAS = {
 };
 
 // Modelos que o usuário escolhe pelo nome direto continuam funcionando (cadeia de um modelo + automático).
-export const cadeiaDe = (id) => CADEIAS[id] || [id, 'auto'];
+export const cadeiaDe = (id: string): string[] => CADEIAS[id] || [id, 'auto'];
 
 // Chamada sem streaming com troca automática de modelo. Devolve { texto, modelo }.
 // `valida(texto)` pode recusar a resposta (ex.: JSON inválido) para tentar o próximo modelo.
-export async function completar(router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida, registro }) {
+export interface PedidoCompletar {
+  cadeia: string[]; messages: MensagemIA[]; max_tokens?: number; temperature?: number;
+  signal?: AbortSignal; valida?: (texto: string) => boolean; registro?: Registro | undefined;
+}
+export async function completar(router: Router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida, registro }: PedidoCompletar): Promise<{ texto: string; modelo: string }> {
   let ultimoErro = new Error('Nenhum modelo respondeu.');
   for (const model of cadeia) {
     try {
-      const r = await router('/v1/chat/completions', { method: 'POST', signal, registro, body: JSON.stringify({ model, messages, max_tokens, temperature }) });
-      const j = await r.json();
+      const r = await router('/v1/chat/completions', { method: 'POST', signal: signal ?? null, registro, body: JSON.stringify({ model, messages, max_tokens, temperature }) });
+      const j = await r.json() as { usage?: import('./tipos.ts').UsoInformado; choices?: { message?: { content?: string } }[] };
       registro?.tokens(j.usage);
       const texto = j.choices?.[0]?.message?.content || '';
       if (!texto.trim()) throw new Error(`${model} respondeu vazio`);
       if (valida && !valida(texto)) throw new Error(`${model} respondeu num formato inválido`);
       return { texto, modelo: r.headers.get('x-routed-via') || model };
-    } catch (err) {
+    } catch (e) {
+      const err = comoErro(e);
       if (err.name === 'AbortError' || err.final || err.status === 429) throw err; // offline ou limite: outro modelo não resolve
       ultimoErro = err;
     }
@@ -39,9 +47,9 @@ export async function completar(router, { cadeia, messages, max_tokens = 1500, t
 }
 
 // Extrai o último objeto JSON de um texto (aceita ```json, texto em volta e vírgula sobrando).
-export function extrairJson(texto) {
+export function extrairJson(texto: unknown): any {
   const limpo = String(texto); // cercas ``` fora do objeto não atrapalham; dentro dos textos precisam ficar
-  let achado = null, prof = 0, ini = -1, dentroStr = false, esc = false;
+  let achado: any = null, prof = 0, ini = -1, dentroStr = false, esc = false;
   for (let i = 0; i < limpo.length; i++) { // percorre os objetos de nível mais alto e guarda o último que for JSON válido
     const c = limpo[i];
     if (dentroStr) { if (esc) esc = false; else if (c === '\\') esc = true; else if (c === '"') dentroStr = false; continue; }
