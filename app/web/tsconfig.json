@@ -9,9 +9,26 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
-    "types": ["vite/client"],
-    "paths": { "$contratos": ["../contratos.ts"] }
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable",
+      "WebWorker"
+    ],
+    "types": [
+      "vite/client"
+    ],
+    "paths": {
+      "$contratos": [
+        "../contratos.ts"
+      ]
+    },
+    "allowJs": true,
+    "checkJs": false
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte", "../contratos.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "../contratos.ts"
+  ]
 }

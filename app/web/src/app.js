@@ -2,7 +2,7 @@ import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import hljs from '@highlightjs/cdn-assets/es/highlight.min.js';
 import { showAuth, showQuiz, hideGate } from './onboarding.js';
-import { createPractice } from './pratica.js';
+import { createPractice } from './pratica.svelte.ts';
 import { createSkillsPage } from './skills.js';
 import { execute, RUNNABLE } from './runner.js';
 import { openTrace } from './passo-a-passo.js';
