@@ -6,7 +6,7 @@ import { pedir, enviar as api } from './api.ts';
 import { toast, copiarTexto } from './util.ts';
 import { renderMarkdown } from './markdown.ts';
 import { tocarAbertura, aberturaJaVista } from './abertura.ts';
-import { showAuth, showQuiz, hideGate } from './onboarding.js';
+import { mostrarLogin, mostrarQuestionario, esconderEntrada } from './entrada.ts';
 import { createPractice } from './pratica.svelte.ts';
 import { createSkillsPage } from './skills.svelte.ts';
 import { createTurmasPage } from './turmas.svelte.ts';
@@ -77,7 +77,7 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aplicarTem
 const config = montarConfiguracoes({
   toast, copiar: copiarTexto,
   verAbertura: () => { tocarAbertura(); },
-  refazerQuiz: () => { showQuiz({ user: usuario, onDone: () => iniciar() }); },
+  refazerQuiz: () => { mostrarQuestionario({ nome: usuario?.name ?? '', onfim: () => iniciar() }); },
   restaurarModelo: restaurarModeloPadrao,
   recarregarConversas: carregarConversas,
 });
@@ -117,9 +117,9 @@ async function conferirStatus() {
 async function iniciar() {
   let me: { user: Usuario | null; mode?: string; emailMode?: string };
   try { me = await fetch('/api/auth/me').then((r) => r.json()); } catch { aviso('Não consegui falar com o servidor do Gyde.'); return; }
-  if (!me.user) return showAuth({ mode: me.mode, emailMode: me.emailMode, onLogin: () => iniciar() });
-  if (!me.user.onboarded) return showQuiz({ user: me.user, onDone: () => iniciar() });
-  hideGate();
+  if (!me.user) return mostrarLogin({ modo: me.mode, modoEmail: me.emailMode, onentrar: () => iniciar() });
+  if (!me.user.onboarded) return mostrarQuestionario({ nome: me.user.name, onfim: () => iniciar() });
+  esconderEntrada();
   usuario = me.user;
   mostrarUsuario(me.user);
   if (await conferirStatus()) await carregarModelos();

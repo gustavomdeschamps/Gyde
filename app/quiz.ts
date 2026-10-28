@@ -4,7 +4,7 @@
 
 const NAO_SEI = 'Não sei ainda';
 
-export const QUIZ = [
+export const QUIZ: Pergunta[] = [
   { id: 'experience', kind: 'profile', title: 'Quanto você já programou?', options: [
     'Nunca programei', 'Já fiz alguns exercícios', 'Programo com frequência', 'Faço projetos grandes ou trabalho com isso'] },
   { id: 'languages', kind: 'profile', multi: true, title: 'Quais linguagens você usa ou quer aprender?', options: [
@@ -99,7 +99,7 @@ const LEVELS: Record<Nivel, string> = {
 // Versão sem as respostas, para mandar ao navegador.
 export const publicQuiz = () => QUIZ.map(({ answer, ...q }) => q);
 
-export interface Pergunta { id: string; kind: string; title: string; options: string[]; multi?: boolean; topic?: string; answer?: string; code?: Record<string, string> }
+export interface Pergunta { id: string; kind: 'profile' | 'knowledge'; title: string; options: string[]; multi?: boolean; topic?: string; answer?: string; code?: Record<string, string> }
 export function gradeQuiz(answers: Record<string, unknown> = {}) {
   function pick(id: string, multi: true): string[];
   function pick(id: string): string | null;

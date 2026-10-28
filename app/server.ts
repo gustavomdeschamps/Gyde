@@ -412,7 +412,7 @@ setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão (a
 setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja (agente de código): trabalha numa pasta de projeto (codigo-agente.js)
 
 // ---------- Quiz de boas-vindas ----------
-app.get('/api/quiz', (_req, res) => res.json({ questions: publicQuiz() }));
+app.get('/api/quiz', (_req, res) => responder(res, C.Questionario, { questions: publicQuiz() }));
 
 app.post('/api/profile', (req, res) => {
   const answers = req.body?.answers;
@@ -424,7 +424,7 @@ app.post('/api/profile', (req, res) => {
   const anteriores = antes.level ? [{ em: antes.takenAt, nivel: antes.levelLabel, acertos: antes.score, total: antes.total }, ...(antes.anteriores || [])].slice(0, 5) : undefined;
   if (anteriores) Object.assign(profile, { anteriores }); // [{ em: antes.takenAt, nivel: antes.levelLabel, acertos: antes.score, total: antes.total }, ...(antes.anteriores || [])].slice(0, 5);
   db.prepare('UPDATE users SET profile = ?, onboarded = 1 WHERE id = ?').run(JSON.stringify(profile), req.user.id);
-  res.json({ profile, results });
+  responder(res, C.ResultadoQuestionario, { profile, results });
 });
 
 // Pular o quiz (dá para fazer depois em Configurações > Prática).

@@ -242,7 +242,7 @@
     {:else if sessao && !itens.length}
       <div class="ag-vazio"><span class="forja-marca grande">{@html ic.forja}</span>
         <h2>Projeto conectado: {nomeDaPasta(sessao.pasta)}</h2>
-        <p>{#if sessao.projeto}{sessao.projeto.arquivos} arquivos{#if sessao.projeto.tecnologias.length} · {sessao.projeto.tecnologias.join(', ')}{/if}{#if sessao.projeto.testes} · testes: <code>{sessao.projeto.testes}</code>{:else} · nenhum comando de testes encontrado{/if}.{/if} O que a Forja deve fazer?</p>
+        <p>{#if sessao.projeto}{sessao.projeto.arquivos} arquivos{#if sessao.projeto.tecnologias.length}{' · '}{sessao.projeto.tecnologias.join(', ')}{/if}{#if sessao.projeto.testes}{' · testes: '}<code>{sessao.projeto.testes}</code>{:else}{' · nenhum comando de testes encontrado'}{/if}.{/if} O que a Forja deve fazer?</p>
         <div class="ag-sugestoes">{#each sugestoes as s}<button type="button" onclick={() => { texto = s; enviarTarefa(); }}>{s}</button>{/each}</div>
       </div>
     {/if}

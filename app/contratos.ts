@@ -122,6 +122,17 @@ export const SessaoForja = z.object({
 }).refine((s) => s.existe === s.pastaEstado.ok, { message: '"existe" e "pastaEstado.ok" discordam' });
 export const Reconexao = z.object({ ok: z.literal(true), pasta: z.string(), pastaEstado: EstadoPasta });
 
+// ---------- Questionário de boas-vindas ----------
+export const Pergunta = z.object({
+  id: z.string(), kind: z.enum(['profile', 'knowledge']), title: z.string(), options: z.array(z.string()).min(2), multi: z.boolean().optional(),
+  topic: z.string().optional(), code: z.record(z.string()).optional(),
+}).refine((q) => q.kind !== 'knowledge' || Boolean(q.code?.python), 'pergunta de código sem a versão em Python');
+export const Questionario = z.object({ questions: z.array(Pergunta).min(1) });
+export const ResultadoQuestionario = z.object({
+  profile: z.object({ levelLabel: z.string(), score: z.number().int(), total: z.number().int(), languages: z.array(z.string()) }).passthrough(),
+  results: z.array(z.object({ id: z.string(), topic: z.string().optional(), correct: z.boolean(), answer: z.string().optional() }).passthrough()),
+});
+
 // ---------- Skills ----------
 const SkillBase = z.object({
   nome: z.string(), descricao: z.string(), simbolo: z.string(), comando: z.string(), gatilhos: z.array(z.string()), categoria: z.string(), corpo: z.string(),
@@ -209,3 +220,5 @@ export type TTurmaProfessor = z.infer<typeof TurmaProfessor>;
 export type TTurmaAluno = z.infer<typeof TurmaAluno>;
 export type TSkill = z.infer<typeof Skill>;
 export type TItemLoja = z.infer<typeof ItemLoja>;
+export type TPergunta = z.infer<typeof Pergunta>;
+export type TResultadoQuestionario = z.infer<typeof ResultadoQuestionario>;

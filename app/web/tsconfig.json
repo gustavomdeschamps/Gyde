@@ -22,9 +22,7 @@
       "$contratos": [
         "../contratos.ts"
       ]
-    },
-    "allowJs": true,
-    "checkJs": false
+    }
   },
   "include": [
     "src/**/*.ts",

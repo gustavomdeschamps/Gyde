@@ -122,7 +122,7 @@
           {@const res = resultados?.[i]}
           <div class="test-row" class:pass={res?.pass} class:fail={res && !res.pass} style="--i:{i}">
             <span class="test-icon">{#if res}{@html res.pass ? icons.check : icons.x}{/if}</span>
-            <span><code>{chamada(tc)}</code><span class="test-detail">esperado: <code>{mostrar(tc.expected, t.lang)}</code>{#if res && !res.pass}{#if res.error} · <span>{res.error}</span>{:else} · recebido: <code>{mostrar(res.got, t.lang)}</code>{/if}{/if}</span></span>
+            <span><code>{chamada(tc)}</code><span class="test-detail">esperado: <code>{mostrar(tc.expected, t.lang)}</code>{#if res && !res.pass}{#if res.error}{' · '}<span>{res.error}</span>{:else}{' · recebido: '}<code>{mostrar(res.got, t.lang)}</code>{/if}{/if}</span></span>
           </div>
         {/each}
       </div>
