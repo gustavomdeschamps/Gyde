@@ -1,9 +1,11 @@
 @echo off
 title Gyde
 cd /d "%~dp0"
-if not exist node_modules (
-  echo Instalando dependencias pela primeira vez...
-  call npm install || (echo Falha no npm install. & pause & exit /b 1)
+rem instala as dependencias na primeira vez e de novo sempre que o package-lock.json mudar (ex.: depois de atualizar)
+fc /b package-lock.json node_modules\.gyde-lock >nul 2>nul || (
+  echo Instalando ou atualizando as dependencias...
+  call npm install --no-audit --no-fund || (echo Falha no npm install. & pause & exit /b 1)
+  copy /y package-lock.json node_modules\.gyde-lock >nul
 )
 rem gera a interface (pacotes/interface/dist); leva poucos segundos
 call npm run build --silent || (echo Falha ao gerar a interface. & pause & exit /b 1)
