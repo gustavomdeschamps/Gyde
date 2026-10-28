@@ -44,7 +44,7 @@ ok('ponte do desktop: escolherPasta e redefinirSenha, sem Node na página', awai
 await ev(`(localStorage.setItem('gyde-intro-vista','1'), 1)`); await send('Page.reload'); await sleep(2000);
 ok('entrada do desktop oferece trazer os dados do Gyde antigo', await espera(`/Trazer seus dados/.test(document.querySelector('#gate .gate-importar')?.textContent || '')`));
 await ev(`[...document.querySelectorAll('#gate .link')].find((b) => /Esqueci/.test(b.textContent))?.click()`);
-ok('"Esqueci minha senha" no desktop troca a senha aqui (sem .bat)', await espera(`document.querySelector('#gate form input[name="password"]') !== null && !/redefinir-senha\.bat/.test(document.querySelector('#gate').textContent)`));
+ok('"Esqueci minha senha" no desktop troca a senha aqui (sem .bat)', await espera(`document.querySelector('#gate form input[name="password"]') !== null && !/redefinir-senha\\.bat/.test(document.querySelector('#gate').textContent)`));
 const deFora = await fetch(`http://127.0.0.1:${porta}/api/auth/redefinir-local`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-gyde': '1', 'x-gyde-desktop': 'chute' }, body: '{"email":"a@t.test","password":"nova12345"}' });
 ok('rota de troca local recusa quem não tem o segredo do app', deFora.status === 403);
 const H = `{'x-gyde':'1','Content-Type':'application/json'}`;

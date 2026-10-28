@@ -10,7 +10,7 @@ test('pasta indisponível sem explicação é recusada (a tela não pode mostrar
 });
 
 test('sessão da Forja: "existe" precisa concordar com o estado da pasta', () => {
-  const base = { id: 'a', user_id: 'u', pasta: 'C:\p', titulo: 't', created_at: 1, updated_at: 1, projeto: null, podeDesfazer: false, trabalhando: false, eventos: [] };
+  const base = { id: 'a', user_id: 'u', pasta: 'C:\\p', titulo: 't', created_at: 1, updated_at: 1, projeto: null, podeDesfazer: false, trabalhando: false, eventos: [] };
   assert.equal(C.SessaoForja.safeParse({ ...base, existe: false, pastaEstado: { ok: true, motivo: null, texto: null } }).success, false);
   assert.equal(C.SessaoForja.safeParse({ ...base, existe: true, pastaEstado: { ok: true, motivo: null, texto: null } }).success, true);
   // resposta antiga, sem o estado da pasta: fora do contrato (era o bug do aviso falso)

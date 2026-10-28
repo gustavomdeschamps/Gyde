@@ -14,5 +14,6 @@ export const registrarUltima = (c: Consumo) => { uso.ultima = c; };
 
 export const nomeModelo = (id: string | null | undefined) => String(id || '').split('/').pop()!.replace(/:free$/, '');
 export const numero = (n: number | null | undefined) => (n == null ? 'não informado' : Number(n).toLocaleString('pt-BR'));
+// eslint-disable-next-line svelte/prefer-svelte-reactivity -- data temporária só para formatar
 export const horaCurta = (iso: string) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 export const NOME_PROVEDOR: Record<string, string> = { online: 'FreeLLMAPI', offline: 'Modelo local (Ollama)', nenhum: 'Sem provedor' };

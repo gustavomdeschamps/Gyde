@@ -59,6 +59,9 @@ try {
   await avaliar(`document.querySelector('.trace-head button').click()`);
   ok('fechar tira o diálogo da página', await esperar(`document.querySelector('dialog.trace-dialog') === null`, 2000));
 
+  // exercício de Python com resposta booleana: a tela usa True/False, como no Python
+  await nav.ir(`${servidor.base}/?r=4#/pratica/python-basico/py-par`, 3000);
+  ok('Python mostra True/False (não true/false)', await esperar(`/esperado: (True|False)/.test(document.querySelector('#praticaView .test-row')?.textContent || '') && !/esperado: (true|false)/.test(document.querySelector('#praticaView .tests')?.textContent || document.body.textContent)`, 8000), await avaliar(`document.querySelector('#praticaView .test-row')?.textContent`));
   ok('sem erro de JavaScript', nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
 } finally { await nav.fechar(); await servidor.parar(); }

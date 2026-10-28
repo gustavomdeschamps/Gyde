@@ -41,21 +41,21 @@ export interface Acao { tipo: string; alvo?: number; texto?: string; enviar?: bo
 export function parseAction(text: string): { explicacao: string; acao: Acao; confirmar: boolean } | null {
   const obj = extrairJson(text);
   if (!obj) return null;
-  const a: Record<string, any> = { ...(obj.acao || obj.action || obj) };
-  a.tipo = String(a.tipo || a.type || '').toLowerCase();
-  a.tipo = SINONIMOS[a.tipo] || a.tipo;
+  const a: Record<string, unknown> = { ...((obj.acao || obj.action || obj) as Record<string, unknown>) };
+  const tipoLido = String(a.tipo || a.type || '').toLowerCase();
+  const tipo = SINONIMOS[tipoLido] || tipoLido;
   if (a.alvo === undefined) a.alvo = a.target ?? a.elemento;
   if (a.texto === undefined) a.texto = a.text ?? a.valor;
-  if (!TIPOS.has(a.tipo)) return null;
-  const acao: Acao = { tipo: a.tipo };
-  if (['clicar', 'digitar', 'selecionar'].includes(a.tipo)) {
-    acao.alvo = Number.parseInt(a.alvo, 10);
+  if (!TIPOS.has(tipo)) return null;
+  const acao: Acao = { tipo };
+  if (['clicar', 'digitar', 'selecionar'].includes(tipo)) {
+    acao.alvo = Number.parseInt(String(a.alvo), 10);
     if (!Number.isInteger(acao.alvo)) return null;
   }
-  if (['digitar', 'selecionar', 'perguntar', 'concluir'].includes(a.tipo)) acao.texto = String(a.texto ?? '').slice(0, 2000);
-  if (a.tipo === 'digitar') acao.enviar = Boolean(a.enviar);
-  if (a.tipo === 'rolar') acao.direcao = a.direcao === 'cima' ? 'cima' : 'baixo';
-  if (a.tipo === 'abrir') {
+  if (['digitar', 'selecionar', 'perguntar', 'concluir'].includes(tipo)) acao.texto = String(a.texto ?? '').slice(0, 2000);
+  if (tipo === 'digitar') acao.enviar = Boolean(a.enviar);
+  if (tipo === 'rolar') acao.direcao = a.direcao === 'cima' ? 'cima' : 'baixo';
+  if (tipo === 'abrir') {
     try {
       const u = new URL(String(a.url));
       if (!/^https?:$/.test(u.protocol)) return null;

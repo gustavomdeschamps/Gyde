@@ -15,6 +15,7 @@
 
   function grupo(ts: number) {
     const d = new Date(ts);
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- data temporária só para a conta, não é estado da tela
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
     const dias = (hoje.getTime() - new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) / 86_400_000;
     if (dias <= 0) return 'Hoje';

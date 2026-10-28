@@ -45,6 +45,7 @@ async function bundle(name: string, entries: Entrada[]) {
     if (text.length >= MAX_TOTAL) break;
     let content: string;
     try { content = await e.read(); } catch { continue; }
+    // eslint-disable-next-line no-control-regex -- procura o byte nulo de propósito
     if (/\u0000/.test(content.slice(0, 2000))) continue; // binário disfarçado
     const cut = content.length > MAX_FILE ? `${content.slice(0, MAX_FILE)}\n[... arquivo cortado ...]` : content;
     const block = `\n===== ${e.path} =====\n${cut}\n`;

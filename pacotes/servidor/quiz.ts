@@ -97,7 +97,7 @@ const LEVELS: Record<Nivel, string> = {
 };
 
 // Versão sem as respostas, para mandar ao navegador.
-export const publicQuiz = () => QUIZ.map(({ answer, ...q }) => q);
+export const publicQuiz = () => QUIZ.map(({ answer: _resposta, ...q }) => q);
 
 export interface Pergunta { id: string; kind: 'profile' | 'knowledge'; title: string; options: string[]; multi?: boolean; topic?: string; answer?: string; code?: Record<string, string> }
 export function gradeQuiz(answers: Record<string, unknown> = {}) {

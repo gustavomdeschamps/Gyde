@@ -22,5 +22,5 @@ export function mostrar(v: unknown, lang: string): string {
   if (v === '__undefined__') return 'undefined';
   const json = JSON.stringify(v);
   if (lang !== 'python' || json === undefined) return json ?? String(v);
-  return json.replace(/true/g, 'True').replace(/false/g, 'False').replace(/null/g, 'None');
+  return json.replace(/\btrue\b/g, 'True').replace(/\bfalse\b/g, 'False').replace(/\bnull\b/g, 'None');
 }

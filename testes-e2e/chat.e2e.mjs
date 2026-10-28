@@ -92,6 +92,13 @@ try {
   await avaliar(`[...document.querySelectorAll('.menu button')].find((b) => /Excluir/.test(b.textContent)).click()`);
   ok('excluir pede confirmação e tira a conversa da lista', await esperar(`document.querySelectorAll('#convList .conv').length === 0`, 5000) && nav.dialogos.some((d) => /Excluir a conversa/.test(d)));
 
+  // HTML perigoso numa resposta da IA não executa (markdown passa pelo DOMPurify)
+  await avaliar(`document.querySelector('#newChat').click()`);
+  await digitar('<img src=x onerror="window.__xss = 1"> <script>window.__xss2 = 1</script> <a href="javascript:window.__xss3 = 1">link</a>');
+  await avaliar(`document.querySelector('#composer').requestSubmit()`);
+  await esperar(`!${transmitindo} && document.querySelector('.msg.assistant .md') !== null`, 15_000);
+  await nav.esperar('false', 500);
+  ok('HTML perigoso na resposta não executa (sem onerror, script ou javascript:)', await avaliar(`window.__xss === undefined && window.__xss2 === undefined && !document.querySelector('.msg.assistant .md [onerror], .msg.assistant .md script, .msg.assistant .md a[href^="javascript"]')`));
   ok('o chat mandou o histórico ao provedor (pergunta e resposta anteriores)', ia.pedidos.some((p) => p.stream && p.mensagens.filter((m) => m.role === 'user').length >= 1));
   ok('sem erro de JavaScript', nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');

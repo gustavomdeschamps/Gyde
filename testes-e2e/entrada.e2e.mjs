@@ -1,7 +1,5 @@
 // Entrada (componentes Svelte): cadastro, questionário, resultado, sair, senha errada, entrar e refazer o questionário.
 import { subirServidor, abrirNavegador, placar, espera as sleep } from './ajuda.mjs';
-import { readFileSync, existsSync } from 'node:fs';
-import path from 'node:path';
 
 const { ok, fim } = placar();
 const servidor = await subirServidor();

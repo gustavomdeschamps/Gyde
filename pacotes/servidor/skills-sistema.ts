@@ -20,7 +20,7 @@ const FIELDS = ['id', 'nome', 'descricao', 'simbolo', 'comando', 'gatilhos', 'ca
 
 // Lê o formato "--- chave: valor --- corpo".
 export function parseSkill(text: unknown): Skill {
-  const m = String(text).replace(/^﻿/, '').match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
+  const m = String(text).replace(/^\uFEFF/, '').match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
   if (!m) throw new Error('Arquivo de skill inválido: falta o cabeçalho entre linhas "---".');
   const meta: Record<string, string> = {};
   for (const line of (m[1] ?? '').split('\n')) {
@@ -199,7 +199,7 @@ export function setupSkills(app: Express, db: Db, { root }: { root: string }) {
     if (!row) return res.status(404).json({ error: 'Skill não encontrada.' });
     const data = JSON.parse(row.data);
     if (data.loja) return res.status(400).json({ error: 'Esta skill veio da loja. Só quem criou pode publicar.' });
-    const { loja, id: _id, ...pub } = data;
+    const { loja: _loja, id: _id, ...pub } = data;
     if (String(pub.corpo).length < 40) return res.status(400).json({ error: 'Escreva instruções um pouco mais completas antes de publicar.' });
     if (!pub.descricao) return res.status(400).json({ error: 'Adicione uma descrição curta antes de publicar.' });
     const existing = q.lojaBySource.get(row.id);

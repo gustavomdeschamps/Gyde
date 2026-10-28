@@ -47,9 +47,9 @@ export async function completar(router: Router, { cadeia, messages, max_tokens =
 }
 
 // Extrai o último objeto JSON de um texto (aceita ```json, texto em volta e vírgula sobrando).
-export function extrairJson(texto: unknown): any {
+export function extrairJson(texto: unknown): Record<string, unknown> | null {
   const limpo = String(texto); // cercas ``` fora do objeto não atrapalham; dentro dos textos precisam ficar
-  let achado: any = null, prof = 0, ini = -1, dentroStr = false, esc = false;
+  let achado: Record<string, unknown> | null = null, prof = 0, ini = -1, dentroStr = false, esc = false;
   for (let i = 0; i < limpo.length; i++) { // percorre os objetos de nível mais alto e guarda o último que for JSON válido
     const c = limpo[i];
     if (dentroStr) { if (esc) esc = false; else if (c === '\\') esc = true; else if (c === '"') dentroStr = false; continue; }

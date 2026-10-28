@@ -309,6 +309,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         ctx.sinal?.addEventListener('abort', matar, { once: true });
         p.on('close', (code) => {
           clearTimeout(limite);
+          // eslint-disable-next-line no-control-regex -- tira as cores do terminal (ESC[...m)
           const texto = redigir(saida.replace(/\x1b\[[0-9;]*m/g, '').trim());
           resolve({ ok: code === 0, saida: corta(`${texto || '(sem saída)'}\n[código de saída: ${code}]`), resumo: `${cmd} → código ${code}`, comando: { comando: cmd, codigo: code } });
         });

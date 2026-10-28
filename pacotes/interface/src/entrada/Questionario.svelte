@@ -47,6 +47,7 @@
   function escolher(o: string) {
     if (!q) return;
     if (q.multi) {
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity -- conjunto temporário; o estado é o array gravado logo abaixo
       const lista = new Set((respostas[q.id] as string[] | undefined) ?? []);
       if (lista.has(o)) lista.delete(o); else lista.add(o);
       respostas[q.id] = [...lista];

@@ -16,6 +16,7 @@ export interface Usuario {
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- é assim que o Express deixa acrescentar req.user
   namespace Express {
     interface Request { user: Usuario }
   }

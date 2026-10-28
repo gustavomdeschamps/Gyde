@@ -18,22 +18,28 @@
     "dev": "node --watch pacotes/servidor/server.ts",
     "dev:web": "npm run dev -w @gyde/interface",
     "build": "npm run build -w @gyde/interface",
-    "check": "tsc -p . && npm run check -w @gyde/interface",
+    "check": "tsc -p . && npm run check -w @gyde/interface && eslint .",
     "test": "npm run check && node --test pacotes/servidor/testes/*.test.mjs pacotes/interface/testes/*.test.mjs",
     "desktop": "npm run build && electron .",
     "dist:win": "npm run build && electron-builder --win --publish never",
     "extensoes": "npm run empacotar -w gyde -w @gyde/extensao-chrome",
-    "e2e": "node testes-e2e/rodar.mjs"
+    "e2e": "node testes-e2e/rodar.mjs",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@gyde/desktop": "1.0.0",
     "@gyde/servidor": "1.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^24.19.2",
     "electron": "^45.1.0",
     "electron-builder": "^26.18.0",
-    "typescript": "^5.9.3"
+    "eslint": "^10.13.0",
+    "eslint-plugin-svelte": "^3.23.1",
+    "globals": "^17.13.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1"
   },
   "build": {
     "appId": "dev.gyde.app",
