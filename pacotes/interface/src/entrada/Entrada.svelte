@@ -2,6 +2,7 @@
   // Entrar, criar conta, confirmar e-mail e trocar senha. No modo pessoal não há e-mail: a conta fica no PC.
   import { tick } from 'svelte';
   import Cartao from './Cartao.svelte';
+  import { desktop } from '../desktop.ts';
 
   let { modo, modoEmail, onentrar }: { modo?: string; modoEmail?: string; onentrar: () => void } = $props();
 
@@ -14,7 +15,6 @@
 
   const pessoal = $derived(modo === 'pessoal');
   // no app de desktop a troca de senha é feita aqui mesmo, com confirmação numa janela do Windows
-  const desktop = (window as { gydeDesktop?: { redefinirSenha?: (email: string, senha: string) => Promise<{ ok: boolean; cancelado?: boolean; erro?: string }> } }).gydeDesktop;
   let trocada = $state(false);
   const SENHA_DICA = 'Mínimo de 8 caracteres, com letras e números.';
 
@@ -57,10 +57,14 @@
   async function trocarLocal(e: SubmitEvent) {
     e.preventDefault();
     ocupado = true;
-    const r = await desktop!.redefinirSenha!(email, senha);
+    const r = await desktop!.redefinirSenha(email, senha);
     ocupado = false;
     if (r.ok) { trocada = true; senha = ''; erro = ''; }
     else if (!r.cancelado) mostrarErro(r.erro || 'Não deu para trocar a senha agora.');
+  }
+  async function importar() {
+    const r = await desktop!.importarDados();
+    if (!r.ok && !r.cancelado) mostrarErro(r.erro || 'Não deu para importar agora.');
   }
   const soDigitos = () => { codigo = codigo.replace(/\D/g, '').slice(0, 6); };
 </script>
@@ -88,6 +92,9 @@
           <button type="button" class="link" onclick={() => ir(pessoal ? 'senhaLocal' : 'esqueci', pessoal ? 'next' : null)}>Esqueci minha senha</button>
           <span>Não tem conta? <button type="button" class="link" onclick={() => ir('cadastro')}>Criar conta</button></span>
         </div>
+        {#if desktop}
+          <p class="gate-note gate-importar">Já usava o Gyde pelo <b>iniciar.bat</b>? <button type="button" class="link" onclick={importar}>Trazer seus dados</button></p>
+        {/if}
       {:else if tela === 'cadastro'}
         <h1>Criar conta</h1>
         <p class="gate-sub">Seu guia na programação, em português.</p>
@@ -114,7 +121,7 @@
           <button type="button" class="link" disabled={reenviado} onclick={reenviar}>{reenviado ? 'Código reenviado' : 'Reenviar código'}</button>
           <button type="button" class="link" onclick={() => ir('login')}>Voltar</button>
         </div>
-      {:else if tela === 'senhaLocal' && desktop?.redefinirSenha}
+      {:else if tela === 'senhaLocal' && desktop}
         <h1>Trocar senha</h1>
         {#if trocada}
           <p class="gate-sub">Senha trocada. Entre com a senha nova.</p>

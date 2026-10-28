@@ -8,6 +8,7 @@
   import { temaSalvo, definirTema, type Tema } from '../tema.ts';
   import { uso, atualizarUso, nomeModelo, NOME_PROVEDOR } from './uso.svelte.ts';
   import UsoAba from './UsoAba.svelte';
+  import { desktop } from '../desktop.ts';
 
   type Aba = 'geral' | 'ia' | 'uso' | 'pratica' | 'dados' | 'extensoes';
   let { toast, copiar, verAbertura, refazerQuiz, restaurarModelo, recarregarConversas }: {
@@ -92,6 +93,20 @@
     forja: { pergunta: 'Apagar todas as conversas da Forja? Os arquivos dos projetos não são tocados.', rota: '/api/codigo/sessoes', depois: async (r: { apagadas: number }) => toast(`${r.apagadas} conversa(s) da Forja apagada(s)`) },
     uso: { pergunta: 'Zerar o registro de uso desta conta?', rota: '/api/uso', depois: async () => { toast('Registro de uso apagado'); atualizarUso(); } },
   };
+  // cópia de segurança: restaurar só vale quando o Gyde reabre (o servidor troca o banco antes de abrir)
+  let restaurada = $state<C.TRestauracaoPreparada | null>(null);
+  let restaurando = $state(false);
+  async function restaurarCopia(e: Event) {
+    const campo = e.currentTarget as HTMLInputElement;
+    const arquivo = campo.files?.[0];
+    campo.value = '';
+    if (!arquivo) return;
+    if (!confirm('Restaurar esta cópia? Todos os dados deste Gyde (contas, conversas, progresso) serão trocados pelos da cópia quando ele reabrir. Os dados atuais ficam guardados em copias-banco.')) return;
+    restaurando = true;
+    try { restaurada = await pedir('/api/dados/restaurar', C.RestauracaoPreparada, { method: 'POST', body: arquivo }); } catch (err) { toast(mensagemDe(err)); }
+    restaurando = false;
+  }
+
   async function apagar(qual: keyof typeof APAGAR) {
     const a = APAGAR[qual];
     if (!confirm(a.pergunta)) return;
@@ -232,10 +247,19 @@
       {:else if aba === 'dados'}
         <section class="config-painel" role="tabpanel" data-painel="dados">
           <div class="config-texto">
-            <p><b>Onde ficam seus dados.</b> Conversas, progresso, memória, registro de uso e conversas da Forja ficam no banco <code>data\chat.db</code> deste computador. Cada conta só vê os próprios dados.</p>
+            <p><b>Onde ficam seus dados.</b> Conversas, progresso, memória, registro de uso e conversas da Forja ficam no banco deste computador ({#if desktop}<code>%APPDATA%\Gyde\dados</code>{:else}pasta <code>data</code> do Gyde{/if}). Cada conta só vê os próprios dados.</p>
             <p><b>O que sai do computador.</b> No modo online, o texto das mensagens, os anexos e os trechos de arquivos que a Forja lê vão para o FreeLLMAPI, que repassa a um serviço de IA (Groq, Google, Mistral e outros, conforme as chaves configuradas nele). No modo offline nada sai: o modelo roda no Ollama, aqui mesmo.</p>
             <p><b>O que nunca vai para a IA.</b> Arquivos <code>.env</code>, chaves SSH, certificados e outros arquivos de senhas são bloqueados. Chaves e tokens encontrados em textos são trocados por <code>[segredo removido]</code>.</p>
           </div>
+          <div class="config-linha"><div><b>Baixar cópia de segurança</b><small>Um .zip com tudo deste Gyde: contas (senhas só como hash), conversas, progresso, memória e imagens. Guarde em lugar seguro.</small></div><a class="btn ghost" href="/api/dados/copia" download>Baixar</a></div>
+          <div class="config-linha"><div><b>Restaurar cópia</b><small>Troca os dados deste Gyde pelos de uma cópia (.zip). Vale quando o Gyde reabre.</small></div>
+            <label class="btn ghost" class:desligado={restaurando}>{restaurando ? 'Conferindo…' : 'Escolher .zip'}<input type="file" accept=".zip,application/zip" hidden disabled={restaurando} onchange={restaurarCopia}></label></div>
+          {#if restaurada}
+            <div class="config-aviso" role="status">
+              <p>Cópia conferida: {restaurada.contas} conta(s) e {restaurada.conversas} conversa(s). {#if desktop}Reabra o Gyde para usar.{:else}Feche o Gyde (a janela do iniciar.bat) e abra de novo para usar.{/if}</p>
+              {#if desktop}<button type="button" class="btn primary small" onclick={() => desktop!.reiniciar()}>Reabrir agora</button>{/if}
+            </div>
+          {/if}
           <div class="config-linha perigo"><div><b>Apagar todas as conversas do chat</b><small>Não dá para desfazer.</small></div><button type="button" class="btn ghost" onclick={() => apagar('conversas')}>Apagar</button></div>
           <div class="config-linha perigo"><div><b>Apagar todas as conversas da Forja</b><small>Os arquivos dos seus projetos não são tocados.</small></div><button type="button" class="btn ghost" onclick={() => apagar('forja')}>Apagar</button></div>
           <div class="config-linha perigo"><div><b>Apagar o registro de uso</b><small>Zera os contadores de pedidos e tokens do painel Uso e limites.</small></div><button type="button" class="btn ghost" onclick={() => apagar('uso')}>Apagar</button></div>

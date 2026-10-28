@@ -4,7 +4,8 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, session, shell, utilityProcess, type UtilityProcess } from 'electron';
 import { createServer } from 'node:net';
 import { randomBytes } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync } from 'node:fs';
+import { prepararDePasta } from '../servidor/copia.ts';
 import path from 'node:path';
 
 // testes apontam os dados para uma pasta temporária (GYDE_DESKTOP_DADOS), longe dos dados de verdade
@@ -104,6 +105,28 @@ ipcMain.handle('gyde:redefinir-senha', async (e, email: unknown, senha: unknown)
     const corpo = await r.json().catch(() => ({})) as { error?: string };
     return r.ok ? { ok: true } : { ok: false, erro: corpo.error || `Erro ${r.status}` };
   } catch { return { ok: false, erro: 'Não consegui falar com o servidor do Gyde.' }; }
+});
+
+// depois de restaurar uma cópia: o app reabre e o servidor aplica a cópia antes de abrir o banco
+ipcMain.handle('gyde:reiniciar', () => { app.relaunch(); app.quit(); });
+
+// trazer os dados do Gyde que rodava pelo código (pasta data\ dele) para o app de desktop
+ipcMain.handle('gyde:importar-dados', async (e) => {
+  const dono = BrowserWindow.fromWebContents(e.sender);
+  const escolha = { title: 'Escolha a pasta do Gyde antigo (onde fica o iniciar.bat) ou a pasta data dele', properties: ['openDirectory' as const] };
+  const r = dono ? await dialog.showOpenDialog(dono, escolha) : await dialog.showOpenDialog(escolha);
+  if (r.canceled || !r.filePaths[0]) return { ok: false, cancelado: true };
+  const pasta = [path.join(r.filePaths[0], 'data'), r.filePaths[0]].find((p) => existsSync(path.join(p, 'chat.db')));
+  if (!pasta) return { ok: false, erro: 'Não achei os dados do Gyde nessa pasta (procurei data\\chat.db e chat.db).' };
+  let resumo;
+  try { resumo = prepararDePasta(pasta, path.join(DADOS, 'dados')); } catch (err) { return { ok: false, erro: err instanceof Error ? err.message : String(err) }; }
+  const confirmar = { type: 'question' as const, buttons: ['Importar e reabrir', 'Cancelar'], defaultId: 0, cancelId: 1, title: 'Importar dados do Gyde',
+    message: `Importar ${resumo.contas} conta(s) e ${resumo.conversas} conversa(s)?`,
+    detail: 'Os dados atuais deste app são trocados pelos importados (uma cópia deles fica guardada em copias-banco). O Gyde reabre sozinho.' };
+  const { response } = dono ? await dialog.showMessageBox(dono, confirmar) : await dialog.showMessageBox(confirmar);
+  if (response !== 0) { rmSync(path.join(DADOS, 'dados', 'restaurar-pendente'), { recursive: true, force: true }); return { ok: false, cancelado: true }; }
+  app.relaunch(); app.quit();
+  return { ok: true };
 });
 
 // atualização automática: procura uma versão nova publicada no GitHub. Sem release publicada, não faz nada.

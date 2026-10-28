@@ -172,6 +172,9 @@ export const TurmaAluno = z.object({
 export const Turma = z.union([TurmaProfessor, TurmaAluno]);
 export const IdCriado = z.object({ id: z.string() });
 
+// ---------- Cópia de segurança ----------
+export const RestauracaoPreparada = z.object({ versao: z.number().int(), contas: z.number().int(), conversas: z.number().int(), reiniciar: z.literal(true) });
+
 // ---------- Uso e limites ----------
 const Totais = z.object({
   pedidos: z.number().int(), concluidos: z.number().int(), falhas: z.number().int(), cancelados: z.number().int(), limite: z.number().int(),
@@ -201,6 +204,7 @@ export const Uso = z.object({
 });
 
 export type TStatus = z.infer<typeof Status>;
+export type TRestauracaoPreparada = z.infer<typeof RestauracaoPreparada>;
 export type TPreferencias = z.infer<typeof Preferencias>;
 export type TPlano = z.infer<typeof Plano>;
 export type TPasso = z.infer<typeof Passo>;

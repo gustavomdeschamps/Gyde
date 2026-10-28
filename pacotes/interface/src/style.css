@@ -532,3 +532,9 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
   .uso-ultimos li { grid-template-columns: 1fr; gap: 0; }
 }
 .config-erro { display: grid; gap: 10px; justify-items: start; padding: 12px 14px; border-radius: 12px; background: var(--danger-soft); color: var(--text); }
+/* cópia de segurança (Configurações > Privacidade e dados) */
+.config-aviso { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 8px; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); font-size: 14px; }
+.config-aviso p { margin: 0; }
+label.btn { cursor: pointer; }
+label.btn.desligado { opacity: .6; pointer-events: none; }
+.gate-importar { margin-top: 14px; text-align: center; }

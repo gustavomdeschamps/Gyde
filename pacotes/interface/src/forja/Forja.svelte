@@ -4,6 +4,7 @@
   import { onDestroy, tick } from 'svelte';
   import * as C from '$contratos';
   import type { TSessaoForja } from '$contratos';
+  import { desktop } from '../desktop.ts';
   import { pedir, enviar, corpo, mensagemDe } from '../api.ts';
   import { ic } from './icones.ts';
   import { aplicar, fecharPendentes, type Item, type Evento } from './estado.ts';
@@ -64,7 +65,6 @@
   $effect(() => { void id; carregar(); });
 
   // no app de desktop a janela de pasta é a nativa; no navegador, o servidor abre a do Windows
-  const desktop = (window as { gydeDesktop?: { escolherPasta: () => Promise<string | null> } }).gydeDesktop;
   const escolherPasta = async () => (desktop ? desktop.escolherPasta() : (await enviar<{ pasta: string | null }>('/api/codigo/escolher-pasta', { method: 'POST' })).pasta);
 
   async function conectarPasta(): Promise<boolean> {

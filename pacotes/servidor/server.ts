@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { parseEnv } from 'node:util';
 import path from 'node:path';
 import { abrirBanco } from './banco.ts';
+import { aplicarRestauracaoPendente, gerarCopia, prepararRestauracao } from './copia.ts';
 import { setupAuth } from './auth.ts';
 import { publicQuiz, gradeQuiz } from './quiz.ts';
 import { setupPratica } from './pratica-servidor.ts';
@@ -86,7 +87,9 @@ const DIST = path.join(ROOT, '..', 'interface', 'dist'); // interface gerada pel
 // ---------- Banco de dados (SQLite embutido no Node) ----------
 mkdirSync(IMAGES_DIR, { recursive: true });
 // o esquema vem das migrações (migracoes.ts); bancos antigos são atualizados aqui, com cópia antes
-const db = abrirBanco(path.join(DATA_DIR, 'chat.db'), { pastaCopias: path.join(DATA_DIR, 'copias-banco') });
+const PASTA_COPIAS = path.join(DATA_DIR, 'copias-banco');
+aplicarRestauracaoPendente(path.join(DATA_DIR, 'chat.db'), DATA_DIR, PASTA_COPIAS); // cópia restaurada pelas Configurações
+const db = abrirBanco(path.join(DATA_DIR, 'chat.db'), { pastaCopias: PASTA_COPIAS });
 
 const q = {
   listConvs: consulta<Omit<Conversa, 'user_id' | 'created_at'>>(db, `SELECT id, title, model, pinned, updated_at FROM conversations WHERE user_id = ?
@@ -342,6 +345,20 @@ app.put('/api/config/chave-freellmapi', (req, res) => {
   process.env.FREELLMAPI_KEY = chave;
   provedores.definirChave(chave);
   res.json({ ok: true });
+});
+// Cópia de segurança (modo pessoal: o banco tem todas as contas deste computador). Restaurar vale na próxima abertura.
+const soPessoal = (res: Response) => { if (process.env.GYDE_MODE !== 'publico') return true; res.status(403).json({ error: 'No modo público a cópia de segurança é feita no servidor.' }); return false; };
+app.get('/api/dados/copia', (_req, res) => {
+  if (!soPessoal(res)) return;
+  const zip = gerarCopia(db, DATA_DIR);
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', `attachment; filename="gyde-copia-${new Date().toISOString().slice(0, 10)}.zip"`);
+  res.send(Buffer.from(zip));
+});
+app.post('/api/dados/restaurar', express.raw({ type: () => true, limit: '1gb' }), (req, res) => {
+  if (!soPessoal(res)) return;
+  if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: 'Envie o arquivo .zip da cópia.' });
+  responder(res, C.RestauracaoPreparada, { ...prepararRestauracao(new Uint8Array(req.body), DATA_DIR), reiniciar: true });
 });
 // Trocar entre online, offline e automático (só no modo pessoal: vale para o Gyde inteiro).
 app.post('/api/uso/modo', (req, res) => {

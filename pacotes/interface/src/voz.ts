@@ -1,3 +1,5 @@
+import { desktop } from './desktop.ts';
+
 // Voz: ler respostas em voz alta (voz do próprio Windows/navegador) e ditado (fala vira texto).
 
 function textoParaFala(markdown: string) {
@@ -46,7 +48,7 @@ interface Reconhecimento {
 const janela = window as unknown as { SpeechRecognition?: new () => Reconhecimento; webkitSpeechRecognition?: new () => Reconhecimento };
 const Reconhecedor = janela.SpeechRecognition || janela.webkitSpeechRecognition;
 // no app de desktop (Electron) o reconhecimento de fala do Chrome não funciona: falha com "network"
-export const temDitado = Boolean(Reconhecedor) && !('gydeDesktop' in window);
+export const temDitado = Boolean(Reconhecedor) && !desktop;
 const PALAVRAS_ENVIAR = /\s*\b(enviar|envia|mandar|manda)[.!]?\s*$/i;
 
 export function ditar({ inicial, aoMudar, aoEnviar, aoErro, aoTerminar }: {

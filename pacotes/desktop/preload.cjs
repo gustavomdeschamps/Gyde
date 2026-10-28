@@ -4,4 +4,6 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('gydeDesktop', {
   escolherPasta: () => ipcRenderer.invoke('gyde:escolher-pasta'),
   redefinirSenha: (email, senha) => ipcRenderer.invoke('gyde:redefinir-senha', email, senha),
+  importarDados: () => ipcRenderer.invoke('gyde:importar-dados'),
+  reiniciar: () => ipcRenderer.invoke('gyde:reiniciar'),
 });
