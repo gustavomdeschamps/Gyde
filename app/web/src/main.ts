@@ -8,13 +8,13 @@ import { renderMarkdown } from './markdown.ts';
 import { tocarAbertura, aberturaJaVista } from './abertura.ts';
 import { showAuth, showQuiz, hideGate } from './onboarding.js';
 import { createPractice } from './pratica.svelte.ts';
-import { createSkillsPage } from './skills.js';
+import { createSkillsPage } from './skills.svelte.ts';
 import { createTurmasPage } from './turmas.svelte.ts';
 import { createAgentePage } from './agente.ts';
 import { aplicarTema, definirTema, temaAtual } from './tema.ts';
 import { montarConfiguracoes } from './config.ts';
 import { atualizarUso } from './config/uso.svelte.ts';
-import { chat, abrirConversa, novaConversa, carregarConversas, carregarModelos, restaurarModeloPadrao, type SkillInstalada } from './chat/estado.svelte.ts';
+import { chat, abrirConversa, novaConversa, carregarConversas, carregarModelos, restaurarModeloPadrao } from './chat/estado.svelte.ts';
 import ListaConversas from './chat/ListaConversas.svelte';
 import Mensagens from './chat/Mensagens.svelte';
 import Compositor from './chat/Compositor.svelte';
@@ -36,7 +36,7 @@ const pratica = createPractice({
   root: $('#praticaView'), toast, renderMarkdown,
   onXp: (xp: number) => { $('#xpBadge').textContent = xp ? `${xp} XP` : ''; },
 });
-const skills = createSkillsPage({ root: $('#skillsView'), api, toast, renderMarkdown, onChange: (lista: SkillInstalada[]) => { chat.skills = lista; } });
+const skills = createSkillsPage({ root: $('#skillsView'), renderMarkdown });
 const forja = createAgentePage({ root: $('#agenteView'), toast, renderMarkdown });
 const turmas = createTurmasPage({ root: $('#turmasView') });
 

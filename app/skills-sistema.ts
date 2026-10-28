@@ -7,6 +7,8 @@ import path from 'node:path';
 import type { Express } from 'express';
 import type { Db } from './tipos.ts';
 import { consulta, comoErro, erroGyde } from './tipos.ts';
+import * as C from './contratos.ts';
+import { responder } from './contratos-servidor.ts';
 
 export interface Skill { id: string; nome: string; descricao: string; simbolo: string; comando: string; gatilhos: string[]; categoria: string; corpo: string }
 export type SkillListada = Skill & { origem: 'catalogo' | 'minha'; publicada?: string | null; loja?: string | null; instalada?: boolean };
@@ -117,7 +119,7 @@ export function setupSkills(app: Express, db: Db, { root }: { root: string }) {
     return q.customs.all(userId).map((r) => ({ ...JSON.parse(r.data), id: r.id, origem: 'minha', publicada: published.get(r.id) || null }));
   };
 
-  function listFor(userId: string): SkillListada[] {
+  function listFor(userId: string): (SkillListada & { instalada: boolean })[] {
     const installed = new Set(q.installed.all(userId).map((r) => r.skill_id));
     const all = [...catalog.values(), ...customsOf(userId)];
     return all.map((s) => ({ ...s, instalada: installed.has(s.id) }));
@@ -138,18 +140,18 @@ export function setupSkills(app: Express, db: Db, { root }: { root: string }) {
 
   const findFor = (userId: string, id: string) => listFor(userId).find((s) => s.id === id);
 
-  app.get('/api/skills', (req, res) => res.json({ skills: listFor(req.user.id) }));
+  app.get('/api/skills', (req, res) => responder(res, C.ListaSkills, { skills: listFor(req.user.id) }));
 
   app.post('/api/skills/:id/install', (req, res) => {
     const s = findFor(req.user.id, req.params.id);
     if (!s) return res.status(404).json({ error: 'Skill não encontrada.' });
     q.install.run(req.user.id, s.id, Date.now());
-    res.json({ skills: listFor(req.user.id) });
+    responder(res, C.ListaSkills, { skills: listFor(req.user.id) });
   });
 
   app.delete('/api/skills/:id/install', (req, res) => {
     q.uninstall.run(req.user.id, req.params.id);
-    res.json({ skills: listFor(req.user.id) });
+    responder(res, C.ListaSkills, { skills: listFor(req.user.id) });
   });
 
   function saveCustom(userId: string, data: Record<string, unknown>, existingId?: string | null, extra: { loja?: string } = {}): string {
@@ -174,20 +176,20 @@ export function setupSkills(app: Express, db: Db, { root }: { root: string }) {
 
   app.post('/api/skills/custom', (req, res) => {
     const id = saveCustom(req.user.id, req.body || {});
-    res.status(201).json({ id, skills: listFor(req.user.id) });
+    responder(res, C.SkillSalva, { id, skills: listFor(req.user.id) }, 201);
   });
 
   app.put('/api/skills/custom/:id', (req, res) => {
     if (!q.getCustom.get(req.params.id, req.user.id)) return res.status(404).json({ error: 'Skill não encontrada.' });
     saveCustom(req.user.id, req.body || {}, req.params.id);
-    res.json({ id: req.params.id, skills: listFor(req.user.id) });
+    responder(res, C.SkillSalva, { id: req.params.id, skills: listFor(req.user.id) });
   });
 
   app.delete('/api/skills/custom/:id', (req, res) => {
     q.deleteCustom.run(req.params.id, req.user.id);
     q.uninstall.run(req.user.id, req.params.id);
     q.lojaRemoveSource.run(req.params.id, req.user.id); // excluir a skill também tira da loja
-    res.json({ skills: listFor(req.user.id) });
+    responder(res, C.ListaSkills, { skills: listFor(req.user.id) });
   });
 
   // Importa um arquivo .md (de outra pessoa ou exportado antes) como skill própria.
@@ -199,14 +201,14 @@ export function setupSkills(app: Express, db: Db, { root }: { root: string }) {
       return res.status(400).json({ error: comoErro(err).message });
     }
     const id = saveCustom(req.user.id, { ...parsed });
-    res.status(201).json({ id, skills: listFor(req.user.id) });
+    responder(res, C.SkillSalva, { id, skills: listFor(req.user.id) }, 201);
   });
 
   // Loja: skills publicadas por quem usa este Gyde. Instalar cria uma cópia própria (editável),
   // então o autor mudar ou despublicar depois não altera o que outras pessoas já instalaram.
   app.get('/api/skills/loja', (req, res) => {
     const copies = new Set(customsOf(req.user.id).map((s) => s.loja).filter(Boolean));
-    res.json({
+    responder(res, C.Loja, {
       loja: q.loja.all().map((r) => {
         const s = JSON.parse(r.data);
         return { ...s, id: r.id, autor: r.author_name, installs: r.installs, atualizada: r.updated_at,
@@ -226,12 +228,12 @@ export function setupSkills(app: Express, db: Db, { root }: { root: string }) {
     const existing = q.lojaBySource.get(row.id);
     const lojaId = existing?.id || `loja-${randomUUID().slice(0, 8)}`;
     q.lojaPublish.run(lojaId, row.id, req.user.id, JSON.stringify(pub), Date.now(), Date.now());
-    res.json({ id: lojaId, atualizada: Boolean(existing), skills: listFor(req.user.id) });
+    responder(res, C.SkillPublicada, { id: lojaId, atualizada: Boolean(existing), skills: listFor(req.user.id) });
   });
 
   app.delete('/api/skills/loja/:id', (req, res) => {
     q.lojaRemove.run(req.params.id, req.user.id);
-    res.json({ skills: listFor(req.user.id) });
+    responder(res, C.ListaSkills, { skills: listFor(req.user.id) });
   });
 
   app.post('/api/skills/loja/:id/instalar', (req, res) => {
@@ -250,7 +252,7 @@ export function setupSkills(app: Express, db: Db, { root }: { root: string }) {
       semComando = true;
     }
     q.lojaInstalled.run(item.id);
-    res.status(201).json({ id, semComando, skills: listFor(req.user.id) });
+    responder(res, C.SkillDaLoja, { id, semComando, skills: listFor(req.user.id) }, 201);
   });
 
   app.get('/api/skills/:id/export', (req, res) => {

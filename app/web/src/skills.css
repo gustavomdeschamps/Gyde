@@ -49,12 +49,14 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 .wide-dialog { width: min(640px, calc(100% - 32px)); }
 .skill-form { display: grid; gap: 4px; }
 .skill-form label { margin-bottom: 10px; }
+.skill-form .label-like { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
 .skill-form input { border: 1px solid var(--border); border-radius: 12px; padding: 9px 12px; background: var(--bg-soft); font-weight: 400; outline: none; transition: border-color var(--t2) var(--ease), box-shadow var(--t2) var(--ease); }
 .skill-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
 .skill-form small { color: var(--text-faint); font-weight: 400; }
 .form-row { display: flex; gap: 12px; }
 .form-row .grow { flex: 1; }
 .form-row label:not(.grow) { width: 150px; }
+.form-row input { width: 100%; min-width: 0; }
 .symbol-picker { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
 .symbol-picker button { min-width: 38px; height: 38px; padding: 0 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-soft); font: 600 15px var(--mono); transition: transform var(--t1) var(--ease), border-color var(--t2) var(--ease), background-color var(--t2) var(--ease); }
 .symbol-picker button:hover { transform: translateY(-2px); border-color: var(--border-strong); }

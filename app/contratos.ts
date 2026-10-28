@@ -122,6 +122,24 @@ export const SessaoForja = z.object({
 }).refine((s) => s.existe === s.pastaEstado.ok, { message: '"existe" e "pastaEstado.ok" discordam' });
 export const Reconexao = z.object({ ok: z.literal(true), pasta: z.string(), pastaEstado: EstadoPasta });
 
+// ---------- Skills ----------
+const SkillBase = z.object({
+  nome: z.string(), descricao: z.string(), simbolo: z.string(), comando: z.string(), gatilhos: z.array(z.string()), categoria: z.string(), corpo: z.string(),
+});
+export const Skill = SkillBase.extend({
+  id: z.string(), origem: z.enum(['catalogo', 'minha']), instalada: z.boolean(),
+  publicada: z.string().nullable().optional(), // id na loja, se a pessoa publicou esta skill
+  loja: z.string().nullable().optional(), // id na loja de onde esta cópia veio
+});
+export const ListaSkills = z.object({ skills: z.array(Skill) });
+export const SkillSalva = ListaSkills.extend({ id: z.string() });
+export const SkillPublicada = SkillSalva.extend({ atualizada: z.boolean() });
+export const SkillDaLoja = SkillSalva.extend({ semComando: z.boolean() });
+export const ItemLoja = SkillBase.extend({
+  id: z.string(), autor: z.string(), installs: z.number().int(), atualizada: z.number(), minha: z.boolean(), instalada: z.boolean(),
+});
+export const Loja = z.object({ loja: z.array(ItemLoja) });
+
 // ---------- Turmas ----------
 export const ListaTurmas = z.object({
   ensino: z.array(z.object({ id: z.string(), name: z.string(), code: z.string(), alunos: z.number().int(), tarefas: z.number().int() })),
@@ -189,3 +207,5 @@ export type TTokens = z.infer<typeof Tokens>;
 export type TListaTurmas = z.infer<typeof ListaTurmas>;
 export type TTurmaProfessor = z.infer<typeof TurmaProfessor>;
 export type TTurmaAluno = z.infer<typeof TurmaAluno>;
+export type TSkill = z.infer<typeof Skill>;
+export type TItemLoja = z.infer<typeof ItemLoja>;
