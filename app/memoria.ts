@@ -15,9 +15,6 @@ const MAX_LEN = 200;
 const REMEMBER = /\b(lembr[ea]|lembra|não esqueç|nao esqueç|guarde que|anota que|anote que)\b/i;
 
 export function setupMemoria(app: Express, db: Db, { router, getSetting, setSetting }: { router: Router; getSetting: (userId: string, chave: string, padrao?: string) => string; setSetting: (userId: string, chave: string, valor: string) => unknown }) {
-  db.exec(`CREATE TABLE IF NOT EXISTS memories (
-    id TEXT PRIMARY KEY, user_id TEXT NOT NULL, text TEXT NOT NULL, source TEXT NOT NULL, created_at INTEGER NOT NULL
-  ); CREATE INDEX IF NOT EXISTS idx_mem_user ON memories(user_id, created_at);`);
   const q = {
     list: consulta<Memoria>(db, 'SELECT id, text, source, created_at FROM memories WHERE user_id = ? ORDER BY created_at DESC'),
     add: db.prepare('INSERT INTO memories (id, user_id, text, source, created_at) VALUES (?, ?, ?, ?, ?)'),

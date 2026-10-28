@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
 import { criarUso } from '../uso.ts';
+import { migrar } from '../banco.ts';
 import { criarProvedores } from '../provedores.ts';
 import { completar } from '../motor.ts';
 
@@ -29,6 +30,7 @@ function provedorFalso() {
 async function montar() {
   const srv = await provedorFalso();
   const db = new DatabaseSync(':memory:');
+  migrar(db);
   const uso = criarUso(db);
   const p = criarProvedores({ routerUrl: `http://127.0.0.1:${srv.address().port}`, routerKey: 'teste', ollamaUrl: 'http://127.0.0.1:1', ollamaModelo: 'nenhum', modo: 'online', uso });
   return { srv, db, uso, p };

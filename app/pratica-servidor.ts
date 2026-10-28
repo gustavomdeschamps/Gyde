@@ -22,21 +22,6 @@ const today = (t = Date.now()) => new Date(t).toLocaleDateString('sv-SE'); // AA
 const allExercises = () => TRACKS.flatMap((t) => t.exercises.map((ex) => ({ ...ex, track: t })));
 
 export function setupPratica(app: Express, db: Db, { router, profileSummary, asyncRoute, uso }: { router: Router; profileSummary: (user: Usuario) => string; asyncRoute: AsyncRoute; uso?: Uso }) {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS skill_progress (
-      user_id TEXT NOT NULL, exercise_id TEXT NOT NULL, done INTEGER NOT NULL DEFAULT 0,
-      code TEXT NOT NULL DEFAULT '', updated_at INTEGER NOT NULL, PRIMARY KEY (user_id, exercise_id)
-    );
-    CREATE TABLE IF NOT EXISTS xp_events (user_id TEXT NOT NULL, amount INTEGER NOT NULL, kind TEXT NOT NULL, ref TEXT, at INTEGER NOT NULL);
-    CREATE INDEX IF NOT EXISTS idx_xp_user ON xp_events(user_id, at);
-    CREATE TABLE IF NOT EXISTS activity_days (user_id TEXT NOT NULL, day TEXT NOT NULL, PRIMARY KEY (user_id, day));
-    CREATE TABLE IF NOT EXISTS review_queue (user_id TEXT NOT NULL, exercise_id TEXT NOT NULL, level INTEGER NOT NULL, due_at INTEGER NOT NULL, PRIMARY KEY (user_id, exercise_id));
-    CREATE TABLE IF NOT EXISTS daily_challenge (user_id TEXT NOT NULL, day TEXT NOT NULL, exercise_id TEXT NOT NULL, rewarded INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (user_id, day));
-    CREATE TABLE IF NOT EXISTS friends (user_id TEXT NOT NULL, friend_id TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY (user_id, friend_id));
-  `);
-  if (!db.prepare("SELECT 1 FROM pragma_table_info('skill_progress') WHERE name = 'fails'").get()) {
-    db.exec('ALTER TABLE skill_progress ADD COLUMN fails INTEGER NOT NULL DEFAULT 0');
-  }
 
   const q = {
     progress: consulta<{ exercise_id: string; done: number; code: string; fails: number }>(db, 'SELECT exercise_id, done, code, fails FROM skill_progress WHERE user_id = ?'),

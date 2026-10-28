@@ -1,10 +1,10 @@
 import express from 'express';
-import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseEnv } from 'node:util';
 import path from 'node:path';
+import { abrirBanco } from './banco.ts';
 import { setupAuth } from './auth.ts';
 import { publicQuiz, gradeQuiz } from './quiz.ts';
 import { setupPratica } from './pratica-servidor.ts';
@@ -82,38 +82,8 @@ const DIST = path.join(ROOT, 'dist'); // interface gerada pelo Vite a partir de 
 
 // ---------- Banco de dados (SQLite embutido no Node) ----------
 mkdirSync(IMAGES_DIR, { recursive: true });
-const db = new DatabaseSync(path.join(DATA_DIR, 'chat.db'));
-db.exec(`
-  PRAGMA journal_mode = WAL;
-  PRAGMA foreign_keys = ON;
-  CREATE TABLE IF NOT EXISTS conversations (
-    id TEXT PRIMARY KEY,
-    title TEXT NOT NULL DEFAULT 'Nova conversa',
-    model TEXT NOT NULL DEFAULT 'auto',
-    pinned INTEGER NOT NULL DEFAULT 0,
-    created_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL
-  );
-  CREATE TABLE IF NOT EXISTS messages (
-    id TEXT PRIMARY KEY,
-    conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-    role TEXT NOT NULL,
-    content TEXT NOT NULL,
-    attachments TEXT NOT NULL DEFAULT '[]',
-    model TEXT,
-    created_at INTEGER NOT NULL
-  );
-  CREATE INDEX IF NOT EXISTS idx_messages_conv ON messages(conversation_id, created_at);
-  CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-`);
-// Migração: cada conversa passa a pertencer a um usuário.
-if (!db.prepare("SELECT 1 FROM pragma_table_info('conversations') WHERE name = 'user_id'").get()) {
-  db.exec('ALTER TABLE conversations ADD COLUMN user_id TEXT');
-}
-db.exec('CREATE INDEX IF NOT EXISTS idx_convs_user ON conversations(user_id, updated_at)');
-// Migração do nome antigo (Bugo -> Gyde) nos modelos salvos.
-db.exec(`UPDATE conversations SET model = 'gyde' || substr(model, 5) WHERE model LIKE 'bugo-%';
-         UPDATE messages SET model = 'gyde' || substr(model, 5) WHERE model LIKE 'bugo-%';`);
+// o esquema vem das migrações (migracoes.ts); bancos antigos são atualizados aqui, com cópia antes
+const db = abrirBanco(path.join(DATA_DIR, 'chat.db'), { pastaCopias: path.join(DATA_DIR, 'copias-banco') });
 
 const q = {
   listConvs: consulta<Omit<Conversa, 'user_id' | 'created_at'>>(db, `SELECT id, title, model, pinned, updated_at FROM conversations WHERE user_id = ?

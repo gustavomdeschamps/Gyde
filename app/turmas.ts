@@ -15,11 +15,6 @@ interface Tarefa { id: string; turma_id: string; exercise_id: string; prazo: str
 const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem 0/O e 1/I para não confundir
 
 export function setupTurmas(app: Express, db: Db) {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS turmas (id TEXT PRIMARY KEY, code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, owner_id TEXT NOT NULL, created_at INTEGER NOT NULL);
-    CREATE TABLE IF NOT EXISTS turma_membros (turma_id TEXT NOT NULL REFERENCES turmas(id) ON DELETE CASCADE, user_id TEXT NOT NULL, joined_at INTEGER NOT NULL, PRIMARY KEY (turma_id, user_id));
-    CREATE TABLE IF NOT EXISTS turma_tarefas (id TEXT PRIMARY KEY, turma_id TEXT NOT NULL REFERENCES turmas(id) ON DELETE CASCADE, exercise_id TEXT NOT NULL, prazo TEXT, created_at INTEGER NOT NULL);
-  `);
   const q = {
     byId: consulta<Turma>(db, 'SELECT * FROM turmas WHERE id = ?'),
     byCode: consulta<Turma>(db, 'SELECT * FROM turmas WHERE code = ?'),

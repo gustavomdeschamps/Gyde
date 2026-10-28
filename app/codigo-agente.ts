@@ -144,12 +144,6 @@ RESPONDA SEMPRE com UM objeto JSON e nada mais:
 export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, dataDir, uso }: { router: Router; asyncRoute: AsyncRoute; dataDir: string; uso?: Uso }) {
   const pessoal = process.env.GYDE_MODE !== 'publico';
   const PASTA_ANEXOS = path.join(dataDir, 'forja-anexos');
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS agente_sessoes (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, pasta TEXT NOT NULL, titulo TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
-    CREATE TABLE IF NOT EXISTS agente_eventos (id INTEGER PRIMARY KEY AUTOINCREMENT, sessao_id TEXT NOT NULL REFERENCES agente_sessoes(id) ON DELETE CASCADE, tipo TEXT NOT NULL, dados TEXT NOT NULL, created_at INTEGER NOT NULL);
-    -- cópia dos arquivos ANTES de cada tarefa mexer neles, para o "Desfazer" (fica no banco local, nunca vai para a IA)
-    CREATE TABLE IF NOT EXISTS agente_desfazer (id TEXT PRIMARY KEY, sessao_id TEXT NOT NULL, dados TEXT NOT NULL, desfeito INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL);
-  `);
   const q = {
     criar: db.prepare('INSERT INTO agente_sessoes (id, user_id, pasta, titulo, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'),
     lista: consulta<Pick<Sessao, 'id' | 'pasta' | 'titulo' | 'updated_at'>>(db, 'SELECT id, pasta, titulo, updated_at FROM agente_sessoes WHERE user_id = ? ORDER BY updated_at DESC LIMIT 50'),

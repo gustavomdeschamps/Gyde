@@ -17,14 +17,6 @@ const DIA = 86_400_000;
 const RESULTADOS: Resultado[] = ['ok', 'erro', 'cancelado', 'limite'];
 
 export function criarUso(db: Db) {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS uso_registros (
-      id TEXT PRIMARY KEY, user_id TEXT, origem TEXT NOT NULL, provedor TEXT, modelo TEXT,
-      resultado TEXT NOT NULL, chamadas INTEGER NOT NULL DEFAULT 0, chamadas_falhas INTEGER NOT NULL DEFAULT 0,
-      tokens_entrada INTEGER, tokens_saida INTEGER, erro TEXT, inicio INTEGER NOT NULL, duracao_ms INTEGER NOT NULL
-    );
-    CREATE INDEX IF NOT EXISTS idx_uso_user ON uso_registros(user_id, inicio);
-  `);
   const q = {
     inserir: db.prepare(`INSERT INTO uso_registros (id, user_id, origem, provedor, modelo, resultado, chamadas, chamadas_falhas, tokens_entrada, tokens_saida, erro, inicio, duracao_ms)
                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),

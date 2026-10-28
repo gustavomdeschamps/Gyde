@@ -68,29 +68,6 @@ export function setupSkills(app: Express, db: Db, { root }: { root: string }) {
     }
   }
 
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS user_skills (
-      user_id TEXT NOT NULL,
-      skill_id TEXT NOT NULL,
-      installed_at INTEGER NOT NULL,
-      PRIMARY KEY (user_id, skill_id)
-    );
-    CREATE TABLE IF NOT EXISTS custom_skills (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      data TEXT NOT NULL,
-      updated_at INTEGER NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS skill_loja (
-      id TEXT PRIMARY KEY,
-      source_id TEXT NOT NULL UNIQUE,
-      author_id TEXT NOT NULL,
-      data TEXT NOT NULL,
-      installs INTEGER NOT NULL DEFAULT 0,
-      published_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
-    );
-  `);
   const q = {
     installed: consulta<{ skill_id: string }>(db, 'SELECT skill_id FROM user_skills WHERE user_id = ?'),
     install: db.prepare('INSERT OR IGNORE INTO user_skills (user_id, skill_id, installed_at) VALUES (?, ?, ?)'),

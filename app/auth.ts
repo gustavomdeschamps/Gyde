@@ -64,32 +64,6 @@ function parseCookies(header = ''): Record<string, string> {
 }
 
 export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<Console, 'log' | 'error'> } = {}) {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      name TEXT NOT NULL,
-      password_hash TEXT NOT NULL,
-      email_verified INTEGER NOT NULL DEFAULT 0,
-      profile TEXT NOT NULL DEFAULT '{}',
-      onboarded INTEGER NOT NULL DEFAULT 0,
-      created_at INTEGER NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS sessions (
-      token_hash TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      expires_at INTEGER NOT NULL
-    );
-    CREATE TABLE IF NOT EXISTS email_codes (
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      purpose TEXT NOT NULL,
-      code_hash TEXT NOT NULL,
-      expires_at INTEGER NOT NULL,
-      attempts INTEGER NOT NULL DEFAULT 0,
-      PRIMARY KEY (user_id, purpose)
-    );
-  `);
-
   const q = {
     userByEmail: consulta<LinhaUsuario>(db, 'SELECT * FROM users WHERE email = ?'),
     userById: consulta<LinhaUsuario>(db, 'SELECT * FROM users WHERE id = ?'),
@@ -179,13 +153,6 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
     res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secureCookie ? '; Secure' : ''}`);
   }
   // Tokens de extensão (Authorization: Bearer gyde_...). Guardamos só o hash.
-  db.exec(`CREATE TABLE IF NOT EXISTS api_tokens (
-    token_hash TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
-    created_at INTEGER NOT NULL,
-    last_used INTEGER
-  )`);
   const tq = {
     user: consulta<LinhaUsuario>(db, 'SELECT u.* FROM api_tokens t JOIN users u ON u.id = t.user_id WHERE t.token_hash = ?'),
     touch: db.prepare('UPDATE api_tokens SET last_used = ? WHERE token_hash = ?'),
