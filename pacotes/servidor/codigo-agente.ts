@@ -298,7 +298,9 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         return { ok: false, saida: `O usuário não autorizou o comando (${risco.motivo}).` };
       }
       return new Promise((resolve) => {
-        const p = spawn('cmd.exe', ['/d', '/s', '/c', cmd], { cwd: pasta, windowsHide: true, env: ambienteLimpo({ FORCE_COLOR: '0', CI: '1' }) });
+        // o comando vai literal para o cmd (entre aspas, que o /s tira). Sem windowsVerbatimArguments o Node escapa as
+        // aspas como \", que o cmd não entende: `echo "a"` saía com barras e `node -e "..."` quebrava
+        const p = spawn('cmd.exe', ['/d', '/s', '/c', `"${cmd}"`], { cwd: pasta, windowsHide: true, windowsVerbatimArguments: true, env: ambienteLimpo({ FORCE_COLOR: '0', CI: '1' }) });
         let saida = '';
         const juntar = (d: Buffer) => { saida += d.toString(); if (saida.length > 200_000) saida = saida.slice(-200_000); };
         p.stdout.on('data', juntar); p.stderr.on('data', juntar);
