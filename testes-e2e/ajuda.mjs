@@ -121,7 +121,11 @@ export async function abrirNavegador({ largura = 1280, altura = 860, movel = fal
     async fechar() {
       ws.close();
       // no Windows o kill não derruba os processos filhos do navegador
-      if (process.platform === 'win32') spawnSync('taskkill', ['/pid', String(proc.pid), '/t', '/f'], { stdio: 'ignore' }); else proc.kill();
+      if (process.platform === 'win32') {
+        spawnSync('taskkill', ['/pid', String(proc.pid), '/t', '/f'], { stdio: 'ignore' });
+        // filhos que já se soltaram da árvore: qualquer processo que ainda use a pasta de perfil deste teste
+        spawnSync('powershell', ['-NoProfile', '-Command', `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match '${path.basename(perfil)}' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`], { stdio: 'ignore' });
+      } else proc.kill();
       await new Promise((r) => (proc.exitCode !== null ? r() : proc.once('exit', r)));
       await espera(300); try { rmSync(perfil, { recursive: true, force: true }); } catch { /* perfil preso */ }
     },

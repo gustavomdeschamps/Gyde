@@ -22,7 +22,8 @@
     "test": "npm run check && node --test pacotes/servidor/testes/*.test.mjs pacotes/interface/testes/*.test.mjs",
     "desktop": "npm run build && electron .",
     "dist:win": "npm run build && electron-builder --win --publish never",
-    "extensoes": "npm run empacotar -w gyde -w @gyde/extensao-chrome"
+    "extensoes": "npm run empacotar -w gyde -w @gyde/extensao-chrome",
+    "e2e": "node testes-e2e/rodar.mjs"
   },
   "dependencies": {
     "@gyde/desktop": "1.0.0",

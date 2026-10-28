@@ -127,7 +127,9 @@ async function iniciar() {
   esconderEntrada();
   usuario = me.user;
   mostrarUsuario(me.user);
-  if (await conferirStatus()) await carregarModelos();
+  // status e modelos rodam em paralelo: conferir o FreeLLMAPI e o Ollama pode levar uns 2 s quando um deles está
+  // fechado (no Windows, conectar numa porta fechada demora), e a tela não precisa esperar por isso
+  conferirStatus().then((ok) => { if (ok) carregarModelos(); });
   await carregarConversas();
   if (!inicioAplicado) { // página inicial escolhida em Configurações (só ao entrar, sem atropelar um link)
     inicioAplicado = true;
