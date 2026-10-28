@@ -22,7 +22,7 @@ import type { Usuario, MensagemIA, ParteConteudo, ErroGyde, AsyncRoute, UsoInfor
 import { consulta, comoErro, erroGyde } from './tipos.ts';
 import type { SkillListada } from './skills-sistema.ts';
 import type { Perfil } from './pratica-plano.ts';
-import * as C from './contratos.ts';
+import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
 // Formatos guardados no banco
@@ -42,7 +42,7 @@ interface PedacoStream { error?: { message?: string }; model?: string; usage?: U
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 // O .env do Gyde sempre vence variáveis do Windows com o mesmo nome
 // (process.loadEnvFile não sobrescreve as que já existem).
-const BASE = path.join(ROOT, '..'); // pasta principal do Gyde (.env, data/, node_modules/)
+const BASE = path.join(ROOT, '..', '..'); // pasta principal do Gyde (.env, data/, node_modules/)
 // no app de desktop o .env fica na pasta de dados do usuário (GYDE_ENV_FILE), não na pasta do programa
 const ENV_FILE = process.env.GYDE_ENV_FILE ? path.resolve(process.env.GYDE_ENV_FILE) : path.join(BASE, '.env');
 if (existsSync(ENV_FILE)) {
@@ -81,7 +81,7 @@ const IMAGE_MODEL = process.env.IMAGE_MODEL || '@cf/black-forest-labs/flux-1-sch
 const imagesEnabled = () => Boolean(CF_ACCOUNT && CF_TOKEN);
 const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(BASE, 'data');
 const IMAGES_DIR = path.join(DATA_DIR, 'images');
-const DIST = path.join(ROOT, 'dist'); // interface gerada pelo Vite a partir de app/web
+const DIST = path.join(ROOT, '..', 'interface', 'dist'); // interface gerada pelo Vite (pacotes/interface)
 
 // ---------- Banco de dados (SQLite embutido no Node) ----------
 mkdirSync(IMAGES_DIR, { recursive: true });

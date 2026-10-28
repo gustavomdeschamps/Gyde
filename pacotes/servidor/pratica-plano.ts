@@ -7,7 +7,7 @@
 // Exercícios guiados não rodam testes no navegador: a pessoa resolve e o Gyde corrige no chat.
 import { TRACKS } from './pratica-dados.ts';
 import type { Trilha } from './pratica-dados.ts';
-import type { TPlano } from './contratos.ts';
+import type { TPlano } from '../compartilhado/contratos.ts';
 
 export type NivelPlano = 'basico' | 'intermediario' | 'avancado';
 export type TipoPlano = 'trilha' | 'adaptada' | 'montada' | 'inicial';

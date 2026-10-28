@@ -1,0 +1,13 @@
+{
+  "name": "@gyde/compartilhado",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Contratos (Zod) entre o servidor e a interface do Gyde.",
+  "exports": {
+    "./contratos": "./contratos.ts"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
+}

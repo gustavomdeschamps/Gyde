@@ -1,0 +1,13 @@
+{
+  "name": "@gyde/extensao-chrome",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Extensão do Gyde para o Chrome. Gere o .zip com npm run empacotar.",
+  "scripts": {
+    "empacotar": "node empacotar.mjs"
+  },
+  "devDependencies": {
+    "fflate": "^0.8.3"
+  }
+}

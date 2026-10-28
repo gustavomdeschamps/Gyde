@@ -1,7 +1,7 @@
 // Lógica da tela da Forja: como os eventos do servidor viram turnos (histórico e ao vivo).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aplicar, fecharPendentes, duracao, relogio } from '../web/src/forja/estado.ts';
+import { aplicar, fecharPendentes, duracao, relogio } from '../src/forja/estado.ts';
 
 const historico = [
   { tipo: 'tarefa', em: 1000, texto: 'Corrija o soma.js', inicio: 1000, anexos: [] },

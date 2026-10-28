@@ -1,11 +1,11 @@
-// Gera extensoes/vscode/gyde.vsix (o pacote que o VS Code instala) sem precisar do vsce.
-// Uso: node configurar/scripts/empacotar-vscode.mjs
+// Gera pacotes/extensao-vscode/gyde.vsix (o pacote que o VS Code instala) sem precisar do vsce.
+// Uso: npm run empacotar -w gyde (ou node pacotes/extensao-vscode/empacotar.mjs)
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { zipSync, strToU8 } from 'fflate';
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'extensoes', 'vscode');
+const root = path.dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
 const xml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -14,7 +14,7 @@ const files = {};
   for (const name of readdirSync(dir)) {
     const full = path.join(dir, name);
     const rel = path.relative(root, full).replaceAll('\\', '/');
-    if (rel.endsWith('.vsix')) continue;
+    if (rel.endsWith('.vsix') || rel === 'empacotar.mjs' || rel === 'node_modules') continue; // só desenvolvimento
     if (statSync(full).isDirectory()) walk(full);
     else files[`extension/${rel}`] = readFileSync(full);
   }

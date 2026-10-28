@@ -7,7 +7,7 @@ import path from 'node:path';
 import type { Express } from 'express';
 import type { Db } from './tipos.ts';
 import { consulta, comoErro, erroGyde } from './tipos.ts';
-import * as C from './contratos.ts';
+import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
 export interface Skill { id: string; nome: string; descricao: string; simbolo: string; comando: string; gatilhos: string[]; categoria: string; corpo: string }

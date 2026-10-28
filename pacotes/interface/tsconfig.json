@@ -20,13 +20,13 @@
     ],
     "paths": {
       "$contratos": [
-        "../contratos.ts"
+        "../compartilhado/contratos.ts"
       ]
     }
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.svelte",
-    "../contratos.ts"
+    "../compartilhado/contratos.ts"
   ]
 }

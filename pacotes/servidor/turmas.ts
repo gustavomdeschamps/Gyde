@@ -6,7 +6,7 @@ import type { Express } from 'express';
 import type { Db } from './tipos.ts';
 import type { Request, Response } from 'express';
 import { consulta } from './tipos.ts';
-import * as C from './contratos.ts';
+import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
 interface Turma { id: string; code: string; name: string; owner_id: string; created_at: number }

@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import type { Express } from 'express';
 import type { Db, Router, Usuario } from './tipos.ts';
 import { consulta } from './tipos.ts';
-import * as C from './contratos.ts';
+import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
 interface Memoria { id: string; text: string; source: 'auto' | 'manual' | 'pedido'; created_at: number }

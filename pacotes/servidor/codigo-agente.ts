@@ -13,7 +13,7 @@ import type { Express, Request, Response, NextFunction } from 'express';
 import type { Db, Router, AsyncRoute, MensagemIA, ParteConteudo, ErroGyde } from './tipos.ts';
 import { consulta, comoErro, erroGyde } from './tipos.ts';
 import type { Uso } from './uso.ts';
-import * as C from './contratos.ts';
+import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).

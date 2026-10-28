@@ -1,7 +1,7 @@
 // Contratos da API: as regras que garantem que a tela nunca recebe um estado impossível.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import * as C from '../contratos.ts';
+import * as C from '../../compartilhado/contratos.ts';
 
 test('pasta indisponível sem explicação é recusada (a tela não pode mostrar "removida" sem motivo)', () => {
   assert.equal(C.EstadoPasta.safeParse({ ok: false, motivo: 'nao-encontrada', texto: null }).success, false);

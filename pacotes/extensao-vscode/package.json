@@ -149,5 +149,11 @@
         }
       }
     }
+  },
+  "scripts": {
+    "empacotar": "node empacotar.mjs"
+  },
+  "devDependencies": {
+    "fflate": "^0.8.3"
   }
 }

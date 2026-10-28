@@ -1,0 +1,11 @@
+{
+  "name": "@gyde/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "App de desktop do Gyde (Electron). O empacotamento é feito na raiz (npm run dist:win).",
+  "main": "main.ts",
+  "dependencies": {
+    "electron-updater": "^6.8.11"
+  }
+}

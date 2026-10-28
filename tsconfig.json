@@ -12,5 +12,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["app/*.ts", "app/testes/*.ts", "desktop/*.ts"]
+  "include": ["pacotes/servidor/*.ts", "pacotes/servidor/testes/*.ts", "pacotes/compartilhado/*.ts", "pacotes/desktop/*.ts"]
 }

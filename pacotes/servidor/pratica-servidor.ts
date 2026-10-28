@@ -7,7 +7,7 @@ import type { Db, Router, AsyncRoute, Usuario } from './tipos.ts';
 import type { Uso } from './uso.ts';
 import { consulta, comoErro } from './tipos.ts';
 import type { Perfil, Progresso, Plano } from './pratica-plano.ts';
-import * as C from './contratos.ts';
+import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
 type Pessoa = { id: string; name: string; email: string };

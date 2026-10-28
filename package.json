@@ -1,49 +1,39 @@
 {
-  "name": "gyde",
+  "name": "gyde-monorepo",
+  "productName": "Gyde",
   "version": "1.0.0",
   "private": true,
   "description": "Gyde, a IA que ensina programação para iniciantes, com os modelos grátis do FreeLLMAPI.",
+  "author": "Gustavo Moreira Deschamps",
   "type": "module",
-  "main": "desktop/main.ts",
+  "main": "pacotes/desktop/main.ts",
   "engines": {
     "node": ">=22.18"
   },
+  "workspaces": [
+    "pacotes/*"
+  ],
   "scripts": {
-    "start": "node app/server.ts",
-    "dev": "node --watch app/server.ts",
-    "dev:web": "vite --config app/web/vite.config.ts",
-    "build": "vite build --config app/web/vite.config.ts",
-    "check": "tsc -p . && svelte-check --tsconfig app/web/tsconfig.json --fail-on-warnings",
-    "test": "npm run check && node --test app/testes/*.test.mjs",
+    "start": "node pacotes/servidor/server.ts",
+    "dev": "node --watch pacotes/servidor/server.ts",
+    "dev:web": "npm run dev -w @gyde/interface",
+    "build": "npm run build -w @gyde/interface",
+    "check": "tsc -p . && npm run check -w @gyde/interface",
+    "test": "npm run check && node --test pacotes/servidor/testes/*.test.mjs pacotes/interface/testes/*.test.mjs",
     "desktop": "npm run build && electron .",
-    "dist:win": "npm run build && electron-builder --win --publish never"
+    "dist:win": "npm run build && electron-builder --win --publish never",
+    "extensoes": "npm run empacotar -w gyde -w @gyde/extensao-chrome"
   },
   "dependencies": {
-    "@highlightjs/cdn-assets": "^11.12.0",
-    "dompurify": "^3.2.6",
-    "electron-updater": "^6.8.11",
-    "express": "^5.1.0",
-    "fflate": "^0.8.3",
-    "marked": "^16.1.1",
-    "nodemailer": "^10.2.1",
-    "unpdf": "^1.1.0",
-    "zod": "^3.25.76"
+    "@gyde/desktop": "1.0.0",
+    "@gyde/servidor": "1.0.0"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^5.1.1",
-    "@tsconfig/svelte": "^5.0.8",
-    "@types/express": "^5.0.6",
     "@types/node": "^24.19.2",
-    "@types/nodemailer": "^8.0.2",
     "electron": "^45.1.0",
     "electron-builder": "^26.18.0",
-    "esbuild": "^0.28.2",
-    "svelte": "^5.57.3",
-    "svelte-check": "^4.7.7",
-    "typescript": "^5.9.3",
-    "vite": "^6.4.5"
+    "typescript": "^5.9.3"
   },
-  "author": "Gustavo Moreira Deschamps",
   "build": {
     "appId": "dev.gyde.app",
     "productName": "Gyde",
@@ -53,13 +43,16 @@
     },
     "files": [
       "package.json",
-      "desktop/**",
-      "app/*.ts",
-      "app/*.ps1",
-      "app/dist/**",
-      "app/skills-catalogo/**",
-      "app/web/public/icon-512.png",
-      "!app/dist/**/*.map"
+      "pacotes/desktop/main.ts",
+      "pacotes/desktop/preload.cjs",
+      "pacotes/servidor/*.ts",
+      "pacotes/servidor/*.ps1",
+      "pacotes/servidor/skills-catalogo/**",
+      "pacotes/compartilhado/*.ts",
+      "pacotes/interface/dist/**",
+      "pacotes/interface/public/icon-512.png",
+      "!**/*.map",
+      "!node_modules/@gyde/**"
     ],
     "win": {
       "target": [
@@ -70,7 +63,7 @@
           ]
         }
       ],
-      "icon": "app/web/public/icon-512.png"
+      "icon": "pacotes/interface/public/icon-512.png"
     },
     "nsis": {
       "oneClick": false,

@@ -91,7 +91,7 @@ try {
     $lnk = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $desktop 'Gyde.lnk'))
     $lnk.TargetPath = Join-Path $root 'iniciar.bat'
     $lnk.WorkingDirectory = $root
-    $lnk.IconLocation = Join-Path $root 'app\web\public\gyde.ico'
+    $lnk.IconLocation = Join-Path $root 'pacotes\interface\public\gyde.ico'
     $lnk.Description = 'Gyde - seu guia na programacao'
     $lnk.Save()
     Ok 'Atalho "Gyde" criado na Area de Trabalho'
@@ -99,6 +99,6 @@ try {
 
 Write-Host ''
 Write-Host 'Tudo pronto!' -ForegroundColor Green
-Write-Host 'Extras opcionais: pasta configurar (imagens, voz, VS Code) e pasta extensoes\chrome (extensao do Chrome).'
+Write-Host 'Extras opcionais: pasta configurar (imagens, voz, VS Code) e pasta pacotes\extensao-chrome (extensao do Chrome).'
 $r = Read-Host 'Abrir o Gyde agora? (s/n)'
 if ($r -eq 's') { Start-Process (Join-Path $root 'iniciar.bat') -WorkingDirectory $root }

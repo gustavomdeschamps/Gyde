@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { QUIZ, gradeQuiz } from '../quiz.ts';
 import { planoDe, GUIADOS, TECNOLOGIAS, findGuiado } from '../pratica-plano.ts';
 import { TRACKS, findExercise } from '../pratica-dados.ts';
-import { Plano } from '../contratos.ts';
+import { Plano } from '../../compartilhado/contratos.ts';
 
 const pergunta = (id) => QUIZ.find((q) => q.id === id);
 const conhecimento = QUIZ.filter((q) => q.kind === 'knowledge');

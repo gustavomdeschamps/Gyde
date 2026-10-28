@@ -3,6 +3,7 @@ data/
 .env
 .impeccable/
 .claude/
-extensoes/vscode/*.vsix
-app/dist/
+pacotes/extensao-vscode/*.vsix
+pacotes/extensao-chrome/*.zip
+pacotes/interface/dist/
 dist-desktop/

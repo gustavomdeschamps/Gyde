@@ -10,7 +10,7 @@ import path from 'node:path';
 if (process.env.GYDE_DESKTOP_DADOS) app.setPath('userData', path.resolve(process.env.GYDE_DESKTOP_DADOS));
 const RAIZ = app.getAppPath(); // pasta do programa (ou o app.asar, no instalado)
 const DADOS = app.getPath('userData');
-const ICONE = path.join(RAIZ, 'app', 'web', 'public', 'icon-512.png');
+const ICONE = path.join(RAIZ, 'pacotes', 'interface', 'public', 'icon-512.png');
 
 let servidor: UtilityProcess | null = null;
 let janela: BrowserWindow | null = null;
@@ -29,7 +29,7 @@ async function subirServidor() {
   const pastaDados = path.join(DADOS, 'dados');
   mkdirSync(pastaDados, { recursive: true });
   const saida: string[] = [];
-  servidor = utilityProcess.fork(path.join(RAIZ, 'app', 'server.ts'), [], {
+  servidor = utilityProcess.fork(path.join(RAIZ, 'pacotes', 'servidor', 'server.ts'), [], {
     serviceName: 'Servidor do Gyde',
     stdio: 'pipe',
     env: { ...process.env, GYDE_DESKTOP: '1', PORT: String(porta), DATA_DIR: pastaDados, GYDE_ENV_FILE: path.join(DADOS, '.env') },
@@ -58,7 +58,7 @@ function abrirJanela() {
   janela = new BrowserWindow({
     width: 1280, height: 840, minWidth: 380, minHeight: 520,
     title: 'Gyde', icon: ICONE, show: false, autoHideMenuBar: true, backgroundColor: '#0b1220',
-    webPreferences: { preload: path.join(RAIZ, 'desktop', 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, spellcheck: true },
+    webPreferences: { preload: path.join(RAIZ, 'pacotes', 'desktop', 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, spellcheck: true },
   });
   janela.once('ready-to-show', () => janela?.show());
   // links externos abrem no navegador padrão; a janela do Gyde nunca sai do servidor local

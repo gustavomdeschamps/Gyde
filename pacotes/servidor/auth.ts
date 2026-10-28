@@ -6,7 +6,7 @@ import type { Express, Request, Response, NextFunction } from 'express';
 import type { ScryptOptions } from 'node:crypto';
 import type { Db, Usuario } from './tipos.ts';
 import { consulta, comoErro, erroGyde } from './tipos.ts';
-import * as C from './contratos.ts';
+import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
 interface LinhaUsuario extends Usuario { password_hash: string; email_verified: number; onboarded: number; created_at: number }
