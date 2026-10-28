@@ -45,7 +45,8 @@ interface Reconhecimento {
 }
 const janela = window as unknown as { SpeechRecognition?: new () => Reconhecimento; webkitSpeechRecognition?: new () => Reconhecimento };
 const Reconhecedor = janela.SpeechRecognition || janela.webkitSpeechRecognition;
-export const temDitado = Boolean(Reconhecedor);
+// no app de desktop (Electron) o reconhecimento de fala do Chrome não funciona: falha com "network"
+export const temDitado = Boolean(Reconhecedor) && !('gydeDesktop' in window);
 const PALAVRAS_ENVIAR = /\s*\b(enviar|envia|mandar|manda)[.!]?\s*$/i;
 
 export function ditar({ inicial, aoMudar, aoEnviar, aoErro, aoTerminar }: {

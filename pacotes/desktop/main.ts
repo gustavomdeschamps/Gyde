@@ -1,7 +1,7 @@
 // App de desktop do Gyde (Electron): sobe o servidor do Gyde num processo separado, numa porta só deste computador
 // (a 3210, ou outra livre se ela estiver ocupada), e abre a interface numa janela própria. Os dados e o .env ficam na pasta do usuário
 // (%APPDATA%\Gyde), não na pasta do programa, então atualizar ou reinstalar não apaga nada.
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell, utilityProcess, type UtilityProcess } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, session, shell, utilityProcess, type UtilityProcess } from 'electron';
 import { createServer } from 'node:net';
 import { randomBytes } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
@@ -125,6 +125,11 @@ else {
   app.on('second-instance', () => { if (janela) { if (janela.isMinimized()) janela.restore(); janela.focus(); } });
   app.whenReady().then(async () => {
     Menu.setApplicationMenu(null);
+    // o Electron concede qualquer permissão por padrão: aqui só vale o que o Gyde usa, e só para a página local
+    const PERMITIDAS = new Set(['clipboard-sanitized-write', 'fullscreen']);
+    const local = (url: string) => Boolean(endereco) && url.startsWith(endereco);
+    session.defaultSession.setPermissionRequestHandler((wc, permissao, responder) => responder(PERMITIDAS.has(permissao) && local(wc.getURL())));
+    session.defaultSession.setPermissionCheckHandler((wc, permissao) => PERMITIDAS.has(permissao) && local(wc?.getURL() ?? ''));
     try {
       await subirServidor();
     } catch (e) {

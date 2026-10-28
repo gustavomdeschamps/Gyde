@@ -72,7 +72,7 @@ export const Plano = z.object({
   observado: z.object({ feitos: z.number().int(), tentativasComErro: z.number().int(), travados: z.array(z.string()) }),
   focos: z.array(Foco),
   ordem: z.array(z.string()),
-  motivos: z.record(z.array(z.string())),
+  motivos: z.record(z.string(), z.array(z.string())),
   recomendada: z.string().nullable(),
   guiados: z.array(Guiado.extend({ feito: z.boolean() })),
   proximo: Passo.nullable(),
@@ -92,7 +92,7 @@ export const Trilha = z.object({
 const Pessoa = z.object({ name: z.string(), email: z.string() });
 export const EstadoPratica = z.object({
   tracks: z.array(Trilha),
-  progress: z.record(z.object({ done: z.boolean(), code: z.string().optional(), fails: z.number().optional() })),
+  progress: z.record(z.string(), z.object({ done: z.boolean(), code: z.string().optional(), fails: z.number().optional() })),
   xp: z.number(),
   sequencia: z.object({ dias: z.number().int(), praticouHoje: z.boolean() }),
   desafio: z.object({ exerciseId: z.string(), trackId: z.string().optional(), bonus: z.number(), rewarded: z.boolean() }),
@@ -125,7 +125,7 @@ export const Reconexao = z.object({ ok: z.literal(true), pasta: z.string(), past
 // ---------- Questionário de boas-vindas ----------
 export const Pergunta = z.object({
   id: z.string(), kind: z.enum(['profile', 'knowledge']), title: z.string(), options: z.array(z.string()).min(2), multi: z.boolean().optional(),
-  topic: z.string().optional(), code: z.record(z.string()).optional(),
+  topic: z.string().optional(), code: z.record(z.string(), z.string()).optional(),
 }).refine((q) => q.kind !== 'knowledge' || Boolean(q.code?.python), 'pergunta de código sem a versão em Python');
 export const Questionario = z.object({ questions: z.array(Pergunta).min(1) });
 export const ResultadoQuestionario = z.object({
@@ -189,8 +189,8 @@ export const Uso = z.object({
     porChave: z.array(z.object({ provedor: z.string(), pedidos: z.number(), tokens: z.number(), limitePedidos: z.number().nullable(), limiteTokens: z.number().nullable() })),
   }).nullable(),
   gyde: z.object({
-    hoje: z.record(Totais),
-    semana: z.record(Totais),
+    hoje: z.record(z.string(), Totais),
+    semana: z.record(z.string(), Totais),
     ultimos: z.array(z.object({
       origem: z.string(), provedor: z.string().nullable(), modelo: z.string().nullable(), resultado: z.enum(['ok', 'erro', 'cancelado', 'limite']),
       chamadas: z.number().int(), tokens_entrada: z.number().int().nullable(), tokens_saida: z.number().int().nullable(),
