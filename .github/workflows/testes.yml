@@ -1,0 +1,36 @@
+# Testes do Gyde a cada push e pull request: tipos, linter, testes automáticos, build da interface,
+# todas as suítes de navegador (com um provedor de IA falso, sem chaves) e o empacotamento das extensões.
+# Roda no Windows porque a Forja executa comandos pelo cmd.exe e o app de desktop é testado lá.
+name: Testes
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testes-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Instalar dependências
+        run: npm ci
+      - name: Tipos, linter e testes automáticos
+        run: npm test
+      - name: Gerar a interface
+        run: npm run build
+      - name: Testes de navegador (Edge sem janela)
+        run: npm run e2e
+      - name: Empacotar as extensões
+        run: npm run extensoes
