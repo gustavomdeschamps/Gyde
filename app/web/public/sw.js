@@ -1,12 +1,9 @@
 // Service worker do Gyde: guarda a "casca" do app para abrir rápido e funcionar sem internet
 // (a Prática em JavaScript roda offline). Sempre tenta a rede primeiro, para as atualizações
 // chegarem na hora; a API, as imagens geradas e o vídeo nunca entram no cache.
-const CACHE = 'gyde-v10';
-const SHELL = [
-  '/', '/index.html', '/style.css', '/skills.css', '/recursos.css', '/agente.css', '/app.js', '/onboarding.js', '/pratica.js',
-  '/skills.js', '/turmas.js', '/agente.js', '/icones.js', '/runner.js', '/passo-a-passo.js', '/projeto.js', '/runners/js-worker.js',
-  '/runners/py-worker.js', '/logo.svg', '/icon-192.png', '/icon-512.png', '/manifest.webmanifest',
-];
+const CACHE = 'gyde-v11';
+// Os arquivos da interface têm hash no nome (gerados pelo Vite) e entram no cache na primeira vez que são usados.
+const SHELL = ['/', '/index.html', '/logo.svg', '/icon-192.png', '/icon-512.png', '/manifest.webmanifest', '/runners/js-worker.js', '/runners/py-worker.js'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

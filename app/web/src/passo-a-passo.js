@@ -1,6 +1,6 @@
 // Passo a passo visual (estilo Python Tutor): mostra a linha que vai rodar, as variáveis, a pilha e a saída.
-import hljs from '/vendor/hljs/es/highlight.min.js';
-import { execute } from '/runner.js';
+import hljs from '@highlightjs/cdn-assets/es/highlight.min.js';
+import { execute } from './runner.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ic = {

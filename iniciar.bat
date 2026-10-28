@@ -5,6 +5,8 @@ if not exist node_modules (
   echo Instalando dependencias pela primeira vez...
   call npm install || (echo Falha no npm install. & pause & exit /b 1)
 )
+rem gera a interface (app/dist) a partir de app/web; leva poucos segundos
+call npm run build --silent || (echo Falha ao gerar a interface. & pause & exit /b 1)
 rem porta: 3210, ou a linha PORT=... do arquivo .env
 set "GYDE_PORT=3210"
 if exist .env for /f "tokens=2 delims==" %%p in ('findstr /b /c:"PORT=" .env') do set "GYDE_PORT=%%p"

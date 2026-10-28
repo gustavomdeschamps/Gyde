@@ -73,6 +73,7 @@ const IMAGE_MODEL = process.env.IMAGE_MODEL || '@cf/black-forest-labs/flux-1-sch
 const imagesEnabled = () => Boolean(CF_ACCOUNT && CF_TOKEN);
 const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(BASE, 'data');
 const IMAGES_DIR = path.join(DATA_DIR, 'images');
+const DIST = path.join(ROOT, 'dist'); // interface gerada pelo Vite a partir de app/web
 
 // ---------- Banco de dados (SQLite embutido no Node) ----------
 mkdirSync(IMAGES_DIR, { recursive: true });
@@ -325,9 +326,9 @@ const memory = setupMemoria(app, db, { router, getSetting, setSetting });
 // Versão do código: se os arquivos do Gyde mudarem no disco depois que o servidor iniciou (atualização sem reiniciar
 // o iniciar.bat), o navegador recebe telas novas de um servidor antigo. O status avisa para a tela pedir o reinício.
 const impressaoDoCodigo = () => {
-  const pastas = [ROOT, path.join(ROOT, 'public')];
+  const pastas = [ROOT, DIST];
   let h = 0;
-  for (const dir of pastas) for (const f of readdirSync(dir).sort()) {
+  for (const dir of pastas) for (const f of existsSync(dir) ? readdirSync(dir).sort() : []) {
     if (!/\.(ts|js|mjs|html|css)$/.test(f)) continue;
     const t = statSync(path.join(dir, f)).mtimeMs;
     for (const c of `${f}:${t}`) h = (h * 31 + c.charCodeAt(0)) >>> 0;
@@ -601,12 +602,12 @@ app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
 // ---------- Arquivos estáticos ----------
 const nm = (p: string) => path.join(BASE, 'node_modules', p);
 app.use('/images', express.static(IMAGES_DIR, { maxAge: '30d', immutable: true }));
-app.use('/vendor/marked', express.static(nm('marked/lib')));
-app.use('/vendor/dompurify', express.static(nm('dompurify/dist')));
-app.use('/vendor/fflate', express.static(nm('fflate/esm')));
-app.use('/vendor/hljs', express.static(nm('@highlightjs/cdn-assets')));
-app.get('/favicon.ico', (_req, res) => res.sendFile(path.join(ROOT, 'public', 'gyde.ico'), { maxAge: 0 }));
-app.use(express.static(path.join(ROOT, 'public')));
+app.use('/vendor/hljs', express.static(nm('@highlightjs/cdn-assets'))); // temas de cor do código (claro/escuro), trocados em tempo de execução
+app.get('/favicon.ico', (_req, res) => res.sendFile(path.join(DIST, 'gyde.ico'), { maxAge: 0 }));
+// interface já compilada pelo Vite (npm run build). Arquivos com hash no nome podem ficar em cache por muito tempo.
+app.use('/assets', express.static(path.join(DIST, 'assets'), { maxAge: '1y', immutable: true }));
+app.use(express.static(DIST));
+app.get('/', (_req, res) => res.status(503).type('text').send('A interface do Gyde ainda não foi gerada. Rode: npm run build (o iniciar.bat faz isso sozinho).'));
 
 app.use((err: ErroGyde, _req: Request, res: Response, _next: NextFunction) => {
   const status = err.status || 500;

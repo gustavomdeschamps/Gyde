@@ -38,6 +38,8 @@ if (-not $nodeOk) {
 Passo 2 'Dependencias do Gyde'
 & npm install --no-fund --no-audit --loglevel=error
 if ($LASTEXITCODE -ne 0) { Aviso 'O npm install falhou. Confira sua internet e tente de novo.'; Sair }
+& npm run build --silent
+if ($LASTEXITCODE -ne 0) { Aviso 'Nao consegui gerar a interface do Gyde (npm run build).'; Sair }
 Ok 'Dependencias instaladas'
 
 # 3) FreeLLMAPI (o roteador dos modelos gratis)

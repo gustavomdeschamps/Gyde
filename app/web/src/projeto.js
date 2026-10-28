@@ -1,6 +1,6 @@
 // Transforma uma pasta ou um .zip de projeto num anexo de texto para o Gyde revisar:
 // árvore de pastas + conteúdo dos arquivos de código (com limites de tamanho).
-import { unzipSync, strFromU8 } from '/vendor/fflate/browser.js';
+import { unzipSync, strFromU8 } from 'fflate';
 
 const MAX_TOTAL = 100_000;   // caracteres enviados no total
 const MAX_FILE = 14_000;     // por arquivo

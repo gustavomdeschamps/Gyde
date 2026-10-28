@@ -4,3 +4,4 @@ data/
 .impeccable/
 .claude/
 extensoes/vscode/*.vsix
+app/dist/

@@ -1,8 +1,8 @@
 // Área de Prática: trilhas, exercícios, editor com código colorido e correção automática no navegador.
-import { TRACK_ICONS } from '/icones.js';
-import hljs from '/vendor/hljs/es/highlight.min.js';
-import { execute, confetti } from '/runner.js';
-import { openTrace } from '/passo-a-passo.js';
+import { TRACK_ICONS } from './icones.js';
+import hljs from '@highlightjs/cdn-assets/es/highlight.min.js';
+import { execute, confetti } from './runner.js';
+import { openTrace } from './passo-a-passo.js';
 
 const HEADERS = { 'Content-Type': 'application/json', 'x-gyde': '1' };
 const LANG_LABEL = { python: 'Python', javascript: 'JavaScript' };

@@ -1,14 +1,14 @@
-import { marked } from '/vendor/marked/marked.esm.js';
-import DOMPurify from '/vendor/dompurify/purify.es.mjs';
-import hljs from '/vendor/hljs/es/highlight.min.js';
-import { showAuth, showQuiz, hideGate } from '/onboarding.js';
-import { createPractice } from '/pratica.js';
-import { createSkillsPage } from '/skills.js';
-import { execute, RUNNABLE } from '/runner.js';
-import { openTrace } from '/passo-a-passo.js';
-import { projectFromFolder, projectFromZip } from '/projeto.js';
-import { createTurmasPage } from '/turmas.js';
-import { createAgentePage } from '/agente.js';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+import hljs from '@highlightjs/cdn-assets/es/highlight.min.js';
+import { showAuth, showQuiz, hideGate } from './onboarding.js';
+import { createPractice } from './pratica.js';
+import { createSkillsPage } from './skills.js';
+import { execute, RUNNABLE } from './runner.js';
+import { openTrace } from './passo-a-passo.js';
+import { projectFromFolder, projectFromZip } from './projeto.js';
+import { createTurmasPage } from './turmas.js';
+import { createAgentePage } from './agente.ts';
 
 const $ = (sel) => document.querySelector(sel);
 const els = {
