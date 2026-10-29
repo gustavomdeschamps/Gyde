@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { classificarComando, redigir, caminhoSeguro, ARQUIVO_SECRETO, ambienteLimpo } from '../seguranca.ts';
 
@@ -41,6 +42,14 @@ test('caminhos não escapam da pasta (.., absoluto, atalho)', () => {
   let link = false;
   try { symlinkSync(fora, path.join(raiz, 'atalho'), 'junction'); link = true; } catch { /* sem permissão para criar atalho */ }
   if (link) assert.throws(() => caminhoSeguro(raiz, 'atalho/segredo.txt'), /atalho/);
+  // Windows com nome curto (8.3) na pasta, como C:\Users\RUNNER~1 no GitHub: continua dentro da pasta
+  if (process.platform === 'win32') {
+    const curto = spawnSync('powershell', ['-NoProfile', '-Command', `(New-Object -ComObject Scripting.FileSystemObject).GetFolder('${raiz}').ShortPath`], { encoding: 'utf8' }).stdout.trim();
+    if (curto && curto !== raiz) {
+      assert.equal(caminhoSeguro(curto, 'src/novo.js'), path.join(curto, 'src', 'novo.js'));
+      if (link) assert.throws(() => caminhoSeguro(curto, 'atalho/segredo.txt'), /atalho/);
+    }
+  }
   rmSync(raiz, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); rmSync(fora, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
 });
 test('comandos não recebem as chaves do Gyde', () => {

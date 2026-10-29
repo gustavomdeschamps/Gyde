@@ -44,8 +44,12 @@ export function caminhoSeguro(pastaReal: string, rel: unknown): string {
   // o pedaço que já existe é resolvido de verdade (segue links) e precisa continuar dentro
   let existente = alvo;
   while (!existsSync(existente) && existente !== pastaReal) existente = path.dirname(existente);
+  // os dois lados resolvidos do mesmo jeito: no Windows a pasta pode vir com nome curto (RUNNER~1) e o caminho
+  // resolvido com o nome longo, e isso não pode parecer "fora da pasta"
   const real = realpathSync.native(existente);
-  if (!dentro(real)) throw new Error(`O caminho "${rel}" aponta (por atalho) para fora da pasta do projeto.`);
+  const base = existsSync(pastaReal) ? realpathSync.native(pastaReal) : pastaReal;
+  const dentroReal = (p: string) => dentro(p) || p === base || p.toLowerCase().startsWith(base.toLowerCase() + path.sep);
+  if (!dentroReal(real)) throw new Error(`O caminho "${rel}" aponta (por atalho) para fora da pasta do projeto.`);
   if (ARQUIVO_SECRETO.test(path.relative(pastaReal, alvo))) throw new Error(`"${rel}" é um arquivo de senhas ou chaves: a Forja não mexe nele.`);
   return alvo;
 }
