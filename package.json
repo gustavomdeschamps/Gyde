@@ -92,7 +92,9 @@
       "runAfterFinish": true,
       "createStartMenuShortcut": true,
       "artifactName": "Gyde-Setup-${version}.exe",
-      "uninstallDisplayName": "Gyde"
+      "uninstallDisplayName": "Gyde",
+      "installerSidebar": "pacotes/desktop/instalador-lateral.bmp",
+      "uninstallerSidebar": "pacotes/desktop/instalador-lateral.bmp"
     },
     "publish": [
       {

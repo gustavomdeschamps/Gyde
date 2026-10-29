@@ -2,7 +2,7 @@
   "name": "gyde",
   "displayName": "Gyde: tutor de programação com IA",
   "description": "Tutor de programação com IA, em português e grátis: explica o código, mostra onde está o erro e por quê, revisa arquivos e conversa no chat da barra lateral.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "publisher": "gustavomdeschamps",
   "author": {
     "name": "Gustavo Moreira Deschamps"

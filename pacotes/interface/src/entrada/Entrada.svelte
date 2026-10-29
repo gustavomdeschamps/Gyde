@@ -99,7 +99,7 @@
         <h1>Criar conta</h1>
         <p class="gate-sub">Seu guia na programação, em português.</p>
         {#if pessoal}<p class="gate-note">Modo pessoal: sua conta e suas conversas ficam só neste computador. O e-mail serve apenas para entrar — pode ser qualquer um, e nada é enviado.</p>
-        {:else if modoEmail === 'off'}<p class="gate-note">⚠︎ O envio de e-mail ainda não foi configurado neste computador. Rode o <b>configurar-email.bat</b> (pasta <b>configurar</b> do Gyde) antes de criar contas.</p>{/if}
+        {:else if modoEmail === 'off'}<p class="gate-note">⚠︎ O envio de e-mail ainda não foi configurado neste computador. Quem cuida deste servidor precisa rodar o <b>configurar-email.bat</b> (pasta <b>ferramentas</b> do projeto) antes de criar contas.</p>{/if}
         <form class="gate-form" novalidate onsubmit={cadastrar}>
           <label>Como quer ser chamado?<input name="name" autocomplete="given-name" maxlength="60" required bind:value={nome} disabled={ocupado}></label>
           <label>E-mail<input name="email" type="email" autocomplete="email" required bind:value={email} disabled={ocupado}></label>

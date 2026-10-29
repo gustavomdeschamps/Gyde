@@ -1,5 +1,8 @@
 # Novidades
 
+## 1.1.2
+- As mensagens de conexão falam só do app do Gyde (o `iniciar.bat` deixou de existir).
+
 ## 1.1.1
 - As mensagens de conexão citam também o app de desktop do Gyde, além do `iniciar.bat`.
 
