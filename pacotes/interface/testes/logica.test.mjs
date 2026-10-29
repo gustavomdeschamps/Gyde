@@ -69,6 +69,9 @@ test('cliente da API: confere o contrato e explica os erros', async () => {
   await assert.rejects(pedir('/api/x', Esquema), /Explicação do servidor\./);
   globalThis.fetch = async () => { throw new TypeError('fetch failed'); };
   await assert.rejects(pedir('/api/x', Esquema), (e) => /Sem conexão com o servidor do Gyde/.test(mensagemDe(e)));
+  // servidor que não responde: todo pedido tem prazo, e o erro explica (a tela não fica carregando para sempre)
+  globalThis.fetch = async (_url, init) => { assert.ok(init.signal instanceof AbortSignal, 'pedido sem prazo'); throw new DOMException('prazo', 'TimeoutError'); };
+  await assert.rejects(pedir('/api/x', Esquema), (e) => /demorou demais para responder/.test(mensagemDe(e)));
 });
 
 test('projeto .zip para a IA: sem .env, chaves, dependências nem lock; README primeiro', async () => {

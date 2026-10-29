@@ -3,6 +3,9 @@
 import type { z } from 'zod';
 
 const CABECALHO = { 'x-gyde': '1' };
+// prazo padrão: o servidor é local, mas se ele travar a tela não pode ficar carregando para sempre (os pedidos com IA
+// cabem nisso; o chat e a Forja usam streaming, fora daqui)
+const PRAZO = 90_000;
 
 export class ErroContrato extends Error {
   url: string;
@@ -16,7 +19,7 @@ export class ErroContrato extends Error {
 
 async function chamar(url: string, init: RequestInit = {}): Promise<Response> {
   const temCorpo = init.body !== undefined && !(init.body instanceof Blob) && !(init.body instanceof FormData);
-  const res = await fetch(url, { ...init, headers: { ...(temCorpo ? { 'Content-Type': 'application/json' } : {}), ...CABECALHO, ...init.headers } });
+  const res = await fetch(url, { signal: AbortSignal.timeout(PRAZO), ...init, headers: { ...(temCorpo ? { 'Content-Type': 'application/json' } : {}), ...CABECALHO, ...init.headers } });
   if (res.status === 401 && !url.startsWith('/api/auth')) {
     location.reload(); // sessão expirou: volta para a tela de login
     throw new Error('Sessão expirada.');
@@ -50,4 +53,6 @@ export async function enviar<T = unknown>(url: string, init: RequestInit = {}): 
 export const corpo = (dados: unknown): RequestInit => ({ method: 'POST', body: JSON.stringify(dados) });
 
 // Texto amigável para qualquer erro de rede ou da API.
-export const mensagemDe = (e: unknown) => (e instanceof TypeError ? 'Sem conexão com o servidor do Gyde. Confira se o Gyde está aberto.' : e instanceof Error ? e.message : String(e));
+export const mensagemDe = (e: unknown) => (e instanceof TypeError ? 'Sem conexão com o servidor do Gyde. Confira se o Gyde está aberto.'
+  : e instanceof DOMException && e.name === 'TimeoutError' ? 'O servidor do Gyde demorou demais para responder. Tente de novo; se continuar, feche e abra o Gyde.'
+  : e instanceof Error ? e.message : String(e));
