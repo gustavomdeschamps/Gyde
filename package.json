@@ -1,7 +1,7 @@
 {
   "name": "gyde-monorepo",
   "productName": "Gyde",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "description": "Gyde, a IA que ensina programação para iniciantes, com os modelos grátis do FreeLLMAPI.",
   "author": "Gustavo Moreira Deschamps",
@@ -30,8 +30,8 @@
     "teste:instalacao": "npm run dist:win && node testes-e2e/instalacao.mjs"
   },
   "dependencies": {
-    "@gyde/desktop": "2.0.0",
-    "@gyde/servidor": "2.0.0"
+    "@gyde/desktop": "2.0.1",
+    "@gyde/servidor": "2.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -43,7 +43,8 @@
     "eslint-plugin-svelte": "^3.23.1",
     "globals": "^17.13.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.72.1"
+    "typescript-eslint": "^8.72.1",
+    "deepmerge": "file:./ferramentas/deepmerge-seguro"
   },
   "build": {
     "appId": "dev.gyde.app",
@@ -123,5 +124,8 @@
       "pt-BR",
       "en-US"
     ]
+  },
+  "overrides": {
+    "deepmerge": "$deepmerge"
   }
 }

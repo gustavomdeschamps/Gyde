@@ -1,6 +1,6 @@
 {
   "name": "@gyde/servidor",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "type": "module",
   "description": "Servidor do Gyde (Express + SQLite embutido no Node).",
@@ -11,7 +11,7 @@
     "test": "node --test testes/*.test.mjs"
   },
   "dependencies": {
-    "@gyde/compartilhado": "2.0.0",
+    "@gyde/compartilhado": "2.0.1",
     "express": "^5.1.0",
     "fflate": "^0.8.3",
     "nodemailer": "^10.2.1",

@@ -71,7 +71,7 @@ async function abrir({ ocuparPorta = false } = {}) {
 async function fechar(app) {
   app.ws?.close();
   spawnSync('taskkill', ['/PID', String(app.proc.pid)], { stdio: 'ignore' }); // como o X da janela
-  const fechou = await Promise.race([new Promise((r) => app.proc.once('exit', () => r(true))), espera(15000).then(() => false)]);
+  const fechou = await Promise.race([new Promise((r) => app.proc.once('exit', () => r(true))), espera(30000).then(() => false)]); // 30 s: logo depois de gerar o .exe, o antivírus deixa tudo mais lento
   if (!fechou) spawnSync('taskkill', ['/PID', String(app.proc.pid), '/T', '/F'], { stdio: 'ignore' });
   app.ocupante?.close();
   return fechou;

@@ -1,6 +1,6 @@
 {
   "name": "@gyde/desktop",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "type": "module",
   "description": "App de desktop do Gyde (Electron). O empacotamento é feito na raiz (npm run dist:win).",

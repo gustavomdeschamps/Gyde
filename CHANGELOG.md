@@ -3,6 +3,27 @@
 As extensões têm o próprio histórico: [VS Code](pacotes/extensao-vscode/CHANGELOG.md). A extensão do Chrome segue a
 versão do `manifest.json`.
 
+## 2.0.1
+
+Correções achadas pelo CI do GitHub (Windows, Linux e macOS), que agora passa nos três sistemas.
+
+### Correções
+- Chat: depois de **Parar** e abrir uma conversa nova, a resposta da conversa antiga podia aparecer na nova.
+- Forja: uma pasta com nome curto do Windows no caminho (ex.: `C:\Users\RUNNER~1`) era tratada como "fora da pasta do
+  projeto", e a Forja recusava arquivos comuns.
+- Relatório de erro no Linux e no macOS: o nome do usuário aparecia nos caminhos copiados.
+- Forja: pede uma vez para fazer o trabalho quando o pedido manda mudar algo e o modelo tenta terminar sem ter mudado
+  nenhum arquivo nem rodado nenhum comando.
+
+### Segurança
+- O pacote `deepmerge` (usado só para gerar a interface) tinha o alerta GHSA-gcqx-w48m-w2h4, sem versão corrigida. Foi
+  trocado por uma versão local com a mesma interface, que ignora `__proto__`, `constructor` e `prototype`.
+  `npm audit`: 0 vulnerabilidades.
+
+### Outros
+- Vídeo de abertura recodificado (26 MB para 14 MB, sem perda visível): instalador 12 MB menor.
+- Tutorial em vídeo com capturas reais da página do GitHub nos passos 2 e 3.
+
 ## 2.0.0
 
 Reestruturação completa do código, instalador de verdade para o Windows, projetos guiados para todas as linguagens

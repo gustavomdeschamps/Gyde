@@ -1,0 +1,8 @@
+{
+  "name": "deepmerge",
+  "version": "4.3.1-gyde.1",
+  "description": "Substituto local do deepmerge sem prototype poisoning (GHSA-gcqx-w48m-w2h4), usado só para gerar a interface.",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true
+}
