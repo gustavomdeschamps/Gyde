@@ -13,6 +13,7 @@ export const Status = z.object({
   offlineDisponivel: z.boolean(),
   imagesEnabled: z.boolean(),
   desatualizado: z.boolean(),
+  pessoal: z.boolean(), // modo pessoal (no PC de alguém) ou público (servidor de uma turma)
 });
 
 export const PAGINAS_INICIAIS = ['chat', 'pratica', 'agente'] as const;

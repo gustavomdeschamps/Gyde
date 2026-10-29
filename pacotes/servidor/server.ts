@@ -100,7 +100,7 @@ app.get('/api/status', asyncRoute(async (_req, res) => {
   const u = await provedores.resumo({ mostrarConta: false });
   let desatualizado = false;
   try { desatualizado = impressaoDoCodigo() !== VERSAO_INICIO; } catch { /* sem como checar */ }
-  responder(res, C.Status, { keyConfigured: provedores.temChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado });
+  responder(res, C.Status, { keyConfigured: provedores.temChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico' });
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).

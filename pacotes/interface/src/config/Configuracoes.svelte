@@ -26,13 +26,15 @@
   let tokens = $state<TTokens['tokens']>([]);
   let tokenNovo = $state('');
   let plano = $state<{ carregando: boolean; erro: string; dados: TPlano | null }>({ carregando: false, erro: '', dados: null });
+  // no modo público (servidor de uma turma) chaves, modo da IA e cópia ficam com quem cuida do servidor
+  let pessoal = $state(true);
   let chave = $state({ configurada: null as boolean | null, texto: '', salvando: false });
   let imagens = $state({ ligadas: null as boolean | null, conta: '', token: '', salvando: false });
 
   export async function abrir(qual: Aba = 'geral') {
     aba = qual; tema = temaSalvo(); tokenNovo = '';
     try { pref = await pedir('/api/settings', C.Preferencias); } catch (e) { toast(mensagemDe(e)); }
-    carregarMemoria(); carregarTokens();
+    carregarMemoria(); carregarTokens(); carregarChave();
     if (!dialogo?.open) dialogo?.showModal();
   }
   // ao trocar de aba, busca os dados dela (untrack: o carregamento escreve estado e não pode reativar o efeito)
@@ -70,7 +72,7 @@
   }
 
   async function carregarChave() {
-    try { const s = await pedir('/api/status', C.Status); chave.configurada = s.keyConfigured; imagens.ligadas = s.imagesEnabled; } catch { chave.configurada = null; imagens.ligadas = null; }
+    try { const s = await pedir('/api/status', C.Status); chave.configurada = s.keyConfigured; imagens.ligadas = s.imagesEnabled; pessoal = s.pessoal; } catch { chave.configurada = null; imagens.ligadas = null; }
   }
   // a chave vai direto para o .env deste computador; a tela nunca recebe ela de volta
   async function salvarChave(e: SubmitEvent) {
@@ -179,6 +181,9 @@
         <section class="config-painel" role="tabpanel" data-painel="ia">
           {#if uso.dados}
             {@const d = uso.dados}
+            {#if !pessoal}
+              <p class="config-nota">Neste Gyde, a chave da IA, o modo (online ou offline) e as imagens são configurados por quem cuida do servidor.</p>
+            {:else}
             <div class="config-linha">
               <div><b>Modo da IA</b><small>Vale para o Gyde inteiro neste computador.</small></div>
               <select value={d.modo} onchange={(e) => mudarModo((e.currentTarget as HTMLSelectElement).value)} aria-label="Modo da IA">
@@ -206,6 +211,7 @@
                   <button class="btn small primary" disabled={!imagens.conta.trim() || !imagens.token.trim() || imagens.salvando}>{imagens.salvando ? 'Conferindo…' : 'Ligar'}</button>
                 </span>
               </form>
+            {/if}
             {/if}
             <dl class="config-dl">
               <div><dt>Em uso agora</dt><dd><b>{NOME_PROVEDOR[d.ativo]}</b></dd></div>
@@ -280,10 +286,11 @@
       {:else if aba === 'dados'}
         <section class="config-painel" role="tabpanel" data-painel="dados">
           <div class="config-texto">
-            <p><b>Onde ficam seus dados.</b> Conversas, progresso, memória, registro de uso e conversas da Forja ficam no banco deste computador ({#if desktop}<code>%APPDATA%\Gyde\dados</code>{:else}pasta <code>data</code> do Gyde{/if}). Cada conta só vê os próprios dados.</p>
-            <p><b>O que sai do computador.</b> No modo online, o texto das mensagens, os anexos e os trechos de arquivos que a Forja lê vão para o FreeLLMAPI, que repassa a um serviço de IA (Groq, Google, Mistral e outros, conforme as chaves configuradas nele). No modo offline nada sai: o modelo roda no Ollama, aqui mesmo.</p>
+            <p><b>Onde ficam seus dados.</b> Conversas, progresso, memória{#if pessoal}, registro de uso e conversas da Forja{:else} e registro de uso{/if} ficam {#if !pessoal}no servidor deste Gyde{:else}no banco deste computador ({#if desktop}<code>%APPDATA%\Gyde\dados</code>{:else}pasta <code>data</code> do Gyde{/if}){/if}. Cada conta só vê os próprios dados.</p>
+            <p><b>O que sai {#if pessoal}do computador{:else}do servidor{/if}.</b> No modo online, o texto das mensagens{#if pessoal}, os anexos e os trechos de arquivos que a Forja lê{:else} e os anexos{/if} vão para o FreeLLMAPI, que repassa a um serviço de IA (Groq, Google, Mistral e outros, conforme as chaves configuradas nele). No modo offline nada sai: o modelo roda no Ollama, aqui mesmo.</p>
             <p><b>O que nunca vai para a IA.</b> Arquivos <code>.env</code>, chaves SSH, certificados e outros arquivos de senhas são bloqueados. Chaves e tokens encontrados em textos são trocados por <code>[segredo removido]</code>.</p>
           </div>
+          {#if pessoal}
           <div class="config-linha"><div><b>Baixar cópia de segurança</b><small>Um .zip com tudo deste Gyde: contas (senhas só como hash), conversas, progresso, memória e imagens. Guarde em lugar seguro.</small></div><a class="btn ghost" href="/api/dados/copia" download>Baixar</a></div>
           <div class="config-linha"><div><b>Restaurar cópia</b><small>Troca os dados deste Gyde pelos de uma cópia (.zip). Vale quando o Gyde reabre.</small></div>
             <label class="btn ghost" class:desligado={restaurando}>{restaurando ? 'Conferindo…' : 'Escolher .zip'}<input type="file" accept=".zip,application/zip" hidden disabled={restaurando} onchange={restaurarCopia}></label></div>
@@ -293,8 +300,9 @@
               {#if desktop}<button type="button" class="btn primary small" onclick={() => desktop!.reiniciar()}>Reabrir agora</button>{/if}
             </div>
           {/if}
+          {/if}
           <div class="config-linha perigo"><div><b>Apagar todas as conversas do chat</b><small>Não dá para desfazer.</small></div><button type="button" class="btn ghost" onclick={() => apagar('conversas')}>Apagar</button></div>
-          <div class="config-linha perigo"><div><b>Apagar todas as conversas da Forja</b><small>Os arquivos dos seus projetos não são tocados.</small></div><button type="button" class="btn ghost" onclick={() => apagar('forja')}>Apagar</button></div>
+          {#if pessoal}<div class="config-linha perigo"><div><b>Apagar todas as conversas da Forja</b><small>Os arquivos dos seus projetos não são tocados.</small></div><button type="button" class="btn ghost" onclick={() => apagar('forja')}>Apagar</button></div>{/if}
           <div class="config-linha perigo"><div><b>Apagar o registro de uso</b><small>Zera os contadores de pedidos e tokens do painel Uso e limites.</small></div><button type="button" class="btn ghost" onclick={() => apagar('uso')}>Apagar</button></div>
         </section>
       {:else}
