@@ -292,6 +292,10 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     async executar(pasta: string, { comando }: ArgsFerramenta, ctx: Contexto): Promise<ResultadoFerramenta> {
       const cmd = String(comando || '').trim();
       if (!cmd) return { ok: false, saida: 'Informe o comando.' };
+      // a proteção contra comandos perigosos (seguranca.ts) é feita para o cmd do Windows: em outro sistema, não roda
+      if (process.platform !== 'win32') {
+        return { ok: false, saida: 'Rodar comandos pela Forja ainda só funciona no Windows. Siga sem rodar: leia e edite os arquivos e, no fim, diga ao usuário qual comando ele deve rodar para conferir.' };
+      }
       const risco = classificarComando(cmd);
       if (risco.nivel === 'bloqueado') return { ok: false, saida: `Comando bloqueado pela segurança do Gyde: ${risco.motivo}. Não tente contornar; siga sem ele.` };
       if (risco.nivel === 'confirmar' && !(await ctx.confirmar({ acao: `Rodar: ${cmd}`, motivo: risco.motivo }))) {

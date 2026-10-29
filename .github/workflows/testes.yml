@@ -1,6 +1,7 @@
-# Testes do Gyde a cada push e pull request: tipos, linter, testes automáticos, build da interface,
-# todas as suítes de navegador (com um provedor de IA falso, sem chaves) e o empacotamento das extensões.
-# Roda no Windows porque a Forja executa comandos pelo cmd.exe e o app de desktop é testado lá.
+# Testes do Gyde a cada push e pull request, em Windows, Linux e macOS: tipos, linter, testes automáticos, build da
+# interface, todas as suítes de navegador (com um provedor de IA falso, sem chaves) e o empacotamento das extensões.
+# A Forja só roda comandos no Windows (a proteção contra comandos perigosos é feita para o cmd), então o teste dela
+# roda só lá; o resto roda nos três sistemas.
 name: Testes
 
 on:
@@ -16,7 +17,11 @@ concurrency:
 
 jobs:
   testes:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +35,11 @@ jobs:
         run: npm test
       - name: Gerar a interface
         run: npm run build
-      - name: Testes de navegador (Edge sem janela)
+      - name: Testes de navegador
+        if: runner.os != 'Linux'
         run: npm run e2e
+      - name: Testes de navegador (Linux, com tela virtual para o app de desktop)
+        if: runner.os == 'Linux'
+        run: xvfb-run --auto-servernum npm run e2e
       - name: Empacotar as extensões
         run: npm run extensoes

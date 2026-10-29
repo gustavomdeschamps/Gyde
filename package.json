@@ -24,7 +24,9 @@
     "dist:win": "npm run build && electron-builder --win --publish never",
     "extensoes": "npm run empacotar -w gyde -w @gyde/extensao-chrome",
     "e2e": "node testes-e2e/rodar.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dist:mac": "npm run build && electron-builder --mac --publish never",
+    "dist:linux": "npm run build && electron-builder --linux --publish never"
   },
   "dependencies": {
     "@gyde/desktop": "1.0.0",
@@ -87,6 +89,22 @@
         "owner": "gustavomdeschamps",
         "repo": "Gyde"
       }
-    ]
+    ],
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.education",
+      "icon": "pacotes/interface/public/icon-512.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Education",
+      "icon": "pacotes/interface/public/icon-512.png",
+      "maintainer": "Gustavo Moreira Deschamps"
+    }
   }
 }
