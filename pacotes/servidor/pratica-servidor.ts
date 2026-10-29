@@ -2,6 +2,7 @@
 // amigos com ranking semanal e a Dica do Gyde.
 import { TRACKS, TOPICO_EXERCICIOS, findExercise } from './pratica-dados.ts';
 import { planoDe, findGuiado } from './pratica-plano.ts';
+import { PROJETOS, findProjeto, conferirEtapa, projetoPublico, chaveEtapa } from './projetos-dados.ts';
 import type { Express } from 'express';
 import type { Db, Router, AsyncRoute, Usuario } from './tipos.ts';
 import type { Uso } from './uso.ts';
@@ -119,6 +120,7 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
     return {
       tracks: TRACKS, progress, xp: q.xpTotal.get(userId)?.xp ?? 0, sequencia: streakOf(userId),
       desafio: dailyOf(userId, progress, plano), revisoes: reviews, reforco, ranking, pedidos, aguardando, plano,
+      projetos: PROJETOS.map((p) => projetoPublico(p, (id) => Boolean(progress[id]?.done))),
     };
   }
 
@@ -165,17 +167,44 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
     responder(res, C.EstadoPraticaComGanhos, { ...state(req.user), ganhos });
   });
 
-  // Exercício guiado (sem testes automáticos): a pessoa resolve, o Gyde corrige no chat e ela marca como feito.
+  // Exercício guiado (sem testes automáticos): a pessoa resolve, o Gyde corrige no chat e ela entrega a solução.
+  // Só conta como feito com uma entrega de verdade (abrir ou clicar não dá XP).
   app.post('/api/pratica/guiado/:id', (req, res) => {
     const g = findGuiado(String(req.params.id));
     if (!g) return res.status(404).json({ error: 'Exercício guiado não encontrado.' });
+    const resposta = typeof req.body?.resposta === 'string' ? req.body.resposta.trim().slice(0, 20_000) : '';
+    if (resposta.replace(/\s/g, '').length < 20) return res.status(400).json({ error: 'Cole a sua solução (o código ou a resposta) para marcar como feito.' });
     const userId = req.user.id, now = Date.now();
     const antes = q.one.get(userId, g.id);
-    q.upsert.run(userId, g.id, 1, '', now, antes?.fails || 0);
+    q.upsert.run(userId, g.id, 1, resposta, now, antes?.fails || 0);
     q.addDay.run(userId, today(now));
     const ganhos = [];
     if (!antes?.done) { q.addXp.run(userId, 10, 'guiado', g.id, now); ganhos.push({ motivo: 'Exercício guiado feito', xp: 10 }); }
     responder(res, C.EstadoPraticaComGanhos, { ...state(req.user), ganhos });
+  });
+
+  // Etapa de projeto guiado: confere os critérios no código entregue. Só conta (e só dá XP) quando passa em todos.
+  app.post('/api/pratica/projeto/:id/etapa/:etapa', (req, res) => {
+    const p = findProjeto(String(req.params.id));
+    const etapa = p?.etapas.find((e) => e.id === String(req.params.etapa));
+    if (!p || !etapa) return res.status(404).json({ error: 'Etapa de projeto não encontrada.' });
+    const codigo = typeof req.body?.codigo === 'string' ? req.body.codigo.slice(0, 50_000) : '';
+    if (!codigo.trim()) return res.status(400).json({ error: `Cole o conteúdo do ${etapa.arquivo} para conferir.` });
+    const userId = req.user.id, now = Date.now(), chave = chaveEtapa(p.id, etapa.id);
+    const antes = q.one.get(userId, chave) || { done: 0, fails: 0 };
+    const conferencia = conferirEtapa(p, etapa, codigo);
+    q.upsert.run(userId, chave, conferencia.ok ? 1 : 0, codigo, now, antes.fails + (conferencia.ok ? 0 : 1));
+    const ganhos = [];
+    if (conferencia.ok) {
+      q.addDay.run(userId, today(now));
+      if (!antes.done) {
+        q.addXp.run(userId, etapa.xp, 'projeto', chave, now);
+        ganhos.push({ motivo: 'Etapa do projeto concluída', xp: etapa.xp });
+        const todas = p.etapas.every((e) => e.id === etapa.id || q.one.get(userId, chaveEtapa(p.id, e.id))?.done);
+        if (todas) { q.addXp.run(userId, 30, 'projeto', p.id, now); ganhos.push({ motivo: 'Projeto concluído', xp: 30 }); }
+      }
+    }
+    responder(res, C.ConferenciaEtapa, { ...state(req.user), ganhos, conferencia });
   });
 
   // Amizade só vale quando os dois se adicionam (assim ninguém vê seu XP sem você querer).

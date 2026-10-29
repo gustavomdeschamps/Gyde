@@ -35,21 +35,27 @@
 
   let emailAmigo = $state('');
   let marcando = $state('');
+  let entregando = $state('');
+  let respostas = $state<Record<string, string>>({});
   async function adicionarAmigo(email: string) {
     try {
       onatualizar(await pedir('/api/amigos', C.EstadoPratica, corpo({ email })));
       toast('Pedido enviado. Vira amizade quando a outra pessoa te adicionar também.'); emailAmigo = '';
     } catch (e) { toast(mensagemDe(e)); }
   }
-  async function marcarGuiado(id: string) {
+  // guiado só conta com a solução entregue (o servidor recusa entrega vazia)
+  async function entregarGuiado(id: string) {
     marcando = id;
     try {
-      const r = await pedir(`/api/pratica/guiado/${encodeURIComponent(id)}`, C.EstadoPraticaComGanhos, { method: 'POST' });
+      const r = await pedir(`/api/pratica/guiado/${encodeURIComponent(id)}`, C.EstadoPraticaComGanhos, corpo({ resposta: respostas[id] ?? '' }));
       onatualizar(r);
+      entregando = '';
       if (r.ganhos.length) toast(`+${r.ganhos.reduce((n, g) => n + g.xp, 0)} XP`);
     } catch (e) { toast(mensagemDe(e)); }
     marcando = '';
   }
+  const projetosDoPlano = $derived(pl.projetos.map((id) => dados.projetos.find((p) => p.id === id)).filter((p) => p !== undefined));
+  const outrosProjetos = $derived(dados.projetos.filter((p) => !pl.projetos.includes(p.id)));
   function resolverGuiado(id: string) {
     const g = pl.guiados.find((x) => x.id === id); if (!g) return;
     abrirNoChat(`Exercício guiado de ${g.tecnologia} (${g.titulo}):\n${g.enunciado}\n\nNão me dê a resposta. Vou mandar minha solução; corrija, aponte os erros e me dê dicas.`);
@@ -62,6 +68,7 @@
     {@const f = acha(p.exerciseId)}
     {#if f}<a href={link(f.ex.id)}><b>{f.ex.title}</b></a> em {f.t.title}{/if}
   {:else if p?.tipo === 'guiado'}<b>{p.titulo}</b> ({p.tecnologia}, exercício guiado, logo abaixo)
+  {:else if p?.tipo === 'projeto'}<a href="#/pratica/projeto/{p.id}"><b>{p.titulo}</b></a> ({p.tecnologia}, projeto guiado)
   {:else if p}<b>{p.titulo}</b>{/if}
 {/snippet}
 
@@ -75,6 +82,18 @@
     <p>{t.description}</p>
     <div class="progress"><span style="width:{animar ? pct : 0}%"></span></div>
     <div class="track-meta"><span>{feitos}/{t.exercises.length} {t.projeto ? 'etapas' : 'exercícios'}</span><span>{pct === 100 ? 'Concluído ✓' : feitos ? 'Continuar →' : 'Começar →'}</span></div>
+  </a>
+{/snippet}
+
+{#snippet cartaoProjeto(pj: TEstadoPratica['projetos'][number], i: number)}
+  {@const feitas = pj.etapas.filter((e) => e.feita).length}
+  {@const pct = Math.round((feitas / pj.etapas.length) * 100)}
+  <a class="track-card" href="#/pratica/projeto/{pj.id}" style="--i:{i}">
+    <div class="track-top"><span class="lang-badge">{pj.tecnologia}</span><small class="plano-obs">{NIVEL_NOME[pj.nivel]}</small></div>
+    <h2>{pj.nome}</h2>
+    <p>{pj.descricao}</p>
+    <div class="progress"><span style="width:{animar ? pct : 0}%"></span></div>
+    <div class="track-meta"><span>{feitas}/{pj.etapas.length} etapas</span><span>{pj.concluido ? 'Concluído ✓' : feitas ? 'Continuar →' : 'Começar →'}</span></div>
   </a>
 {/snippet}
 
@@ -118,6 +137,7 @@
     </div>
     <div class="plano-acoes">
       {#if pl.proximo?.tipo === 'trilha'}<a class="btn primary" href={link(pl.proximo.exerciseId)}>Continuar</a>
+      {:else if pl.proximo?.tipo === 'projeto'}<a class="btn primary" href="#/pratica/projeto/{pl.proximo.id}">Continuar o projeto</a>
       {:else if pl.proximo?.tipo === 'guiado'}{@const id = pl.proximo.id}<button type="button" class="btn primary" onclick={() => resolverGuiado(id)}>Resolver no chat</button>
       {:else if pl.novoDesafio?.tipo === 'chat'}<button type="button" class="btn primary" onclick={pedirDesafio}>Pedir desafio</button>{/if}
       {#if !pl.temQuiz}<button type="button" class="btn ghost" onclick={fazerQuiz}>Responder o questionário</button>{/if}
@@ -135,9 +155,16 @@
               {#if g.feito}<span class="guiado-ok">{@html icons.check} Feito</span>
               {:else}
                 <button type="button" class="btn small primary" onclick={() => resolverGuiado(g.id)}>Resolver no chat</button>
-                <button type="button" class="btn small ghost" disabled={marcando === g.id} onclick={() => marcarGuiado(g.id)}>Marcar como feito</button>
+                <button type="button" class="btn small ghost" aria-expanded={entregando === g.id} onclick={() => { entregando = entregando === g.id ? '' : g.id; }}>Entregar solução</button>
               {/if}
             </div>
+            {#if entregando === g.id && !g.feito}
+              <form class="guiado-entrega" onsubmit={(e) => { e.preventDefault(); entregarGuiado(g.id); }}>
+                <label for="entrega-{g.id}">Cole a sua solução (o código ou a resposta)</label>
+                <textarea id="entrega-{g.id}" rows="6" spellcheck="false" bind:value={respostas[g.id]}></textarea>
+                <button class="btn small primary" disabled={marcando === g.id || (respostas[g.id] ?? '').replace(/\s/g, '').length < 20}>Entregar e marcar como feito</button>
+              </form>
+            {/if}
           </article>
         {/each}
       </div>
@@ -154,7 +181,15 @@
   <div class="track-grid">{#each ordenar(dados.tracks.filter((t) => !t.projeto)) as t, i (t.id)}{@render cartao(t, i)}{/each}</div>
 
   <h2 class="section-title">Projetos guiados <small>construa algo de verdade, etapa por etapa</small></h2>
-  <div class="track-grid">{#each ordenar(dados.tracks.filter((t) => t.projeto)) as t, i (t.id)}{@render cartao(t, i + 3)}{/each}</div>
+  <div class="track-grid">
+    {#each ordenar(dados.tracks.filter((t) => t.projeto)) as t, i (t.id)}{@render cartao(t, i + 3)}{/each}
+    {#each projetosDoPlano as pj, i (pj.id)}{@render cartaoProjeto(pj, i + 5)}{/each}
+  </div>
+  {#if outrosProjetos.length}
+    <details class="outros-projetos"><summary>Projetos de outras tecnologias ({outrosProjetos.length})</summary>
+      <div class="track-grid">{#each outrosProjetos as pj, i (pj.id)}{@render cartaoProjeto(pj, i)}{/each}</div>
+    </details>
+  {/if}
 
   <section class="ranking">
     <h2 class="section-title">Ranking da semana <small>XP dos últimos 7 dias</small></h2>

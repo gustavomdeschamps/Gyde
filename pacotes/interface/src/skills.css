@@ -154,3 +154,49 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 .estado-erro { margin: 12vh auto 0; max-width: 520px; padding: 24px; text-align: center; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
 .estado-erro h2 { margin: 0 0 8px; font: 700 20px var(--font-display); }
 .estado-erro p { margin: 0 0 16px; color: var(--text-soft); line-height: 1.55; }
+/* ---------- projeto guiado ---------- */
+.projeto-sobre { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0 8px; }
+.projeto-sobre > div { padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.projeto-sobre h2 { margin: 0 0 6px; font: 700 13px var(--font); text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint); }
+.projeto-sobre p, .projeto-sobre ul { margin: 0; color: var(--text-soft); font-size: 14px; line-height: 1.55; }
+.projeto-sobre ul { padding-left: 18px; }
+.projeto-arquivo { margin-bottom: 10px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--code-bg); }
+.projeto-arquivo-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.projeto-arquivo-topo span { display: flex; gap: 6px; }
+.projeto-arquivo pre { margin: 0; padding: 12px 14px; overflow-x: auto; font: 13px/1.5 var(--mono); }
+.projeto-etapas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.projeto-etapa { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.projeto-etapa.atual { border-color: var(--accent); }
+.projeto-etapa > details > summary { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; list-style: none; }
+.projeto-etapa > details > summary::-webkit-details-marker { display: none; }
+.projeto-etapa > details > summary b { flex: 1; font-size: 15px; }
+.projeto-etapa.feita .ex-num { background: var(--success); color: #fff; }
+.projeto-etapa.feita .ex-num svg { width: 18px; height: 18px; stroke-width: 2.6; }
+.projeto-etapa > details > :not(summary) { margin-left: 62px; margin-right: 16px; }
+.projeto-etapa > details > :last-child { margin-bottom: 16px; }
+.projeto-etapa p, .projeto-etapa li { color: var(--text-soft); font-size: 14px; line-height: 1.55; }
+.projeto-etapa h3 { margin: 12px 0 4px; font: 700 13px var(--font); color: var(--text); }
+.projeto-etapa ul { margin: 0; padding-left: 18px; }
+.projeto-criterios { list-style: none; padding-left: 0 !important; }
+.projeto-criterios li { display: flex; align-items: center; gap: 6px; }
+.projeto-criterios li::before { content: ""; width: 6px; height: 6px; margin: 0 4px; border-radius: 50%; background: var(--text-faint); flex: none; }
+.projeto-criterios li.ok::before, .projeto-criterios li.falta::before { display: none; }
+.projeto-criterios li svg { width: 15px; height: 15px; flex: none; }
+.projeto-criterios li.ok { color: var(--success); }
+.projeto-criterios li.falta { color: var(--danger, #c0392b); }
+.projeto-dica { margin-top: 10px; }
+.projeto-dica summary { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--accent-text); font-size: 14px; font-weight: 600; }
+.projeto-dica summary svg { width: 16px; height: 16px; }
+.projeto-entrega { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; font-size: 14px; color: var(--text-soft); }
+.projeto-entrega textarea, .guiado-entrega textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--code-bg); color: var(--text); font: 13px/1.5 var(--mono); resize: vertical; }
+.projeto-fim { margin-top: 18px; padding: 16px 20px; border: 1px solid var(--border); border-left: 3px solid var(--success); border-radius: 14px; background: var(--surface); }
+.projeto-fim p { color: var(--text-soft); line-height: 1.6; }
+.projeto-desafios { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.projeto-desafios li { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--text-soft); font-size: 14px; }
+.guiado-entrega { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; font-size: 13px; color: var(--text-soft); }
+@media (max-width: 700px) {
+  .projeto-etapa > details > :not(summary) { margin-left: 16px; }
+  .projeto-desafios li { flex-direction: column; align-items: flex-start; }
+}
+.outros-projetos { margin-top: 10px; }
+.outros-projetos > summary { cursor: pointer; color: var(--accent-text); font-weight: 600; font-size: 14px; margin-bottom: 10px; }

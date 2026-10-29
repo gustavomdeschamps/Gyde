@@ -4,8 +4,10 @@
 //   2. adaptada    — mistura trilhas existentes com exercícios guiados (ex.: HTML e CSS = JavaScript + exercícios web);
 //   3. montada     — não há trilha: o plano é montado do catálogo local de exercícios guiados daquela tecnologia;
 //   4. inicial     — faltam dados (sem questionário, nada escolhido): plano básico de lógica e Python.
+// Toda tecnologia tem também um projeto guiado (projetos-dados.ts), conferido etapa por etapa no servidor.
 // Exercícios guiados não rodam testes no navegador: a pessoa resolve e o Gyde corrige no chat.
 import { TRACKS } from './pratica-dados.ts';
+import { PROJETOS, chaveEtapa } from './projetos-dados.ts';
 import type { Trilha } from './pratica-dados.ts';
 import type { TPlano } from '../compartilhado/contratos.ts';
 
@@ -22,6 +24,7 @@ export type Progresso = Record<string, { done: boolean; fails?: number; code?: s
 export type Passo =
   | { tipo: 'trilha'; trackId: string; exerciseId: string; titulo: string; tecnologia?: string }
   | { tipo: 'guiado'; id: string; titulo: string; tecnologia: string }
+  | { tipo: 'projeto'; id: string; etapaId: string; titulo: string; tecnologia: string }
   | { tipo: 'chat'; titulo: string };
 export interface Foco { tecnologia: string; tipo: 'trilha' | 'adaptado' | 'guiado'; trilhas: string[]; guiados: number }
 
@@ -165,15 +168,25 @@ export function planoDe(perfil: unknown, progress: Progresso = {}): TPlano {
     .sort((a, b) => Math.abs(NIVEIS.indexOf(a.nivel) - iNivel) - Math.abs(NIVEIS.indexOf(b.nivel) - iNivel) || NIVEIS.indexOf(a.nivel) - NIVEIS.indexOf(b.nivel))
     .map((g) => ({ ...g, feito: feito(g.id) }));
 
-  // ---- próximo passo: trilha recomendada, senão guiado pendente, senão qualquer trilha pendente
+  // ---- projetos guiados das tecnologias do plano, do nível mais próximo ao da pessoa
+  const projetosDoPlano = PROJETOS
+    .filter((p) => tecnologias.includes(p.tecnologia) || (tipo === 'inicial' && p.tecnologia === 'Lógica'))
+    .sort((a, b) => Math.abs(NIVEIS.indexOf(a.nivel) - iNivel) - Math.abs(NIVEIS.indexOf(b.nivel) - iNivel) || tecnologias.indexOf(a.tecnologia) - tecnologias.indexOf(b.tecnologia));
+  const comEtapa = projetosDoPlano.map((p) => ({ p, etapa: p.etapas.find((e) => !feito(chaveEtapa(p.id, e.id))) }));
+  const pj = comEtapa.find((x) => x.etapa);
+  const projetoPendente: Passo | null = pj?.etapa ? { tipo: 'projeto', id: pj.p.id, etapaId: pj.etapa.id, titulo: `${pj.p.nome}: ${pj.etapa.titulo}`, tecnologia: pj.p.tecnologia } : null;
+
+  // ---- próximo passo: trilha recomendada, senão guiado pendente, senão projeto, senão qualquer trilha pendente
   let proximo: Passo | null = null;
   const rec = recomendada ? trilha(recomendada) : undefined;
   const exRec = rec?.exercises.find((e) => !feito(e.id));
   const guiadoPendente = guiadosDoPlano.find((g) => !g.feito);
   const guiadoPrimeiro = focos[0] && focos[0].tipo !== 'trilha';
   if (guiadoPrimeiro && guiadoPendente) proximo = { tipo: 'guiado', id: guiadoPendente.id, titulo: guiadoPendente.titulo, tecnologia: guiadoPendente.tecnologia };
+  else if (guiadoPrimeiro && projetoPendente) proximo = projetoPendente;
   else if (rec && exRec) proximo = { tipo: 'trilha', trackId: rec.id, exerciseId: exRec.id, titulo: exRec.title, tecnologia: rec.id === 'logica' ? 'Lógica' : rec.lang === 'python' ? 'Python' : 'JavaScript' };
   else if (guiadoPendente) proximo = { tipo: 'guiado', id: guiadoPendente.id, titulo: guiadoPendente.titulo, tecnologia: guiadoPendente.tecnologia };
+  else if (projetoPendente) proximo = projetoPendente;
   // tudo do plano feito: oferece um desafio novo (guiado de nível acima ou qualquer trilha pendente), sem erro
   let novoDesafio: Passo | null = null;
   if (!proximo) {
@@ -211,6 +224,7 @@ export function planoDe(perfil: unknown, progress: Progresso = {}): TPlano {
     motivos,
     recomendada,
     guiados: guiadosDoPlano,
+    projetos: projetosDoPlano.map((p) => p.id),
     proximo,
     concluido: !proximo,
     novoDesafio,

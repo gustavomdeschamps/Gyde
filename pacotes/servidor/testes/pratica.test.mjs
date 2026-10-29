@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { QUIZ, gradeQuiz } from '../quiz.ts';
 import { planoDe, GUIADOS, TECNOLOGIAS, findGuiado } from '../pratica-plano.ts';
 import { TRACKS, findExercise } from '../pratica-dados.ts';
+import { PROJETOS, findProjeto, chaveEtapa } from '../projetos-dados.ts';
 import { Plano } from '../../compartilhado/contratos.ts';
 
 const pergunta = (id) => QUIZ.find((q) => q.id === id);
@@ -36,6 +37,17 @@ function confere(plano, progress, contexto) {
     assert.ok(findGuiado(plano.proximo.id), msg('guiado inexistente'));
     assert.ok(!progress[plano.proximo.id]?.done, msg('guiado já feito'));
   }
+  if (plano.proximo?.tipo === 'projeto') {
+    const pj = findProjeto(plano.proximo.id);
+    assert.ok(pj && pj.etapas.some((e) => e.id === plano.proximo.etapaId), msg('projeto ou etapa inexistente'));
+    assert.ok(!progress[chaveEtapa(pj.id, plano.proximo.etapaId)]?.done, msg('etapa de projeto já feita'));
+  }
+  // projetos do plano: existem e são das tecnologias do plano (ou Lógica no plano inicial)
+  for (const id of plano.projetos) {
+    const pj = findProjeto(id);
+    assert.ok(pj && (plano.tecnologias.includes(pj.tecnologia) || (plano.tipo === 'inicial' && pj.tecnologia === 'Lógica')), msg(`projeto ${id} fora do plano`));
+  }
+  assert.ok(plano.projetos.length > 0, msg('plano sem projeto guiado'));
   if (plano.recomendada) assert.ok(TRACKS.some((t) => t.id === plano.recomendada), msg('trilha recomendada não existe'));
   // tecnologia sem trilha nunca aparece como trilha
   for (const f of plano.focos) if (f.tipo === 'guiado') assert.equal(f.trilhas.length, 0, msg('foco guiado com trilha'));
@@ -104,7 +116,7 @@ test('progresso: continua depois de concluir trilhas e oferece novo desafio quan
   const tudoPython = Object.fromEntries(TRACKS.filter((t) => t.lang === 'python').flatMap((t) => t.exercises).map((e) => [e.id, { done: true, fails: 0 }]));
   const p1 = planoDe(profile, tudoPython);
   confere(p1, tudoPython, { tudoPython: true });
-  const tudo = Object.fromEntries([...TRACKS.flatMap((t) => t.exercises.map((e) => e.id)), ...GUIADOS.map((g) => g.id)].map((id) => [id, { done: true, fails: 0 }]));
+  const tudo = Object.fromEntries([...TRACKS.flatMap((t) => t.exercises.map((e) => e.id)), ...GUIADOS.map((g) => g.id), ...PROJETOS.flatMap((p) => p.etapas.map((e) => chaveEtapa(p.id, e.id)))].map((id) => [id, { done: true, fails: 0 }]));
   const p2 = planoDe(profile, tudo);
   assert.equal(p2.proximo, null);
   assert.equal(p2.concluido, true);

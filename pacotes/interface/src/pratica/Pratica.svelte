@@ -8,6 +8,7 @@
   import Inicio from './Inicio.svelte';
   import Trilha from './Trilha.svelte';
   import Exercicio from './Exercicio.svelte';
+  import Projeto from './Projeto.svelte';
 
   let { partes, toast, renderMarkdown, onXp, abrirNoChat, fazerQuiz }: {
     partes: string[]; toast: (t: string) => void; renderMarkdown: (t: string) => string; onXp: (xp: number) => void;
@@ -25,8 +26,9 @@
   // a tela inicial sempre busca de novo (XP, desafio e plano podem ter mudado); trilha e exercício usam o que já tem
   $effect(() => { const p = partes; untrack(() => { if (!p.length || !dados) carregar(); }); });
 
+  const projeto = $derived(dados && partes[0] === 'projeto' ? dados.projetos.find((p) => p.id === partes[1]) : undefined);
   const trilha = $derived(dados && partes[0] ? dados.tracks.find((t) => t.id === partes[0]) : undefined);
-  const existe = $derived(!partes.length || (trilha && (!partes[1] || trilha.exercises.some((e) => e.id === partes[1]))));
+  const existe = $derived(!partes.length || Boolean(projeto) || (trilha && (!partes[1] || trilha.exercises.some((e) => e.id === partes[1]))));
   $effect(() => { if (dados && !existe) location.hash = '#/pratica'; });
 </script>
 
@@ -39,6 +41,8 @@
   <div class="skills-inner" aria-busy="true"><p class="sr-only">Carregando a Prática…</p><div class="skeleton" style="height:120px;margin-top:24px"></div><div class="skeleton" style="height:180px"></div></div>
 {:else if !partes.length}
   <Inicio {dados} {toast} onatualizar={atualizar} {abrirNoChat} {fazerQuiz} />
+{:else if projeto}
+  {#key projeto.id}<Projeto {dados} projetoId={projeto.id} {toast} onatualizar={atualizar} {abrirNoChat} />{/key}
 {:else if existe && partes[1]}
   {#key partes[1]}<Exercicio {dados} trilhaId={partes[0]!} exercicioId={partes[1]} {renderMarkdown} {toast} onatualizar={atualizar} />{/key}
 {:else if existe}

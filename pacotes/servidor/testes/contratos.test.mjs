@@ -21,7 +21,7 @@ test('plano sem próximo passo só vale se estiver concluído e com novo desafio
   const plano = {
     versao: 2, tipo: 'inicial', explicacao: 'x', nivel: 'básico', tecnologias: ['Python'], tecnologiasDeduzidas: true, temQuiz: false,
     declarado: null, medido: null, observado: { feitos: 0, tentativasComErro: 0, travados: [] }, focos: [], ordem: [], motivos: {},
-    recomendada: null, guiados: [], semTrilha: [],
+    recomendada: null, guiados: [], projetos: [], semTrilha: [],
   };
   assert.equal(C.Plano.safeParse({ ...plano, proximo: null, concluido: false, novoDesafio: null }).success, false);
   assert.equal(C.Plano.safeParse({ ...plano, proximo: null, concluido: true, novoDesafio: { tipo: 'chat', titulo: 'Peça um desafio' } }).success, true);
