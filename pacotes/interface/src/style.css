@@ -413,7 +413,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .editor-head .file::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
 .editor-head .spacer { flex: 1; }
 .editor { position: relative; display: flex; min-height: 300px; max-height: 58vh; overflow: auto; font: 14px/1.6 var(--mono); }
-.editor .gutter { flex: none; padding: 14px 10px 14px 14px; text-align: right; color: var(--text-faint); opacity: .7; user-select: none; white-space: pre; border-right: 1px solid var(--border); }
+.editor .gutter { flex: none; padding: 14px 10px 14px 14px; text-align: right; color: var(--text-faint); user-select: none; white-space: pre; border-right: 1px solid var(--border); }
 .editor .area { position: relative; flex: 1; min-width: 0; }
 .editor pre, .editor textarea { margin: 0; padding: 14px 16px; font: inherit; white-space: pre; tab-size: 4; letter-spacing: 0; word-spacing: 0; }
 .editor pre { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
@@ -540,3 +540,5 @@ label.btn.desligado { opacity: .6; pointer-events: none; }
 .gate-importar { margin-top: 14px; text-align: center; }
 .config-imagens-campos { flex-basis: 100%; flex-wrap: wrap; }
 .config-imagens-campos input { flex: 1 1 160px; }
+/* celular: campos com 16px ou mais, senão o iPhone dá zoom ao tocar neles */
+@media (max-width: 720px) { .composer textarea, .gate-form input, .config input, .config textarea, .config select { font-size: 16px; } }

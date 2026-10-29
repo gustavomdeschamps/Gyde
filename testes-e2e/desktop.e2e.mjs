@@ -8,6 +8,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { RAIZ, portaLivre } from './ajuda.mjs';
+import { MIGRACOES } from '../pacotes/servidor/migracoes.ts';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let falhas = 0;
 const ok = (n, c, x = '') => { if (!c) falhas++; console.log(`${c ? 'PASSOU' : 'FALHOU'}  ${n}${x ? `  (${x})` : ''}`); };
@@ -87,7 +88,7 @@ ok('segunda instância fecha sozinha', saiu);
 
 const banco = path.join(dados, 'dados', 'chat.db');
 ok('dados gravados na pasta do usuário', existsSync(banco));
-if (existsSync(banco)) { const d = new DatabaseSync(banco, { readOnly: true }); ok('banco migrado (esquema 1) com a conta', d.prepare('PRAGMA user_version').get().user_version === 1 && d.prepare('SELECT COUNT(*) n FROM users').get().n === 1); d.close(); }
+if (existsSync(banco)) { const d = new DatabaseSync(banco, { readOnly: true }); ok('banco migrado (última versão do esquema) com a conta', d.prepare('PRAGMA user_version').get().user_version === MIGRACOES.length && d.prepare('SELECT COUNT(*) n FROM users').get().n === 1); d.close(); }
 ok('sem erro de JavaScript', erros.length === 0, erros.slice(0, 3).join(' | '));
 
 // fechar a janela (como o X) fecha o app e o servidor
