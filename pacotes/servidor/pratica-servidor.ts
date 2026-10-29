@@ -2,6 +2,7 @@
 // amigos com ranking semanal e a Dica do Gyde.
 import { TRACKS, TOPICO_EXERCICIOS, findExercise } from './pratica-dados.ts';
 import { planoDe, findGuiado } from './pratica-plano.ts';
+import { mapaDe } from './pratica-mapa.ts';
 import { PROJETOS, findProjeto, conferirEtapa, projetoPublico, chaveEtapa } from './projetos-dados.ts';
 import type { Express } from 'express';
 import type { Db, Router, AsyncRoute, Usuario } from './tipos.ts';
@@ -125,6 +126,10 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
   }
 
   app.get('/api/pratica', (req, res) => responder(res, C.EstadoPratica, state(req.user)));
+  app.get('/api/pratica/mapa', (req, res) => {
+    const progress: Progresso = Object.fromEntries(q.progress.all(req.user.id).map((r) => [r.exercise_id, { done: Boolean(r.done), fails: r.fails }]));
+    responder(res, C.MapaHabilidades, { tecnologias: mapaDe(progress) });
+  });
 
   // Salva o código; se passou em todos os testes, dá XP, conta o dia e cuida da revisão.
   app.post('/api/pratica/progress', (req, res) => {

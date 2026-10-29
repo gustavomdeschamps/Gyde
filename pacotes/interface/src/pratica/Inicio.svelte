@@ -141,6 +141,7 @@
       {:else if pl.proximo?.tipo === 'guiado'}{@const id = pl.proximo.id}<button type="button" class="btn primary" onclick={() => resolverGuiado(id)}>Resolver no chat</button>
       {:else if pl.novoDesafio?.tipo === 'chat'}<button type="button" class="btn primary" onclick={pedirDesafio}>Pedir desafio</button>{/if}
       {#if !pl.temQuiz}<button type="button" class="btn ghost" onclick={fazerQuiz}>Responder o questionário</button>{/if}
+      <a class="btn ghost" href="#/pratica/mapa">Mapa de habilidades</a>
     </div>
   </section>
 

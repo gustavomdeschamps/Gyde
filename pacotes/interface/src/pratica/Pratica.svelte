@@ -9,6 +9,7 @@
   import Trilha from './Trilha.svelte';
   import Exercicio from './Exercicio.svelte';
   import Projeto from './Projeto.svelte';
+  import Mapa from './Mapa.svelte';
 
   let { partes, toast, renderMarkdown, onXp, abrirNoChat, fazerQuiz }: {
     partes: string[]; toast: (t: string) => void; renderMarkdown: (t: string) => string; onXp: (xp: number) => void;
@@ -28,7 +29,7 @@
 
   const projeto = $derived(dados && partes[0] === 'projeto' ? dados.projetos.find((p) => p.id === partes[1]) : undefined);
   const trilha = $derived(dados && partes[0] ? dados.tracks.find((t) => t.id === partes[0]) : undefined);
-  const existe = $derived(!partes.length || Boolean(projeto) || (trilha && (!partes[1] || trilha.exercises.some((e) => e.id === partes[1]))));
+  const existe = $derived(!partes.length || partes[0] === 'mapa' || Boolean(projeto) || (trilha && (!partes[1] || trilha.exercises.some((e) => e.id === partes[1]))));
   $effect(() => { if (dados && !existe) location.hash = '#/pratica'; });
 </script>
 
@@ -41,6 +42,8 @@
   <div class="skills-inner" aria-busy="true"><p class="sr-only">Carregando a Prática…</p><div class="skeleton" style="height:120px;margin-top:24px"></div><div class="skeleton" style="height:180px"></div></div>
 {:else if !partes.length}
   <Inicio {dados} {toast} onatualizar={atualizar} {abrirNoChat} {fazerQuiz} />
+{:else if partes[0] === 'mapa'}
+  <Mapa inicial={dados.plano.tecnologias[0] ?? 'Python'} />
 {:else if projeto}
   {#key projeto.id}<Projeto {dados} projetoId={projeto.id} {toast} onatualizar={atualizar} {abrirNoChat} />{/key}
 {:else if existe && partes[1]}

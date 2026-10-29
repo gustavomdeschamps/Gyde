@@ -67,6 +67,17 @@ try {
   const depois = await (await api.pedir('GET', '/api/pratica')).json();
   ok('refazer o questionário não apaga o progresso do projeto', depois.projetos.find((x) => x.id === 'pj-sql-escola').concluido && depois.xp >= xpProjeto + xpTotal);
 
+  // mapa de habilidades: o projeto de SQL concluído e o guiado entregue aparecem acesos; clicar leva ao projeto
+  await avaliar(`(location.hash = '#/pratica', 1)`);
+  await esperar(`[...document.querySelectorAll('.plano-acoes a')].some((a) => /Mapa de habilidades/.test(a.textContent))`);
+  await avaliar(`[...document.querySelectorAll('.plano-acoes a')].find((a) => /Mapa de habilidades/.test(a.textContent)).click()`);
+  ok('o mapa abre com as 10 linguagens', await esperar(`document.querySelectorAll('.mapa-abas button').length === 10`));
+  await avaliar(`[...document.querySelectorAll('.mapa-abas button')].find((b) => b.textContent.startsWith('SQL')).click()`);
+  ok('SQL: as 3 etapas do projeto e o guiado entregue estão dominados', await esperar(`(() => { const d = document.querySelectorAll('.mapa-item.dominado').length; return d === 4 && /4\\/\\d+/.test([...document.querySelectorAll('.mapa-abas button')].find((b) => b.textContent.startsWith('SQL')).textContent); })()`), await avaliar(`document.querySelectorAll('.mapa-item.dominado').length`));
+  ok('os três níveis aparecem lado a lado', await avaliar(`document.querySelectorAll('.mapa-trilha').length === 3`));
+  await avaliar(`[...document.querySelectorAll('.mapa-item a')].find((a) => a.getAttribute('href') === '#/pratica/projeto/pj-sql-escola').click()`);
+  ok('clicar num item do mapa abre o projeto', await esperar(`location.hash === '#/pratica/projeto/pj-sql-escola' && document.querySelector('.projeto-sobre') !== null`));
+
   await nav.ir(`${servidor.base}/?r=2#/pratica/js-zero`);
   ok('página da trilha lista os exercícios', await esperar(`document.querySelectorAll('#praticaView .ex-item').length > 3`));
   await avaliar(`location.hash = '#/pratica/js-zero/js-saudacao'`);

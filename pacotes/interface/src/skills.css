@@ -200,3 +200,35 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 }
 .outros-projetos { margin-top: 10px; }
 .outros-projetos > summary { cursor: pointer; color: var(--accent-text); font-weight: 600; font-size: 14px; margin-bottom: 10px; }
+/* ---------- mapa de habilidades ---------- */
+.mapa-abas { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 10px; }
+.mapa-abas button { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px 7px 8px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); font: 600 14px var(--font); cursor: pointer; }
+.mapa-abas button small { font: 500 12px var(--font); color: var(--text-faint); }
+.mapa-abas button[aria-selected="true"] { border-color: var(--accent); color: var(--accent-text); background: var(--accent-soft); }
+.mapa-anel { width: 22px; height: 22px; border-radius: 50%; background: conic-gradient(var(--success) calc(var(--p) * 1%), var(--border) 0); -webkit-mask: radial-gradient(circle, transparent 6px, #000 6.5px); mask: radial-gradient(circle, transparent 6px, #000 6.5px); }
+.mapa-legenda { display: flex; gap: 18px; font-size: 13px; color: var(--text-faint); margin-bottom: 14px; }
+.mapa-legenda span { display: inline-flex; align-items: center; gap: 6px; }
+.mapa-legenda .mapa-no { width: 12px; height: 12px; }
+.mapa-trilhas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.mapa-trilha { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 14px 16px; animation: mapa-entra var(--t3) var(--ease) both; animation-delay: calc(var(--k) * 70ms); }
+.mapa-trilha h2 { margin: 0 0 10px; font: 700 15px var(--font-display); text-transform: capitalize; }
+.mapa-trilha h2 small { font: 500 12.5px var(--font); color: var(--text-faint); margin-left: 4px; }
+.mapa-trilha ol { list-style: none; margin: 0; padding: 0; position: relative; }
+.mapa-trilha ol::before { content: ""; position: absolute; left: 10px; top: 8px; bottom: 8px; width: 2px; background: var(--border); border-radius: 2px; }
+.mapa-grupo { position: relative; margin: 10px 0 4px 30px; font: 700 11px var(--font); text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint); }
+.mapa-grupo:first-child { margin-top: 0; }
+.mapa-item a { position: relative; display: flex; align-items: flex-start; gap: 10px; padding: 5px 6px 5px 0; border-radius: 10px; text-decoration: none; color: var(--text); }
+.mapa-item a:hover { background: var(--hover); }
+.mapa-item a:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mapa-titulo { display: flex; flex-direction: column; font-size: 14px; line-height: 1.35; padding-top: 1px; }
+.mapa-titulo small { font-size: 12px; color: var(--text-faint); }
+.mapa-no { position: relative; z-index: 1; flex: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border-strong); background: var(--surface); display: inline-block; }
+.mapa-no.praticando { border-color: var(--warning, #d97706); background: linear-gradient(90deg, var(--warning, #d97706) 50%, var(--surface) 50%); }
+.mapa-no.dominado { border-color: var(--success); background: var(--success); box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 18%, transparent); }
+.mapa-item.dominado .mapa-no { animation: mapa-acende 600ms var(--ease) both; animation-delay: calc(var(--i) * 45ms + 150ms); }
+.mapa-item.dominado .mapa-no::after { content: ""; position: absolute; left: 6px; top: 3px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.mapa-vazio { color: var(--text-faint); font-size: 14px; margin: 0; }
+@keyframes mapa-entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes mapa-acende { 0% { transform: scale(.6); box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 45%, transparent); } 60% { transform: scale(1.15); } 100% { transform: scale(1); box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 18%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .mapa-trilha, .mapa-item.dominado .mapa-no { animation: none; } }
+@media (max-width: 900px) { .mapa-trilhas { grid-template-columns: 1fr; } }

@@ -120,6 +120,14 @@ export const EstadoPratica = z.object({
   plano: Plano,
   projetos: z.array(ProjetoGuiado),
 });
+// mapa de habilidades: cada tecnologia com os itens da Prática por nível e o estado real de cada um
+export const MapaHabilidades = z.object({
+  tecnologias: z.array(z.object({
+    tecnologia: z.string(), dominados: z.number().int(), total: z.number().int(),
+    nos: z.array(z.object({ id: z.string(), titulo: z.string(), tipo: z.enum(['exercicio', 'guiado', 'etapa']), nivel: NivelPlano, estado: z.enum(['dominado', 'praticando', 'novo']), link: z.string(), grupo: z.string() })).min(1),
+  }).refine((t) => t.dominados === t.nos.filter((n) => n.estado === 'dominado').length && t.total === t.nos.length, { message: 'mapa: contagem não bate com os itens' })).min(1),
+});
+export type TMapaHabilidades = z.infer<typeof MapaHabilidades>;
 export const EstadoPraticaComGanhos = EstadoPratica.extend({ ganhos: z.array(z.object({ motivo: z.string(), xp: z.number() })) });
 export const ConferenciaEtapa = EstadoPraticaComGanhos.extend({ conferencia: z.object({ ok: z.boolean(), criterios: z.array(z.object({ descricao: z.string(), ok: z.boolean() })) }) });
 
