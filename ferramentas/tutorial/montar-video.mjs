@@ -24,8 +24,8 @@ const C = (titulo, linhas, destaque = null, frase = 0) => ({ card: { titulo, lin
 const CENAS = {
   0: [{ abertura: true }],
   1: [{ img: 'passo-09-conversa' }, { img: 'passo-10-pratica', frase: 2 }, { img: 'passo-11-forja-resultado', frase: 3 }],
-  2: [C('Onde baixar', ['github.com/gustavomdeschamps/Gyde', 'à direita: <b>Releases</b>', 'abra a versão mais nova'], 1)],
-  3: [C('Em Assets, baixe só este', ['<b>Gyde-Setup-2.0.0.exe</b>  ← o instalador', '<s>Gyde-Setup-2.0.0.exe.blockmap</s>  atualizações', '<s>latest.yml</s>  atualizações', '<s>Source code (zip)</s>  código do projeto'], 0)],
+  2: [{ img: 'passo-02-github', destaque: [73, 74.5, 12, 9] }],
+  3: [{ img: 'passo-03-assets', destaque: [9, 59, 82, 6] }, { img: 'passo-03-assets', frase: 1, destaque: [9, 64.5, 82, 16] }],
   4: [C('O que você precisa', ['Windows 10 ou 11 (64 bits)', 'uns 500 MB livres', 'internet para a IA online', 'não precisa ser administrador'])],
   5: [C('Se o Windows avisar', ['"O Windows protegeu o computador"', 'clique em <b>Mais informações</b>', 'depois em <b>Executar assim mesmo</b>', '<small>(só se você baixou da página oficial)</small>']),
     { img: 'instalador-1-para-quem', frase: 3, destaque: [7, 47, 36, 8], destaque2: [64.5, 89.5, 16, 7.5], borrar: [28.6, 48.3, 13.5, 4.6] }],

@@ -2,10 +2,8 @@
 
 Roteiro técnico do vídeo `instalar-o-gyde.mp4` (1920x1080, narração em português do Brasil, legendas embutidas e em
 arquivo `.vtt`). Todas as telas são **capturas reais** do instalador `Gyde-Setup-2.0.0.exe` e do Gyde instalado,
-feitas pelos roteiros de `ferramentas/tutorial/` (nada é montado à mão). Os quadros só com texto (onde baixar,
-requisitos, arquivos da página de download, aviso do SmartScreen) são cartões de texto, e o vídeo não os apresenta
-como captura. A página Releases do GitHub ainda não tinha nenhuma versão publicada quando o vídeo foi feito; quando a
-versão for publicada, vale trocar os cartões dos passos 2 e 3 por uma captura dela.
+feitas pelos roteiros de `ferramentas/tutorial/` (nada é montado à mão). Os quadros só com texto (requisitos, aviso do SmartScreen, avisos
+de problemas) são cartões de texto, e o vídeo não os apresenta como captura.
 
 Como refazer tudo: veja "Produção" no fim.
 
@@ -13,8 +11,8 @@ Como refazer tudo: veja "Produção" no fim.
 |---|---|---|---|---|
 | 0 | Abertura | 6 s | logo do Gyde | — |
 | 1 | O que é o Gyde | 25 s | `passo-09-conversa`, `passo-10-pratica`, `passo-11-forja-resultado` | zoom lento em cada tela |
-| 2 | Onde baixar | 16 s | cartão de texto com o endereço e o caminho até Releases | **Releases** |
-| 3 | O arquivo certo | 16 s | cartão de texto com os nomes dos arquivos | o `.exe` em destaque |
+| 2 | Onde baixar | 16 s | `passo-02-github` (página pública do repositório, sem login) | **Releases** |
+| 3 | O arquivo certo | 16 s | `passo-03-assets` (página da versão 2.0.0) | o `.exe`, depois os outros arquivos |
 | 4 | Requisitos | 14 s | cartão de texto | — |
 | 5 | Começar a instalação | 30 s | cartão do SmartScreen, `instalador-1-para-quem` | **Apenas para mim**, **Próximo** |
 | 6 | Concluir | 22 s | `instalador-2-pasta`, `instalador-3-instalando`, `instalador-4-concluido` | **Instalar**, **Executar o Gyde**, **Concluir** |
@@ -115,9 +113,10 @@ Tudo roda neste computador, com o instalador gerado por `npm run dist:win`:
    (instala, fotografa, desinstala e apaga só o que criou).
 2. `node ferramentas/tutorial/capturar-app.mjs`: telas reais do Gyde instalado, com a IA de verdade (a chave vai
    pelo ambiente do processo, nunca aparece).
-3. `node ferramentas/tutorial/narrar.mjs --motor windows`: a narração, frase por frase, a partir das linhas acima,
+3. `node ferramentas/tutorial/capturar-github.mjs`: a página pública do repositório e a da última versão (sem login).
+4. `node ferramentas/tutorial/narrar.mjs --motor windows`: a narração, frase por frase, a partir das linhas acima,
    com a voz **Microsoft Maria** (português do Brasil) do próprio Windows. É a voz desta versão do vídeo: o Gemini TTS
    grátis permite só 10 pedidos por dia por modelo e a cota acabou no meio. Sem `--motor`, o mesmo roteiro usa o Gemini
    TTS (chave GEMINI_API_KEY do `.env`), guardando cada frase em cache para continuar em outro dia.
-4. `node ferramentas/tutorial/montar-video.mjs`: monta as cenas (`video.html`), grava quadro a quadro e junta com a
+5. `node ferramentas/tutorial/montar-video.mjs`: monta as cenas (`video.html`), grava quadro a quadro e junta com a
    narração (ffmpeg), gerando `instalar-o-gyde.mp4` e as legendas `instalar-o-gyde.vtt`.
