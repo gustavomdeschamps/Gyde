@@ -17,6 +17,7 @@ import { setupChat } from './chat.ts';
 import { setupConfiguracao } from './configuracao.ts';
 import { setupPerfil, criarPreferencias, profileSummary } from './perfil.ts';
 import { criarImagens } from './imagens.ts';
+import { setupDiagnostico, registrarErro } from './diagnostico.ts';
 import { criarProvedores } from './provedores.ts';
 import { criarUso } from './uso.ts';
 import type { Request, Response, NextFunction } from 'express';
@@ -120,6 +121,7 @@ setupTurmas(app, db); // modo turma
 setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão do Chrome
 setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja: trabalha numa pasta de projeto
 setupPerfil(app, db, preferencias); // questionário e preferências
+setupDiagnostico(app, { db, provedores, raiz: BASE, asyncRoute }); // relatório de erro (Configurações > Geral)
 
 // ---------- Arquivos estáticos ----------
 const nm = (p: string) => path.join(BASE, 'node_modules', p);
@@ -131,8 +133,9 @@ app.use('/assets', express.static(path.join(DIST, 'assets'), { maxAge: '1y', imm
 app.use(express.static(DIST));
 app.get('/', (_req, res) => res.status(503).type('text').send('A interface do Gyde ainda não foi gerada. Rode: npm run build (o iniciar.bat e o app de desktop já vêm com ela gerada).'));
 
-app.use((err: ErroGyde, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: ErroGyde, req: Request, res: Response, _next: NextFunction) => {
   const status = err.status || 500;
+  if (status >= 500) registrarErro(err, `${req.method} ${req.path}`); // 502/503 são do provedor de IA: entram no relatório, não no console
   if (status >= 500 && status !== 502 && status !== 503) console.error(err);
   if (res.headersSent) return res.end();
   res.status(status).json({ error: err.message || 'Erro interno.' });

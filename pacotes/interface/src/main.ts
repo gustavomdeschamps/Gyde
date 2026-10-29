@@ -12,6 +12,9 @@ import { createSkillsPage } from './skills.svelte.ts';
 import { createTurmasPage } from './turmas.svelte.ts';
 import { createAgentePage } from './agente.ts';
 import { aplicarTema, definirTema, temaAtual } from './tema.ts';
+import { vigiarErros } from './diagnostico.ts';
+
+vigiarErros(); // guarda os erros desta tela para o relatório de erro (Configurações > Geral)
 import { montarConfiguracoes } from './config.ts';
 import { atualizarUso } from './config/uso.svelte.ts';
 import { chat, abrirConversa, novaConversa, carregarConversas, carregarModelos, restaurarModeloPadrao } from './chat/estado.svelte.ts';

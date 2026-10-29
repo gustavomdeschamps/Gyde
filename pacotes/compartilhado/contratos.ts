@@ -173,6 +173,13 @@ export const TurmaAluno = z.object({
 export const Turma = z.union([TurmaProfessor, TurmaAluno]);
 export const IdCriado = z.object({ id: z.string() });
 
+// ---------- Relatório de erro ----------
+export const Diagnostico = z.object({
+  gyde: z.string(), node: z.string(), sistema: z.string(), modo: z.enum(['pessoal', 'publico']), desktop: z.boolean(), esquemaBanco: z.number().int(),
+  ia: z.object({ modo: z.string(), ativo: z.string(), online: z.boolean(), offline: z.boolean(), chave: z.boolean() }),
+  erros: z.array(z.object({ em: z.string(), onde: z.string(), mensagem: z.string(), pilha: z.string() })),
+});
+
 // ---------- Cópia de segurança ----------
 export const RestauracaoPreparada = z.object({ versao: z.number().int(), contas: z.number().int(), conversas: z.number().int(), reiniciar: z.literal(true) });
 

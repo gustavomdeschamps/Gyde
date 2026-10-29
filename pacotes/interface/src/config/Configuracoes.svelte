@@ -9,6 +9,7 @@
   import { uso, atualizarUso, nomeModelo, NOME_PROVEDOR } from './uso.svelte.ts';
   import UsoAba from './UsoAba.svelte';
   import { desktop } from '../desktop.ts';
+  import { montarRelatorio } from '../diagnostico.ts';
 
   type Aba = 'geral' | 'ia' | 'uso' | 'pratica' | 'dados' | 'extensoes';
   let { toast, copiar, verAbertura, refazerQuiz, restaurarModelo, recarregarConversas }: {
@@ -175,6 +176,10 @@
           <div class="config-linha">
             <div><b>Restaurar padrões</b><small>Volta o tema, a página inicial e o modelo do chat ao padrão. Não apaga conversas nem progresso.</small></div>
             <button type="button" class="btn ghost" onclick={restaurar}>Restaurar</button>
+          </div>
+          <div class="config-linha">
+            <div><b>Relatório de erro</b><small>Copia um resumo técnico (versões, estado da IA e erros recentes, sem conversas nem chaves) para você colar numa issue. Nada é enviado sozinho.</small></div>
+            <button type="button" class="btn ghost" onclick={async (e) => { const botao = e.currentTarget; copiar(await montarRelatorio(), botao); }}>Copiar relatório</button>
           </div>
         </section>
       {:else if aba === 'ia'}

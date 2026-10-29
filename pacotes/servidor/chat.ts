@@ -13,6 +13,7 @@ import type { Imagens } from './imagens.ts';
 import type { SkillListada } from './skills-sistema.ts';
 import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
+import { registrarErro } from './diagnostico.ts';
 
 // Formatos guardados no banco
 interface Anexo { kind: 'file' | 'image'; name: string; text?: string; dataUrl?: string }
@@ -354,7 +355,7 @@ export function setupChat(app: Express, db: Db, { router, provedores, uso, image
       }
     } catch (e) {
       const err = comoErro(e);
-      if (err.name !== 'AbortError') failure = err;
+      if (err.name !== 'AbortError') { failure = err; registrarErro(err, isImage ? 'imagem do chat' : 'resposta do chat'); }
     }
     registro.fim(controller.signal.aborted ? 'cancelado' : answer ? 'ok' : uso.resultadoDe(failure), failure?.message);
 
