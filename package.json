@@ -1,7 +1,7 @@
 {
   "name": "gyde-monorepo",
   "productName": "Gyde",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "Gyde, a IA que ensina programação para iniciantes, com os modelos grátis do FreeLLMAPI.",
   "author": "Gustavo Moreira Deschamps",
@@ -29,8 +29,8 @@
     "dist:linux": "npm run build && electron-builder --linux --publish never"
   },
   "dependencies": {
-    "@gyde/desktop": "1.0.0",
-    "@gyde/servidor": "1.0.0"
+    "@gyde/desktop": "2.0.0",
+    "@gyde/servidor": "2.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

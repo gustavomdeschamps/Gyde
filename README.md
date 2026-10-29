@@ -117,10 +117,11 @@ e documenta. Você não precisa saber comandos de terminal.
 
 ### Configurações
 No menu lateral, **Configurações** reúne tudo em seções: **Geral** (tema automático, claro ou escuro; página inicial;
-vídeo de abertura; restaurar padrões), **IA e modelos** (chave do FreeLLMAPI, estado real da conexão, modo online,
-offline ou automático, como o Gyde deve responder, memória), **Uso e limites**, **Prática** (suas respostas, nível medido e desempenho;
-refazer o questionário), **Privacidade e dados** (o que fica no PC, o que vai para a IA, apagar conversas e registros)
-e **Extensões** (tokens). Cada opção salva na hora.
+vídeo de abertura; restaurar padrões; copiar um relatório de erro), **IA e modelos** (chave do FreeLLMAPI, geração de
+imagens, estado real da conexão, modo online, offline ou automático, como o Gyde deve responder, memória), **Uso e
+limites**, **Prática** (suas respostas, nível medido e desempenho; refazer o questionário), **Privacidade e dados** (o
+que fica no PC, o que vai para a IA, cópia de segurança para baixar e restaurar, apagar conversas e registros) e
+**Extensões** (tokens). Cada opção salva na hora.
 
 ### E mais
 - **Skills:** habilidades instaláveis, como plugins (`/revisar`, `/git`, `/sql`...). Dá para criar as suas e publicar na loja de skills.
@@ -256,10 +257,12 @@ o banco, o Gyde guarda uma cópia dele em `data/copias-banco` antes (as 5 mais r
 ## Testes
 
 ```bash
-npm test
+npm test          # tipos, ESLint e testes automáticos
+npm run build
+npm run e2e       # testes de navegador
 ```
 
-Confere os tipos (servidor, desktop e interface, com `tsc` e `svelte-check`) e roda os testes automáticos de
+`npm test` confere os tipos (servidor, desktop e interface, com `tsc` e `svelte-check`) e roda os testes automáticos de
 `pacotes/servidor/testes` e `pacotes/interface/testes`, sem internet e sem gastar cota:
 - **segurança:** caminhos fora da pasta, arquivos de senha, classificação de comandos, remoção de segredos;
 - **uso:** pedidos x chamadas, tokens só quando informados, cancelados e limite por minuto (com um provedor falso local);
@@ -269,7 +272,13 @@ Confere os tipos (servidor, desktop e interface, com `tsc` e `svelte-check`) e r
 - **contratos:** as regras dos formatos de resposta e o modo estrito do servidor;
 - **migrações:** banco novo, banco antigo com dados, versão mais nova recusada, migração com falha desfeita, cópia;
 - **troca de senha do app de desktop:** só com o segredo do app e só no modo pessoal (sobe um servidor temporário);
-- **Forja:** o estado das tarefas na tela (eventos, duração, pendências).
+- **Forja:** o estado das tarefas na tela (eventos, duração, pendências);
+- **cópia de segurança, limite de logins e a lógica da interface** (eventos da resposta, valores do Python, cliente da API).
+
+`npm run e2e` roda as suítes de `testes-e2e` num Chrome ou Edge sem janela, cada uma com um servidor próprio e um
+FreeLLMAPI falso (sem chave e sem cota): chat, Forja, Prática, Skills, Turmas, entrada, modo público, cópia de
+segurança, imagens, relatório de erro, app de desktop e uma auditoria de acessibilidade (WCAG 2.1 AA, temas claro e
+escuro, e celular). O CI do GitHub roda tudo isso em Windows, Linux e macOS.
 
 `npm run extensoes` gera o `.vsix` do VS Code e o `.zip` da Chrome Web Store.
 
@@ -280,7 +289,8 @@ Confere os tipos (servidor, desktop e interface, com `tsc` e `svelte-check`) e r
 - O modelo local (Ollama) é bem mais simples e lento que os online, principalmente na Forja.
 - O **Desfazer** da Forja guarda as 10 últimas tarefas de cada conversa e não copia arquivos maiores que 2 MB.
 - Exercícios guiados (Java, SQL, C#...) não têm correção automática: dependem do chat e de você marcar como feito.
-- A Forja e a janela de escolher pasta só funcionam no Windows e com o Gyde no modo pessoal (rodando no seu PC).
+- A Forja só funciona no modo pessoal (rodando no seu PC), e só roda comandos no Windows: a proteção contra comandos
+  perigosos foi feita para o cmd. No Mac e no Linux ela lê e edita os arquivos e diz qual comando rodar.
 - O instalador do app de desktop não tem assinatura digital (custa dinheiro), então o Windows mostra o aviso do SmartScreen.
 - O envio de e-mail (`configurar-email.bat`, só para o modo público) grava no `.env` da pasta do código, não no app de desktop.
 - A moderação depende das instruções do Gyde e do provedor; não há um filtro de conteúdo separado.
@@ -288,9 +298,9 @@ Confere os tipos (servidor, desktop e interface, com `tsc` e `svelte-check`) e r
 
 ## Contribuir
 
-Ideias e correções são bem-vindas. Abra uma [issue](https://github.com/gustavomdeschamps/Gyde/issues) descrevendo
-o problema ou a ideia; para mudanças de código, faça um fork, rode `npm test` e abra um pull request explicando o que
-mudou. Nunca inclua o `.env`, a pasta `data/` ou chaves nos commits.
+Ideias e correções são bem-vindas: veja o [CONTRIBUTING.md](CONTRIBUTING.md) (como rodar, testar e as regras do
+projeto). Achou uma falha de segurança? Siga o [SECURITY.md](SECURITY.md). O que mudou em cada versão está no
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Perguntas frequentes
 
@@ -309,8 +319,9 @@ O FreeLLMAPI troca de serviço quando um deles esgota. Se acabar o limite por mi
 diz quando renova e, se você tiver o Ollama, oferece o modelo local. Veja em **Configurações > Uso e limites**.
 
 **Funciona no Mac ou no Linux?**
-Foi feito e testado no Windows. O servidor é Node.js e o app é Electron, que rodam em outros sistemas, mas os
-instaladores e a janela de escolher pasta do modo navegador são do Windows, e nada foi testado no Mac ou no Linux.
+Foi feito no Windows. Os testes automáticos rodam também em Linux e macOS no CI do GitHub, e o app de desktop tem
+instaladores configurados para os dois (`npm run dist:mac`, `npm run dist:linux`), ainda sem teste à mão. Os `.bat` e a
+Forja rodando comandos são só do Windows; nos outros sistemas, use `npm install`, `npm run build` e `npm start`.
 
 ## Estrutura do projeto
 
@@ -320,11 +331,12 @@ instaladores e a janela de escolher pasta do modo navegador são do Windows, e n
 | `iniciar.bat` | Abre o Gyde no dia a dia (pelo código) |
 | `COMO-INSTALAR.md` | Passo a passo de instalação |
 | `configurar/` | Extras: e-mail (modo público), trocar senha, extensão do VS Code |
-| `pacotes/servidor/` | Servidor: `server.ts`, banco e migrações (`banco.ts`, `migracoes.ts`), Forja (`codigo-agente.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), modelos (`motor.ts`), Prática (`pratica-servidor.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
+| `pacotes/servidor/` | Servidor: `server.ts` monta os módulos: chat (`chat.ts`), Forja (`codigo-agente.ts`), Prática (`pratica-servidor.ts`), configurações locais e cópia de segurança (`configuracao.ts`, `copia.ts`), perfil (`perfil.ts`), banco e migrações (`banco.ts`, `migracoes.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
 | `pacotes/interface/` | Interface em Svelte 5 + Vite: chat, Forja, Prática, Skills, Turmas, Configurações e entrada (`src/`) |
 | `pacotes/compartilhado/` | Contratos (Zod) usados pelo servidor e pela interface |
 | `pacotes/desktop/` | App de desktop (Electron). O instalador é gerado com `npm run dist:win` |
 | `pacotes/extensao-vscode/`, `pacotes/extensao-chrome/` | Extensões para o VS Code e o Chrome |
+| `testes-e2e/` | Testes de navegador (`npm run e2e`) |
 | `docs/` | Imagens desta página e o plano da reestruturação |
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).
