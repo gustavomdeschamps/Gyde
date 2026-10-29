@@ -122,7 +122,8 @@ async function conferirStatus() {
   return false;
 }
 
-addEventListener('gyde:status', () => { conferirStatus(); }); // ex.: chave salva nas Configurações
+// ex.: chave salva nas Configurações: confere de novo e, se o FreeLLMAPI responder, recarrega a lista de modelos
+addEventListener('gyde:status', () => { conferirStatus().then((ok) => { if (ok) carregarModelos(); }); });
 
 // login -> quiz (só na primeira vez) -> app
 async function iniciar() {
