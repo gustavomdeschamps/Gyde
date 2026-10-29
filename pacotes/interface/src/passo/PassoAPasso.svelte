@@ -1,10 +1,12 @@
 <script lang="ts">
-  // Passo a passo visual (estilo Python Tutor): a linha que vai rodar, as variáveis, a pilha e a saída.
+  // Passo a passo visual: a linha que vai rodar, a memória desenhada (pilha de chamadas, objetos e setas) ou em tabela,
+  // e a saída.
   import { onMount, tick } from 'svelte';
   import hljs from '@highlightjs/cdn-assets/es/highlight.min.js';
   import { execute } from '../runner.ts';
+  import Memoria, { type Mem } from './Memoria.svelte';
 
-  interface Passo { line: number | null; event: string; vars: Record<string, string>; globals: Record<string, string> | null; stack: string[]; out?: string; error?: string; ret?: string }
+  interface Passo { line: number | null; event: string; vars: Record<string, string>; globals: Record<string, string> | null; stack: string[]; out?: string; error?: string; ret?: string; mem?: Mem }
   let { codigo, onfechar }: { codigo: string; onfechar: () => void } = $props();
 
   const icone = {
@@ -24,6 +26,7 @@
   let passos = $state<Passo[]>([]);
   let i = $state(0);
   let tocando: ReturnType<typeof setInterval> | null = $state(null);
+  let modo = $state<'memoria' | 'tabela'>('memoria');
 
   const linhas = $derived(codigo.replace(/\n$/, '').split('\n').map((l) => hljs.highlight(l || ' ', { language: 'python', ignoreIllegals: true }).value));
   const atual = $derived(passos[i]);
@@ -38,7 +41,7 @@
       if (!r.ok && !r.steps?.length) { erro = r.error || 'Não consegui executar.'; return; }
       const lista = [...(r.steps ?? [])];
       // passo final sintético: o estado depois da última linha
-      lista.push({ line: null, event: 'end', vars: lista.at(-1)?.vars || {}, globals: null, stack: [], out: r.out, error: r.error });
+      lista.push({ line: null, event: 'end', vars: lista.at(-1)?.vars || {}, globals: null, stack: [], out: r.out, error: r.error, mem: lista.at(-1)?.mem });
       passos = lista;
     })();
     return parar;
@@ -60,8 +63,12 @@
   }
 </script>
 
-<dialog class="dialog trace-dialog" bind:this={dialogo} onclose={() => { parar(); onfechar(); }} onkeydown={tecla}>
+<dialog class="dialog trace-dialog" class:largo={modo === 'memoria'} bind:this={dialogo} onclose={() => { parar(); onfechar(); }} onkeydown={tecla}>
   <div class="trace-head"><h2>Passo a passo</h2><span class="trace-sub">Python</span>
+    <div class="trace-modos" role="group" aria-label="Como mostrar a memória">
+      <button type="button" aria-pressed={modo === 'memoria'} onclick={() => (modo = 'memoria')}>Memória</button>
+      <button type="button" aria-pressed={modo === 'tabela'} onclick={() => (modo = 'tabela')}>Tabela</button>
+    </div>
     <button class="icon-btn" aria-label="Fechar" onclick={() => dialogo?.close()}>{@html icone.fechar}</button></div>
   <div class="trace-body">
     {#if erro}
@@ -76,6 +83,9 @@
           {/each}
         </div>
         <div class="trace-side">
+          {#if modo === 'memoria' && atual.mem}
+          <section class="trace-mem"><Memoria mem={atual.mem} antes={anterior?.mem ?? null} passo={i} /></section>
+          {:else}
           <section><h3>Variáveis</h3><div class="trace-vars">
             {@render tabela(atual.vars, varsAnteriores)}
             {#if atual.globals && Object.keys(atual.globals).length}<h4>Do programa principal</h4>{@render tabela(atual.globals, null)}{/if}
@@ -83,6 +93,7 @@
           <section><h3>Pilha de chamadas</h3><div class="trace-stack">
             {#each atual.stack as f, k}<div class="frame" class:top={k === atual.stack.length - 1}>{f}</div>{:else}<p class="trace-empty">Programa terminou.</p>{/each}
           </div></section>
+          {/if}
           <section><h3>Saída</h3><pre class="trace-out">{atual.out || ''}</pre></section>
         </div>
       </div>

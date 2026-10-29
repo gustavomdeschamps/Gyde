@@ -98,8 +98,22 @@ try {
   await avaliar(`document.querySelector('[title="Início"]').click()`);
   await avaliar(`[...document.querySelectorAll('.trace-controls button')].find((b) => /Reproduzir/.test(b.textContent)).click()`);
   ok('Reproduzir anda sozinho', await esperar(`!/^1 de/.test(document.querySelector('.trace-count').textContent)`, 3000));
-  await avaliar(`document.querySelector('.trace-head button').click()`);
+  await avaliar(`document.querySelector('.trace-head button[aria-label="Fechar"]').click()`);
   ok('fechar tira o diálogo da página', await esperar(`document.querySelector('dialog.trace-dialog') === null`, 2000));
+
+  // memória desenhada: duas variáveis na mesma lista apontam para a mesma caixa, e a recursão empilha quadros
+  await nav.ir(`${servidor.base}/?r=5#/pratica/python-basico/py-media`, 3000);
+  await digitar('a = [7, 8]\nb = a\nb.append(9)\ndef fat(n):\n    if n <= 1:\n        return 1\n    return n * fat(n - 1)\nr = fat(3)\n');
+  await avaliar(`[...document.querySelectorAll('#praticaView button')].find((b) => /Passo a passo/.test(b.textContent))?.click()`);
+  ok('Passo a passo abre na visão Memória', await esperar(`document.querySelector('.trace-count') !== null && document.querySelector('.trace-modos [aria-pressed="true"]')?.textContent === 'Memória'`, 90_000));
+  await avaliar(`(async () => { const p = document.querySelector('[title^="Próximo passo"]'); for (let i = 0; i < 6; i++) { p.click(); await new Promise((r) => setTimeout(r, 80)); } return 1; })()`);
+  ok('a e b apontam para a mesma lista (uma caixa, duas setas)', await esperar(`(() => { const pontos = [...document.querySelectorAll('.mem-quadro .mem-ponto')].map((p) => p.dataset.aponta); return pontos.length >= 2 && new Set(pontos).size === 1 && document.querySelectorAll('.mem-caixa').length === 1 && document.querySelectorAll('.mem-setas path:not(marker path)').length >= 2; })()`, 5000));
+  ok('a lista desenhada tem os 3 valores depois do append', await avaliar(`[...document.querySelectorAll('.mem-caixa .mem-celula code')].map((c) => c.textContent).join(',') === '7,8,9'`));
+  await avaliar(`(async () => { const p = document.querySelector('[title^="Próximo passo"]'); for (let i = 0; i < 40 && document.querySelectorAll('.mem-quadro').length < 4; i++) { p.click(); await new Promise((r) => setTimeout(r, 60)); } return 1; })()`);
+  ok('recursão: fat() empilha um quadro por chamada', await avaliar(`document.querySelectorAll('.mem-quadro').length === 4 && document.querySelector('.mem-quadro.topo .mem-quadro-nome').textContent === 'fat()'`));
+  await avaliar(`[...document.querySelectorAll('.trace-modos button')].find((b) => b.textContent === 'Tabela').click()`);
+  ok('botão Tabela volta para a visão de tabela', await esperar(`document.querySelector('.trace-vars table') !== null && document.querySelector('.mem') === null`, 3000));
+  await avaliar(`document.querySelector('.trace-head button[aria-label="Fechar"]').click()`);
 
   // exercício de Python com resposta booleana: a tela usa True/False, como no Python
   await nav.ir(`${servidor.base}/?r=4#/pratica/python-basico/py-par`, 3000);
