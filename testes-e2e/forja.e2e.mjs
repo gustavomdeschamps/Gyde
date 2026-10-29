@@ -61,6 +61,28 @@ try {
     && ia.pedidos.slice(antesDaPreguica).filter((p) => /Você ainda não mudou nada/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1
     && /a\s*\+\s*b/.test(proj.ler('soma.js')));
 
+  // prévia ao vivo: sem index.html explica; com index.html mostra o site isolado e recarrega quando a Forja edita
+  const botaoAoVivo = `[...document.querySelectorAll('.forja-acoes .btn')].find((b) => /Ao vivo/.test(b.textContent))`;
+  await avaliar(`${botaoAoVivo}.click()`);
+  ok('Ao vivo sem index.html explica o motivo', await esperar(`/não tem um index.html/.test(document.querySelector('.forja-previa-info')?.textContent || '')`, 5000));
+  await avaliar(`${botaoAoVivo}.click()`);
+  writeFileSync(path.join(proj.pasta, 'index.html'), '<!doctype html><html><head><link rel="stylesheet" href="estilo.css"></head><body><h1>Olá, mundo</h1></body></html>');
+  writeFileSync(path.join(proj.pasta, 'estilo.css'), 'h1 { color: blue; }');
+  await avaliar(`${botaoAoVivo}.click()`);
+  ok('Ao vivo abre o site do projeto ao lado, isolado (sandbox sem allow-same-origin)', await esperar(`(() => { const f = document.querySelector('.forja-previa iframe'); return Boolean(f) && /^\\/previa\\/[0-9a-f]{48}\\/index\\.html/.test(f.getAttribute('src')) && !/allow-same-origin/.test(f.getAttribute('sandbox')); })()`, 5000));
+  const src = await avaliar(`document.querySelector('.forja-previa iframe').getAttribute('src')`);
+  const base = `${servidor.base}${src.replace(/index\.html.*$/, '')}`;
+  const pagina = await fetch(`${base}index.html`);
+  ok('o servidor entrega a página com CSP sandbox, sem cache', /Olá, mundo/.test(await pagina.text()) && /sandbox allow-scripts/.test(pagina.headers.get('content-security-policy') || '') && pagina.headers.get('cache-control') === 'no-store');
+  ok('arquivos de apoio (CSS) também carregam', /color: blue/.test(await (await fetch(`${base}estilo.css`)).text()));
+  ok('a prévia não entrega .env nem sai da pasta', (await fetch(`${base}.env`)).status === 404 && (await fetch(`${base}..%2F..%2Fsegredo.txt`)).status === 404);
+  ok('chave inventada não abre nada', (await fetch(`${servidor.base}/previa/${'0'.repeat(48)}/index.html`)).status === 404);
+  const versaoAntes = await avaliar(`document.querySelector('.forja-previa iframe').getAttribute('src')`);
+  await pedir('PREVIA troque o título');
+  ok('quando a Forja edita um arquivo, a prévia recarrega sozinha', await esperar(`document.querySelector('.forja-previa iframe')?.getAttribute('src') !== ${JSON.stringify(versaoAntes)}`, 30_000) && /Olá, Gyde/.test(await (await fetch(`${base}index.html`)).text()));
+  await avaliar(`document.querySelector('.forja-previa button[aria-label="Fechar a prévia"]').click()`);
+  ok('fechar a prévia volta a conversa para a tela inteira', await esperar(`document.querySelector('.forja-previa') === null`, 3000));
+
   await pedir('Rode um comando LONGA e espere terminar.');
   await esperar(`[...document.querySelectorAll('.ag-passo[data-nome="executar"]')].some((p) => p.classList.contains('rodando'))`, 30_000);
   ok('botão vira "Parar" enquanto trabalha', await avaliar(`document.querySelector('#agenteView .send').getAttribute('aria-label') === 'Parar'`));

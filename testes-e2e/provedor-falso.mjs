@@ -11,7 +11,9 @@ const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const textoDe = (c) => (typeof c === 'string' ? c : Array.isArray(c) ? c.map((p) => p.text ?? '').join(' ') : '');
 
 function forja(mensagens) {
-  const tarefa = textoDe(mensagens.find((m) => m.role === 'user')?.content);
+  // só o pedido novo: a primeira mensagem também traz o histórico da conversa, com as palavras-chave dos pedidos antigos
+  const inicial = textoDe(mensagens.find((m) => m.role === 'user')?.content);
+  const tarefa = inicial.split('NOVA MENSAGEM DO USUÁRIO:').pop() ?? inicial;
   const passo = mensagens.filter((m) => m.role === 'assistant').length;
   if (/LONGA/.test(tarefa)) {
     return passo === 0
@@ -27,6 +29,12 @@ function forja(mensagens) {
       { pensamento: 'Pronto.', resposta: '**O que fiz**\nCorrigi a soma e rodei os testes.' },
     ];
     return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
+  // PREVIA: troca o título do index.html (para a prévia ao vivo recarregar)
+  if (/PREVIA/.test(tarefa)) {
+    return passo === 0 ? { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'index.html' } }] }
+      : passo === 1 ? { pensamento: 'Troco o título.', acoes: [{ ferramenta: 'editar', args: { caminho: 'index.html', procurar: 'Olá, mundo', substituir: 'Olá, Gyde' } }] }
+        : { pensamento: 'Pronto.', resposta: '**O que fiz**\nTroquei o título.' };
   }
   // TEXTOPURO: lê um arquivo e termina com texto puro (sem JSON), como muitos modelos grátis fazem
   if (/TEXTOPURO/.test(tarefa)) return passo === 0 ? { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] } : 'O arquivo soma.js tem a função soma, que hoje subtrai os dois números.';

@@ -2,7 +2,7 @@
 // O modelo lê, procura, edita arquivos e roda comandos até terminar, mostrando cada ação real.
 // Só funciona no modo pessoal (o Gyde rodando no seu computador) e só dentro da pasta escolhida.
 // As proteções ficam em seguranca.js e valem mesmo que o modelo tente outra coisa.
-import { randomUUID, createHash } from 'node:crypto';
+import { randomUUID, randomBytes, createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, rmSync, realpathSync, accessSync, constants as FS } from 'node:fs';
 import path from 'node:path';
@@ -489,6 +489,41 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.sendFile(arq);
   });
+  // ---------- prévia ao vivo do projeto (sites estáticos) ----------
+  // A página do projeto roda com um endereço próprio (/previa/<chave aleatória>/...), só de leitura, preso à pasta e
+  // isolado em sandbox: o JavaScript do projeto fica numa origem opaca e não alcança os cookies nem a API do Gyde.
+  // A chave vale 2 horas e só para a pasta daquela conversa.
+  const previas = new Map<string, { pasta: string; expira: number }>();
+  const ENTRADAS = ['index.html', 'public/index.html', 'src/index.html', 'docs/index.html', 'site/index.html'];
+  app.post('/api/codigo/sessoes/:id/previa', bloqueado, (req, res) => {
+    const s = q.uma.get(String(req.params.id), req.user.id);
+    if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
+    { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
+    const pasta = realpathSync.native(s.pasta);
+    const entrada = ENTRADAS.find((f) => existsSync(path.join(pasta, f)));
+    if (!entrada) return responder(res, C.PreviaForja, { url: null, entrada: null, motivo: 'A prévia ao vivo mostra sites feitos com HTML, CSS e JavaScript: este projeto não tem um index.html (na raiz, em public/, src/, docs/ ou site/).' });
+    for (const [k, v] of previas) if (v.expira < Date.now()) previas.delete(k);
+    const chave = randomBytes(24).toString('hex');
+    previas.set(chave, { pasta, expira: Date.now() + 2 * 3_600_000 });
+    responder(res, C.PreviaForja, { url: `/previa/${chave}/${entrada}`, entrada, motivo: null });
+  });
+  const TIPOS: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.txt': 'text/plain; charset=utf-8' };
+  app.get('/previa/:chave/*caminho', (req, res) => {
+    const previa = previas.get(String(req.params.chave));
+    if (!pessoal || !previa || previa.expira < Date.now()) return res.status(404).type('text/plain').send('Prévia expirada. Abra de novo pela Forja.');
+    const partes = (req.params as unknown as { caminho?: string[] }).caminho ?? [];
+    let alvo: string;
+    try { alvo = caminhoSeguro(previa.pasta, partes.join('/') || 'index.html'); } catch { return res.status(404).type('text/plain').send('Arquivo fora do projeto.'); }
+    if (existsSync(alvo) && statSync(alvo).isDirectory()) alvo = path.join(alvo, 'index.html');
+    const tipo = TIPOS[path.extname(alvo).toLowerCase()];
+    if (!tipo || !existsSync(alvo)) return res.status(404).type('text/plain').send('Arquivo não encontrado.');
+    res.setHeader('Content-Security-Policy', 'sandbox allow-scripts allow-forms allow-modals allow-popups');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Content-Type', tipo);
+    res.send(readFileSync(alvo));
+  });
+
   app.delete('/api/codigo/sessoes/:id', bloqueado, (req, res) => {
     const s = q.uma.get(String(req.params.id), req.user.id);
     if (s) {

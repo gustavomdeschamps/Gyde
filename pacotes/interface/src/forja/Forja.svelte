@@ -35,6 +35,11 @@
   let ocupadoBotao = $state(false);
   let rolagem: HTMLElement | undefined = $state();
   let campo: HTMLTextAreaElement | undefined = $state();
+  // prévia ao vivo: o site do projeto ao lado da conversa, recarregado quando a Forja muda arquivos
+  let previa = $state<{ aberta: boolean; url: string | null; motivo: string; versao: number; carregando: boolean }>({ aberta: false, url: null, motivo: '', versao: 0, carregando: false });
+  let recarga: ReturnType<typeof setTimeout> | null = null;
+  const recarregarPrevia = () => { if (!previa.aberta || !previa.url) return; if (recarga) clearTimeout(recarga); recarga = setTimeout(() => { previa.versao++; }, 250); };
+  const MUDA_ARQUIVO = new Set(['escrever', 'editar', 'apagar', 'desfazer']);
 
   const nomeDaPasta = (p: string) => p.split(/[\\/]/).filter(Boolean).pop() || p;
   const quando = (ms: number) => new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -62,7 +67,15 @@
       if (pendente.__forjaPendente) { texto = pendente.__forjaPendente; pendente.__forjaPendente = null; await tick(); enviarTarefa(); }
     } catch (e) { erro = mensagemDe(e); sessao = null; }
   }
-  $effect(() => { void id; carregar(); });
+  $effect(() => { void id; previa = { aberta: false, url: null, motivo: '', versao: 0, carregando: false }; carregar(); });
+
+  async function alternarPrevia() {
+    if (previa.aberta) { previa.aberta = false; return; }
+    previa = { aberta: true, url: null, motivo: '', versao: 0, carregando: true };
+    try { const r = await pedir(`/api/codigo/sessoes/${id}/previa`, C.PreviaForja, { method: 'POST' }); previa.url = r.url; previa.motivo = r.motivo ?? ''; }
+    catch (e) { previa.motivo = mensagemDe(e); }
+    previa.carregando = false;
+  }
 
   // no app de desktop a janela de pasta é a nativa; no navegador, o servidor abre a do Windows
   const escolherPasta = async () => (desktop ? desktop.escolherPasta() : (await enviar<{ pasta: string | null }>('/api/codigo/escolher-pasta', { method: 'POST' })).pasta);
@@ -98,7 +111,7 @@
     if (!confirm('Desfazer a última tarefa da Forja? Os arquivos que ela mudou voltam ao que eram antes (os que você editou depois ficam como estão).')) return;
     try {
       const r = await enviar<{ saida: string; podeDesfazer: boolean }>(`/api/codigo/sessoes/${id}/desfazer`, { method: 'POST' });
-      aplicar(itens, { tipo: 'desfeito', texto: r.saida }); sessao.podeDesfazer = r.podeDesfazer; descer();
+      aplicar(itens, { tipo: 'desfeito', texto: r.saida }); sessao.podeDesfazer = r.podeDesfazer; descer(); recarregarPrevia();
     } catch (e) { toast(mensagemDe(e)); }
   }
 
@@ -158,6 +171,7 @@
           if (!linha.startsWith('data: ')) continue;
           const ev = JSON.parse(linha.slice(6)) as Evento;
           if (ev.tipo === 'fim') { if (sessao) sessao.podeDesfazer = Boolean(ev.podeDesfazer); } else aplicar(itens, ev, true);
+          if (ev.tipo === 'resultado' && ev.ok && MUDA_ARQUIVO.has(String(ev.nome))) recarregarPrevia();
           descer();
         }
       }
@@ -178,6 +192,7 @@
 
 <svelte:window onclick={(e) => { if (!(e.target as Element).closest?.('.forja-proj')) menuAberto = false; }} />
 
+<div class="forja-area" class:com-previa={previa.aberta}>
 <div class="forja-chat">
   <header class="forja-topo">
     <div class="forja-proj">
@@ -202,6 +217,7 @@
     {/if}
     {#if sessao}
       <span class="forja-acoes">
+        <button type="button" class="btn small ghost" class:ativo={previa.aberta} aria-pressed={previa.aberta} title="Mostra o site do projeto ao lado e atualiza sozinho quando a Forja muda os arquivos" onclick={alternarPrevia}>{@html ic.aovivo}Ao vivo</button>
         {#if sessao.podeDesfazer}<button type="button" class="btn small ghost" title="Volta os arquivos ao que eram antes da última tarefa da Forja" onclick={desfazer}>{@html ic.desfazer}Desfazer</button>{/if}
         <button type="button" class="icon-btn" title="Arquivos que a Forja pode ver" aria-label="Arquivos do projeto" aria-expanded={arvore.aberta} onclick={alternarArvore}>{@html ic.arquivos}</button>
         <button type="button" class="icon-btn" title="Apagar esta conversa (os arquivos do projeto ficam)" aria-label="Apagar esta conversa" onclick={apagarConversa}>{@html ic.lixo}</button>
@@ -287,4 +303,20 @@
       <button type="submit" class="send" class:streaming={trabalhando} aria-label={trabalhando ? 'Parar' : 'Enviar'}>{@html ic.enviar}</button>
     </div>
   </form>
+</div>
+{#if previa.aberta}
+  <aside class="forja-previa" aria-label="Prévia ao vivo do projeto">
+    <div class="forja-previa-topo">
+      <span class="forja-previa-ponto" class:on={previa.url}></span><b>Ao vivo</b>
+      <small>{previa.url ? previa.url.replace(/^\/previa\/[0-9a-f]+\//, '') : ''}</small>
+      <button type="button" class="icon-btn" title="Recarregar" aria-label="Recarregar a prévia" disabled={!previa.url} onclick={() => previa.versao++}>{@html ic.recarregar}</button>
+      <button type="button" class="icon-btn" title="Fechar a prévia" aria-label="Fechar a prévia" onclick={() => (previa.aberta = false)}>{@html ic.fechar}</button>
+    </div>
+    {#if previa.carregando}<p class="forja-previa-info">Preparando a prévia…</p>
+    {:else if previa.url}
+      {#key previa.versao}<iframe title="Site do projeto" src="{previa.url}?v={previa.versao}" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>{/key}
+      <p class="forja-previa-nota">O site roda isolado: ele não acessa a sua conta do Gyde.</p>
+    {:else}<p class="forja-previa-info">{previa.motivo}</p>{/if}
+  </aside>
+{/if}
 </div>

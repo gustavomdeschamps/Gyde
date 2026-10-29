@@ -124,6 +124,8 @@ export const EstadoPraticaComGanhos = EstadoPratica.extend({ ganhos: z.array(z.o
 export const ConferenciaEtapa = EstadoPraticaComGanhos.extend({ conferencia: z.object({ ok: z.boolean(), criterios: z.array(z.object({ descricao: z.string(), ok: z.boolean() })) }) });
 
 // ---------- Forja ----------
+// prévia ao vivo: url só quando o projeto tem um index.html; senão o motivo
+export const PreviaForja = z.object({ url: z.string().nullable(), entrada: z.string().nullable(), motivo: z.string().nullable() }).refine((p) => (p.url === null) !== (p.motivo === null), { message: 'prévia: ou url ou motivo' });
 export const EstadoPasta = z.object({ ok: z.boolean(), motivo: z.string().nullable(), texto: z.string().nullable(), temporario: z.boolean().optional() })
   .refine((e) => e.ok || Boolean(e.texto), { message: 'pasta indisponível sem explicação' });
 export const Projeto = z.object({ tecnologias: z.array(z.string()), testes: z.string().nullable(), arquivos: z.number().int(), git: z.boolean() });

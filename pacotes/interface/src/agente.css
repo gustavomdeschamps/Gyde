@@ -151,3 +151,18 @@
 .forja-recentes time { font-size: 12px; color: var(--text-faint); flex: none; }
 .forja-aviso.erro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 .forja-aviso-acoes { display: flex; gap: 6px; }
+/* prévia ao vivo ao lado da conversa */
+.forja-area { display: flex; height: 100%; min-height: 0; }
+.forja-area > .forja-chat { flex: 1; min-width: 0; }
+.forja-previa { width: min(48%, 720px); flex: none; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: var(--surface); animation: previa-entra var(--t3) var(--ease); }
+.forja-previa-topo { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.forja-previa-topo small { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-faint); font: 12px var(--mono); }
+.forja-previa-ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); }
+.forja-previa-ponto.on { background: var(--success); box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 25%, transparent); }
+.forja-previa iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+.forja-previa-info { margin: 24px 18px; color: var(--text-soft); line-height: 1.55; }
+.forja-previa-nota { margin: 0; padding: 6px 12px; font-size: 12px; color: var(--text-faint); border-top: 1px solid var(--border); }
+.forja-acoes .btn.ativo { color: var(--accent-text); background: var(--accent-soft); }
+@keyframes previa-entra { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .forja-previa { animation: none; } }
+@media (max-width: 900px) { .forja-area.com-previa { flex-direction: column; } .forja-previa { width: 100%; height: 45%; border-left: 0; border-top: 1px solid var(--border); } }
