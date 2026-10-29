@@ -127,5 +127,6 @@ modelo local quando o FreeLLMAPI não responde). O modelo local é mais simples 
 | O quê | Como |
 |---|---|
 | Gerar imagens | **Configurações > IA e modelos**: cole o Account ID e um API Token da Cloudflare (grátis, com cota diária) |
-| Extensão do VS Code e do Chrome | Veja o README de cada uma em `pacotes/extensao-vscode` e `pacotes/extensao-chrome` (o app do Gyde precisa estar aberto) |
+| Extensão do VS Code | Com o código do Gyde baixado e o Node.js instalado, rode `ferramentas\instalar-vscode.bat` (gera e instala a extensão). Depois siga `pacotes/extensao-vscode/README.md` para ligar ao app |
+| Extensão do Chrome | Siga `pacotes/extensao-chrome/LEIA-ME.md` (o app do Gyde precisa estar aberto) |
 | Usar pelo código (para quem desenvolve) | Veja **CONTRIBUTING.md**: `npm install`, `npm run build` e `npm start` |

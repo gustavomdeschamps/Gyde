@@ -79,7 +79,7 @@ try {
     else await avaliar(`document.querySelectorAll('.quiz-option')[${i % 2}]?.click()`);
     await espera(900);
   }
-  if (await esperar(`document.querySelector('.quiz-score') !== null`, 8000)) await foto('passo-08-resultado.png');
+  await esperar(`document.querySelector('.quiz-score') !== null`, 8000);
   await avaliar(clicarTexto('button', 'Começar a usar o Gyde'));
   await esperar(`document.querySelector('#greeting') !== null`, 15000);
   await foto('passo-09-inicio.png');
@@ -93,8 +93,6 @@ try {
   await avaliar(`(location.hash = '#/pratica', 1)`);
   await esperar(`document.querySelector('#praticaView .plano') !== null`);
   await foto('passo-10-pratica.png');
-  await avaliar(`(()=>{ const s = document.querySelector('#praticaView'); const h = [...document.querySelectorAll('.section-title')].find((x) => /Projetos guiados/.test(x.textContent)); s.scrollTop += h.getBoundingClientRect().top - 90; return 1; })()`);
-  await foto('passo-10-projetos.png');
   await avaliar(`(location.hash = '#/pratica/projeto/pj-web-portfolio', 1)`);
   await esperar(`document.querySelector('.projeto-sobre') !== null`);
   await foto('passo-10-projeto.png');
@@ -105,7 +103,6 @@ try {
   const sessao = await avaliar(`fetch('/api/codigo/sessoes', { method: 'POST', headers: { 'x-gyde': '1', 'Content-Type': 'application/json' }, body: JSON.stringify({ pasta: ${JSON.stringify(PROJETO)} }) }).then((r) => r.json()).then((j) => j.id)`);
   await avaliar(`(location.hash = '#/agente/${sessao}', 1)`);
   await esperar(`document.querySelector('.forja-proj-txt b') !== null`);
-  await foto('passo-11-forja-pasta.png');
   await avaliar(`(()=>{ const t = document.querySelector('#agenteView textarea'); t.value = 'Quando eu clicar no botão, em vez do alerta, mostre "Você clicou!" num parágrafo abaixo dele.'; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('#agenteView form').requestSubmit(); return 1; })()`);
   await esperar(`document.querySelector('.forja-turno') && !document.querySelector('.forja-turno.trabalhando')`, 240000);
   await espera(1500);

@@ -360,7 +360,7 @@ rodando comandos é só do Windows.
 | `pacotes/desktop/` | App de desktop (Electron). O instalador é gerado com `npm run dist:win` |
 | `pacotes/extensao-vscode/`, `pacotes/extensao-chrome/` | Extensões para o VS Code e o Chrome |
 | `testes-e2e/` | Testes de navegador (`npm run e2e`) e o teste do instalador (`npm run teste:instalacao`) |
-| `docs/` | Imagens desta página, o tutorial em vídeo (`docs/tutorial/`), as avaliações da IA (`docs/avaliacao/`) e o plano da reestruturação |
+| `docs/` | Imagens desta página, o tutorial em vídeo (`docs/tutorial/`) e as avaliações da IA (`docs/avaliacao/`) |
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).
 
