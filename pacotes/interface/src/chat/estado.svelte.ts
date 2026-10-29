@@ -199,6 +199,10 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
   const envio: Envio = { mode, messageId, content, attachments, model: chat.modelo, kind: mode === 'new' && chat.modoImagem ? 'image' : 'chat' };
   if (envio.kind === 'image') chat.modoImagem = false;
   controle = new AbortController();
+  // a resposta pertence a esta conversa: se a pessoa abrir outra (ou "Nova conversa"), o que ainda chegar é ignorado,
+  // senão uma mensagem da conversa antiga aparece na nova
+  const minhaConversa = chat.convId;
+  const atual = () => chat.convId === minhaConversa;
   chat.transmitindo = true;
   chat.temporaria = mode === 'new' || mode === 'edit' ? { content: content ?? '', attachments: attachments ?? [] } : null;
   chat.resposta = { texto: '', status: '', skills: [], erro: null, envio };
@@ -218,6 +222,7 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
       const lidos = lerEventos(buffer + value);
       buffer = lidos.resto;
       for (const ev of lidos.eventos) {
+        if (!atual()) break;
         if (ev.type === 'user') { chat.mensagens.push(C.Mensagem.parse(ev.message)); chat.temporaria = null; }
         else if (ev.type === 'skills' && chat.resposta) chat.resposta.skills = ev.skills as SkillAtiva[];
         else if (ev.type === 'status' && chat.resposta) chat.resposta.status = String(ev.text);
@@ -248,8 +253,8 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
     if (e instanceof DOMException && e.name === 'AbortError') {
       // parado pelo usuário: o servidor salva o que já chegou; recarrega para ficar em sincronia
       chat.transmitindo = false; controle = null;
-      await abrirConversa(chat.convId!, { manterRolagem: true });
-    } else if (chat.resposta) {
+      if (atual()) await abrirConversa(chat.convId!, { manterRolagem: true });
+    } else if (chat.resposta && atual()) {
       chat.resposta.erro = mensagemDe(e); chat.rolar++;
     }
   } finally {

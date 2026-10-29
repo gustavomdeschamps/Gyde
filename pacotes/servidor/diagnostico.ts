@@ -19,9 +19,11 @@ const erros: { em: string; onde: string; mensagem: string; pilha: string }[] = [
 const barras = (s: string) => s.replaceAll('\\', '/');
 const RAIZ_GYDE = barras(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..'));
 const CASA = barras(os.homedir());
+// file:///C:/x vira C:/x (Windows) e file:///home/x vira /home/x (Linux e Mac: a barra do começo faz parte do caminho)
+const semEsquemaFile = (s: string) => s.replace(/file:\/\/\/(?=[A-Za-z]:)/g, '').replaceAll('file://', '');
 const trocarSemCaixa = (texto: string, de: string, para: string) => texto.replace(new RegExp(de.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), para);
 export const semCaminhosPessoais = (texto: string) =>
-  trocarSemCaixa(trocarSemCaixa(barras(texto).replaceAll('file:///', ''), RAIZ_GYDE, '<gyde>'), CASA, '~');
+  trocarSemCaixa(trocarSemCaixa(semEsquemaFile(barras(texto)), RAIZ_GYDE, '<gyde>'), CASA, '~');
 
 export function registrarErro(e: ErroGyde, onde: string) {
   const limpar = (t: string) => semCaminhosPessoais(redigir(t));
