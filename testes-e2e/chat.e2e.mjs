@@ -6,7 +6,8 @@ import { provedorFalso } from './provedor-falso.mjs';
 const { ok, fim } = placar();
 const ia = await provedorFalso();
 const servidor = await subirServidor({ env: { FREELLMAPI_URL: ia.url, FREELLMAPI_KEY: 'freellmapi-teste-falsa-0000' } });
-const conta = await clienteApi(servidor.base).criarConta({ nome: 'Clara Teste' });
+const api = clienteApi(servidor.base);
+const conta = await api.criarConta({ nome: 'Clara Teste' });
 const nav = await abrirNavegador();
 const { avaliar, esperar } = nav;
 const digitar = (texto) => avaliar(`(()=>{ const t = document.querySelector('#input'); t.focus(); t.value = ${JSON.stringify(texto)}; t.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
@@ -100,6 +101,18 @@ try {
   await nav.esperar('false', 500);
   ok('HTML perigoso na resposta não executa (sem onerror, script ou javascript:)', await avaliar(`window.__xss === undefined && window.__xss2 === undefined && !document.querySelector('.msg.assistant .md [onerror], .msg.assistant .md script, .msg.assistant .md a[href^="javascript"]')`));
   ok('o chat mandou o histórico ao provedor (pergunta e resposta anteriores)', ia.pedidos.some((p) => p.stream && p.mensagens.filter((m) => m.role === 'user').length >= 1));
+  // "Mostrar o erro" num print enviado: destaque na região que o modelo apontou e a explicação
+  const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+  const convPrint = await (await api.pedir('POST', '/api/conversations', {})).json();
+  await (await api.pedir('POST', `/api/conversations/${convPrint.id}/messages`, { mode: 'new', content: 'Por que dá esse erro?', attachments: [{ kind: 'image', name: 'erro.png', dataUrl: PNG }], model: 'gyde-1', kind: 'chat' })).text();
+  await nav.ir(`${servidor.base}/?r=9#/c/${convPrint.id}`, 2500);
+  ok('o print enviado tem o botão "Mostrar o erro"', await esperar(`[...document.querySelectorAll('.anexo-imagem .apontar-btn')].some((b) => /Mostrar o erro/.test(b.textContent))`));
+  await avaliar(`document.querySelector('.anexo-imagem .apontar-btn').click()`);
+  ok('o destaque aparece onde o modelo apontou', await esperar(`(() => { const r = document.querySelector('dialog.apontar[open] .apontar-regiao'); return Boolean(r) && r.style.left === '20%' && r.style.top === '30%' && r.style.width === '40%' && r.style.height === '10%'; })()`, 8000));
+  ok('a explicação e o aviso de estimativa aparecem', await avaliar(`/variável total não existe/.test(document.querySelector('.apontar-texto').textContent) && /estimativa do modelo/.test(document.querySelector('.apontar-nota').textContent)`));
+  await avaliar(`document.querySelector('dialog.apontar .icon-btn[aria-label="Fechar"]').click()`);
+  ok('fechar tira o diálogo', await esperar(`document.querySelector('dialog.apontar') === null`, 3000));
+  ok('o servidor recusa o que não é imagem', (await api.pedir('POST', '/api/apontar', { imagem: 'data:text/html;base64,PGgxPg==' })).status === 400);
   ok('sem erro de JavaScript', nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
 } finally { await nav.fechar(); await servidor.parar(); await ia.fechar(); }

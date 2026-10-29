@@ -140,6 +140,12 @@ export const Duelo = z.object({
 }).refine((d) => (d.estado === 'fim') === (d.resultado !== null), { message: 'duelo: resultado só no fim' });
 export const ListaDuelos = z.object({ duelos: z.array(Duelo) });
 export type TDuelo = z.infer<typeof Duelo>;
+// "Mostrar o erro" num print: região em porcentagem da imagem (estimada pelo modelo) e explicação curta
+export const Apontamento = z.object({
+  achou: z.boolean(), explicacao: z.string().min(1), modelo: z.string(),
+  regiao: z.object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100), largura: z.number().positive().max(100), altura: z.number().positive().max(100) }).nullable(),
+}).refine((a) => a.achou === (a.regiao !== null), { message: 'apontamento: região só quando achou' });
+export type TApontamento = z.infer<typeof Apontamento>;
 export const EstadoPraticaComGanhos = EstadoPratica.extend({ ganhos: z.array(z.object({ motivo: z.string(), xp: z.number() })) });
 export const ConferenciaEtapa = EstadoPraticaComGanhos.extend({ conferencia: z.object({ ok: z.boolean(), criterios: z.array(z.object({ descricao: z.string(), ok: z.boolean() })) }) });
 

@@ -20,6 +20,9 @@ export const CADEIAS: Record<string, string[]> = {
   util: [process.env.UTIL_MODEL || 'mistral-code', 'qwen3.8-27b', 'auto'],
   // com imagens: só modelos que enxergam (o FreeLLMAPI recusa os que não têm visão e o 'auto' escolhe um que tenha)
   visao: ['qwen3.8-27b', 'gemini-3.8-flash', 'auto'],
+  // "Mostrar o erro" num print: o gemini-robotics-er (feito para localização espacial) acertou a região em teste real;
+  // o qwen3.8-27b devolveu pixels em vez de porcentagem (a resposta é conferida e recusada)
+  apontar: ['gemini-robotics-er-2-preview', 'gemini-3.8-flash', 'qwen3.8-27b', 'auto'],
 };
 
 // Modelos que o usuário escolhe pelo nome direto continuam funcionando (cadeia de um modelo + automático).

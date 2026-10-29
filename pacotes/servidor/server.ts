@@ -10,6 +10,7 @@ import { setupAuth } from './auth.ts';
 import { setupPratica } from './pratica-servidor.ts';
 import { setupCertificados } from './certificados.ts';
 import { setupDuelos } from './duelos.ts';
+import { setupApontar } from './apontar.ts';
 import { setupMemoria } from './memoria.ts';
 import { setupTurmas } from './turmas.ts';
 import { setupAgente } from './agente.ts';
@@ -119,6 +120,7 @@ const memoria = setupMemoria(app, db, { router, ...preferencias }); // memória 
 setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
 setupChat(app, db, { router, provedores, uso, imagens, asyncRoute, preferencias, skills, memoria }); // conversas e mensagens
 const certificados = setupCertificados(app, db); // certificados dos projetos guiados (código de verificação)
+setupApontar(app, { router, asyncRoute, uso }); // "Mostrar o erro" num print (modelo com visão)
 const duelos = setupDuelos(app, db); // duelos entre contas do mesmo Gyde (memória do servidor)
 setupPratica(app, db, { router, profileSummary, asyncRoute, uso, emitirCertificados: certificados.emitirPendentes, registrarAcerto: duelos.registrarAcerto }); // exercícios, projetos, revisão, desafio do dia, amigos
 setupTurmas(app, db); // modo turma

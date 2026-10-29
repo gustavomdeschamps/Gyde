@@ -74,6 +74,12 @@ export async function provedorFalso() {
     pedidos.push({ modelo: corpo.model, stream: Boolean(corpo.stream), mensagens });
     const usage = { prompt_tokens: 100, completion_tokens: 20, total_tokens: 120 };
 
+    // "Mostrar o erro": região fixa (só se a imagem chegou de verdade no pedido)
+    if (/print de tela de alguém aprendendo/.test(textoDe(mensagens[0]?.content))) {
+      const temImagem = mensagens.some((m) => Array.isArray(m.content) && m.content.some((p) => p.type === 'image_url' && /^data:image\//.test(p.image_url?.url ?? '')));
+      const resposta = temImagem ? { achou: true, x: 20, y: 30, largura: 40, altura: 10, explicacao: 'A mensagem diz que a variável total não existe: ela foi usada antes de receber um valor.' } : { achou: false, explicacao: 'Não recebi imagem.' };
+      return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify(resposta) } }] });
+    }
     if (/Você é a Forja/.test(textoDe(mensagens[0]?.content))) {
       return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: ((r) => (typeof r === 'string' ? r : JSON.stringify(r)))(forja(mensagens)) } }] });
     }

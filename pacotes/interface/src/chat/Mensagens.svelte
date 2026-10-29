@@ -6,6 +6,9 @@
   import { renderMarkdown, tratarCliqueNaResposta } from '../markdown.ts';
   import { copiarTexto } from '../util.ts';
   import { falar, temVoz } from '../voz.ts';
+  import Apontar from './Apontar.svelte';
+  // "Mostrar o erro" num print enviado
+  let apontando = $state<{ imagem: string; nome: string; pergunta: string } | null>(null);
 
   const icone = {
     copiar: '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
@@ -51,9 +54,13 @@
   const autoAjuste = (el: HTMLTextAreaElement) => { const f = () => { el.style.height = 'auto'; el.style.height = `${Math.min(el.scrollHeight, 220)}px`; }; f(); el.focus(); el.addEventListener('input', f); };
 </script>
 
-{#snippet anexos(lista: Anexo[] | undefined)}
+{#snippet anexos(lista: Anexo[] | undefined, pergunta: string | null = null)}
   {#if lista?.length}
-    <div class="msg-attachments">{#each lista as a}{#if a.kind === 'image'}<img src={a.dataUrl} alt={a.name}>{:else}<span class="file-pill">{@html icone.arquivo}<span>{a.name}</span></span>{/if}{/each}</div>
+    <div class="msg-attachments">{#each lista as a}{#if a.kind === 'image'}
+      {#if pergunta !== null && a.dataUrl}
+        <span class="anexo-imagem"><img src={a.dataUrl} alt={a.name}><button type="button" class="btn small apontar-btn" onclick={() => (apontando = { imagem: a.dataUrl!, nome: a.name, pergunta })}>Mostrar o erro</button></span>
+      {:else}<img src={a.dataUrl} alt={a.name}>{/if}
+    {:else}<span class="file-pill">{@html icone.arquivo}<span>{a.name}</span></span>{/if}{/each}</div>
   {/if}
 {/snippet}
 
@@ -75,7 +82,7 @@
             <div class="edit-box"><textarea bind:value={textoEdicao} use:autoAjuste aria-label="Editar mensagem"></textarea>
               <div class="dialog-actions"><button class="btn ghost" onclick={() => (editando = null)}>Cancelar</button><button class="btn primary" onclick={() => salvarEdicao(m)}>Enviar</button></div></div>
           {:else}
-            {@render anexos(m.attachments as Anexo[])}
+            {@render anexos(m.attachments as Anexo[], m.content)}
             {#if m.content}<div class="bubble">{m.content}</div>{/if}
             <div class="msg-actions">
               <button title="Copiar" onclick={(e) => copiarTexto(m.content, e.currentTarget)}>{@html icone.copiar}</button>
@@ -113,3 +120,5 @@
     {/if}
   </div>
 </section>
+
+{#if apontando}<Apontar {...apontando} onfechar={() => (apontando = null)} />{/if}

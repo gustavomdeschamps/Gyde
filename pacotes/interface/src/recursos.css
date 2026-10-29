@@ -203,3 +203,20 @@ a.today-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); bor
 .turma-alunos li small { color: var(--text-faint); }
 .turma-alunos li .btn { margin-left: auto; }
 .badge.late { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+/* "Mostrar o erro" num print enviado */
+.anexo-imagem { position: relative; display: inline-block; }
+.anexo-imagem .apontar-btn { position: absolute; right: 6px; bottom: 6px; background: rgba(15, 23, 42, .78); color: #fff; border: 0; backdrop-filter: blur(4px); opacity: 0; transition: opacity var(--t2, 200ms) var(--ease); }
+.anexo-imagem:hover .apontar-btn, .anexo-imagem .apontar-btn:focus-visible { opacity: 1; }
+@media (hover: none) { .anexo-imagem .apontar-btn { opacity: 1; } }
+.apontar { width: min(980px, calc(100% - 24px)); max-height: calc(100dvh - 32px); padding: 18px 20px; display: none; }
+.apontar[open] { display: flex; flex-direction: column; gap: 12px; }
+.apontar-topo { display: flex; align-items: center; justify-content: space-between; }
+.apontar-topo h2 { margin: 0; }
+.apontar-imagem { position: relative; align-self: center; max-height: 62vh; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+.apontar-imagem img { display: block; max-width: 100%; max-height: 62vh; }
+.apontar-imagem.analisando img { filter: saturate(.6) brightness(.9); }
+.apontar-regiao { position: absolute; border: 3px solid #ef4444; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(15, 23, 42, .35), 0 0 18px rgba(239, 68, 68, .6); animation: apontar-entra 500ms var(--ease) both; }
+.apontar-texto { margin: 0; font-size: 15px; line-height: 1.6; }
+.apontar-nota { margin: 0; font-size: 12.5px; color: var(--text-faint); }
+@keyframes apontar-entra { from { opacity: 0; transform: scale(1.25); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .apontar-regiao { animation: none; } }
