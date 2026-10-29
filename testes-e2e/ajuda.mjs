@@ -49,7 +49,7 @@ export async function subirServidor({ env = {}, pasta } = {}) {
     async parar({ apagar = !pasta } = {}) {
       proc.kill();
       await new Promise((r) => (proc.exitCode !== null ? r() : proc.once('exit', r)));
-      if (apagar) { await espera(300); try { rmSync(dados, { recursive: true, force: true }); } catch { /* arquivo preso */ } }
+      if (apagar) { await espera(300); try { rmSync(dados, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); } catch { /* arquivo preso */ } }
     },
   };
 }
@@ -127,7 +127,7 @@ export async function abrirNavegador({ largura = 1280, altura = 860, movel = fal
         spawnSync('powershell', ['-NoProfile', '-Command', `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match '${path.basename(perfil)}' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`], { stdio: 'ignore' });
       } else proc.kill();
       await new Promise((r) => (proc.exitCode !== null ? r() : proc.once('exit', r)));
-      await espera(300); try { rmSync(perfil, { recursive: true, force: true }); } catch { /* perfil preso */ }
+      await espera(300); try { rmSync(perfil, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); } catch { /* perfil preso */ }
     },
   };
 }
@@ -149,5 +149,5 @@ if (soma(2, 3) !== 5) { console.log('FALHOU: soma(2, 3) deu ' + soma(2, 3)); pro
 console.log('OK');
 `);
   f('.env', `${['API_KEY=', 'SEGREDOFALSO', '1234567890'].join('')}\n`);
-  return { pasta, ler: (nome) => readFileSync(path.join(pasta, nome), 'utf8'), apagar: () => rmSync(pasta, { recursive: true, force: true }) };
+  return { pasta, ler: (nome) => readFileSync(path.join(pasta, nome), 'utf8'), apagar: () => rmSync(pasta, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }) };
 }

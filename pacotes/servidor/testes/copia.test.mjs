@@ -11,7 +11,7 @@ import { MIGRACOES } from '../migracoes.ts';
 import { gerarCopia, prepararRestauracao, prepararDePasta, aplicarRestauracaoPendente, temRestauracaoPendente } from '../copia.ts';
 
 const pastas = [];
-after(() => { for (const p of pastas) rmSync(p, { recursive: true, force: true }); });
+after(() => { for (const p of pastas) rmSync(p, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); });
 const pasta = () => { const p = mkdtempSync(path.join(tmpdir(), 'gyde-copia-teste-')); pastas.push(p); return p; };
 
 // um Gyde com uma conta, uma conversa e uma imagem

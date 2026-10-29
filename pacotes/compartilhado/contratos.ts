@@ -211,21 +211,16 @@ export const Uso = z.object({
   }),
 });
 
-export type TStatus = z.infer<typeof Status>;
 export type TRestauracaoPreparada = z.infer<typeof RestauracaoPreparada>;
 export type TPreferencias = z.infer<typeof Preferencias>;
 export type TPlano = z.infer<typeof Plano>;
 export type TPasso = z.infer<typeof Passo>;
 export type TEstadoPratica = z.infer<typeof EstadoPratica>;
-export type TEstadoPasta = z.infer<typeof EstadoPasta>;
-export type TProjeto = z.infer<typeof Projeto>;
 export type TSessaoForja = z.infer<typeof SessaoForja>;
 export type TUso = z.infer<typeof Uso>;
 export type TMemoria = z.infer<typeof Memoria>;
 export type TMensagem = z.infer<typeof Mensagem>;
-export type TConversa = z.infer<typeof Conversa>;
 export type TResumoConversa = z.infer<typeof ResumoConversa>;
-export type TModelos = z.infer<typeof Modelos>;
 export type TTokens = z.infer<typeof Tokens>;
 export type TListaTurmas = z.infer<typeof ListaTurmas>;
 export type TTurmaProfessor = z.infer<typeof TurmaProfessor>;

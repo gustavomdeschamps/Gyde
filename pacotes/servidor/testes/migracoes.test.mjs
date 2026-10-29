@@ -100,5 +100,5 @@ test('arquivo de verdade: abrir migra, cópia é um banco válido e só as 5 úl
     for (let i = 0; i < 7; i++) copiarBanco(db, copias, i);
     assert.equal(readdirSync(copias).length, 5);
     db.close();
-  } finally { rmSync(pasta, { recursive: true, force: true }); }
+  } finally { rmSync(pasta, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); }
 });

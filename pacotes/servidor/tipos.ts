@@ -45,7 +45,6 @@ export interface ErroGyde extends Error { status?: number; final?: boolean; limi
 export const erroGyde = (mensagem: string, extra: Partial<ErroGyde> = {}): ErroGyde => Object.assign(new Error(mensagem), extra);
 export const comoErro = (e: unknown): ErroGyde => (e instanceof Error ? e : new Error(String(e)));
 
-export type Rota = (req: Request, res: Response, next: NextFunction) => unknown;
 export type AsyncRoute = (fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) => RequestHandler;
 
 // Mensagem no formato da API de chat (texto ou partes com imagem).

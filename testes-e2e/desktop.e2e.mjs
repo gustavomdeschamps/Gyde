@@ -104,6 +104,6 @@ for (let i = 0; i < 20 && !livre; i++) { try { await fetch(`http://127.0.0.1:${p
 ok('fechar o app desliga o servidor', livre, `${((Date.now() - tFecha) / 1000).toFixed(1)} s`);
 if (process.platform === 'win32') { try { execSync(`taskkill /PID ${app.pid} /T /F`, { stdio: 'ignore' }); } catch { /* já fechou */ } } else app.kill('SIGKILL');
 await sleep(800);
-try { rmSync(dados, { recursive: true, force: true }); } catch { /* arquivo preso */ }
+try { rmSync(dados, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); } catch { /* arquivo preso */ }
 console.log(falhas ? `${falhas} FALHA(S)` : 'TUDO PASSOU');
 process.exit(falhas ? 1 : 0);

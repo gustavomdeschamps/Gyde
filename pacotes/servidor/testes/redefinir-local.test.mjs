@@ -12,7 +12,7 @@ const SERVIDOR = path.join(import.meta.dirname, '..', 'server.ts');
 const SEGREDO = 'segredo-de-teste-0123456789abcdef';
 const portaLivre = () => new Promise((ok) => { const s = createServer(); s.listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => ok(port)); }); });
 const abertos = [];
-after(() => { for (const { proc, pasta } of abertos) { proc.kill(); try { rmSync(pasta, { recursive: true, force: true }); } catch { /* arquivo preso */ } } });
+after(async () => { for (const { proc, pasta } of abertos) { proc.kill(); if (proc.exitCode === null) await new Promise((r) => proc.once('exit', r)); rmSync(pasta, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); } });
 
 async function subir(env) {
   const pasta = mkdtempSync(path.join(tmpdir(), 'gyde-redef-'));

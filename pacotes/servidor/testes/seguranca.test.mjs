@@ -41,7 +41,7 @@ test('caminhos não escapam da pasta (.., absoluto, atalho)', () => {
   let link = false;
   try { symlinkSync(fora, path.join(raiz, 'atalho'), 'junction'); link = true; } catch { /* sem permissão para criar atalho */ }
   if (link) assert.throws(() => caminhoSeguro(raiz, 'atalho/segredo.txt'), /atalho/);
-  rmSync(raiz, { recursive: true, force: true }); rmSync(fora, { recursive: true, force: true });
+  rmSync(raiz, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); rmSync(fora, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
 });
 test('comandos não recebem as chaves do Gyde', () => {
   process.env.FREELLMAPI_KEY = 'freellmapi-teste'; process.env.MEU_TOKEN = 'x'; process.env.PATH ||= 'p';
