@@ -625,14 +625,17 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         if (String(args.conteudo ?? '').includes('[segredo removido]') && redigir(readFileSync(alvo, 'utf8')) !== readFileSync(alvo, 'utf8')) return `Não substituí ${rel}: o conteúdo novo tem "[segredo removido]" no lugar de um segredo real do arquivo. Use "editar" só no trecho que precisa mudar.`;
         return null;
       };
+      // texto puro, sem JSON e sem tentar descrever ações, vale como resposta final: muitos modelos grátis terminam assim,
+      // e recusar isso fazia a tarefa falhar no último passo com o trabalho já feito no disco
+      const textoFinal = (t: string) => t.trim().length > 20 && !t.includes('{') && !/"?(acoes|ferramenta)"?\s*:/.test(t);
       let terminou = false;
       for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted; passo++) {
         registrar('pensando', { passo });
         const { texto, modelo } = await completar(router, {
           cadeia, messages: msgs, max_tokens: 6000, temperature: 0.2, signal: controle.signal, registro,
-          valida: (t) => Boolean(normalizar(extrairJson(t))),
+          valida: (t) => Boolean(normalizar(extrairJson(t)) || textoFinal(t)),
         });
-        const o = normalizar(extrairJson(texto))!;
+        const o = normalizar(extrairJson(texto)) ?? { resposta: texto.trim() };
         msgs.push({ role: 'assistant', content: JSON.stringify(o) });
         // mudou arquivos e vai terminar sem rodar nada depois: pede uma vez para verificar (há comando de testes conhecido)
         if (o.resposta && projeto.testes && !cobrouTestes && rodadaDaUltimaMudanca > rodadaDoUltimoComando) {

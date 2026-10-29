@@ -8,10 +8,15 @@
 import type { Router, Registro, MensagemIA } from './tipos.ts';
 import { comoErro } from './tipos.ts';
 
+// Ordem medida com ferramentas/avaliar-modelos.mjs (resultados em docs/avaliacao/): qwen3.8-27b e gpt-oss-120b acertaram
+// código, correção de bug, explicação sem entregar a resposta e o formato da Forja, em menos de 1 s; os slots
+// "claude-*" foram roteados para um modelo que errou código e o formato JSON e levou 13 a 15 s, então ficam de reserva
+// no chat. Na Forja os pedidos são grandes (estrutura do projeto, arquivos, histórico): os modelos que passam pelo Groq
+// (qwen3.8-27b, gpt-oss-120b) recusam esse tamanho (413/429) e a avaliação da Forja mostrou a ordem original melhor.
 export const CADEIAS: Record<string, string[]> = {
-  'gyde-1': ['claude-sonnet-4-5', 'qwen3.8-27b', 'gpt-oss-120b', 'codestral', 'auto'],
-  'gyde-1-pro': ['claude-opus-4-5', 'claude-sonnet-4-5', 'gpt-oss-120b', 'fusion', 'auto'],
-  agente: ['claude-sonnet-4-5', 'claude-opus-4-5', 'qwen3.8-27b', 'gpt-oss-120b', 'codestral', 'auto'],
+  'gyde-1': ['qwen3.8-27b', 'gpt-oss-120b', 'codestral', 'claude-sonnet-4-5', 'auto'],
+  'gyde-1-pro': ['gpt-oss-120b', 'qwen3.8-27b', 'fusion', 'claude-opus-4-5', 'auto'],
+  agente: ['claude-sonnet-4-5', 'claude-opus-4-5', 'codestral', 'mistral-code', 'qwen3.8-27b', 'gpt-oss-120b', 'auto'],
   util: [process.env.UTIL_MODEL || 'mistral-code', 'qwen3.8-27b', 'auto'],
   // com imagens: só modelos que enxergam (o FreeLLMAPI recusa os que não têm visão e o 'auto' escolhe um que tenha)
   visao: ['qwen3.8-27b', 'gemini-3.8-flash', 'auto'],

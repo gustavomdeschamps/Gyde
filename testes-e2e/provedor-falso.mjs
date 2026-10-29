@@ -18,6 +18,8 @@ function forja(mensagens) {
       ? { pensamento: 'Vou rodar o comando pedido.', acoes: [{ ferramenta: 'executar', args: { comando: 'node -e "setTimeout(() => {}, 60000)"' } }] }
       : { pensamento: 'Terminei.', resposta: '**O que fiz**\nRodei o comando.' };
   }
+  // TEXTOPURO: lê um arquivo e termina com texto puro (sem JSON), como muitos modelos grátis fazem
+  if (/TEXTOPURO/.test(tarefa)) return passo === 0 ? { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] } : 'O arquivo soma.js tem a função soma, que hoje subtrai os dois números.';
   // SOBRESCREVER: tenta substituir sem ler, depois regravar com o segredo apagado, edita e tenta terminar sem testar
   if (/SOBRESCREVER/.test(tarefa)) {
     const roteiro = [
@@ -55,7 +57,7 @@ export async function provedorFalso() {
     const usage = { prompt_tokens: 100, completion_tokens: 20, total_tokens: 120 };
 
     if (/Você é a Forja/.test(textoDe(mensagens[0]?.content))) {
-      return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify(forja(mensagens)) } }] });
+      return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: ((r) => (typeof r === 'string' ? r : JSON.stringify(r)))(forja(mensagens)) } }] });
     }
     const pergunta = textoDe(mensagens.filter((m) => m.role === 'user').at(-1)?.content).trim();
     if (!corpo.stream) return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: 'Conversa de teste' } }] });

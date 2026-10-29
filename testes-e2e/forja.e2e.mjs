@@ -49,6 +49,9 @@ try {
   ok('mudou e quis terminar sem testar: a Forja pede os testes uma vez', (conversa.match(/Antes de responder: você alterou arquivos/g) || []).length >= 1 && ia.pedidos.slice(antesDasTravas).filter((p) => /Antes de responder: você alterou arquivos/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1);
   ok('o turno fecha com npm test rodado', await esperar(`/✓ npm test/.test([...document.querySelectorAll('.forja-resumo')].pop()?.textContent || '')`, 5000));
 
+  await pedir('TEXTOPURO o que tem em soma.js?');
+  ok('resposta final em texto puro vale como resposta (não vira erro)', await esperar(`document.querySelectorAll('.forja-turno').length === 3 && !document.querySelector('.forja-turno.trabalhando') && /tem a função soma/.test([...document.querySelectorAll('.forja-turno')].pop().textContent)`, 30_000));
+
   await pedir('Rode um comando LONGA e espere terminar.');
   await esperar(`[...document.querySelectorAll('.ag-passo[data-nome="executar"]')].some((p) => p.classList.contains('rodando'))`, 30_000);
   ok('botão vira "Parar" enquanto trabalha', await avaliar(`document.querySelector('#agenteView .send').getAttribute('aria-label') === 'Parar'`));

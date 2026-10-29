@@ -1,0 +1,939 @@
+{
+  "em": "2026-10-29T03:50:12.026Z",
+  "repeticoes": 2,
+  "modelos": [
+    "claude-sonnet-4-5",
+    "claude-opus-4-5",
+    "qwen3.8-27b",
+    "gpt-oss-120b",
+    "codestral",
+    "mistral-code",
+    "gemini-3.8-flash",
+    "nemotron-3-super-120b",
+    "auto"
+  ],
+  "tarefas": [
+    {
+      "id": "codigo-js",
+      "tipo": "gerar código"
+    },
+    {
+      "id": "corrigir-python",
+      "tipo": "corrigir bug"
+    },
+    {
+      "id": "tutor",
+      "tipo": "explicar sem dar a resposta"
+    },
+    {
+      "id": "json-forja",
+      "tipo": "seguir o formato do agente"
+    },
+    {
+      "id": "visao",
+      "tipo": "ler imagem"
+    }
+  ],
+  "resultados": [
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "codigo-js",
+      "ok": false,
+      "motivo": "não rodou: Unexpected end of input",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 13207,
+      "tokens": 1263,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 7240,
+      "tokens": 613,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 10895,
+      "tokens": 1006,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 10853,
+      "tokens": 933,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 6982,
+      "tokens": 590,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 6842,
+      "tokens": 625,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "json-forja",
+      "ok": false,
+      "motivo": "ações: nenhuma",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 15693,
+      "tokens": 1379,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 3157,
+      "tokens": 352,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "visao",
+      "ok": true,
+      "motivo": "viu as duas cores",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 5518,
+      "tokens": 485,
+      "erro": false
+    },
+    {
+      "modelo": "claude-sonnet-4-5",
+      "tarefa": "visao",
+      "ok": true,
+      "motivo": "viu as duas cores",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 7358,
+      "tokens": 597,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 6272,
+      "tokens": 516,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "codigo-js",
+      "ok": false,
+      "motivo": "não rodou: Unexpected identifier 'are'",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 13948,
+      "tokens": 1263,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 3229,
+      "tokens": 276,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 3633,
+      "tokens": 284,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 6058,
+      "tokens": 529,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "google/gemini-3.5-flash-lite",
+      "ms": 2429,
+      "tokens": 458,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "google/gemini-3.5-flash-lite",
+      "ms": 1566,
+      "tokens": 279,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 567,
+      "tokens": 278,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "visao",
+      "ok": true,
+      "motivo": "viu as duas cores",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 481,
+      "tokens": 1346,
+      "erro": false
+    },
+    {
+      "modelo": "claude-opus-4-5",
+      "tarefa": "visao",
+      "ok": true,
+      "motivo": "viu as duas cores",
+      "via": "openrouter/dots-studio/dots-3-note-preview:free",
+      "ms": 5345,
+      "tokens": 506,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 391,
+      "tokens": 123,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 879,
+      "tokens": 123,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 541,
+      "tokens": 150,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 479,
+      "tokens": 150,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 1533,
+      "tokens": 488,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 1041,
+      "tokens": 441,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 561,
+      "tokens": 318,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 677,
+      "tokens": 325,
+      "erro": false
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60181,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "qwen3.8-27b",
+      "tarefa": "visao",
+      "ok": true,
+      "motivo": "viu as duas cores",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 40745,
+      "tokens": 1346,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "groq/openai/gpt-oss-120b",
+      "ms": 875,
+      "tokens": 384,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "groq/openai/gpt-oss-120b",
+      "ms": 945,
+      "tokens": 373,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "groq/openai/gpt-oss-120b",
+      "ms": 703,
+      "tokens": 278,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "groq/openai/gpt-oss-120b",
+      "ms": 933,
+      "tokens": 398,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "groq/openai/gpt-oss-120b",
+      "ms": 2011,
+      "tokens": 941,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "groq/openai/gpt-oss-120b",
+      "ms": 1381,
+      "tokens": 677,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "groq/openai/gpt-oss-120b",
+      "ms": 1045,
+      "tokens": 491,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "groq/openai/gpt-oss-120b",
+      "ms": 829,
+      "tokens": 485,
+      "erro": false
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60048,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gpt-oss-120b",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60040,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "mistral/codestral-latest",
+      "ms": 906,
+      "tokens": 119,
+      "erro": false
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "mistral/codestral-latest",
+      "ms": 977,
+      "tokens": 119,
+      "erro": false
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "corrigir-python",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60055,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "mistral/codestral-latest",
+      "ms": 885,
+      "tokens": 118,
+      "erro": false
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "mistral/codestral-latest",
+      "ms": 3158,
+      "tokens": 475,
+      "erro": false
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "tutor",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60056,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "mistral/codestral-latest",
+      "ms": 1746,
+      "tokens": 327,
+      "erro": false
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "mistral/codestral-latest",
+      "ms": 1509,
+      "tokens": 305,
+      "erro": false
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60052,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "codestral",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60046,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "mistral/mistral-code-latest",
+      "ms": 933,
+      "tokens": 119,
+      "erro": false
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "mistral/mistral-code-latest",
+      "ms": 920,
+      "tokens": 119,
+      "erro": false
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "corrigir-python",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60071,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "mistral/mistral-code-latest",
+      "ms": 799,
+      "tokens": 118,
+      "erro": false
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "mistral/mistral-code-latest",
+      "ms": 2417,
+      "tokens": 417,
+      "erro": false
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "tutor",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60064,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "mistral/mistral-code-latest",
+      "ms": 3523,
+      "tokens": 305,
+      "erro": false
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "mistral/mistral-code-latest",
+      "ms": 1289,
+      "tokens": 305,
+      "erro": false
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60069,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "mistral-code",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60056,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "google/gemini-3.8-flash",
+      "ms": 16478,
+      "tokens": 1114,
+      "erro": false
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "codigo-js",
+      "ok": false,
+      "motivo": "HTTP 502: All 1 routed attempt(s) failed with upstream provider errors (timeout ×1). This is a provider-side f",
+      "via": null,
+      "ms": 60045,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "corrigir-python",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60053,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "corrigir-python",
+      "ok": false,
+      "motivo": "HTTP 502: All 1 routed attempt(s) failed with upstream provider errors (timeout ×1). This is a provider-side f",
+      "via": null,
+      "ms": 100052,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "tutor",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60054,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "tutor",
+      "ok": false,
+      "motivo": "HTTP 502: All 1 routed attempt(s) failed with upstream provider errors (timeout ×1). This is a provider-side f",
+      "via": null,
+      "ms": 100061,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "json-forja",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60057,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "json-forja",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60055,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60060,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "gemini-3.8-flash",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60056,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "codigo-js",
+      "ok": false,
+      "motivo": "HTTP 404: Every routed provider reports the model as not found or removed upstream (2 attempt(s)). The catalog",
+      "via": null,
+      "ms": 560,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "codigo-js",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60053,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "corrigir-python",
+      "ok": false,
+      "motivo": "HTTP 404: Every routed provider reports the model as not found or removed upstream (2 attempt(s)). The catalog",
+      "via": null,
+      "ms": 40717,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "corrigir-python",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60051,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "tutor",
+      "ok": false,
+      "motivo": "HTTP 404: Every routed provider reports the model as not found or removed upstream (2 attempt(s)). The catalog",
+      "via": null,
+      "ms": 40731,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "tutor",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60056,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "json-forja",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60075,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "json-forja",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60064,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60058,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "nemotron-3-super-120b",
+      "tarefa": "visao",
+      "ok": false,
+      "motivo": "limite (429) três vezes seguidas",
+      "via": null,
+      "ms": 60075,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 1068,
+      "tokens": 123,
+      "erro": false
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "codigo-js",
+      "ok": true,
+      "motivo": "6/6 casos",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 459,
+      "tokens": 123,
+      "erro": false
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 1046,
+      "tokens": 150,
+      "erro": false
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "corrigir-python",
+      "ok": true,
+      "motivo": "testes passaram",
+      "via": "google/gemini-3.5-flash-lite",
+      "ms": 995,
+      "tokens": 123,
+      "erro": false
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 939,
+      "tokens": 439,
+      "erro": false
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "tutor",
+      "ok": true,
+      "motivo": "explicou sem entregar",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 1135,
+      "tokens": 517,
+      "erro": false
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "json-forja",
+      "ok": true,
+      "motivo": "duas ações certas no mesmo passo",
+      "via": "groq/qwen/qwen3.8-27b",
+      "ms": 567,
+      "tokens": 318,
+      "erro": false
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "json-forja",
+      "ok": false,
+      "motivo": "HTTP 502: All 2 routed attempt(s) failed with upstream provider errors (rate_limited ×1, timeout ×1) (stopped ",
+      "via": null,
+      "ms": 60216,
+      "tokens": null,
+      "erro": true
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "visao",
+      "ok": true,
+      "motivo": "viu as duas cores",
+      "via": "google/gemini-3.5-flash",
+      "ms": 2435,
+      "tokens": 1258,
+      "erro": false
+    },
+    {
+      "modelo": "auto",
+      "tarefa": "visao",
+      "ok": true,
+      "motivo": "viu as duas cores",
+      "via": "google/gemini-3.5-flash-lite",
+      "ms": 1424,
+      "tokens": 1137,
+      "erro": false
+    }
+  ]
+}
