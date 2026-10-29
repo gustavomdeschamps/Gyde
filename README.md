@@ -123,6 +123,8 @@ limites**, **Prática** (suas respostas, nível medido e desempenho; refazer o q
 que fica no PC, o que vai para a IA, cópia de segurança para baixar e restaurar, apagar conversas e registros) e
 **Extensões** (tokens). Cada opção salva na hora.
 
+<p align="center"><img src="docs/imagens/dados.jpg" alt="Configurações, aba Privacidade e dados, com a cópia de segurança" width="88%"></p>
+
 ### E mais
 - **Skills:** habilidades instaláveis, como plugins (`/revisar`, `/git`, `/sql`...). Dá para criar as suas e publicar na loja de skills.
 - **Questionário inicial:** o Gyde descobre o seu nível e objetivo e adapta as explicações e a Prática.

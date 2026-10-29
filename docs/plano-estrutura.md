@@ -17,3 +17,26 @@ sessão o Gyde continua funcionando e todos os testes passam. Trabalho no ramo `
 
 Regras: não quebrar o que funciona, não inventar dados, nada de push ou release sem autorização, segredos fora do
 repositório.
+
+## Depois do plano: pendências encontradas na análise
+
+| # | Pendência | Estado |
+|---|---|---|
+| 1 | Levar os dados do Gyde pelo código para o app de desktop | feito (tela de entrada do app) |
+| 2 | Cópia de segurança pela interface | feito (baixar e restaurar) |
+| 3 | Imagens configuradas pela interface | feito; a "voz do Gemini" nunca existiu e saiu da documentação |
+| 4 | Publicar a primeira versão do instalador | aguardando OK |
+| 5 | Testes de navegador no repositório | feito (`npm run e2e`, 13 suítes) |
+| 6 | CI no GitHub | feito (Windows, Linux e macOS); roda depois do push |
+| 7 | Linter | feito (ESLint) |
+| 8 | Testes da interface | feito |
+| 9 | Dividir o `server.ts` | feito (145 linhas) |
+| 10 | Limite de logins persistente | feito (migração 2) |
+| 11 | Acessibilidade | feito (axe-core, WCAG 2.1 AA) |
+| 12 | Celular | feito |
+| 13 | Modo público testado | feito |
+| 14 | Mac e Linux | instaladores e CI configurados; sem teste à mão; Forja só roda comandos no Windows |
+| 15 | Relatório de erro | feito |
+| 16 | CHANGELOG, CONTRIBUTING, SECURITY, versão 2.0.0 | feito |
+| 17 | Capturas | feito (Privacidade e dados); as outras continuam valendo |
+
