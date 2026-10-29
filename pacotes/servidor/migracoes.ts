@@ -124,4 +124,13 @@ export const MIGRACOES: Migracao[] = [
                UPDATE messages SET model = 'gyde' || substr(model, 5) WHERE model LIKE 'bugo-%';`);
     },
   },
+  {
+    versao: 2,
+    nome: 'tentativas de login e de código guardadas no banco (o limite não zera quando o servidor reinicia)',
+    aplicar(db) {
+      // a chave é o hash de "tipo:e-mail" ou "tipo:IP": o banco não guarda o e-mail nem o IP de quem tentou
+      db.exec(`CREATE TABLE tentativas (chave TEXT NOT NULL, em INTEGER NOT NULL);
+               CREATE INDEX idx_tentativas ON tentativas(chave, em);`);
+    },
+  },
 ];

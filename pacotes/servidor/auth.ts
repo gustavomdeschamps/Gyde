@@ -43,14 +43,19 @@ function passwordProblem(p: unknown) {
 }
 
 // Limite simples em memória: no máximo `max` tentativas por chave dentro da janela.
-function makeLimiter(max: number, windowMs: number) {
-  const hits = new Map<string, number[]>();
+// Limite de tentativas: no máximo `max` por chave dentro da janela. Fica no banco, então reiniciar o servidor não
+// zera a contagem de quem está tentando adivinhar uma senha. A chave vai como hash (sem e-mail nem IP no banco).
+export function makeLimiter(db: Db, max: number, windowMs: number) {
+  const contar = consulta<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM tentativas WHERE chave = ? AND em > ?');
+  const anotar = db.prepare('INSERT INTO tentativas (chave, em) VALUES (?, ?)');
+  const limpar = db.prepare('DELETE FROM tentativas WHERE em <= ?');
+  let ultimaLimpeza = 0;
   return (key: string) => {
-    const now = Date.now();
-    const list = (hits.get(key) || []).filter((t) => now - t < windowMs);
-    list.push(now);
-    hits.set(key, list);
-    return list.length <= max;
+    const agora = Date.now();
+    if (agora - ultimaLimpeza > 60_000) { limpar.run(agora - 24 * 60 * 60_000); ultimaLimpeza = agora; } // janela mais longa é bem menor que um dia
+    const chave = sha256(`${max}:${windowMs}:${key}`);
+    anotar.run(chave, agora);
+    return (contar.get(chave, agora - windowMs)?.n ?? 0) <= max;
   };
 }
 
@@ -185,8 +190,8 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
     next();
   });
 
-  const loginLimiter = makeLimiter(10, 15 * 60_000);
-  const codeLimiter = makeLimiter(5, 15 * 60_000);
+  const loginLimiter = makeLimiter(db, 10, 15 * 60_000);
+  const codeLimiter = makeLimiter(db, 5, 15 * 60_000);
   const ipKey = (req: Request) => req.ip || req.socket.remoteAddress || 'local';
   const r = express.Router();
   const wrap = (fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) => (req: Request, res: Response, next: NextFunction) => Promise.resolve(fn(req, res, next)).catch(next);
