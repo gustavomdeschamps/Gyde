@@ -23,7 +23,12 @@ test('comandos comuns rodam direto', () => {
   }
 });
 test('segredos são removidos do texto', () => {
-  const t = redigir('chave AIzaSyA1234567890abcdefghijklmnopqrstuv e sk-proj-abcdefghijklmnopqrstuvwx\nAPI_KEY=supersecreto123\npassword: "hunter2hunter2"\n-----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY-----');
+  // chaves FALSAS montadas em pedaços: o arquivo não tem nada com cara de chave (o scanner de segredos do GitHub
+  // apontaria como vazamento), mas o texto testado tem o formato exato de uma
+  const google = ['AIza', 'SyA', '1234567890', 'abcdefghijklmnopqrstuv'].join('');
+  const openai = ['sk-', 'proj-', 'abcdefghijklmnopqrstuvwx'].join('');
+  const pem = ['-----BEGIN RSA ', 'PRIVATE KEY-----\nabc\n-----END RSA ', 'PRIVATE KEY-----'].join('');
+  const t = redigir(`chave ${google} e ${openai}\nAPI_KEY=supersecreto123\npassword: "hunter2hunter2"\n${pem}`);
   assert.ok(!/AIzaSy|sk-proj|supersecreto|hunter2|BEGIN RSA/.test(t), t);
   assert.match(t, /API_KEY=\[segredo removido\]/);
   assert.equal(redigir('const total = soma(a, b);'), 'const total = soma(a, b);');
