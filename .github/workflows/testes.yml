@@ -2,6 +2,8 @@
 # interface, todas as suítes de navegador (com um provedor de IA falso, sem chaves) e o empacotamento das extensões.
 # A Forja só roda comandos no Windows (a proteção contra comandos perigosos é feita para o cmd), então o teste dela
 # roda só lá; o resto roda nos três sistemas.
+# Quando uma etapa falha, o fim da saída vira um aviso (annotation) do GitHub: dá para ler o erro na página do run e
+# pela API pública, sem abrir o log inteiro.
 name: Testes
 
 on:
@@ -15,6 +17,10 @@ concurrency:
   group: testes-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   testes:
     strategy:
@@ -24,22 +30,32 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
       - name: Instalar dependências
         run: npm ci
       - name: Tipos, linter e testes automáticos
-        run: npm test
+        run: npm test 2>&1 | tee saida-testes.log; exit ${PIPESTATUS[0]}
       - name: Gerar a interface
         run: npm run build
       - name: Testes de navegador
         if: runner.os != 'Linux'
-        run: npm run e2e
+        run: npm run e2e 2>&1 | tee saida-e2e.log; exit ${PIPESTATUS[0]}
       - name: Testes de navegador (Linux, com tela virtual para o app de desktop)
         if: runner.os == 'Linux'
-        run: xvfb-run --auto-servernum npm run e2e
+        run: xvfb-run --auto-servernum npm run e2e 2>&1 | tee saida-e2e.log; exit ${PIPESTATUS[0]}
       - name: Empacotar as extensões
         run: npm run extensoes
+      - name: Mostrar o erro como aviso
+        if: failure()
+        run: |
+          for f in saida-testes.log saida-e2e.log; do
+            [ -f "$f" ] || continue
+            # linhas de falha primeiro (FALHOU, ✖, erros), depois o fim da saída
+            corpo=$( { grep -E "FALHOU|FALHA|✖|not ok|Error|error|AssertionError|expected|actual" "$f" | grep -v "^ℹ" | head -40; echo '--- fim da saída ---'; tail -25 "$f"; } | sed 's/\x1b\[[0-9;]*m//g' | cut -c1-300 )
+            corpo="${corpo//'%'/'%25'}"; corpo="${corpo//$'\n'/'%0A'}"; corpo="${corpo//$'\r'/}"
+            echo "::error title=$f (${{ runner.os }})::$corpo"
+          done
