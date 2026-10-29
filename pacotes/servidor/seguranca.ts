@@ -9,7 +9,7 @@ export const ARQUIVO_SECRETO = new RegExp([
   String.raw`(^|[\\/])\.docker[\\/]config\.json$`, String.raw`(^|[\\/])\.kube[\\/]config$`,
   String.raw`(^|[\\/])id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$`, String.raw`\.(pem|key|p12|pfx|jks|keystore|kdbx|ppk|asc)$`,
   String.raw`(^|[\\/])\.(npmrc|pypirc|netrc|git-credentials|pgpass)$`, String.raw`(^|[\\/])credentials(\.json)?$`,
-  String.raw`(^|[\\/])(secrets?|service[-_]?account)[^\\/]*\.(json|ya?ml|toml|txt)$`, String.raw`(^|[\\/])google-services\.json$`,
+  String.raw`(^|[\\/])(secrets?|segredos?|senhas?|credenciais|service[-_]?account)[^\\/]*\.(json|ya?ml|toml|txt)$`, String.raw`(^|[\\/])google-services\.json$`,
   String.raw`(^|[\\/])(cookies|login data|web data)$`, String.raw`\.(sqlite|db)-?(wal|shm)?$`,
 ].join('|'), 'i');
 

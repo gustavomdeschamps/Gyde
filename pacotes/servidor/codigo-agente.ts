@@ -3,7 +3,7 @@
 // Só funciona no modo pessoal (o Gyde rodando no seu computador) e só dentro da pasta escolhida.
 // As proteções ficam em seguranca.js e valem mesmo que o modelo tente outra coisa.
 import { randomUUID, createHash } from 'node:crypto';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, rmSync, realpathSync, accessSync, constants as FS } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -97,6 +97,76 @@ export function analisarProjeto(pasta: string) {
   return { tecnologias: [...tecnologias].slice(0, 8), testes, arquivos, git: tem('.git') };
 }
 
+// Onde fica o front-end e o back-end (pelos nomes e por padrões de código simples). Ajuda o modelo a mudar as duas
+// pontas quando o pedido atravessa a API e a tela.
+const PADRAO_BACK = /\b(express\s*\(|http\.createServer|app\.(get|post|put|delete)\s*\(|router\.(get|post|put|delete)\s*\(|@(Rest)?Controller|@app\.route|FastAPI\s*\(|Flask\s*\(|\$_(GET|POST)\b|MapGet\s*\(|fastify\s*\()/;
+const PADRAO_FRONT = /\b(document\.(getElementById|querySelector)|fetch\s*\(|useState\s*\(|createApp\s*\(|\$state\s*\(|addEventListener\s*\()/;
+export function camadasDoProjeto(pasta: string, limite = 1500): { frontend: string[]; backend: string[] } {
+  const frontend: string[] = [], backend: string[] = [];
+  let vistos = 0;
+  const anda = (dir: string, nivel: number) => {
+    if (nivel > 6 || vistos > limite) return;
+    let itens; try { itens = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const it of itens) {
+      if (IGNORAR.has(it.name) || it.name.startsWith('.') || it.isSymbolicLink()) continue;
+      const p = path.join(dir, it.name);
+      if (it.isDirectory()) { anda(p, nivel + 1); continue; }
+      const ext = path.extname(it.name).toLowerCase();
+      const rel = path.relative(pasta, p).replaceAll('\\', '/');
+      if (ARQUIVO_SECRETO.test(rel) || /\.(test|spec)\.|(^|\/)tests?\//.test(rel)) continue;
+      vistos++;
+      if (['.html', '.css', '.scss', '.vue', '.svelte', '.jsx', '.tsx'].includes(ext)) { frontend.push(rel); continue; }
+      if (!['.js', '.mjs', '.cjs', '.ts', '.py', '.php', '.java', '.cs', '.kt', '.go', '.rb'].includes(ext)) continue;
+      let txt = ''; try { if (statSync(p).size < 300_000) txt = readFileSync(p, 'utf8'); } catch { continue; }
+      if (PADRAO_BACK.test(txt) || /(^|\/)(api|server|servidor|backend|routes|rotas|controllers)(\/|\.)/.test(rel)) backend.push(rel);
+      else if (PADRAO_FRONT.test(txt) || /(^|\/)(public|static|frontend|client|components|pages)\//.test(rel)) frontend.push(rel);
+    }
+  };
+  anda(pasta, 1);
+  return { frontend: frontend.slice(0, 12), backend: backend.slice(0, 12) };
+}
+
+// Arquivos que parecem ter a ver com o pedido: palavras do pedido no nome ou no conteúdo. Só caminhos (não o
+// conteúdo inteiro): o modelo lê o que precisar, em vez de receber a pasta toda.
+const COMUNS = new Set('para como com sem que uma umas uns por pelo pela mais menos esse essa este esta isso isto aqui quero preciso fazer faça adicione adicionar crie criar corrija corrigir rode rodar teste testes arquivo arquivos projeto também quando onde depois antes sobre todo toda todos todas cada mude mudar ajuste ajustar deve pode função funcao campo junto mostre mostrar texto'.split(' '));
+export function arquivosRelevantes(pasta: string, pedido: string, limite = 8): { caminho: string; motivo: string }[] {
+  const termos = [...new Set((pedido.toLowerCase().match(/[\p{L}\p{N}_./-]{4,}/gu) || []).map((t) => t.replace(/^[./-]+|[./-]+$/g, '')).filter((t) => t.length >= 4 && !COMUNS.has(t)))].slice(0, 12);
+  if (!termos.length) return [];
+  const pontos: { caminho: string; n: number; achados: Set<string> }[] = [];
+  let vistos = 0;
+  const anda = (dir: string, nivel: number) => {
+    if (nivel > 6 || vistos > 2000) return;
+    let itens; try { itens = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const it of itens) {
+      if (IGNORAR.has(it.name) || it.name.startsWith('.') || it.isSymbolicLink()) continue;
+      const p = path.join(dir, it.name);
+      if (it.isDirectory()) { anda(p, nivel + 1); continue; }
+      const rel = path.relative(pasta, p).replaceAll('\\', '/');
+      if (ARQUIVO_SECRETO.test(rel)) continue;
+      vistos++;
+      let txt = ''; try { if (statSync(p).size < 300_000) txt = readFileSync(p, 'utf8').toLowerCase(); } catch { continue; }
+      if (txt.includes('\u0000')) continue;
+      const achados = new Set<string>(); let n = 0;
+      for (const t of termos) {
+        if (rel.toLowerCase().includes(t)) { n += 5; achados.add(t); }
+        const k = txt.split(t).length - 1;
+        if (k) { n += Math.min(k, 5); achados.add(t); }
+      }
+      if (n) pontos.push({ caminho: rel, n, achados });
+    }
+  };
+  anda(pasta, 1);
+  return pontos.sort((a, b) => b.n - a.n).slice(0, limite).map((x) => ({ caminho: x.caminho, motivo: [...x.achados].slice(0, 4).join(', ') }));
+}
+
+// Arquivos com mudanças ainda não salvas no git (trabalho da pessoa que a Forja não pode perder).
+export function mudancasNaoSalvas(pasta: string): string[] {
+  if (!existsSync(path.join(pasta, '.git'))) return [];
+  const r = spawnSync('git', ['status', '--porcelain', '--untracked-files=normal'], { cwd: pasta, encoding: 'utf8', timeout: 5000, windowsHide: true, env: ambienteLimpo() });
+  if (r.status !== 0) return [];
+  return r.stdout.split(/\r?\n/).filter(Boolean).slice(0, 30).map((l) => `${l.slice(0, 2).trim() || '?'} ${l.slice(3)}`);
+}
+
 const SYSTEM = `Você é a Forja, o agente de código do Gyde: um desenvolvedor de software experiente conversando com o usuário num chat
 e trabalhando dentro da pasta de um projeto no computador dele (Windows). Você faz o trabalho de verdade nos arquivos reais:
 escreve código, corrige bugs, cria e roda testes, documenta e explica o que fez.
@@ -120,7 +190,12 @@ COMO TRABALHAR (como um bom dev):
 2. Tarefa grande: no "pensamento" do primeiro passo, diga o plano em 2 ou 3 etapas curtas.
 3. Antes de mudar, entenda: leia os arquivos envolvidos. Nunca invente o conteúdo de um arquivo que você não leu.
 4. Prefira "editar" (mudanças pequenas e precisas). Não reescreva arquivos inteiros sem necessidade; preserve o que já funciona e siga o estilo do projeto.
+   Arquivos listados em MUDANÇAS DO USUÁRIO têm trabalho dele ainda não salvo no git: leia o conteúdo ATUAL e edite por cima,
+   nunca volte ao que estava no último commit nem apague o que ele acrescentou.
 5. Verifique: rode os testes ou um comando que prove que funcionou. Se der erro, corrija e rode de novo.
+   Não mude um teste só para ele passar: se o teste estiver errado de verdade, diga por quê na resposta.
+   Se o pedido atravessa back-end e front-end (ex.: um campo novo na API que a tela mostra), mude as duas pontas e confira
+   que os nomes dos campos batem dos dois lados.
 6. Documente o que criar quando ajudar quem vier depois.
 7. Não rode comandos que ficam esperando para sempre (servidores, watch).
 8. Não fique aumentando o escopo: faça o que foi pedido. Se vir uma melhoria útil, sugira no fim, sem fazer.
@@ -520,8 +595,14 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         ? [{ type: 'text', text: textoInicial }, ...imagens.map((a): ParteConteudo => ({ type: 'image_url', image_url: { url: `data:image/${(a.arquivo.split('.').pop() ?? '').replace('jpg', 'jpeg')};base64,${readFileSync(path.join(pastaAnexos(s.id), a.arquivo)).toString('base64')}` } }))]
         : textoInicial;
       const projeto = analisarProjeto(pastaReal);
+      const camadas = camadasDoProjeto(pastaReal);
+      const relevantes = tarefa ? arquivosRelevantes(pastaReal, tarefa) : [];
+      const naoSalvas = mudancasNaoSalvas(pastaReal);
       const msgs: MensagemIA[] = [{ role: 'system', content: SYSTEM }, { role: 'user', content: conteudoInicial }];
-      msgs[0]!.content += `\n\nPROJETO DETECTADO: ${projeto.tecnologias.join(', ') || 'tecnologia não identificada'}; ${projeto.arquivos} arquivos${projeto.testes ? `; comando de testes provável: ${projeto.testes}` : '; sem comando de testes identificado'}.`;
+      msgs[0]!.content += `\n\nPROJETO DETECTADO: ${projeto.tecnologias.join(', ') || 'tecnologia não identificada'}; ${projeto.arquivos} arquivos${projeto.testes ? `; comando de testes provável: ${projeto.testes}` : '; sem comando de testes identificado'}.`
+        + (camadas.frontend.length || camadas.backend.length ? `\nCAMADAS: front-end: ${camadas.frontend.join(', ') || 'nenhum arquivo identificado'}; back-end: ${camadas.backend.join(', ') || 'nenhum arquivo identificado'}.` : '')
+        + (relevantes.length ? `\nARQUIVOS QUE PARECEM TER A VER COM O PEDIDO (pelas palavras do pedido; confira lendo): ${relevantes.map((r) => `${r.caminho} (${r.motivo})`).join('; ')}.` : '')
+        + (naoSalvas.length ? `\nMUDANÇAS DO USUÁRIO AINDA NÃO SALVAS NO GIT (preserve): ${naoSalvas.join('; ')}.` : '');
       const cadeia = (imagens.length ? CADEIAS.visao : CADEIAS.agente) ?? ['auto'];
       const ferramentaDe = (nome: string): Ferramenta | undefined => (ferramentas as Record<string, Ferramenta>)[nome];
       const normalizar = (o: Decisao | null): Decisao | null => {
@@ -530,6 +611,19 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         const lista = Array.isArray(o.acoes) ? o.acoes : o.ferramenta ? [{ ferramenta: o.ferramenta, args: o.args }] : [];
         const acoes = lista.filter((a) => a && (ferramentaDe(a.ferramenta) || a.ferramenta === 'desfazer')).slice(0, 8);
         return acoes.length ? { ...o, acoes } : null;
+      };
+      // regras por tarefa, valem mesmo que o modelo tente outra coisa
+      const lidos = new Set<string>();
+      let rodadaDaUltimaMudanca = 0, rodadaDoUltimoComando = 0, cobrouTestes = false;
+      const relDe = (c: unknown) => { try { return relativo(pastaReal, caminhoSeguro(pastaReal, c)); } catch { return ''; } };
+      const recusaEscrever = (args: ArgsFerramenta): string | null => {
+        const rel = relDe(args.caminho);
+        if (!rel) return null;
+        const alvo = path.join(pastaReal, rel);
+        if (!existsSync(alvo) || mudancas.criados.has(rel)) return null;
+        if (!lidos.has(rel)) return `Não substituí ${rel}: ele já existe e você ainda não leu nesta tarefa (pode ter trabalho do usuário). Leia antes, ou use "editar" para mudar só o trecho.`;
+        if (String(args.conteudo ?? '').includes('[segredo removido]') && redigir(readFileSync(alvo, 'utf8')) !== readFileSync(alvo, 'utf8')) return `Não substituí ${rel}: o conteúdo novo tem "[segredo removido]" no lugar de um segredo real do arquivo. Use "editar" só no trecho que precisa mudar.`;
+        return null;
       };
       let terminou = false;
       for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted; passo++) {
@@ -540,6 +634,12 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         });
         const o = normalizar(extrairJson(texto))!;
         msgs.push({ role: 'assistant', content: JSON.stringify(o) });
+        // mudou arquivos e vai terminar sem rodar nada depois: pede uma vez para verificar (há comando de testes conhecido)
+        if (o.resposta && projeto.testes && !cobrouTestes && rodadaDaUltimaMudanca > rodadaDoUltimoComando) {
+          cobrouTestes = true;
+          msgs.push({ role: 'user', content: `Antes de responder: você alterou arquivos e não rodou nada depois disso. Rode os testes (${projeto.testes}) ou um comando que prove que funciona. Se não for possível, responda explicando por quê.` });
+          continue;
+        }
         if (o.resposta) { registrar('resposta', { texto: redigir(String(o.resposta)), pensamento: o.pensamento || '', modelo, ...totais() }); terminou = true; break; }
         passos++;
         const resultados: string[] = [];
@@ -549,9 +649,13 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           registrar('ferramenta', { nome: a.ferramenta, args: { ...args, conteudo: args.conteudo ? `(${String(args.conteudo).split('\n').length} linhas)` : undefined, procurar: undefined, substituir: undefined }, pensamento: i === 0 ? redigir(o.pensamento || '') : '' });
           let r: ResultadoFerramenta;
           if (['escrever', 'editar', 'apagar'].includes(a.ferramenta) && args.caminho) copiar(args);
+          const recusa = a.ferramenta === 'escrever' ? recusaEscrever(args) : null;
           try {
-            r = a.ferramenta === 'desfazer' ? desfazerUltima(s.id, pastaReal) : await ferramentaDe(a.ferramenta)!(pastaReal, args, { sinal: controle.signal, confirmar });
+            r = recusa ? { ok: false, saida: recusa } : a.ferramenta === 'desfazer' ? desfazerUltima(s.id, pastaReal) : await ferramentaDe(a.ferramenta)!(pastaReal, args, { sinal: controle.signal, confirmar });
           } catch (err) { r = { ok: false, saida: comoErro(err).message }; }
+          if (r.ok && a.ferramenta === 'ler') lidos.add(relDe(args.caminho));
+          if (r.ok && (r.mudanca || r.restaurados?.length)) { rodadaDaUltimaMudanca = passo; lidos.add(relDe(args.caminho)); }
+          if (r.comando) rodadaDoUltimoComando = passo;
           for (const f of r.restaurados || []) mudancas.modificados.add(f);
           const rel = args.caminho ? String(args.caminho).replaceAll('\\', '/').replace(/^\.\//, '') : '';
           if (r.ok && r.mudanca === 'criado') mudancas.criados.add(rel);

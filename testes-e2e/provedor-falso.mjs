@@ -1,7 +1,8 @@
 // FreeLLMAPI falso para os testes: responde como a API da OpenAI, sem internet e sempre igual.
 // - chat (streaming): "Resposta de teste: <pergunta>"; pergunta com LONGA gera uma resposta comprida e lenta (para testar o Parar)
 // - títulos e tarefas internas (sem streaming): "Conversa de teste"
-// - Forja: roteiro fixo. Tarefa com LONGA roda um comando demorado; as outras leem soma.js, corrigem e rodam npm test.
+// - Forja: roteiro fixo. Tarefa com LONGA roda um comando demorado; SOBRESCREVER testa as travas de escrita e a cobrança
+//   de testes; as outras leem soma.js, corrigem e rodam npm test.
 import http from 'node:http';
 import { portaLivre } from './ajuda.mjs';
 
@@ -16,6 +17,19 @@ function forja(mensagens) {
     return passo === 0
       ? { pensamento: 'Vou rodar o comando pedido.', acoes: [{ ferramenta: 'executar', args: { comando: 'node -e "setTimeout(() => {}, 60000)"' } }] }
       : { pensamento: 'Terminei.', resposta: '**O que fiz**\nRodei o comando.' };
+  }
+  // SOBRESCREVER: tenta substituir sem ler, depois regravar com o segredo apagado, edita e tenta terminar sem testar
+  if (/SOBRESCREVER/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Reescrevo direto.', acoes: [{ ferramenta: 'escrever', args: { caminho: 'soma.js', conteudo: 'function soma(a, b) {\n  return a + b;\n}\nmodule.exports = { soma };\n' } }] },
+      { pensamento: 'Leio antes.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] },
+      { pensamento: 'Reescrevo com o que li.', acoes: [{ ferramenta: 'escrever', args: { caminho: 'soma.js', conteudo: '// chave antiga: [segredo removido]\nfunction soma(a, b) {\n  return a + b;\n}\nmodule.exports = { soma };\n' } }] },
+      { pensamento: 'Edito só o trecho.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a - b', substituir: 'a + b' } }] },
+      { pensamento: 'Pronto.', resposta: 'Corrigi.' },
+      { pensamento: 'Rodo os testes.', acoes: [{ ferramenta: 'executar', args: { comando: 'npm test' } }] },
+      { pensamento: 'Testes passaram.', resposta: '**O que fiz**\nCorrigi a soma e rodei os testes.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
   }
   if (passo === 0) return { pensamento: 'Primeiro leio o arquivo.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] };
   if (passo === 1) return { pensamento: 'A função subtrai; corrijo e rodo os testes.', acoes: [

@@ -28,7 +28,7 @@ test('segredos são removidos do texto', () => {
   assert.equal(redigir('const total = soma(a, b);'), 'const total = soma(a, b);');
 });
 test('arquivos de segredos são reconhecidos', () => {
-  for (const f of ['.env', 'app/.env.local', '.ssh/id_rsa', 'id_ed25519', 'cert.pem', '.npmrc', 'credentials.json', 'secrets.yaml', 'chat.db']) assert.ok(ARQUIVO_SECRETO.test(f), f);
+  for (const f of ['.env', 'app/.env.local', '.ssh/id_rsa', 'id_ed25519', 'cert.pem', '.npmrc', 'credentials.json', 'secrets.yaml', 'segredos.json', 'config/senhas.txt', 'credenciais.yml', 'chat.db']) assert.ok(ARQUIVO_SECRETO.test(f), f);
   for (const f of ['env.js', 'src/environment.ts', 'README.md', 'keys.js']) assert.ok(!ARQUIVO_SECRETO.test(f), f);
 });
 test('caminhos não escapam da pasta (.., absoluto, atalho)', () => {
