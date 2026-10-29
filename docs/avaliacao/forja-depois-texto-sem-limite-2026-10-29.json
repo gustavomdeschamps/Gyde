@@ -1,0 +1,148 @@
+{
+  "em": "2026-10-29T05:32:25.647Z",
+  "codigo": "atual",
+  "repeticoes": 2,
+  "resultados": [
+    {
+      "cenario": "bug",
+      "ok": false,
+      "checagens": {
+        "testes passam": false,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 2323,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "groq/openai/gpt-oss-120b",
+      "erro": null
+    },
+    {
+      "cenario": "bug",
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 2836,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "groq/openai/gpt-oss-120b",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 23590,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "google/gemma-4-26b-a4b-it",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 26086,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "google/gemma-4-26b-a4b-it",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 7,
+      "ms": 46732,
+      "arquivos": [
+        "teste.js",
+        "servidor.js",
+        "public/app.js"
+      ],
+      "comandos": 3,
+      "modelo": "mistral/codestral-latest",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 10497,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js"
+      ],
+      "comandos": 1,
+      "modelo": "google/gemma-4-26b-a4b-it",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 14888,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "google/gemma-4-26b-a4b-it",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "ok": false,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": false
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 4787,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia/google/diffusiongemma-26b-a4b-it",
+      "erro": null
+    }
+  ]
+}

@@ -3,6 +3,8 @@
 Guia para quem vai usar o Gyde pela primeira vez no próprio computador. Não precisa saber programar para instalar:
 é um instalador comum, como o de qualquer programa. Leva uns **10 minutos**, contando a parte da IA.
 
+> Prefere ver? Há um [vídeo passo a passo](docs/tutorial/instalar-o-gyde.mp4) com o instalador e o app de verdade.
+
 > O Gyde que você instala vem **zerado**: a conta, as conversas e o progresso são seus e ficam só no seu computador.
 > Cada pessoa usa a própria IA, com chaves grátis (passo 4).
 

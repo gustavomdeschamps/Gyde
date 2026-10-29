@@ -12,7 +12,7 @@
 <p align="center">
   <img alt="Grátis" src="https://img.shields.io/badge/pre%C3%A7o-gr%C3%A1tis-2563eb">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-1e3a8a">
-  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-22.18%2B-3b82f6">
+  <img alt="Instalador" src="https://img.shields.io/badge/instalador-sem%20administrador-3b82f6">
   <img alt="Licença MIT" src="https://img.shields.io/badge/licen%C3%A7a-MIT-5b8cff">
   <img alt="Em português" src="https://img.shields.io/badge/idioma-portugu%C3%AAs-93c5fd">
 </p>
@@ -54,7 +54,8 @@ O botão **Passo a passo** roda o código linha por linha e mostra o valor de ca
 <p align="center"><img src="docs/imagens/passo.jpg" alt="Passo a passo mostrando as variáveis linha por linha" width="88%"></p>
 
 ### Prática personalizada
-Trilhas de Python, JavaScript e lógica, **projetos guiados** com testes automáticos, **XP**, **desafio do dia**,
+Trilhas de Python, JavaScript e lógica com testes automáticos, **projetos guiados para as 10 linguagens do
+questionário** (Python, JavaScript, Java, C/C++, C#, PHP, HTML e CSS, SQL, Kotlin e lógica), **XP**, **desafio do dia**,
 **sequência de dias** e **revisão dos erros** (o exercício que você errou volta depois de 1, 3, 7 e 21 dias).
 Travou? A **Dica do Gyde** ajuda sem entregar a resposta.
 
@@ -73,8 +74,14 @@ Qualquer combinação de respostas gera um plano, sem depender de IA, e a tela d
 | **Plano inicial** | Sem questionário ou sem escolhas | Lógica e Python do básico, até você responder |
 
 **Exercícios guiados** vêm de um catálogo local (10 tecnologias, 3 níveis): você resolve no seu editor, clica em
-**Resolver no chat** e o Gyde corrige sem entregar a resposta; depois, **Marcar como feito**. Eles não têm teste
-automático, e a tela diz isso. Quem nunca programou não recebe exercício avançado, e quem já é avançado não precisa
+**Resolver no chat** e o Gyde corrige sem entregar a resposta; depois, **Entregar solução** (só conta com a solução
+colada; não há teste automático, e a tela diz isso).
+
+**Projetos guiados** (um por tecnologia): objetivo, pré-requisitos, resultado esperado, arquivos iniciais para baixar,
+etapas com tarefas e dica, e próximos desafios. Em cada etapa você cola o arquivo e o Gyde **confere critérios
+objetivos** do código (a função existe, o erro é tratado, a consulta usa JOIN, a imagem tem `alt`...). É uma
+conferência da estrutura, não uma execução, e a tela diz isso. A etapa só conta, e só dá XP, quando passa em todos os
+critérios; a explicação da solução aparece no fim. A solução de referência fica só no servidor. Quem nunca programou não recebe exercício avançado, e quem já é avançado não precisa
 refazer o básico. Quando tudo do plano acaba, aparece um novo desafio em vez de uma tela vazia. Refazer o questionário
 atualiza o plano sem apagar XP, exercícios feitos nem a sequência de dias.
 
@@ -132,7 +139,7 @@ que fica no PC, o que vai para a IA, cópia de segurança para baixar e restaura
 - **Memória:** o Gyde lembra o que você pedir para ele lembrar (dá para ver e apagar).
 - **Revisar projeto inteiro:** anexe uma pasta ou um `.zip` e peça a revisão.
 - **Imagens e voz:** gera imagens (Cloudflare, ligado em Configurações > IA) e lê as respostas em voz alta com a voz do Windows.
-- **App de desktop:** janela própria (Electron), seletor de pasta nativo e atualização pelo GitHub. Também dá para instalar pelo navegador como app. Tema claro e escuro.
+- **App de desktop:** janela própria (Electron), uma instância só, seletor de pasta nativo, registro de diagnóstico e atualização pelo GitHub. Tema claro e escuro.
 - **Vídeo de abertura** em 3D, com narração e legendas.
 
 ## Extensões
@@ -169,6 +176,14 @@ Cada resposta mostra, embaixo, o **modelo que respondeu de verdade** (os nomes d
 esquema do banco em migrações numeradas (cópia do banco antes de cada atualização). A interface é Svelte 5 com Vite.
 Servidor e interface conferem cada resposta pelos mesmos contratos (Zod), então uma tela nunca recebe um formato que
 não espera sem avisar. O app de desktop é Electron: sobe o servidor num processo separado e abre a interface.
+
+## Avaliação da IA
+
+A ordem dos modelos e as proteções da Forja foram escolhidas com chamadas reais, corrigidas automaticamente (código
+rodando contra testes, arquivos conferidos no disco). Resumo e dados brutos em [docs/avaliacao](docs/avaliacao/README.md):
+no chat, `qwen3.8-27b` e `gpt-oss-120b` acertaram as 5 tarefas em menos de 1 s; na Forja, a versão atual completou
+11 de 12 cenários (corrigir bug sem mexer no teste, preservar mudança não salva no git, mudar API e tela juntas,
+responder sem mexer em nada). Amostras pequenas: servem para comparar, não como garantia.
 
 ## Uso, cotas e limites
 
@@ -211,27 +226,30 @@ Num computador com 8 GB de RAM e sem placa de vídeo, use modelos de até 3 bilh
 ## Instalar
 
 **Siga o [COMO-INSTALAR.md](COMO-INSTALAR.md)**: o passo a passo completo, feito para quem nunca instalou nada
-parecido. Leva uns 15 minutos.
+parecido. Prefere ver? O **[vídeo passo a passo](docs/tutorial/instalar-o-gyde.mp4)** (4 min 51 s, com
+narração e [legendas](docs/tutorial/instalar-o-gyde.vtt)) mostra o instalador e o app de verdade, do download à
+primeira conversa.
 
-Resumo, pelo código:
+Resumo:
 
-1. Baixe este repositório (**Code → Download ZIP**) e extraia numa pasta fixa.
-2. Instale o [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi/releases/latest) e coloque pelo menos uma chave grátis (ex.: Google AI Studio).
-3. Dê dois cliques em **`instalar.bat`**.
-4. Use o **`iniciar.bat`** sempre que quiser abrir o Gyde. Ele roda em http://127.0.0.1:3210.
+1. Na página **Releases** deste repositório, baixe o **`Gyde-Setup-<versão>.exe`**.
+2. Abra e siga as telas: **Apenas para mim** → **Próximo** → **Instalar** → **Concluir**. Não precisa ser
+   administrador, nem instalar Node.js ou outra coisa antes.
+3. O Gyde abre numa janela própria. Crie a conta (fica só no seu computador) e responda o questionário.
+4. Instale o [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi/releases/latest), coloque uma chave grátis
+   (ex.: Google AI Studio) e cole a chave dele em **Configurações > IA e modelos**.
 
-**App de desktop:** `npm run dist:win` gera o instalador do Windows (`dist-desktop/Gyde Setup x.y.z.exe`). Ainda não há
-versão publicada em Releases. O instalador não tem assinatura digital paga, então o Windows mostra um aviso do
-SmartScreen. No app, os dados e o `.env` ficam em `%APPDATA%\Gyde`.
+O instalador não tem assinatura digital paga, então o Windows pode mostrar o aviso do SmartScreen (**Mais
+informações** > **Executar assim mesmo**, se você baixou daqui). Os dados e o `.env` ficam em `%APPDATA%\Gyde`;
+atualizar mantém tudo, e desinstalar pergunta antes de apagar os seus dados.
 
 > Cada pessoa tem o próprio Gyde: a conta, as conversas e o progresso ficam no computador de quem instalou,
 > e cada um usa as próprias chaves grátis de IA.
 
 ## Configuração (.env)
 
-A chave do FreeLLMAPI é colada em **Configurações > IA e modelos** (ou pelo `instalar.bat`); os scripts da pasta
-`configurar/` cuidam dos extras. Se quiser editar à mão, o `.env` fica na pasta principal do Gyde (no app de desktop,
-em `%APPDATA%\Gyde`) e **nunca vai para o GitHub**. Exemplo (sem chaves de verdade):
+A chave do FreeLLMAPI é colada em **Configurações > IA e modelos**. Se quiser editar à mão, o `.env` fica em
+`%APPDATA%\Gyde` no app de desktop (ou na pasta principal, rodando pelo código) e **nunca vai para o GitHub**. Exemplo (sem chaves de verdade):
 
 ```ini
 # obrigatório para os modelos online
@@ -247,14 +265,15 @@ CLOUDFLARE_ACCOUNT_ID=         # gerar imagens (Configurações > IA e modelos)
 CLOUDFLARE_API_TOKEN=
 ```
 
-Para rodar sem os `.bat`: `npm install`, `npm run build` e `npm start` (Node.js 22.18 ou mais novo). `npm run desktop` abre o app de desktop a partir do código.
+Pelo código (para quem desenvolve): `npm install`, `npm run build` e `npm start` (Node.js 22.18 ou mais novo).
+`npm run desktop` abre o app de desktop a partir do código e `npm run dist:win` gera o instalador em `dist-desktop/`.
 
 ### Atualizar o Gyde
 
-Baixe a versão nova (ou `git pull`) e **feche e abra de novo o `iniciar.bat`**. O servidor só lê o código quando
-inicia; se ele continuar aberto, a tela avisa: "O Gyde foi atualizado, mas o servidor ainda está rodando a versão
-anterior". Suas contas, conversas e progresso ficam na pasta `data/` e não são tocados. Quando uma versão nova muda
-o banco, o Gyde guarda uma cópia dele em `data/copias-banco` antes (as 5 mais recentes).
+O app procura versões novas no GitHub ao abrir e **pergunta** antes de baixar; também dá para instalar o instalador
+novo por cima. Contas, conversas e progresso não são tocados. Quando uma versão nova muda o banco, o Gyde guarda uma
+cópia dele antes em `copias-banco` (as 5 mais recentes). Pelo código: `git pull`, `npm install`, `npm run build` e
+reinicie o servidor (se ele continuar aberto, a tela avisa que está rodando a versão anterior).
 
 ## Testes
 
@@ -290,7 +309,11 @@ escuro, e celular). O CI do GitHub roda tudo isso em Windows, Linux e macOS.
   de modelo quando a resposta vem vazia ou inválida, mas não dá para garantir o mesmo comportamento sempre.
 - O modelo local (Ollama) é bem mais simples e lento que os online, principalmente na Forja.
 - O **Desfazer** da Forja guarda as 10 últimas tarefas de cada conversa e não copia arquivos maiores que 2 MB.
-- Exercícios guiados (Java, SQL, C#...) não têm correção automática: dependem do chat e de você marcar como feito.
+- Exercícios guiados não têm correção automática (contam com a solução entregue, e o Gyde corrige no chat). Os
+  projetos guiados conferem a estrutura do código por critérios objetivos, mas não executam o programa: um código que
+  passa nos critérios ainda pode ter um erro de lógica.
+- Os modelos grátis variam de um dia para o outro. A ordem dos modelos foi escolhida por uma avaliação pequena
+  (veja "Avaliação da IA"), que serve para comparar, não como garantia.
 - A Forja só funciona no modo pessoal (rodando no seu PC), e só roda comandos no Windows: a proteção contra comandos
   perigosos foi feita para o cmd. No Mac e no Linux ela lê e edita os arquivos e diz qual comando rodar.
 - O instalador do app de desktop não tem assinatura digital (custa dinheiro), então o Windows mostra o aviso do SmartScreen.
@@ -322,28 +345,26 @@ diz quando renova e, se você tiver o Ollama, oferece o modelo local. Veja em **
 
 **Funciona no Mac ou no Linux?**
 Foi feito no Windows. Os testes automáticos rodam também em Linux e macOS no CI do GitHub, e o app de desktop tem
-instaladores configurados para os dois (`npm run dist:mac`, `npm run dist:linux`), ainda sem teste à mão. Os `.bat` e a
-Forja rodando comandos são só do Windows; nos outros sistemas, use `npm install`, `npm run build` e `npm start`.
+instaladores configurados para os dois (`npm run dist:mac`, `npm run dist:linux`), ainda sem teste à mão. A Forja
+rodando comandos é só do Windows.
 
 ## Estrutura do projeto
 
 | Pasta ou arquivo | Para que serve |
 |---|---|
-| `instalar.bat` | Instala tudo na primeira vez (pelo código) |
-| `iniciar.bat` | Abre o Gyde no dia a dia (pelo código) |
 | `COMO-INSTALAR.md` | Passo a passo de instalação |
-| `configurar/` | Extras: e-mail (modo público), trocar senha, extensão do VS Code |
+| `ferramentas/` | Para quem cuida do projeto: e-mail (modo público), trocar senha pelo código, extensão do VS Code, avaliações da IA, imagem do instalador e o tutorial em vídeo |
 | `pacotes/servidor/` | Servidor: `server.ts` monta os módulos: chat (`chat.ts`), Forja (`codigo-agente.ts`), Prática (`pratica-servidor.ts`), configurações locais e cópia de segurança (`configuracao.ts`, `copia.ts`), perfil (`perfil.ts`), banco e migrações (`banco.ts`, `migracoes.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
 | `pacotes/interface/` | Interface em Svelte 5 + Vite: chat, Forja, Prática, Skills, Turmas, Configurações e entrada (`src/`) |
 | `pacotes/compartilhado/` | Contratos (Zod) usados pelo servidor e pela interface |
 | `pacotes/desktop/` | App de desktop (Electron). O instalador é gerado com `npm run dist:win` |
 | `pacotes/extensao-vscode/`, `pacotes/extensao-chrome/` | Extensões para o VS Code e o Chrome |
-| `testes-e2e/` | Testes de navegador (`npm run e2e`) |
-| `docs/` | Imagens desta página e o plano da reestruturação |
+| `testes-e2e/` | Testes de navegador (`npm run e2e`) e o teste do instalador (`npm run teste:instalacao`) |
+| `docs/` | Imagens desta página, o tutorial em vídeo (`docs/tutorial/`), as avaliações da IA (`docs/avaliacao/`) e o plano da reestruturação |
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).
 
-Esqueceu a senha? No app de desktop, use **Esqueci minha senha** na entrada; pelo código, rode `configurar\redefinir-senha.bat`.
+Esqueceu a senha? No app de desktop, use **Esqueci minha senha** na entrada; pelo código, rode `ferramentas\redefinir-senha.bat`.
 
 O Gyde foi feito para rodar no seu próprio computador: o servidor só aceita conexões do próprio PC (127.0.0.1).
 

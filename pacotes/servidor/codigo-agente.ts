@@ -614,7 +614,8 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       };
       // regras por tarefa, valem mesmo que o modelo tente outra coisa
       const lidos = new Set<string>();
-      let rodadaDaUltimaMudanca = 0, rodadaDoUltimoComando = 0, cobrouTestes = false;
+      let rodadaDaUltimaMudanca = 0, rodadaDoUltimoComando = 0, cobrouTestes = false, cobrouAcao = false;
+      const pedeMudanca = /\b(corrij|corrig|consert|crie|criar|adicion|implement|rode|rodar|mude|mudar|ajust|refator|escrev|remov|atualiz|fa[çc]a)/i.test(tarefa) && !/n[ãa]o (mude|altere|mexa|modifique)/i.test(tarefa);
       const relDe = (c: unknown) => { try { return relativo(pastaReal, caminhoSeguro(pastaReal, c)); } catch { return ''; } };
       const recusaEscrever = (args: ArgsFerramenta): string | null => {
         const rel = relDe(args.caminho);
@@ -626,8 +627,9 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         return null;
       };
       // texto puro, sem JSON e sem tentar descrever ações, vale como resposta final: muitos modelos grátis terminam assim,
-      // e recusar isso fazia a tarefa falhar no último passo com o trabalho já feito no disco
-      const textoFinal = (t: string) => t.trim().length > 20 && !t.includes('{') && !/"?(acoes|ferramenta)"?\s*:/.test(t);
+      // e recusar isso fazia a tarefa falhar no último passo com o trabalho já feito no disco. Só depois de alguma ação: no
+      // primeiro passo, texto solto costuma ser o modelo anunciando o que vai fazer, e aceitar isso encerrava a tarefa vazia
+      const textoFinal = (t: string) => passos > 0 && t.trim().length > 20 && !t.includes('{') && !/"?(acoes|ferramenta)"?\s*:/.test(t);
       let terminou = false;
       for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted; passo++) {
         registrar('pensando', { passo });
@@ -637,6 +639,12 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         });
         const o = normalizar(extrairJson(texto)) ?? { resposta: texto.trim() };
         msgs.push({ role: 'assistant', content: JSON.stringify(o) });
+        // o pedido manda mudar algo e o modelo quer terminar sem ter feito nada: pede uma vez para fazer o trabalho
+        if (o.resposta && pedeMudanca && !cobrouAcao && !mudancas.criados.size && !mudancas.modificados.size && !mudancas.apagados.size && !mudancas.comandos.length) {
+          cobrouAcao = true;
+          msgs.push({ role: 'user', content: 'Você ainda não mudou nada no projeto. Se o pedido é para mudar o projeto, faça o trabalho com as ferramentas (leia, edite e rode os testes). Se é só uma pergunta, responda de novo.' });
+          continue;
+        }
         // mudou arquivos e vai terminar sem rodar nada depois: pede uma vez para verificar (há comando de testes conhecido)
         if (o.resposta && projeto.testes && !cobrouTestes && rodadaDaUltimaMudanca > rodadaDoUltimoComando) {
           cobrouTestes = true;

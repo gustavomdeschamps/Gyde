@@ -1,6 +1,8 @@
 // Forja na tela, com o provedor falso: corrigir um arquivo, rodar os testes, resumo, histórico, desfazer e parar.
 // Os comandos da Forja rodam pelo cmd.exe: este teste só roda no Windows.
 import { spawnSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
+import path from 'node:path';
 import { subirServidor, abrirNavegador, clienteApi, placar, criarProjetoForja } from './ajuda.mjs';
 import { provedorFalso } from './provedor-falso.mjs';
 
@@ -51,6 +53,13 @@ try {
 
   await pedir('TEXTOPURO o que tem em soma.js?');
   ok('resposta final em texto puro vale como resposta (não vira erro)', await esperar(`document.querySelectorAll('.forja-turno').length === 3 && !document.querySelector('.forja-turno.trabalhando') && /tem a função soma/.test([...document.querySelectorAll('.forja-turno')].pop().textContent)`, 30_000));
+
+  writeFileSync(path.join(proj.pasta, 'soma.js'), proj.ler('soma.js').replace('a + b', 'a - b'));
+  const antesDaPreguica = ia.pedidos.length;
+  await pedir('PREGUICA: corrija a soma e rode os testes.');
+  ok('pedido de mudança encerrado sem agir: a Forja cobra o trabalho uma vez', await esperar(`document.querySelectorAll('.forja-turno').length === 4 && !document.querySelector('.forja-turno.trabalhando')`, 30_000)
+    && ia.pedidos.slice(antesDaPreguica).filter((p) => /Você ainda não mudou nada/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1
+    && /a\s*\+\s*b/.test(proj.ler('soma.js')));
 
   await pedir('Rode um comando LONGA e espere terminar.');
   await esperar(`[...document.querySelectorAll('.ag-passo[data-nome="executar"]')].some((p) => p.classList.contains('rodando'))`, 30_000);

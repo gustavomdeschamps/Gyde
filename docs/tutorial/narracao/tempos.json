@@ -1,0 +1,282 @@
+[
+ {
+  "cena": 0,
+  "tela": "Como instalar o Gyde no Windows",
+  "texto": "Neste vídeo, você vai instalar o Gyde no Windows e começar a usar, passo a passo.",
+  "ini": 0.4,
+  "fim": 6.77
+ },
+ {
+  "cena": 1,
+  "tela": "1. O que é o Gyde",
+  "texto": "O Gyde é um tutor de programação com inteligência artificial, em português e de graça.",
+  "ini": 7.67,
+  "fim": 14.36
+ },
+ {
+  "cena": 1,
+  "tela": "1. O que é o Gyde",
+  "texto": "Ele explica o erro antes de corrigir, para você aprender de verdade.",
+  "ini": 14.81,
+  "fim": 19.96
+ },
+ {
+  "cena": 1,
+  "tela": "1. O que é o Gyde",
+  "texto": "Monta um plano de prática no seu nível, com exercícios e projetos guiados.",
+  "ini": 20.41,
+  "fim": 26.5
+ },
+ {
+  "cena": 1,
+  "tela": "1. O que é o Gyde",
+  "texto": "E tem a Forja, um agente que trabalha no seu projeto e mostra tudo o que mudou.",
+  "ini": 26.95,
+  "fim": 32.94
+ },
+ {
+  "cena": 2,
+  "tela": "2. Onde baixar",
+  "texto": "A versão oficial fica na página do Gyde no GitHub.",
+  "ini": 33.84,
+  "fim": 37.86
+ },
+ {
+  "cena": 2,
+  "tela": "2. Onde baixar",
+  "texto": "No lado direito, clique em Releases e abra a versão mais nova.",
+  "ini": 38.31,
+  "fim": 43.32
+ },
+ {
+  "cena": 3,
+  "tela": "3. O arquivo certo",
+  "texto": "Em Assets, baixe o arquivo Gyde Setup, que termina em ponto e x e.",
+  "ini": 44.22,
+  "fim": 50.04
+ },
+ {
+  "cena": 3,
+  "tela": "3. O arquivo certo",
+  "texto": "Os outros arquivos servem para as atualizações e para quem programa. Você não precisa deles.",
+  "ini": 50.49,
+  "fim": 58.39
+ },
+ {
+  "cena": 4,
+  "tela": "4. O que você precisa",
+  "texto": "Você precisa do Windows dez ou onze, de uns quinhentos megabytes livres e de internet para a inteligência artificial.",
+  "ini": 59.29,
+  "fim": 68.13
+ },
+ {
+  "cena": 4,
+  "tela": "4. O que você precisa",
+  "texto": "Não precisa ser administrador do computador, nem instalar mais nada antes.",
+  "ini": 68.58,
+  "fim": 74.54
+ },
+ {
+  "cena": 5,
+  "tela": "5. Começar a instalação",
+  "texto": "Abra o arquivo que você baixou.",
+  "ini": 75.44,
+  "fim": 77.84
+ },
+ {
+  "cena": 5,
+  "tela": "5. Começar a instalação",
+  "texto": "Se o Windows disser que protegeu o computador, é porque o instalador não tem uma assinatura paga.",
+  "ini": 78.29,
+  "fim": 85.22
+ },
+ {
+  "cena": 5,
+  "tela": "5. Começar a instalação",
+  "texto": "Se você baixou da página oficial, clique em Mais informações, e depois em Executar assim mesmo.",
+  "ini": 85.67,
+  "fim": 93.54
+ },
+ {
+  "cena": 5,
+  "tela": "5. Começar a instalação",
+  "texto": "Na primeira tela, deixe marcado Apenas para mim e clique em Próximo.",
+  "ini": 93.99,
+  "fim": 99.47
+ },
+ {
+  "cena": 6,
+  "tela": "6. Concluir a instalação",
+  "texto": "Deixe a pasta sugerida e clique em Instalar.",
+  "ini": 100.37,
+  "fim": 104.01
+ },
+ {
+  "cena": 6,
+  "tela": "6. Concluir a instalação",
+  "texto": "Espere alguns segundos.",
+  "ini": 104.46,
+  "fim": 106.46
+ },
+ {
+  "cena": 6,
+  "tela": "6. Concluir a instalação",
+  "texto": "Deixe marcado Executar o Gyde e clique em Concluir.",
+  "ini": 106.91,
+  "fim": 110.87
+ },
+ {
+  "cena": 7,
+  "tela": "7. Abrir o Gyde",
+  "texto": "O Gyde abre numa janela própria. Na primeira vez, passa um vídeo curto: aperte Esc para pular.",
+  "ini": 111.77,
+  "fim": 120.59
+ },
+ {
+  "cena": 7,
+  "tela": "7. Abrir o Gyde",
+  "texto": "Nos outros dias, abra pelo menu Iniciar, digitando Gyde, ou pelo atalho na Área de Trabalho.",
+  "ini": 121.04,
+  "fim": 128.62
+ },
+ {
+  "cena": 8,
+  "tela": "8. Configuração inicial",
+  "texto": "Clique em Criar conta. A conta fica só no seu computador: qualquer e-mail serve, e nada é enviado.",
+  "ini": 129.52,
+  "fim": 138.47
+ },
+ {
+  "cena": 8,
+  "tela": "8. Configuração inicial",
+  "texto": "Depois, responda o questionário. Ele diz ao Gyde o que você quer aprender e qual é o seu nível.",
+  "ini": 138.92,
+  "fim": 146.81
+ },
+ {
+  "cena": 8,
+  "tela": "8. Configuração inicial",
+  "texto": "Para a inteligência artificial, o Gyde usa o FreeLLMAPI, um programa grátis.",
+  "ini": 147.26,
+  "fim": 154.51
+ },
+ {
+  "cena": 8,
+  "tela": "8. Configuração inicial",
+  "texto": "Instale o FreeLLMAPI pelo link do guia de instalação e coloque nele uma chave grátis do Google.",
+  "ini": 154.96,
+  "fim": 162.82
+ },
+ {
+  "cena": 8,
+  "tela": "8. Configuração inicial",
+  "texto": "Depois, no ícone do FreeLLMAPI perto do relógio, clique em Copy Key, e cole em Configurações, IA e modelos.",
+  "ini": 163.27,
+  "fim": 173.15
+ },
+ {
+  "cena": 9,
+  "tela": "9. Primeira conversa",
+  "texto": "Para conversar, escreva sua dúvida na caixa de baixo e aperte Enter.",
+  "ini": 174.05,
+  "fim": 179.75
+ },
+ {
+  "cena": 9,
+  "tela": "9. Primeira conversa",
+  "texto": "Embaixo de cada resposta aparece o modelo que respondeu de verdade.",
+  "ini": 180.2,
+  "fim": 185.52
+ },
+ {
+  "cena": 10,
+  "tela": "10. Prática",
+  "texto": "Na Prática fica o seu plano, montado a partir do questionário.",
+  "ini": 186.42,
+  "fim": 191.4
+ },
+ {
+  "cena": 10,
+  "tela": "10. Prática",
+  "texto": "Tem exercícios com testes automáticos, exercícios guiados e projetos guiados de todas as linguagens.",
+  "ini": 191.85,
+  "fim": 200.08
+ },
+ {
+  "cena": 10,
+  "tela": "10. Prática",
+  "texto": "Para mudar o plano, refaça o questionário. O seu progresso continua.",
+  "ini": 200.53,
+  "fim": 206.9
+ },
+ {
+  "cena": 11,
+  "tela": "11. Forja (opcional)",
+  "texto": "A Forja é opcional. Clique em Abrir pasta do projeto, escolha a pasta e diga o que você quer.",
+  "ini": 207.8,
+  "fim": 216.2
+ },
+ {
+  "cena": 11,
+  "tela": "11. Forja (opcional)",
+  "texto": "Ela lê os arquivos, edita, roda os testes e mostra o resumo do que mudou.",
+  "ini": 216.65,
+  "fim": 222.75
+ },
+ {
+  "cena": 11,
+  "tela": "11. Forja (opcional)",
+  "texto": "Apagar arquivos ou instalar pacotes sempre pede a sua confirmação, e o botão Desfazer volta tudo.",
+  "ini": 223.2,
+  "fim": 231.08
+ },
+ {
+  "cena": 12,
+  "tela": "12. Se algo der errado",
+  "texto": "Se aparecer que a chave do FreeLLMAPI não foi configurada, clique no atalho do aviso e cole a chave em IA e modelos.",
+  "ini": 231.98,
+  "fim": 241.6
+ },
+ {
+  "cena": 12,
+  "tela": "12. Se algo der errado",
+  "texto": "Se aparecer que o FreeLLMAPI não está respondendo, abra o FreeLLMAPI e tente de novo.",
+  "ini": 242.05,
+  "fim": 250.36
+ },
+ {
+  "cena": 12,
+  "tela": "12. Se algo der errado",
+  "texto": "Se as respostas ficarem lentas, coloque mais chaves grátis no FreeLLMAPI.",
+  "ini": 250.81,
+  "fim": 258
+ },
+ {
+  "cena": 12,
+  "tela": "12. Se algo der errado",
+  "texto": "Se o Gyde não abrir, clique em Tentar de novo. Se continuar, abra o registro e mande junto com a descrição do problema.",
+  "ini": 258.45,
+  "fim": 268.6
+ },
+ {
+  "cena": 13,
+  "tela": "13. Atualizações e ajuda",
+  "texto": "O Gyde avisa quando sai uma versão nova, e atualizar não apaga os seus dados.",
+  "ini": 269.5,
+  "fim": 275.48
+ },
+ {
+  "cena": 13,
+  "tela": "13. Atualizações e ajuda",
+  "texto": "O guia completo, as novidades e o lugar para pedir ajuda ficam na página do Gyde no GitHub.",
+  "ini": 275.93,
+  "fim": 283.16
+ },
+ {
+  "cena": 14,
+  "tela": "Bons estudos!",
+  "texto": "Pronto! Agora é só começar. Bons estudos!",
+  "ini": 284.06,
+  "fim": 289.72
+ }
+]

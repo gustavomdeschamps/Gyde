@@ -18,6 +18,16 @@ function forja(mensagens) {
       ? { pensamento: 'Vou rodar o comando pedido.', acoes: [{ ferramenta: 'executar', args: { comando: 'node -e "setTimeout(() => {}, 60000)"' } }] }
       : { pensamento: 'Terminei.', resposta: '**O que fiz**\nRodei o comando.' };
   }
+  // PREGUICA: pedido de correção que o modelo tenta encerrar sem agir; depois da cobrança, lê, corrige e testa
+  if (/PREGUICA/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Já sei.', resposta: 'É só trocar o sinal na função soma.' },
+      { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] },
+      { pensamento: 'Corrijo e testo.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a - b', substituir: 'a + b' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nCorrigi a soma e rodei os testes.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
   // TEXTOPURO: lê um arquivo e termina com texto puro (sem JSON), como muitos modelos grátis fazem
   if (/TEXTOPURO/.test(tarefa)) return passo === 0 ? { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] } : 'O arquivo soma.js tem a função soma, que hoje subtrai os dois números.';
   // SOBRESCREVER: tenta substituir sem ler, depois regravar com o segredo apagado, edita e tenta terminar sem testar

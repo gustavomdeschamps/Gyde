@@ -1,0 +1,148 @@
+{
+  "em": "2026-10-29T05:39:22.507Z",
+  "codigo": "atual",
+  "repeticoes": 2,
+  "resultados": [
+    {
+      "cenario": "bug",
+      "ok": false,
+      "checagens": {
+        "testes passam": false,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 1916,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "groq/openai/gpt-oss-120b",
+      "erro": null
+    },
+    {
+      "cenario": "bug",
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 7191,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "google/gemma-4-26b-a4b-it",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 26186,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "google/gemma-4-26b-a4b-it",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 22438,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "google/gemma-4-26b-a4b-it",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 5,
+      "ms": 26215,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia/nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 13012,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js"
+      ],
+      "comandos": 1,
+      "modelo": "openrouter/nvidia/nemotron-3.5-lightning:free",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 0,
+      "ms": 28733,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "openrouter/nvidia/nemotron-3.5-lightning:free",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 7712,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "openrouter/nvidia/nemotron-3.5-lightning:free",
+      "erro": null
+    }
+  ]
+}

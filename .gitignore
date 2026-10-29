@@ -7,3 +7,7 @@ pacotes/extensao-vscode/*.vsix
 pacotes/extensao-chrome/*.zip
 pacotes/interface/dist/
 dist-desktop/
+
+# cache e áudio bruto da narração do tutorial (o vídeo final fica em docs/tutorial)
+docs/tutorial/narracao/frases/
+docs/tutorial/narracao/voz.wav
