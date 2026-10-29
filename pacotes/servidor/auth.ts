@@ -124,7 +124,7 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
         log.log(`\n  [Gyde] Código de ${purpose === 'verify' ? 'confirmação' : 'troca de senha'} para ${user.email}: ${code}\n`);
         return { delivered: false };
       }
-      throw erroGyde('O envio de e-mail ainda não foi configurado. Rode o configurar-email.bat (pasta configurar do Gyde).', { status: 503 });
+      throw erroGyde('O envio de e-mail ainda não foi configurado. Quem cuida do servidor roda o ferramentas\\configurar-email.bat.', { status: 503 });
     }
     try {
       await transporter.sendMail({ from: mailFrom, to: user.email, subject, text, html });
@@ -272,7 +272,7 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
   });
 
   r.post('/forgot', wrap(async (req, res) => {
-    if (personal) return res.status(400).json({ local: true, error: 'No modo pessoal não há e-mail: troque a senha pela tela "Esqueci minha senha" do app de desktop ou com o redefinir-senha.bat (pasta configurar do Gyde).' });
+    if (personal) return res.status(400).json({ local: true, error: 'No modo pessoal não há e-mail: troque a senha pela tela "Esqueci minha senha" do app de desktop ou com o redefinir-senha.bat (pasta ferramentas do projeto).' });
     const email = normEmail(req.body?.email);
     if (!codeLimiter(`forgot:${email}`) || !codeLimiter(`forgot-ip:${ipKey(req)}`)) {
       return res.status(429).json({ error: 'Espere alguns minutos antes de pedir outro código.' });

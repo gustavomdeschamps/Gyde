@@ -21,7 +21,7 @@ await send('Page.navigate', { url: `${BASE}/?r=1` }); await sleep(2000);
 
 ok('sem sessão: tela de Entrar com foco no e-mail', await espera(`/Entrar/.test(document.querySelector('#gate h1')?.textContent || '') && document.activeElement?.name === 'email'`));
 await clicar('#gate .link', 'Esqueci minha senha');
-ok('modo pessoal: "Esqueci" explica o redefinir-senha.bat', await espera(`/redefinir-senha\\.bat/.test(document.querySelector('#gate').textContent)`));
+ok('modo pessoal pelo navegador: "Esqueci" explica o redefinir-senha.bat', await espera(`/redefinir-senha\\.bat/.test(document.querySelector('#gate').textContent)`));
 await clicar('#gate button', 'Voltar para entrar');
 await clicar('#gate .link', 'Criar conta');
 ok('tela de cadastro com aviso do modo pessoal', await espera(`/Criar conta/.test(document.querySelector('#gate h1').textContent) && /Modo pessoal/.test(document.querySelector('#gate').textContent)`));

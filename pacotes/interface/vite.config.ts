@@ -12,5 +12,5 @@ export default defineConfig({
   plugins: [svelte({ configFile: path.join(raiz, 'svelte.config.js') })],
   resolve: { alias: { $contratos: path.join(raiz, '..', 'compartilhado', 'contratos.ts') } },
   build: { outDir: path.join(raiz, 'dist'), emptyOutDir: true, target: 'es2022', sourcemap: true, chunkSizeWarningLimit: 1500 },
-  server: { port: 5173, proxy: { '/api': servidor, '/images': servidor, '/vendor': servidor } },
+  server: { port: 5173, proxy: { '/api': servidor, '/images': servidor } },
 });

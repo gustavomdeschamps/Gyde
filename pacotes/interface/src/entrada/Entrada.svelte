@@ -93,7 +93,7 @@
           <span>Não tem conta? <button type="button" class="link" onclick={() => ir('cadastro')}>Criar conta</button></span>
         </div>
         {#if desktop}
-          <p class="gate-note gate-importar">Já usava o Gyde pelo <b>iniciar.bat</b>? <button type="button" class="link" onclick={importar}>Trazer seus dados</button></p>
+          <p class="gate-note gate-importar">Já usava o Gyde antes deste app? <button type="button" class="link" onclick={importar}>Trazer seus dados</button></p>
         {/if}
       {:else if tela === 'cadastro'}
         <h1>Criar conta</h1>
@@ -140,8 +140,8 @@
         <h1>Esqueceu a senha?</h1>
         <p class="gate-sub">No modo pessoal a conta fica só neste computador, então a troca é feita aqui mesmo:</p>
         <ol class="gate-steps">
-          <li>Abra a pasta do Gyde (onde fica o <b>iniciar.bat</b>).</li>
-          <li>Na pasta <b>configurar</b> do Gyde, dê dois cliques em <b>redefinir-senha.bat</b>.</li>
+          <li>Abra a pasta do projeto do Gyde.</li>
+          <li>Na pasta <b>ferramentas</b>, dê dois cliques em <b>redefinir-senha.bat</b>.</li>
           <li>Escolha a sua conta e digite a senha nova.</li>
         </ol>
         <button type="button" class="btn primary wide" onclick={() => ir('login')}>Voltar para entrar</button>

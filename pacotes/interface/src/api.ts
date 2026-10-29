@@ -8,7 +8,7 @@ export class ErroContrato extends Error {
   url: string;
   problemas: string;
   constructor(url: string, problemas: string) {
-    super('O servidor do Gyde respondeu num formato diferente do desta tela. Isso acontece quando o Gyde é atualizado sem reiniciar: feche o Gyde (o app ou a janela do iniciar.bat) e abra de novo.');
+    super('O servidor do Gyde respondeu num formato diferente do desta tela. Isso acontece quando o Gyde é atualizado sem reiniciar: feche o Gyde e abra de novo.');
     this.url = url;
     this.problemas = problemas;
   }
@@ -50,4 +50,4 @@ export async function enviar<T = unknown>(url: string, init: RequestInit = {}): 
 export const corpo = (dados: unknown): RequestInit => ({ method: 'POST', body: JSON.stringify(dados) });
 
 // Texto amigável para qualquer erro de rede ou da API.
-export const mensagemDe = (e: unknown) => (e instanceof TypeError ? 'Sem conexão com o servidor do Gyde. Confira se o Gyde está aberto (o app ou a janela do iniciar.bat).' : e instanceof Error ? e.message : String(e));
+export const mensagemDe = (e: unknown) => (e instanceof TypeError ? 'Sem conexão com o servidor do Gyde. Confira se o Gyde está aberto.' : e instanceof Error ? e.message : String(e));

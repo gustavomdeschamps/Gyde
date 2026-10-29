@@ -5,5 +5,6 @@ export interface PonteDesktop {
   redefinirSenha: (email: string, senha: string) => Promise<Resultado>;
   importarDados: () => Promise<Resultado>;
   reiniciar: () => Promise<void>;
+  abrirRegistros: () => Promise<string>;
 }
 export const desktop = (window as { gydeDesktop?: PonteDesktop }).gydeDesktop;

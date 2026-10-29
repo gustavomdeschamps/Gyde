@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld('gydeDesktop', {
   redefinirSenha: (email, senha) => ipcRenderer.invoke('gyde:redefinir-senha', email, senha),
   importarDados: () => ipcRenderer.invoke('gyde:importar-dados'),
   reiniciar: () => ipcRenderer.invoke('gyde:reiniciar'),
+  abrirRegistros: () => ipcRenderer.invoke('gyde:abrir-registros'),
 });

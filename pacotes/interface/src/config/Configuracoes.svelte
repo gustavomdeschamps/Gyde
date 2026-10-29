@@ -181,6 +181,12 @@
             <div><b>Relatório de erro</b><small>Copia um resumo técnico (versões, estado da IA e erros recentes, sem conversas nem chaves) para você colar numa issue. Nada é enviado sozinho.</small></div>
             <button type="button" class="btn ghost" onclick={async (e) => { const botao = e.currentTarget; copiar(await montarRelatorio(), botao); }}>Copiar relatório</button>
           </div>
+          {#if desktop}
+            <div class="config-linha">
+              <div><b>Registros do app</b><small>O que o app fez ao abrir e fechar (sem chaves). Útil quando o Gyde não abre direito.</small></div>
+              <button type="button" class="btn ghost" onclick={() => desktop!.abrirRegistros()}>Abrir pasta</button>
+            </div>
+          {/if}
         </section>
       {:else if aba === 'ia'}
         <section class="config-painel" role="tabpanel" data-painel="ia">
@@ -301,7 +307,7 @@
             <label class="btn ghost" class:desligado={restaurando}>{restaurando ? 'Conferindo…' : 'Escolher .zip'}<input type="file" accept=".zip,application/zip" hidden disabled={restaurando} onchange={restaurarCopia}></label></div>
           {#if restaurada}
             <div class="config-aviso" role="status">
-              <p>Cópia conferida: {restaurada.contas} conta(s) e {restaurada.conversas} conversa(s). {#if desktop}Reabra o Gyde para usar.{:else}Feche o Gyde (a janela do iniciar.bat) e abra de novo para usar.{/if}</p>
+              <p>Cópia conferida: {restaurada.contas} conta(s) e {restaurada.conversas} conversa(s). {#if desktop}Reabra o Gyde para usar.{:else}Feche o servidor do Gyde e abra de novo para usar.{/if}</p>
               {#if desktop}<button type="button" class="btn primary small" onclick={() => desktop!.reiniciar()}>Reabrir agora</button>{/if}
             </div>
           {/if}

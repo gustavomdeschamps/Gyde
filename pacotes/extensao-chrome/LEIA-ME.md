@@ -5,7 +5,7 @@ ou um print da tela, e te explica.
 
 ## Instalar
 
-1. Deixe o Gyde aberto (o app do Gyde ou o `iniciar.bat`).
+1. Deixe o app do Gyde aberto.
 2. No Chrome, abra `chrome://extensions`.
 3. Ligue o **Modo do desenvolvedor** (canto superior direito).
 4. Clique em **Carregar sem compactação** e escolha esta pasta (`pacotes\extensao-chrome`, dentro da pasta do Gyde).

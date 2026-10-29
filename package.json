@@ -26,7 +26,8 @@
     "e2e": "node testes-e2e/rodar.mjs",
     "lint": "eslint .",
     "dist:mac": "npm run build && electron-builder --mac --publish never",
-    "dist:linux": "npm run build && electron-builder --linux --publish never"
+    "dist:linux": "npm run build && electron-builder --linux --publish never",
+    "teste:instalacao": "npm run dist:win && node testes-e2e/instalacao.mjs"
   },
   "dependencies": {
     "@gyde/desktop": "2.0.0",
@@ -55,6 +56,7 @@
       "package.json",
       "pacotes/desktop/main.ts",
       "pacotes/desktop/preload.cjs",
+      "pacotes/desktop/carregando.html",
       "pacotes/servidor/*.ts",
       "pacotes/servidor/*.ps1",
       "pacotes/servidor/skills-catalogo/**",
@@ -81,7 +83,16 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "shortcutName": "Gyde",
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "include": "pacotes/desktop/instalador.nsh",
+      "installerLanguages": [
+        "pt_BR"
+      ],
+      "language": "1046",
+      "runAfterFinish": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "Gyde-Setup-${version}.exe",
+      "uninstallDisplayName": "Gyde"
     },
     "publish": [
       {
@@ -105,6 +116,10 @@
       "category": "Education",
       "icon": "pacotes/interface/public/icon-512.png",
       "maintainer": "Gustavo Moreira Deschamps"
-    }
+    },
+    "electronLanguages": [
+      "pt-BR",
+      "en-US"
+    ]
   }
 }

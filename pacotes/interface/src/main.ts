@@ -13,6 +13,7 @@ import { createTurmasPage } from './turmas.svelte.ts';
 import { createAgentePage } from './agente.ts';
 import { aplicarTema, definirTema, temaAtual } from './tema.ts';
 import { vigiarErros } from './diagnostico.ts';
+import { desktop } from './desktop.ts';
 
 vigiarErros(); // guarda os erros desta tela para o relatório de erro (Configurações > Geral)
 import { montarConfiguracoes } from './config.ts';
@@ -26,6 +27,8 @@ import SeletorModelo from './chat/SeletorModelo.svelte';
 interface Usuario { name: string; email: string; onboarded: boolean; profile?: { levelLabel?: string } }
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector(sel) as T;
 const app = $('.app'), banner = $('#banner');
+// aberto pelo atalho antigo "Instalar como app" do navegador (ver o fim deste arquivo)
+const APP_ANTIGO = !desktop && matchMedia('(display-mode: standalone)').matches;
 let usuario: Usuario | null = null;
 let inicioAplicado = false;
 
@@ -107,14 +110,14 @@ async function conferirStatus() {
     chat.imagensAtivas = s.imagesEnabled;
     atualizarUso();
     // código novo no disco, servidor antigo na memória: telas e servidor não combinam
-    if (s.desatualizado) { aviso('O Gyde foi atualizado, mas o servidor ainda está rodando a versão anterior. Feche o Gyde (o app ou a janela do iniciar.bat) e abra de novo para terminar a atualização.'); return true; }
+    if (s.desatualizado) { aviso('O Gyde foi atualizado, mas o servidor ainda está rodando a versão anterior. Feche o Gyde e abra de novo para terminar a atualização.'); return true; }
     if (s.keyConfigured && !s.routerOnline && s.iaAtiva === 'offline') { aviso('Sem conexão com o FreeLLMAPI: usando o modelo local (offline). Ele é mais simples e mais lento.'); return true; }
     if (!s.keyConfigured) {
       aviso('A chave do FreeLLMAPI ainda não foi configurada. No ícone do FreeLLMAPI, clique em <b>Copy Key</b> e cole em <button type="button" class="link" id="bannerConfigIa">Configurações &gt; IA e modelos</button>.', true);
       $('#bannerConfigIa')?.addEventListener('click', () => config.abrir('ia'));
     }
     else if (!s.routerOnline) aviso('O FreeLLMAPI não está respondendo. Abra o app FreeLLMAPI (ícone na bandeja) e recarregue a página.');
-    else { banner.hidden = true; return true; }
+    else { if (!APP_ANTIGO) banner.hidden = true; return true; }
   } catch { aviso('Não consegui falar com o servidor do Gyde.'); }
   return false;
 }
@@ -156,15 +159,11 @@ aplicarTema();
   comecar();
 })();
 
-// ---------- PWA: abre como app e mantém a casca offline ----------
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
-const botaoInstalar = $('#installApp');
-let pedidoInstalar: (Event & { prompt: () => void; userChoice: Promise<{ outcome: string }> }) | null = null;
-addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); pedidoInstalar = e as typeof pedidoInstalar; botaoInstalar.hidden = false; });
-botaoInstalar.addEventListener('click', async () => {
-  if (!pedidoInstalar) return;
-  pedidoInstalar.prompt();
-  if ((await pedidoInstalar.userChoice).outcome === 'accepted') toast('Gyde instalado: procure o ícone no menu Iniciar');
-  pedidoInstalar = null; botaoInstalar.hidden = true;
-});
-addEventListener('appinstalled', () => { botaoInstalar.hidden = true; });
+// ---------- app antigo do navegador ----------
+// Versões antigas ofereciam "Instalar o Gyde como app" pelo navegador: um atalho que só abre 127.0.0.1:3210 e depende
+// de o servidor já estar rodando. O jeito certo agora é o app de desktop. Aqui o service worker antigo é desligado
+// (o cache dele podia servir telas velhas) e quem abriu por aquele atalho recebe um aviso de como trocar.
+navigator.serviceWorker?.getRegistrations().then((rs) => rs.forEach((r) => r.unregister())).catch(() => {});
+if (APP_ANTIGO) {
+  aviso('Você abriu o Gyde pelo atalho antigo do navegador, que só funciona com o servidor aberto. Instale o app Gyde para Windows (página <b>Releases</b> do GitHub do Gyde) e depois remova este atalho em <b>edge://apps</b>.', true);
+}

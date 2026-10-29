@@ -1,13 +1,13 @@
 // Troca a senha de uma conta do Gyde direto no banco (modo pessoal: não há e-mail).
-// Uso: node configurar/scripts/redefinir-senha.mjs --listar
-//      GYDE_EMAIL=... GYDE_NOVA_SENHA=... node configurar/scripts/redefinir-senha.mjs
+// Uso: node ferramentas/redefinir-senha.mjs --listar
+//      GYDE_EMAIL=... GYDE_NOVA_SENHA=... node ferramentas/redefinir-senha.mjs
 import { DatabaseSync } from 'node:sqlite';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { hashPassword } from '../../pacotes/servidor/auth.ts';
+import { hashPassword } from '../pacotes/servidor/auth.ts';
 
-const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dbFile = path.join(process.env.DATA_DIR || path.join(ROOT, 'data'), 'chat.db');
 if (!existsSync(dbFile)) { console.log('ERRO: ainda não existe nenhuma conta (abra o Gyde e crie uma).'); process.exit(1); }
 const db = new DatabaseSync(dbFile);

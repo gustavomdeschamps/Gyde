@@ -84,7 +84,7 @@ app.use(['/api', '/images'], (req, res, next) => {
 });
 
 // Versão do código: se os arquivos do Gyde mudarem no disco depois que o servidor iniciou (atualização sem reiniciar
-// o iniciar.bat), o navegador recebe telas novas de um servidor antigo. O status avisa para a tela pedir o reinício.
+// o servidor), o navegador recebe telas novas de um servidor antigo. O status avisa para a tela pedir o reinício.
 const impressaoDoCodigo = () => {
   const pastas = [ROOT, DIST];
   let h = 0;
@@ -124,14 +124,12 @@ setupPerfil(app, db, preferencias); // questionário e preferências
 setupDiagnostico(app, { db, provedores, raiz: BASE, asyncRoute }); // relatório de erro (Configurações > Geral)
 
 // ---------- Arquivos estáticos ----------
-const nm = (p: string) => path.join(BASE, 'node_modules', p);
 app.use('/images', express.static(IMAGES_DIR, { maxAge: '30d', immutable: true }));
-app.use('/vendor/hljs', express.static(nm('@highlightjs/cdn-assets'))); // temas de cor do código (claro/escuro), trocados em tempo de execução
 app.get('/favicon.ico', (_req, res) => res.sendFile(path.join(DIST, 'gyde.ico'), { maxAge: 0 }));
 // interface já compilada pelo Vite (npm run build). Arquivos com hash no nome podem ficar em cache por muito tempo.
 app.use('/assets', express.static(path.join(DIST, 'assets'), { maxAge: '1y', immutable: true }));
 app.use(express.static(DIST));
-app.get('/', (_req, res) => res.status(503).type('text').send('A interface do Gyde ainda não foi gerada. Rode: npm run build (o iniciar.bat e o app de desktop já vêm com ela gerada).'));
+app.get('/', (_req, res) => res.status(503).type('text').send('A interface do Gyde ainda não foi gerada. Rode: npm run build (o app de desktop já vem com ela gerada).'));
 
 app.use((err: ErroGyde, req: Request, res: Response, _next: NextFunction) => {
   const status = err.status || 500;

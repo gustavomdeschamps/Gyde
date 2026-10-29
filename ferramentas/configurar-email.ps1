@@ -3,7 +3,7 @@
 # A senha de app e lida da area de transferencia e nunca aparece na tela.
 
 $ErrorActionPreference = 'Stop'
-$root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $envFile = Join-Path $root '.env'
 
 Write-Host '=== E-mail do Gyde (Gmail) ===' -ForegroundColor Cyan
@@ -57,5 +57,5 @@ $lines += "MAIL_FROM=Gyde <$email>"
 Set-Clipboard -Value ' '
 Write-Host ''
 Write-Host "Pronto! Chegou um e-mail de teste em $email." -ForegroundColor Green
-Write-Host 'Feche e abra o Gyde de novo (iniciar.bat) para valer.'
+Write-Host 'Feche e abra o servidor do Gyde de novo (npm start) para valer.'
 Read-Host 'Enter para fechar'

@@ -1,6 +1,6 @@
 # Troca a senha de uma conta do Gyde neste computador (modo pessoal).
 
-$root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Write-Host '=== Trocar senha do Gyde ===' -ForegroundColor Cyan
 Write-Host ''
 Write-Host 'Contas neste computador:'

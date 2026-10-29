@@ -1,10 +1,11 @@
 // App de desktop do Gyde (Electron): sobe o servidor do Gyde num processo separado, numa porta só deste computador
-// (a 3210, ou outra livre se ela estiver ocupada), e abre a interface numa janela própria. Os dados e o .env ficam na pasta do usuário
-// (%APPDATA%\Gyde), não na pasta do programa, então atualizar ou reinstalar não apaga nada.
+// (a 3210, ou outra livre se ela estiver ocupada), e abre a interface numa janela própria. Os dados e o .env ficam na
+// pasta do usuário (%APPDATA%\Gyde), não na pasta do programa, então atualizar ou reinstalar não apaga nada.
+// O que acontece ao abrir e fechar fica em %APPDATA%\Gyde\registros\gyde.log (sem chaves), para diagnosticar problemas.
 import { app, BrowserWindow, dialog, ipcMain, Menu, session, shell, utilityProcess, type UtilityProcess } from 'electron';
 import { createServer } from 'node:net';
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, rmSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, renameSync, rmSync, statSync } from 'node:fs';
 import { prepararDePasta } from '../servidor/copia.ts';
 import path from 'node:path';
 
@@ -13,6 +14,8 @@ if (process.env.GYDE_DESKTOP_DADOS) app.setPath('userData', path.resolve(process
 const RAIZ = app.getAppPath(); // pasta do programa (ou o app.asar, no instalado)
 const DADOS = app.getPath('userData');
 const ICONE = path.join(RAIZ, 'pacotes', 'interface', 'public', 'icon-512.png');
+const PASTA_REGISTROS = path.join(DADOS, 'registros');
+const REGISTRO = path.join(PASTA_REGISTROS, 'gyde.log');
 
 let servidor: UtilityProcess | null = null;
 let janela: BrowserWindow | null = null;
@@ -21,8 +24,19 @@ let endereco = '';
 // segredo desta abertura: só o processo principal conhece (a página não), e o servidor exige nas rotas do desktop
 const SEGREDO = randomBytes(32).toString('hex');
 
+// ---------- registro de diagnóstico ----------
+const semSegredos = (t: string) => t.replace(/freellmapi-[A-Za-z0-9_-]+/g, 'freellmapi-[removida]').replace(/(TOKEN|KEY|SENHA|PASS)\w*=\S+/gi, '$1=[removido]');
+function registrar(texto: string) {
+  try {
+    mkdirSync(PASTA_REGISTROS, { recursive: true });
+    if (existsSync(REGISTRO) && statSync(REGISTRO).size > 2 * 1024 * 1024) renameSync(REGISTRO, path.join(PASTA_REGISTROS, 'gyde.anterior.log'));
+    const linhas = semSegredos(texto).split(/\r?\n/).filter((l) => l.trim()).map((l) => `${new Date().toISOString()}  ${l}`);
+    if (linhas.length) appendFileSync(REGISTRO, `${linhas.join('\n')}\n`);
+  } catch { /* sem como gravar o registro: segue sem ele */ }
+}
+
 // porta só no 127.0.0.1. Prefere a 3210, que é onde as extensões do VS Code e do Chrome procuram o Gyde;
-// se ela estiver ocupada (ex.: o iniciar.bat aberto), o sistema escolhe outra livre
+// se ela estiver ocupada (ex.: outro programa, ou o Gyde rodando pelo código), o sistema escolhe outra livre
 const PORTA_PADRAO = 3210;
 const tentarPorta = (porta: number) => new Promise<number | null>((ok) => {
   const s = createServer();
@@ -35,52 +49,63 @@ async function subirServidor() {
   const porta = await escolherPorta();
   const pastaDados = path.join(DADOS, 'dados');
   mkdirSync(pastaDados, { recursive: true });
+  registrar(`Gyde ${app.getVersion()} abrindo (Electron ${process.versions.electron}, ${process.platform}); porta ${porta}${porta === PORTA_PADRAO ? '' : ' (a 3210 estava ocupada)'}`);
   const saida: string[] = [];
   servidor = utilityProcess.fork(path.join(RAIZ, 'pacotes', 'servidor', 'server.ts'), [], {
     serviceName: 'Servidor do Gyde',
     stdio: 'pipe',
     env: { ...process.env, GYDE_DESKTOP: '1', GYDE_SEGREDO_DESKTOP: SEGREDO, PORT: String(porta), DATA_DIR: pastaDados, GYDE_ENV_FILE: path.join(DADOS, '.env') },
   });
-  const guardar = (d: Buffer) => { saida.push(String(d)); if (saida.length > 60) saida.shift(); };
+  const guardar = (d: Buffer) => { saida.push(String(d)); if (saida.length > 60) saida.shift(); registrar(String(d)); };
   servidor.stdout?.on('data', guardar);
   servidor.stderr?.on('data', guardar);
+  const este = servidor;
   servidor.on('exit', (codigo) => {
-    servidor = null;
-    if (saindo) return;
-    // o servidor caiu sozinho: mostra o motivo em vez de deixar a janela parada
-    dialog.showErrorBox('O Gyde parou', `O servidor do Gyde fechou (código ${codigo}).\n\n${saida.join('').slice(-1500)}`);
-    app.quit();
+    if (servidor === este) servidor = null;
+    registrar(`servidor fechou (código ${codigo})${saindo ? ' ao sair' : ''}`);
+    if (saindo || !janela) return;
+    // o servidor caiu com o Gyde aberto: explica e oferece reabrir, em vez de deixar a janela parada
+    const r = dialog.showMessageBoxSync(janela, {
+      type: 'error', title: 'O Gyde parou', buttons: ['Reabrir o Gyde', 'Abrir o registro', 'Fechar'], defaultId: 0, cancelId: 2,
+      message: 'O servidor do Gyde parou de funcionar.', detail: `${ultimas(saida)}\n\nSuas conversas e seu progresso estão salvos.`,
+    });
+    if (r === 1) shell.openPath(REGISTRO);
+    if (r === 0) app.relaunch();
+    saindo = true; app.quit();
   });
   endereco = `http://127.0.0.1:${porta}`;
   // espera responder (o primeiro início pode migrar o banco)
   for (let i = 0; i < 150; i++) {
-    try { if ((await fetch(endereco, { signal: AbortSignal.timeout(1000) })).ok) return; } catch { /* ainda subindo */ }
-    if (!servidor) throw new Error('O servidor do Gyde fechou ao iniciar.');
+    try { if ((await fetch(endereco, { signal: AbortSignal.timeout(1000) })).ok) { registrar(`servidor pronto em ${endereco}`); return; } } catch { /* ainda subindo */ }
+    if (servidor !== este) throw new Error(`O servidor do Gyde fechou ao iniciar.\n\n${ultimas(saida)}`);
     await new Promise((r) => setTimeout(r, 200));
   }
-  throw new Error(`O servidor do Gyde não respondeu.\n\n${saida.join('').slice(-1500)}`);
+  throw new Error(`O servidor do Gyde não respondeu em 30 segundos.\n\n${ultimas(saida)}`);
 }
+const ultimas = (saida: string[]) => semSegredos(saida.join('')).trim().split(/\r?\n/).slice(-12).join('\n');
 
-function abrirJanela() {
+function criarJanela() {
   janela = new BrowserWindow({
     width: 1280, height: 840, minWidth: 380, minHeight: 520,
     title: 'Gyde', icon: ICONE, show: false, autoHideMenuBar: true, backgroundColor: '#0b1220',
     webPreferences: { preload: path.join(RAIZ, 'pacotes', 'desktop', 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, spellcheck: true },
   });
   janela.once('ready-to-show', () => janela?.show());
-  // links externos abrem no navegador padrão; a janela do Gyde nunca sai do servidor local
+  // links externos abrem no navegador padrão; o chat, a Prática, a Forja e as Configurações ficam nesta janela
   janela.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:\/\//.test(url) && !url.startsWith(endereco)) shell.openExternal(url);
+    if (/^https?:\/\//.test(url) && !(endereco && url.startsWith(endereco))) shell.openExternal(url);
     return { action: 'deny' };
   });
   janela.webContents.on('will-navigate', (e, url) => {
-    if (!url.startsWith(endereco)) { e.preventDefault(); if (/^https?:\/\//.test(url)) shell.openExternal(url); }
+    if (!(endereco && url.startsWith(endereco))) { e.preventDefault(); if (/^https?:\/\//.test(url)) shell.openExternal(url); }
   });
+  janela.webContents.on('render-process-gone', (_e, d) => registrar(`a janela caiu: ${d.reason}`));
   janela.on('closed', () => { janela = null; });
-  janela.loadURL(endereco);
+  // a janela aparece na hora com "Abrindo o Gyde…"; a interface entra quando o servidor responder
+  janela.loadFile(path.join(RAIZ, 'pacotes', 'desktop', 'carregando.html'));
 }
 
-// seletor de pasta nativo para a Forja (substitui a janela do PowerShell)
+// seletor de pasta nativo para a Forja
 ipcMain.handle('gyde:escolher-pasta', async (e) => {
   const dono = BrowserWindow.fromWebContents(e.sender);
   const opcoes = { title: 'Escolha a pasta do projeto', properties: ['openDirectory' as const] };
@@ -110,10 +135,13 @@ ipcMain.handle('gyde:redefinir-senha', async (e, email: unknown, senha: unknown)
 // depois de restaurar uma cópia: o app reabre e o servidor aplica a cópia antes de abrir o banco
 ipcMain.handle('gyde:reiniciar', () => { app.relaunch(); app.quit(); });
 
+// abre a pasta dos registros (Configurações > Geral, para quem precisa mandar um diagnóstico)
+ipcMain.handle('gyde:abrir-registros', () => { mkdirSync(PASTA_REGISTROS, { recursive: true }); return shell.openPath(PASTA_REGISTROS); });
+
 // trazer os dados do Gyde que rodava pelo código (pasta data\ dele) para o app de desktop
 ipcMain.handle('gyde:importar-dados', async (e) => {
   const dono = BrowserWindow.fromWebContents(e.sender);
-  const escolha = { title: 'Escolha a pasta do Gyde antigo (onde fica o iniciar.bat) ou a pasta data dele', properties: ['openDirectory' as const] };
+  const escolha = { title: 'Escolha a pasta do projeto do Gyde antigo ou a pasta data dele', properties: ['openDirectory' as const] };
   const r = dono ? await dialog.showOpenDialog(dono, escolha) : await dialog.showOpenDialog(escolha);
   if (r.canceled || !r.filePaths[0]) return { ok: false, cancelado: true };
   const pasta = [path.join(r.filePaths[0], 'data'), r.filePaths[0]].find((p) => existsSync(path.join(p, 'chat.db')));
@@ -125,26 +153,51 @@ ipcMain.handle('gyde:importar-dados', async (e) => {
     detail: 'Os dados atuais deste app são trocados pelos importados (uma cópia deles fica guardada em copias-banco). O Gyde reabre sozinho.' };
   const { response } = dono ? await dialog.showMessageBox(dono, confirmar) : await dialog.showMessageBox(confirmar);
   if (response !== 0) { rmSync(path.join(DADOS, 'dados', 'restaurar-pendente'), { recursive: true, force: true }); return { ok: false, cancelado: true }; }
+  registrar(`importando dados de ${resumo.contas} conta(s) e ${resumo.conversas} conversa(s)`);
   app.relaunch(); app.quit();
   return { ok: true };
 });
 
-// atualização automática: procura uma versão nova publicada no GitHub. Sem release publicada, não faz nada.
+// atualização automática: procura uma versão nova publicada no GitHub. Sem versão publicada, não faz nada.
 async function procurarAtualizacao() {
   if (!app.isPackaged) return;
   try {
     const { autoUpdater } = (await import('electron-updater')).default;
     autoUpdater.autoDownload = false;
     autoUpdater.on('update-available', async (info) => {
-      const { response } = await dialog.showMessageBox({ type: 'info', buttons: ['Baixar agora', 'Depois'], defaultId: 0, title: 'Atualização do Gyde', message: `Saiu a versão ${info.version} do Gyde. Quer baixar agora? Ela é instalada quando você fechar o Gyde.` });
+      registrar(`atualização disponível: ${info.version}`);
+      const { response } = await dialog.showMessageBox({ type: 'info', buttons: ['Baixar agora', 'Depois'], defaultId: 0, title: 'Atualização do Gyde', message: `Saiu a versão ${info.version} do Gyde. Quer baixar agora? Ela é instalada quando você fechar o Gyde. Suas conversas e seu progresso continuam.` });
       if (response === 0) autoUpdater.downloadUpdate();
     });
+    autoUpdater.on('error', (e) => registrar(`atualização: ${e.message}`));
     await autoUpdater.checkForUpdates();
   } catch { /* sem internet ou sem versão publicada: segue sem atualizar */ }
 }
 
+async function iniciar() {
+  for (;;) {
+    try {
+      await subirServidor();
+      // não espera a página: um recarregamento no meio (ex.: sair da conta) cancela este carregamento sem ser um erro
+      janela?.loadURL(endereco).catch((e: Error) => registrar(`carregamento da página interrompido: ${e.message}`));
+      return true;
+    } catch (e) {
+      const motivo = e instanceof Error ? e.message : String(e);
+      registrar(`não abriu: ${motivo}`);
+      saindo = true; servidor?.kill(); servidor = null; saindo = false;
+      const r = dialog.showMessageBoxSync({
+        type: 'error', title: 'Não deu para abrir o Gyde', buttons: ['Tentar de novo', 'Abrir o registro', 'Fechar'], defaultId: 0, cancelId: 2,
+        message: 'O Gyde não conseguiu iniciar.', detail: `${motivo}\n\nSe continuar, abra o registro e mande o conteúdo numa issue do Gyde no GitHub. Seus dados ficam em ${DADOS}.`,
+      });
+      if (r === 1) { await shell.openPath(REGISTRO); continue; }
+      if (r === 2) return false;
+    }
+  }
+}
+
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
+  // abrir de novo pelo atalho só traz a janela que já está aberta (nada de segunda janela nem segundo servidor)
   app.on('second-instance', () => { if (janela) { if (janela.isMinimized()) janela.restore(); janela.focus(); } });
   app.whenReady().then(async () => {
     Menu.setApplicationMenu(null);
@@ -153,16 +206,10 @@ else {
     const local = (url: string) => Boolean(endereco) && url.startsWith(endereco);
     session.defaultSession.setPermissionRequestHandler((wc, permissao, responder) => responder(PERMITIDAS.has(permissao) && local(wc.getURL())));
     session.defaultSession.setPermissionCheckHandler((wc, permissao) => PERMITIDAS.has(permissao) && local(wc?.getURL() ?? ''));
-    try {
-      await subirServidor();
-    } catch (e) {
-      dialog.showErrorBox('Não deu para abrir o Gyde', e instanceof Error ? e.message : String(e));
-      saindo = true; servidor?.kill(); app.quit();
-      return;
-    }
-    abrirJanela();
+    criarJanela();
+    if (!(await iniciar())) { saindo = true; app.quit(); return; }
     procurarAtualizacao();
   });
   app.on('window-all-closed', () => app.quit());
-  app.on('before-quit', () => { saindo = true; servidor?.kill(); });
+  app.on('before-quit', () => { saindo = true; registrar('fechando'); servidor?.kill(); });
 }

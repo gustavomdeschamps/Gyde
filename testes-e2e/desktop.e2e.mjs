@@ -44,7 +44,7 @@ ok('página sem acesso ao Node', await ev(`typeof require === 'undefined' && typ
 const perm = await ev(`(async()=>{ const q = async (n) => { try { return (await navigator.permissions.query({ name: n })).state; } catch (e) { return 'erro'; } };
   return { clipboard: await q('clipboard-write'), geo: await q('geolocation'), cam: await q('camera'), notif: await Notification.requestPermission() }; })()`);
 ok('permissões: só copiar é liberado (câmera, localização e notificações negadas)', perm?.clipboard === 'granted' && perm?.geo === 'denied' && perm?.cam === 'denied' && perm?.notif === 'denied', JSON.stringify(perm));
-ok('ponte do desktop: escolherPasta e redefinirSenha, sem Node na página', await ev(`typeof window.gydeDesktop?.escolherPasta === 'function' && typeof window.gydeDesktop?.redefinirSenha === 'function' && Object.keys(window.gydeDesktop).sort().join() === 'escolherPasta,importarDados,redefinirSenha,reiniciar'`));
+ok('ponte do desktop: escolherPasta e redefinirSenha, sem Node na página', await ev(`typeof window.gydeDesktop?.escolherPasta === 'function' && typeof window.gydeDesktop?.redefinirSenha === 'function' && Object.keys(window.gydeDesktop).sort().join() === 'abrirRegistros,escolherPasta,importarDados,redefinirSenha,reiniciar'`));
 await ev(`(localStorage.setItem('gyde-intro-vista','1'), 1)`); await send('Page.reload'); await sleep(2000);
 ok('entrada do desktop oferece trazer os dados do Gyde antigo', await espera(`/Trazer seus dados/.test(document.querySelector('#gate .gate-importar')?.textContent || '')`));
 await ev(`[...document.querySelectorAll('#gate .link')].find((b) => /Esqueci/.test(b.textContent))?.click()`);

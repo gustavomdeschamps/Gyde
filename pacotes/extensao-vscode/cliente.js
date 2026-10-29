@@ -16,7 +16,7 @@ function createClient({ server, token }) {
         headers: { Authorization: `Bearer ${token}`, 'x-gyde': '1', ...(options.body ? { 'Content-Type': 'application/json' } : {}) },
       });
     } catch {
-      throw new GydeError('Não consegui falar com o Gyde. Ele está aberto (o app do Gyde ou o iniciar.bat)?');
+      throw new GydeError('Não consegui falar com o Gyde. O app do Gyde está aberto?');
     }
     if (res.status === 401) throw new GydeError('Token inválido ou revogado. Gere outro no Gyde em Configurações.', true);
     if (!res.ok) {
