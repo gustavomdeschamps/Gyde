@@ -128,6 +128,10 @@ export const MapaHabilidades = z.object({
   }).refine((t) => t.dominados === t.nos.filter((n) => n.estado === 'dominado').length && t.total === t.nos.length, { message: 'mapa: contagem não bate com os itens' })).min(1),
 });
 export type TMapaHabilidades = z.infer<typeof MapaHabilidades>;
+// certificado de projeto guiado: o código confere neste Gyde quem fez, qual projeto e quando
+export const Certificado = z.object({ codigo: z.string().regex(/^GYDE-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/), projetoId: z.string(), pessoa: z.string(), projeto: z.string(), tecnologia: z.string(), etapas: z.number().int().positive(), emitidoEm: z.number() });
+export const ListaCertificados = z.object({ certificados: z.array(Certificado) });
+export type TCertificado = z.infer<typeof Certificado>;
 export const EstadoPraticaComGanhos = EstadoPratica.extend({ ganhos: z.array(z.object({ motivo: z.string(), xp: z.number() })) });
 export const ConferenciaEtapa = EstadoPraticaComGanhos.extend({ conferencia: z.object({ ok: z.boolean(), criterios: z.array(z.object({ descricao: z.string(), ok: z.boolean() })) }) });
 

@@ -8,6 +8,7 @@ import { abrirBanco } from './banco.ts';
 import { aplicarRestauracaoPendente } from './copia.ts';
 import { setupAuth } from './auth.ts';
 import { setupPratica } from './pratica-servidor.ts';
+import { setupCertificados } from './certificados.ts';
 import { setupMemoria } from './memoria.ts';
 import { setupTurmas } from './turmas.ts';
 import { setupAgente } from './agente.ts';
@@ -116,7 +117,8 @@ const skills = setupSkills(app, db, { root: ROOT }); // skills instaláveis (ski
 const memoria = setupMemoria(app, db, { router, ...preferencias }); // memória entre conversas
 setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
 setupChat(app, db, { router, provedores, uso, imagens, asyncRoute, preferencias, skills, memoria }); // conversas e mensagens
-setupPratica(app, db, { router, profileSummary, asyncRoute, uso }); // exercícios, projetos, revisão, desafio do dia, amigos
+const certificados = setupCertificados(app, db); // certificados dos projetos guiados (código de verificação)
+setupPratica(app, db, { router, profileSummary, asyncRoute, uso, emitirCertificados: certificados.emitirPendentes }); // exercícios, projetos, revisão, desafio do dia, amigos
 setupTurmas(app, db); // modo turma
 setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão do Chrome
 setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja: trabalha numa pasta de projeto

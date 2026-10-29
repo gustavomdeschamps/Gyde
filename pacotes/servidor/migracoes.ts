@@ -133,4 +133,21 @@ export const MIGRACOES: Migracao[] = [
                CREATE INDEX idx_tentativas ON tentativas(chave, em);`);
     },
   },
+  {
+    versao: 3,
+    nome: 'certificados dos projetos guiados (um por pessoa e projeto, com código de verificação)',
+    aplicar(db) {
+      db.exec(`CREATE TABLE certificados (
+                 codigo TEXT PRIMARY KEY,
+                 user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                 projeto_id TEXT NOT NULL,
+                 pessoa TEXT NOT NULL,
+                 projeto TEXT NOT NULL,
+                 tecnologia TEXT NOT NULL,
+                 etapas INTEGER NOT NULL,
+                 emitido_em INTEGER NOT NULL,
+                 UNIQUE (user_id, projeto_id)
+               );`);
+    },
+  },
 ];

@@ -25,6 +25,12 @@
   $effect(() => { for (const [id, c] of Object.entries(codigos)) rascunhos[chave(id)] = c; });
   let conferindo = $state('');
   let resultados = $state<Record<string, { descricao: string; ok: boolean }[]>>({});
+  // certificado: aparece quando o projeto está concluído (o servidor emite na última etapa)
+  let certificado = $state<string | null>(null);
+  $effect(() => {
+    if (!p.concluido) { certificado = null; return; }
+    pedir('/api/certificados', C.ListaCertificados).then((r) => { certificado = r.certificados.find((c) => c.projetoId === p.id)?.codigo ?? null; }, () => {});
+  });
 
   async function conferir(etapaId: string) {
     conferindo = etapaId;
@@ -112,6 +118,7 @@
 
     {#if p.concluido && p.explicacaoSolucao}
       <section class="projeto-fim">
+        {#if certificado}<a class="btn primary cert-botao" href="#/pratica/certificado/{certificado}">Ver meu certificado</a>{/if}
         <h2 class="section-title">Como a solução funciona</h2>
         <p>{p.explicacaoSolucao}</p>
         <h2 class="section-title">Próximos desafios</h2>

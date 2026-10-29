@@ -62,6 +62,18 @@ try {
   const outra = clienteApi(servidor.base); await outra.criarConta({ nome: 'Outra' });
   const daOutra = await (await outra.pedir('GET', '/api/pratica')).json();
   ok('progresso de projeto é de cada conta (outra pessoa começa do zero)', daOutra.projetos.find((x) => x.id === 'pj-sql-escola').etapas.every((e) => !e.feita) && daOutra.projetos.every((x) => x.explicacaoSolucao === null));
+  // certificado: emitido ao concluir; abre pronto para imprimir; outra conta deste Gyde confere o código
+  ok('projeto concluído mostra "Ver meu certificado"', await esperar(`document.querySelector('.cert-botao') !== null`, 5000));
+  await avaliar(`document.querySelector('.cert-botao').click()`);
+  ok('certificado com nome, projeto e código', await esperar(`/Lia/.test(document.querySelector('.cert-nome')?.textContent || '') && /Banco de dados de uma escola/.test(document.querySelector('.cert-texto').textContent) && /^GYDE-[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(document.querySelector('.cert-codigo b').textContent)`, 5000));
+  ok('botão de imprimir ou salvar PDF', await avaliar(`[...document.querySelectorAll('.cert-acoes .btn')].some((b) => /Imprimir ou salvar PDF/.test(b.textContent))`));
+  const codigoCert = await avaliar(`document.querySelector('.cert-codigo b').textContent`);
+  const listaCert = await (await api.pedir('GET', '/api/certificados')).json();
+  ok('um certificado só por projeto, mesmo pedindo de novo', listaCert.certificados.filter((c) => c.projetoId === 'pj-sql-escola').length === 1 && listaCert.certificados[0].codigo === codigoCert);
+  const conferido = await outra.pedir('GET', `/api/certificados/${codigoCert}`);
+  ok('outra conta deste Gyde confere o código (quem fez, projeto)', conferido.status === 200 && (await conferido.json()).pessoa === 'Lia');
+  ok('código inventado não confere', (await outra.pedir('GET', '/api/certificados/GYDE-AAAA-BBBB')).status === 404);
+  ok('a outra conta não tem certificado nenhum', (await (await outra.pedir('GET', '/api/certificados')).json()).certificados.length === 0);
   ok('a solução de referência não vai para o navegador', !JSON.stringify(daOutra).includes('referencia') && !JSON.stringify(daOutra).includes(JSON.stringify(sql.etapas[2].referencia).slice(1, -1)));
   await api.pedir('POST', '/api/profile', { answers: { ...respostas, languages: ['Python'] } });
   const depois = await (await api.pedir('GET', '/api/pratica')).json();

@@ -10,7 +10,7 @@ import { MIGRACOES } from '../migracoes.ts';
 
 const tabelas = (db) => db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all().map((r) => r.name);
 const colunas = (db, t) => db.prepare(`SELECT name FROM pragma_table_info('${t}')`).all().map((r) => r.name);
-const ESPERADAS = ['activity_days', 'agente_desfazer', 'agente_eventos', 'agente_sessoes', 'api_tokens', 'conversations', 'custom_skills', 'daily_challenge',
+const ESPERADAS = ['activity_days', 'agente_desfazer', 'agente_eventos', 'agente_sessoes', 'api_tokens', 'certificados', 'conversations', 'custom_skills', 'daily_challenge',
   'email_codes', 'friends', 'memories', 'messages', 'review_queue', 'sessions', 'settings', 'skill_loja', 'skill_progress', 'tentativas', 'turma_membros', 'turma_tarefas',
   'turmas', 'user_skills', 'users', 'uso_registros', 'xp_events'];
 

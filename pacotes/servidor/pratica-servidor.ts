@@ -23,7 +23,7 @@ const perfilDe = (user: Usuario): Perfil => { try { const p = JSON.parse(user.pr
 const today = (t = Date.now()) => new Date(t).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso do PC
 const allExercises = () => TRACKS.flatMap((t) => t.exercises.map((ex) => ({ ...ex, track: t })));
 
-export function setupPratica(app: Express, db: Db, { router, profileSummary, asyncRoute, uso }: { router: Router; profileSummary: (user: Usuario) => string; asyncRoute: AsyncRoute; uso?: Uso }) {
+export function setupPratica(app: Express, db: Db, { router, profileSummary, asyncRoute, uso, emitirCertificados }: { router: Router; profileSummary: (user: Usuario) => string; asyncRoute: AsyncRoute; uso?: Uso; emitirCertificados?: (user: Usuario) => void }) {
 
   const q = {
     progress: consulta<{ exercise_id: string; done: number; code: string; fails: number }>(db, 'SELECT exercise_id, done, code, fails FROM skill_progress WHERE user_id = ?'),
@@ -206,7 +206,7 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
         q.addXp.run(userId, etapa.xp, 'projeto', chave, now);
         ganhos.push({ motivo: 'Etapa do projeto concluída', xp: etapa.xp });
         const todas = p.etapas.every((e) => e.id === etapa.id || q.one.get(userId, chaveEtapa(p.id, e.id))?.done);
-        if (todas) { q.addXp.run(userId, 30, 'projeto', p.id, now); ganhos.push({ motivo: 'Projeto concluído', xp: 30 }); }
+        if (todas) { q.addXp.run(userId, 30, 'projeto', p.id, now); ganhos.push({ motivo: 'Projeto concluído', xp: 30 }); emitirCertificados?.(req.user); }
       }
     }
     responder(res, C.ConferenciaEtapa, { ...state(req.user), ganhos, conferencia });
