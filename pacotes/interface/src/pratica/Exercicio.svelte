@@ -7,6 +7,7 @@
   import { openTrace } from '../passo-a-passo.ts';
   import { icons, LANG_LABEL, FILE_EXT, mostrar } from './icones.ts';
   import Editor from './Editor.svelte';
+  import DueloFaixa from './DueloFaixa.svelte';
 
   type Resultado = { args: unknown[]; expected?: unknown; pass?: boolean; got?: unknown; error?: string };
   let { dados, trilhaId, exercicioId, renderMarkdown, toast, onatualizar }: {
@@ -82,6 +83,7 @@
         const total = novo.ganhos.reduce((s, g) => s + g.xp, 0);
         if (botaoVerificar) { const b = botaoVerificar.getBoundingClientRect(); confetti(b.left + b.width / 2, b.top); }
         sucesso = { total, ganhos: novo.ganhos, testes: lista.length };
+        dispatchEvent(new Event('gyde:acertou')); // duelo em andamento confere o resultado na hora
       }
     } catch (e) { toast(mensagemDe(e)); }
     ocupado = false;
@@ -106,6 +108,7 @@
 
 <div class="skills-inner" style="--track:{t.color}">
   <nav class="crumbs"><a href="#/pratica">Prática</a><span>›</span><a href="#/pratica/{t.id}">{t.title}</a><span>›</span><span>{idx + 1}. {ex.title}</span></nav>
+  <DueloFaixa exercicioId={ex.id} />
   <div class="ex-layout">
     <section class="ex-panel">
       <div class="badges">

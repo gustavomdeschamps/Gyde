@@ -132,6 +132,14 @@ export type TMapaHabilidades = z.infer<typeof MapaHabilidades>;
 export const Certificado = z.object({ codigo: z.string().regex(/^GYDE-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/), projetoId: z.string(), pessoa: z.string(), projeto: z.string(), tecnologia: z.string(), etapas: z.number().int().positive(), emitidoEm: z.number() });
 export const ListaCertificados = z.object({ certificados: z.array(Certificado) });
 export type TCertificado = z.infer<typeof Certificado>;
+// duelo: o mesmo exercício para duas contas; vence quem passa nos testes primeiro (tempos medidos pelo servidor)
+export const Duelo = z.object({
+  id: z.string(), estado: z.enum(['convite', 'andamento', 'fim', 'recusado', 'cancelado']), souDesafiante: z.boolean(), oponente: z.string(),
+  exercicio: z.object({ trackId: z.string(), exerciseId: z.string(), titulo: z.string(), lang: z.enum(['python', 'javascript']) }),
+  inicio: z.number().nullable(), agora: z.number(), meuTempo: z.number().nullable(), tempoOponente: z.number().nullable(), resultado: z.enum(['venci', 'perdi']).nullable(),
+}).refine((d) => (d.estado === 'fim') === (d.resultado !== null), { message: 'duelo: resultado só no fim' });
+export const ListaDuelos = z.object({ duelos: z.array(Duelo) });
+export type TDuelo = z.infer<typeof Duelo>;
 export const EstadoPraticaComGanhos = EstadoPratica.extend({ ganhos: z.array(z.object({ motivo: z.string(), xp: z.number() })) });
 export const ConferenciaEtapa = EstadoPraticaComGanhos.extend({ conferencia: z.object({ ok: z.boolean(), criterios: z.array(z.object({ descricao: z.string(), ok: z.boolean() })) }) });
 

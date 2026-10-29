@@ -6,6 +6,7 @@
   import { pedir, corpo, mensagemDe } from '../api.ts';
   import { TRACK_ICONS } from '../icones.ts';
   import { icons, LANG_LABEL, NIVEL_NOME } from './icones.ts';
+  import Duelos from './Duelos.svelte';
 
   let { dados, toast, onatualizar, abrirNoChat, fazerQuiz }: {
     dados: TEstadoPratica; toast: (t: string) => void; onatualizar: (d: TEstadoPratica) => void;
@@ -191,6 +192,8 @@
       <div class="track-grid">{#each outrosProjetos as pj, i (pj.id)}{@render cartaoProjeto(pj, i)}{/each}</div>
     </details>
   {/if}
+
+  <Duelos {toast} />
 
   <section class="ranking">
     <h2 class="section-title">Ranking da semana <small>XP dos últimos 7 dias</small></h2>

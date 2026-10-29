@@ -9,6 +9,7 @@ import { aplicarRestauracaoPendente } from './copia.ts';
 import { setupAuth } from './auth.ts';
 import { setupPratica } from './pratica-servidor.ts';
 import { setupCertificados } from './certificados.ts';
+import { setupDuelos } from './duelos.ts';
 import { setupMemoria } from './memoria.ts';
 import { setupTurmas } from './turmas.ts';
 import { setupAgente } from './agente.ts';
@@ -118,7 +119,8 @@ const memoria = setupMemoria(app, db, { router, ...preferencias }); // memória 
 setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
 setupChat(app, db, { router, provedores, uso, imagens, asyncRoute, preferencias, skills, memoria }); // conversas e mensagens
 const certificados = setupCertificados(app, db); // certificados dos projetos guiados (código de verificação)
-setupPratica(app, db, { router, profileSummary, asyncRoute, uso, emitirCertificados: certificados.emitirPendentes }); // exercícios, projetos, revisão, desafio do dia, amigos
+const duelos = setupDuelos(app, db); // duelos entre contas do mesmo Gyde (memória do servidor)
+setupPratica(app, db, { router, profileSummary, asyncRoute, uso, emitirCertificados: certificados.emitirPendentes, registrarAcerto: duelos.registrarAcerto }); // exercícios, projetos, revisão, desafio do dia, amigos
 setupTurmas(app, db); // modo turma
 setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão do Chrome
 setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja: trabalha numa pasta de projeto

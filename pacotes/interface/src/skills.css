@@ -261,3 +261,22 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
   .certificado, .certificado * { visibility: visible !important; }
   .certificado { position: fixed; inset: 0; margin: auto; max-width: none; width: 100%; height: fit-content; box-shadow: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
+/* ---------- duelos ---------- */
+.duelos-card { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 14px 16px; }
+.duelos-lista { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.duelo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); }
+.duelo.andamento { border-color: var(--accent); }
+.duelo.venci { border-color: var(--success); background: var(--success-soft); }
+.duelo-quem { display: flex; flex-direction: column; font-size: 14px; }
+.duelo-quem small { color: var(--text-faint); font-size: 12.5px; }
+.duelo-acoes { display: flex; gap: 6px; }
+.duelo-status { font-size: 13px; color: var(--text-soft); }
+.duelo-status.resultado { font-weight: 600; color: var(--text); }
+.duelo-faixa { display: flex; align-items: center; gap: 10px; margin: 6px 0 12px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--text); font-size: 14px; animation: mapa-entra var(--t3) var(--ease); }
+.duelo-faixa.venci { border-color: var(--success); background: var(--success-soft); }
+.duelo-faixa.fim:not(.venci) { border-color: var(--border-strong); background: var(--surface-2); }
+.duelo-faixa-raio { display: inline-flex; color: var(--accent-text); }
+.duelo-faixa-raio svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.duelo-relogio { margin-left: auto; font: 700 18px var(--mono); color: var(--accent-text); letter-spacing: .04em; }
+@media (prefers-reduced-motion: reduce) { .duelo-faixa { animation: none; } }
+@media (max-width: 640px) { .duelo { flex-direction: column; align-items: flex-start; } }

@@ -23,7 +23,7 @@ const perfilDe = (user: Usuario): Perfil => { try { const p = JSON.parse(user.pr
 const today = (t = Date.now()) => new Date(t).toLocaleDateString('sv-SE'); // AAAA-MM-DD no fuso do PC
 const allExercises = () => TRACKS.flatMap((t) => t.exercises.map((ex) => ({ ...ex, track: t })));
 
-export function setupPratica(app: Express, db: Db, { router, profileSummary, asyncRoute, uso, emitirCertificados }: { router: Router; profileSummary: (user: Usuario) => string; asyncRoute: AsyncRoute; uso?: Uso; emitirCertificados?: (user: Usuario) => void }) {
+export function setupPratica(app: Express, db: Db, { router, profileSummary, asyncRoute, uso, emitirCertificados, registrarAcerto }: { router: Router; profileSummary: (user: Usuario) => string; asyncRoute: AsyncRoute; uso?: Uso; emitirCertificados?: (user: Usuario) => void; registrarAcerto?: (userId: string, exerciseId: string) => void }) {
 
   const q = {
     progress: consulta<{ exercise_id: string; done: number; code: string; fails: number }>(db, 'SELECT exercise_id, done, code, fails FROM skill_progress WHERE user_id = ?'),
@@ -149,6 +149,7 @@ export function setupPratica(app: Express, db: Db, { router, profileSummary, asy
       // Errou numa revisão: volta para o começo (revisar amanhã).
       if (review && review.due_at <= now) q.setReview.run(userId, ex.id, 0, now + DAY_MS);
     } else {
+      registrarAcerto?.(userId, ex.id); // duelo em andamento com este exercício
       q.addDay.run(userId, today(now));
       if (!before.done) {
         q.addXp.run(userId, ex.xp, 'exercicio', ex.id, now);
