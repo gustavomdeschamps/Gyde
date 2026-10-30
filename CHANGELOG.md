@@ -3,6 +3,26 @@
 As extensões têm o próprio histórico: [VS Code](pacotes/extensao-vscode/CHANGELOG.md). A extensão do Chrome segue a
 versão do `manifest.json`.
 
+## Ainda não lançado
+
+### Novidades
+- Passo a passo com a memória desenhada: pilha de chamadas, listas, dicionários e objetos em caixas, com setas
+  mostrando quando duas variáveis apontam para o mesmo objeto (a tabela continua disponível).
+- Forja ao vivo: o site do projeto aberto ao lado da conversa, recarregando quando a Forja muda arquivos. A prévia roda
+  isolada (sandbox) e o endereço vale por 2 horas.
+- Mapa de habilidades na Prática: cada linguagem por nível, aceso conforme os exercícios e projetos concluídos.
+- Certificado dos projetos guiados, emitido na última etapa, com código de conferência; pronto para imprimir ou salvar
+  em PDF.
+- Modo duelo: o mesmo exercício para duas contas; vence quem passar nos testes primeiro, com o relógio do servidor.
+- Mostrar o erro: num print enviado no chat, um modelo com visão destaca a região do problema e explica em poucas
+  frases. A posição é uma estimativa e a tela avisa isso.
+- Lista de modelos recarrega assim que a chave da FreeLLMAPI é salva.
+- Página do Gyde em `docs/index.html`, pronta para o GitHub Pages.
+
+### Correções
+- Uma chave do FreeLLMAPI errada fazia a tela voltar para o login (a recusa da chave chegava como "sessão expirada").
+  Agora aparece um aviso dizendo para copiar a chave de novo.
+
 ## 2.0.1
 
 Correções achadas pelo CI do GitHub (Windows, Linux e macOS), que agora passa nos três sistemas.

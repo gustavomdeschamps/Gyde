@@ -151,7 +151,7 @@ a.today-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); bor
 .mem-celula:last-child { border-right: 0; }
 .mem-celula small { font: 10px var(--mono); color: var(--text-faint); }
 .mem-celulas.conjunto .mem-celula { border-radius: 99px; border: 1px solid var(--border); margin: 4px; }
-.mem-par { display: flex; align-items: center; gap: 8px; padding: 4px 9px; border-bottom: 1px solid var(--border); font: 13px var(--mono); }
+.mem-par { display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 9px; border-bottom: 1px solid var(--border); font: 13px var(--mono); }
 .mem-par:last-child { border-bottom: 0; }
 .mem-seta-txt { color: var(--text-faint); }
 .mem-mais, .mem-vazio { font-size: 12px; color: var(--text-faint); padding: 4px 9px; }
