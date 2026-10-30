@@ -126,8 +126,11 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
       if (res.status === 429 && ultimo.limite?.restante === 0) {
         throw erroGyde(await mensagemLimite(), { status: 429, limite: 'roteador-minuto' });
       }
-      const texto = offline ? `O modelo local respondeu ${res.status}${detail ? `: ${detail}` : ''}` : `FreeLLMAPI respondeu ${res.status}${detail ? `: ${detail}` : ''}`;
-      throw erroGyde(texto, { status: res.status === 401 ? 401 : 502, final: offline });
+      const texto = offline ? `O modelo local respondeu ${res.status}${detail ? `: ${detail}` : ''}`
+        : res.status === 401 ? 'O FreeLLMAPI recusou a chave. No ícone do FreeLLMAPI, clique em "Copy Key" e cole de novo em Configurações > IA e modelos.'
+        : `FreeLLMAPI respondeu ${res.status}${detail ? `: ${detail}` : ''}`;
+      // nunca 401 para a tela: lá 401 quer dizer "sessão do Gyde expirou" e a página volta para o login
+      throw erroGyde(texto, { status: 502, final: offline });
     }
     return res;
   }
