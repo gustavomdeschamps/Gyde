@@ -52,7 +52,7 @@ node ferramentas/avaliar-forja.mjs                       # a Forja em projetos p
 ```
 
 Os testes de navegador sobem um servidor próprio numa pasta temporária e usam um FreeLLMAPI falso: não precisam de
-chave nem de internet (só a Prática baixa o Python do navegador na primeira vez). O CI do GitHub roda tudo isso em
+chave nem de internet. O CI do GitHub roda tudo isso em
 Windows, Linux e macOS.
 
 ## Regras do projeto

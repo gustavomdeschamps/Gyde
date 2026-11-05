@@ -1,5 +1,5 @@
 // Capturas reais do Gyde instalado para o tutorial: instala em silêncio numa pasta de teste, abre o app com dados
-// temporários e dirige pela depuração (CDP) como uma pessoa faria: criar conta, questionário, conversa, Prática,
+// temporários e dirige pela depuração (CDP) como uma pessoa faria: criar conta, questionário, conversa,
 // Configurações, Forja e as mensagens de problemas comuns. No fim desinstala e apaga tudo que criou.
 // A IA é a de verdade (FreeLLMAPI deste computador): a chave vai pelo ambiente do processo, nunca digitada nem mostrada.
 //   node ferramentas/tutorial/capturar-app.mjs
@@ -89,13 +89,6 @@ try {
   await esperar(`document.querySelector('#sendBtn.streaming') === null && document.querySelector('.msg.assistant .msg-meta') !== null`, 120000);
   await espera(4000);
   await foto('passo-09-conversa.png');
-
-  await avaliar(`(location.hash = '#/pratica', 1)`);
-  await esperar(`document.querySelector('#praticaView .plano') !== null`);
-  await foto('passo-10-pratica.png');
-  await avaliar(`(location.hash = '#/pratica/projeto/pj-web-portfolio', 1)`);
-  await esperar(`document.querySelector('.projeto-sobre') !== null`);
-  await foto('passo-10-projeto.png');
 
   await avaliar(`(location.hash = '#/agente', 1)`);
   await esperar(`document.querySelector('#agenteView') !== null`);

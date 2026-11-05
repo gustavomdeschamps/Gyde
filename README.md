@@ -5,7 +5,7 @@
 <h3 align="center">O tutor de programação com IA que ensina em vez de só entregar a resposta.</h3>
 
 <p align="center">
-  Chat que explica o erro antes de corrigir · agente que programa sozinho no seu projeto · prática com XP ·
+  Chat que explica o erro antes de corrigir · agente que programa sozinho no seu projeto ·
   app de desktop e extensões para VS Code e Chrome. Em português, de graça, rodando no seu computador.
 </p>
 
@@ -53,40 +53,6 @@ O botão **Passo a passo** roda o código linha por linha e mostra o valor de ca
 
 <p align="center"><img src="docs/imagens/passo.jpg" alt="Passo a passo mostrando as variáveis linha por linha" width="88%"></p>
 
-### Prática personalizada
-Trilhas de Python, JavaScript e lógica com testes automáticos, **projetos guiados para as 10 linguagens do
-questionário** (Python, JavaScript, Java, C/C++, C#, PHP, HTML e CSS, SQL, Kotlin e lógica), **XP**, **desafio do dia**,
-**sequência de dias** e **revisão dos erros** (o exercício que você errou volta depois de 1, 3, 7 e 21 dias).
-Travou? A **Dica do Gyde** ajuda sem entregar a resposta.
-
-Cada conta tem o próprio plano, montado a partir de três fontes que a tela mostra separadas:
-- **o que você respondeu** no questionário inicial (linguagens, objetivo, experiência, jeito de aprender);
-- **o que o mini desafio mediu** (nível e assuntos para reforçar);
-- **o que os exercícios mostram** (feitos, tentativas com erro, onde você travou).
-
-Qualquer combinação de respostas gera um plano, sem depender de IA, e a tela diz qual dos quatro tipos ele é:
-
-| Tipo | Quando | O que você recebe |
-|---|---|---|
-| **Trilha** | Existe trilha com testes automáticos para o que você escolheu (Python, JavaScript, lógica) | Exercícios corrigidos na hora, no navegador |
-| **Plano adaptado** | Parte tem trilha e parte não (ex.: HTML e CSS) | Trilhas com testes + exercícios guiados |
-| **Plano montado** | Não há trilha (Java, C / C++, C#, PHP, SQL, Kotlin) | Exercícios guiados da tecnologia, no seu nível |
-| **Plano inicial** | Sem questionário ou sem escolhas | Lógica e Python do básico, até você responder |
-
-**Exercícios guiados** vêm de um catálogo local (10 tecnologias, 3 níveis): você resolve no seu editor, clica em
-**Resolver no chat** e o Gyde corrige sem entregar a resposta; depois, **Entregar solução** (só conta com a solução
-colada; não há teste automático, e a tela diz isso).
-
-**Projetos guiados** (um por tecnologia): objetivo, pré-requisitos, resultado esperado, arquivos iniciais para baixar,
-etapas com tarefas e dica, e próximos desafios. Em cada etapa você cola o arquivo e o Gyde **confere critérios
-objetivos** do código (a função existe, o erro é tratado, a consulta usa JOIN, a imagem tem `alt`...). É uma
-conferência da estrutura, não uma execução, e a tela diz isso. A etapa só conta, e só dá XP, quando passa em todos os
-critérios; a explicação da solução aparece no fim. A solução de referência fica só no servidor. Quem nunca programou não recebe exercício avançado, e quem já é avançado não precisa
-refazer o básico. Quando tudo do plano acaba, aparece um novo desafio em vez de uma tela vazia. Refazer o questionário
-atualiza o plano sem apagar XP, exercícios feitos nem a sequência de dias.
-
-<p align="center"><img src="docs/imagens/pratica.jpg" alt="Tela de Prática com trilhas e projetos" width="88%"></p>
-
 ### Forja, o agente de código
 O chat do Gyde com acesso a uma pasta do seu computador. A conversa funciona como no chat principal. A diferença
 é que a Forja **trabalha nos arquivos de verdade**: lê o código, cria e edita arquivos, roda os testes até passarem
@@ -124,9 +90,9 @@ e documenta. Você não precisa saber comandos de terminal.
 
 ### Configurações
 No menu lateral, **Configurações** reúne tudo em seções: **Geral** (tema automático, claro ou escuro; página inicial;
-vídeo de abertura; restaurar padrões; copiar um relatório de erro), **IA e modelos** (chave do FreeLLMAPI, geração de
+refazer o questionário; vídeo de abertura; restaurar padrões; copiar um relatório de erro), **IA e modelos** (chave do FreeLLMAPI, geração de
 imagens, estado real da conexão, modo online, offline ou automático, como o Gyde deve responder, memória), **Uso e
-limites**, **Prática** (suas respostas, nível medido e desempenho; refazer o questionário), **Privacidade e dados** (o
+limites**, **Privacidade e dados** (o
 que fica no PC, o que vai para a IA, cópia de segurança para baixar e restaurar, apagar conversas e registros) e
 **Extensões** (tokens). Cada opção salva na hora.
 
@@ -134,8 +100,7 @@ que fica no PC, o que vai para a IA, cópia de segurança para baixar e restaura
 
 ### E mais
 - **Skills:** habilidades instaláveis, como plugins (`/revisar`, `/git`, `/sql`...). Dá para criar as suas e publicar na loja de skills.
-- **Questionário inicial:** o Gyde descobre o seu nível e objetivo e adapta as explicações e a Prática.
-- **Turmas:** o professor cria a turma, passa exercícios com prazo e acompanha quem fez.
+- **Questionário inicial:** o Gyde descobre o seu nível e objetivo e adapta as explicações e os exemplos.
 - **Memória:** o Gyde lembra o que você pedir para ele lembrar (dá para ver e apagar).
 - **Revisar projeto inteiro:** anexe uma pasta ou um `.zip` e peça a revisão.
 - **Imagens e voz:** gera imagens (Cloudflare, ligado em Configurações > IA) e lê as respostas em voz alta com a voz do Windows.
@@ -160,7 +125,7 @@ Veja [pacotes/extensao-chrome](pacotes/extensao-chrome/LEIA-ME.md).
 
 ```mermaid
 flowchart LR
-    V["Você"] --> N["App de desktop ou navegador<br/>(chat, Prática, Forja)"]
+    V["Você"] --> N["App de desktop ou navegador<br/>(chat, Forja)"]
     VS["VS Code / Chrome"] --> G
     N --> G["Gyde<br/>(no seu computador)"]
     G --> F["FreeLLMAPI<br/>(no seu computador)"]
@@ -191,7 +156,7 @@ Em **Configurações > Uso e limites** (ou clicando no indicador do rodapé do c
 
 | O quê | O que é | De onde vem |
 |---|---|---|
-| **Uso do Gyde** | Pedidos seus (mensagem do chat, tarefa da Forja, dica da Prática), hoje e nos últimos 7 dias, separados em concluídos, com falha, cancelados e barrados por limite | Registro do próprio Gyde, no banco local (`uso.ts`) |
+| **Uso do Gyde** | Pedidos seus (mensagem do chat, tarefa da Forja), hoje e nos últimos 7 dias, separados em concluídos, com falha, cancelados e barrados por limite | Registro do próprio Gyde, no banco local (`uso.ts`) |
 | **Chamadas** | Quantas vezes o Gyde falou com o provedor. Trocas de modelo e rodadas da Forja geram várias chamadas num pedido, e o pedido conta uma vez só | Registro do Gyde |
 | **Tokens** | Entrada e saída do modelo | Campo `usage` da resposta do provedor. Se ele não manda, aparece "não informado", nunca estimado |
 | **Cota do provedor** | Pedidos por minuto livres e a hora em que renova; consumo do mês na conta do FreeLLMAPI | Cabeçalhos `x-ratelimit-*` e a rota `/v1/usage` do FreeLLMAPI |
@@ -218,7 +183,7 @@ O Gyde pode usar um modelo que roda no seu computador pelo [Ollama](https://olla
 
 | Funciona sem internet | Funciona offline depois de instalar o Ollama e baixar um modelo | Precisa de internet |
 |---|---|---|
-| App, contas, histórico, Prática (editor e testes), rodar código e passo a passo, skills, turmas, memória salva | Chat, Forja, dicas da Prática e títulos de conversa (com o modelo local) | Modelos online (FreeLLMAPI), gerar imagens (Cloudflare), extensão do Chrome no modo agente |
+| App, contas, histórico, rodar código e passo a passo, skills, memória salva | Chat, Forja e títulos de conversa (com o modelo local) | Modelos online (FreeLLMAPI), gerar imagens (Cloudflare), extensão do Chrome no modo agente |
 
 Modelos locais pequenos são bem mais simples e lentos que os online, principalmente em tarefas grandes de programação.
 Num computador com 8 GB de RAM e sem placa de vídeo, use modelos de até 3 bilhões de parâmetros.
@@ -226,7 +191,7 @@ Num computador com 8 GB de RAM e sem placa de vídeo, use modelos de até 3 bilh
 ## Instalar
 
 **Siga o [COMO-INSTALAR.md](COMO-INSTALAR.md)**: o passo a passo completo, feito para quem nunca instalou nada
-parecido. Prefere ver? O **[vídeo passo a passo](docs/tutorial/instalar-o-gyde.mp4)** (4 min 51 s, com
+parecido. Prefere ver? O **[vídeo passo a passo](docs/tutorial/instalar-o-gyde.mp4)** (4 min 23 s, com
 narração e [legendas](docs/tutorial/instalar-o-gyde.vtt)) mostra o instalador e o app de verdade, do download à
 primeira conversa.
 
@@ -285,11 +250,9 @@ npm run e2e       # testes de navegador
 
 `npm test` confere os tipos (servidor, desktop e interface, com `tsc` e `svelte-check`) e roda os testes automáticos de
 `pacotes/servidor/testes` e `pacotes/interface/testes`, sem internet e sem gastar cota:
+- **inteligência multimodelo:** classificação dos pedidos, escolha por medições, as quatro estratégias com chamadas contadas, troca de modelo, contexto e filtro da resposta (com um provedor falso local);
 - **segurança:** caminhos fora da pasta, arquivos de senha, classificação de comandos, remoção de segredos;
 - **uso:** pedidos x chamadas, tokens só quando informados, cancelados e limite por minuto (com um provedor falso local);
-- **Prática:** mais de 10 mil combinações das alternativas reais do questionário, cada linguagem, níveis, respostas
-  inválidas ou faltando, progresso parcial e completo. A regra testada: toda resposta válida vira um plano com próximo
-  passo (ou um novo desafio), sem chamar IA;
 - **contratos:** as regras dos formatos de resposta e o modo estrito do servidor;
 - **migrações:** banco novo, banco antigo com dados, versão mais nova recusada, migração com falha desfeita, cópia;
 - **troca de senha do app de desktop:** só com o segredo do app e só no modo pessoal (sobe um servidor temporário);
@@ -297,7 +260,7 @@ npm run e2e       # testes de navegador
 - **cópia de segurança, limite de logins e a lógica da interface** (eventos da resposta, valores do Python, cliente da API).
 
 `npm run e2e` roda as suítes de `testes-e2e` num Chrome ou Edge sem janela, cada uma com um servidor próprio e um
-FreeLLMAPI falso (sem chave e sem cota): chat, Forja, Prática, Skills, Turmas, entrada, modo público, cópia de
+FreeLLMAPI falso (sem chave e sem cota): chat, Forja, Skills, entrada, modo público, cópia de
 segurança, imagens, relatório de erro, app de desktop e uma auditoria de acessibilidade (WCAG 2.1 AA, temas claro e
 escuro, e celular). O CI do GitHub roda tudo isso em Windows, Linux e macOS.
 
@@ -354,8 +317,8 @@ rodando comandos é só do Windows.
 |---|---|
 | `COMO-INSTALAR.md` | Passo a passo de instalação |
 | `ferramentas/` | Para quem cuida do projeto: e-mail (modo público), trocar senha pelo código, extensão do VS Code, avaliações da IA, imagem do instalador e o tutorial em vídeo |
-| `pacotes/servidor/` | Servidor: `server.ts` monta os módulos: chat (`chat.ts`), Forja (`codigo-agente.ts`), Prática (`pratica-servidor.ts`), configurações locais e cópia de segurança (`configuracao.ts`, `copia.ts`), perfil (`perfil.ts`), banco e migrações (`banco.ts`, `migracoes.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
-| `pacotes/interface/` | Interface em Svelte 5 + Vite: chat, Forja, Prática, Skills, Turmas, Configurações e entrada (`src/`) |
+| `pacotes/servidor/` | Servidor: `server.ts` monta os módulos: chat (`chat.ts`), Forja (`codigo-agente.ts`), inteligência multimodelo (`ia/`), configurações locais e cópia de segurança (`configuracao.ts`, `copia.ts`), perfil (`perfil.ts`), banco e migrações (`banco.ts`, `migracoes.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
+| `pacotes/interface/` | Interface em Svelte 5 + Vite: chat, Forja, Skills, Configurações e entrada (`src/`) |
 | `pacotes/compartilhado/` | Contratos (Zod) usados pelo servidor e pela interface |
 | `pacotes/desktop/` | App de desktop (Electron). O instalador é gerado com `npm run dist:win` |
 | `pacotes/extensao-vscode/`, `pacotes/extensao-chrome/` | Extensões para o VS Code e o Chrome |

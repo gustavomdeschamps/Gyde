@@ -19,7 +19,6 @@ Como refazer tudo: veja "Produção" no fim.
 | 7 | Abrir o Gyde | 16 s | `app-1-abrindo`, `app-2-primeira-tela` | — |
 | 8 | Configuração inicial | 42 s | `passo-08-criar-conta`, `passo-08-questionario`, `passo-08-ia-e-modelos` | botão **Criar conta**, campo da chave |
 | 9 | Primeira conversa | 16 s | `passo-09-inicio`, `passo-09-conversa` | caixa de mensagem, modelo que respondeu |
-| 10 | Prática e questionário | 26 s | `passo-10-pratica`, `passo-10-projeto` | **Seu plano**, etapas do projeto |
 | 11 | Forja (opcional) | 26 s | `passo-11-forja-vazia`, `passo-11-forja-resultado` | **Abrir pasta do projeto**, resumo |
 | 12 | Problemas comuns | 24 s | `passo-12-sem-freellmapi` | o aviso no topo |
 | 13 | Atualizações e suporte | 16 s | cartão de texto com os endereços | — |
@@ -41,7 +40,6 @@ de cada cena.
 **1. O que é o Gyde** · tela: "1. O que é o Gyde"
 - O Gyde é um tutor de programação com inteligência artificial, em português e de graça.
 - Ele explica o erro antes de corrigir, para você aprender de verdade.
-- Monta um plano de prática no seu nível, com exercícios e projetos guiados.
 - E tem a Forja, um agente que trabalha no seu projeto e mostra tudo o que mudou.
 
 **2. Onde baixar** · tela: "2. Onde baixar"
@@ -81,11 +79,6 @@ de cada cena.
 **9. Primeira conversa** · tela: "9. Primeira conversa"
 - Para conversar, escreva sua dúvida na caixa de baixo e aperte Enter.
 - Embaixo de cada resposta aparece o modelo que respondeu de verdade.
-
-**10. Prática e questionário** · tela: "10. Prática"
-- Na Prática fica o seu plano, montado a partir do questionário.
-- Tem exercícios com testes automáticos, exercícios guiados e projetos guiados de todas as linguagens.
-- Para mudar o plano, refaça o questionário. O seu progresso continua.
 
 **11. Forja** · tela: "11. Forja (opcional)"
 - A Forja é opcional. Clique em Abrir pasta do projeto, escolha a pasta e diga o que você quer.

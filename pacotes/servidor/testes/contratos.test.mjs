@@ -17,19 +17,6 @@ test('sessão da Forja: "existe" precisa concordar com o estado da pasta', () =>
   assert.equal(C.SessaoForja.safeParse({ ...base, existe: true }).success, false);
 });
 
-test('plano sem próximo passo só vale se estiver concluído e com novo desafio', () => {
-  const plano = {
-    versao: 2, tipo: 'inicial', explicacao: 'x', nivel: 'básico', tecnologias: ['Python'], tecnologiasDeduzidas: true, temQuiz: false,
-    declarado: null, medido: null, observado: { feitos: 0, tentativasComErro: 0, travados: [] }, focos: [], ordem: [], motivos: {},
-    recomendada: null, guiados: [], projetos: [], semTrilha: [],
-  };
-  assert.equal(C.Plano.safeParse({ ...plano, proximo: null, concluido: false, novoDesafio: null }).success, false);
-  assert.equal(C.Plano.safeParse({ ...plano, proximo: null, concluido: true, novoDesafio: { tipo: 'chat', titulo: 'Peça um desafio' } }).success, true);
-  assert.equal(C.Plano.safeParse({ ...plano, proximo: { tipo: 'guiado', id: 'g', titulo: 't', tecnologia: 'SQL' }, concluido: false, novoDesafio: null }).success, true);
-  // resposta antiga, sem "plano": a Prática recusa (era o bug do "reading 'proximo'")
-  assert.equal(C.EstadoPratica.shape.plano.safeParse(undefined).success, false);
-});
-
 test('preferências: página inicial só aceita as páginas que existem', () => {
   assert.equal(C.Preferencias.safeParse({ about_user: '', response_style: '', pagina_inicial: 'qualquer' }).success, false);
   assert.equal(C.Preferencias.safeParse({ about_user: '', response_style: '', pagina_inicial: 'agente' }).success, true);

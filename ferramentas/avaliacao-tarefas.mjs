@@ -53,7 +53,7 @@ function rodarPython(codigo, testes) {
 const resposta = (texto) => (texto.match(/RESPOSTA:\s*\**\s*([^\n*]+)/i)?.[1] ?? '').trim();
 const palavras = (t) => t.trim().split(/\s+/).filter(Boolean).length;
 const temEmoji = (t) => /\p{Extended_Pictographic}/u.test(t.replace(/✓|✗|→|•|⚠\uFE0E?|★/gu, ''));
-const emPortugues = (t) => (t.match(/\b(você|não|que|para|com|uma|são|está|como|por)\b/gi) || []).length >= 2;
+const emPortugues = (t) => (t.match(/(?<![\p{L}])(você|não|que|para|com|uma|são|está|como|por|também|mais|ou|de|um)(?![\p{L}])/giu) || []).length >= 2;
 export const jsonDe = (texto) => { const i = texto.indexOf('{'), f = texto.lastIndexOf('}'); try { return JSON.parse(texto.slice(i, f + 1)); } catch { return null; } };
 const regra = (...itens) => { const falhas = itens.filter(([ok]) => !ok).map(([, m]) => m); return { ok: !falhas.length, motivo: falhas.join(', ') || 'todas as regras cumpridas' }; };
 

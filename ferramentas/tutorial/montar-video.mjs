@@ -23,7 +23,7 @@ const logo = readFileSync(path.join(RAIZ, 'pacotes', 'interface', 'public', 'log
 const C = (titulo, linhas, destaque = null, frase = 0) => ({ card: { titulo, linhas, destaque }, frase });
 const CENAS = {
   0: [{ abertura: true }],
-  1: [{ img: 'passo-09-conversa' }, { img: 'passo-10-pratica', frase: 2 }, { img: 'passo-11-forja-resultado', frase: 3 }],
+  1: [{ img: 'passo-09-conversa' }, { img: 'passo-11-forja-resultado', frase: 2 }],
   2: [{ img: 'passo-02-github', destaque: [73, 74.5, 12, 9] }],
   3: [{ img: 'passo-03-assets', destaque: [9, 59, 82, 6] }, { img: 'passo-03-assets', frase: 1, destaque: [9, 64.5, 82, 16] }],
   4: [C('O que você precisa', ['Windows 10 ou 11 (64 bits)', 'uns 500 MB livres', 'internet para a IA online', 'não precisa ser administrador'])],
@@ -33,7 +33,6 @@ const CENAS = {
   7: [{ img: 'app-1-abrindo' }, { img: 'app-2-primeira-tela', frase: 0, aos: 0.55 }, C('Nos outros dias', ['menu <b>Iniciar</b> → digite <b>Gyde</b>', 'ou o atalho <b>Gyde</b> na Área de Trabalho'], null, 1)],
   8: [{ img: 'passo-08-criar-conta', destaque: null }, { img: 'passo-08-questionario', frase: 1 }, { img: 'passo-08-ia-e-modelos', frase: 2, destaque: [32.5, 24.5, 50, 14] }],
   9: [{ img: 'passo-09-inicio' }, { img: 'passo-09-conversa', frase: 1 }],
-  10: [{ img: 'passo-10-pratica' }, { img: 'passo-10-projeto', frase: 1 }],
   11: [{ img: 'passo-11-forja-vazia' }, { img: 'passo-11-forja-resultado', frase: 1 }],
   12: [{ img: 'passo-12-sem-freellmapi', destaque: [30, 7.5, 61.5, 9] }, C('Outros avisos', ['FreeLLMAPI fechado: abra ele e tente de novo', 'respostas lentas: mais chaves no FreeLLMAPI', 'Gyde não abre: <b>Tentar de novo</b> ou <b>Abrir o registro</b>'], null, 1)],
   13: [C('Atualizações e ajuda', ['o Gyde avisa quando sai versão nova', 'atualizar <b>não apaga</b> seus dados', 'guia: <b>COMO-INSTALAR.md</b>', 'ajuda: <b>github.com/gustavomdeschamps/Gyde/issues</b>'])],

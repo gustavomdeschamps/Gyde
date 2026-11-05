@@ -82,7 +82,7 @@ await Promise.all(Array.from({ length: JUNTOS }, async () => {
     try {
       const r = await rodar(e, t);
       const nota = r.texto.trim() ? t.corrigir(r.texto) : { ok: false, motivo: 'resposta vazia' };
-      linha = { pedida: e, usada: r.estrategia, tarefa: t.id, categoria: t.categoria, ok: nota.ok, motivo: nota.motivo, chamadas: r.chamadas, modelos: r.modelos, ms: r.ms, revisada: r.revisada ?? false, mudou: r.mudou ?? false, erro: false };
+      linha = { pedida: e, usada: r.estrategia, tarefa: t.id, categoria: t.categoria, ok: nota.ok, motivo: nota.motivo, chamadas: r.chamadas, modelos: r.modelos, ms: r.ms, revisada: r.revisada ?? false, mudou: r.mudou ?? false, erro: false, ...(nota.ok ? {} : { texto: r.texto.slice(0, 1500) }) };
     } catch (err) {
       linha = { pedida: e, usada: null, tarefa: t.id, categoria: t.categoria, ok: false, motivo: String(err.message).slice(0, 120), chamadas: 0, modelos: [], ms: 0, revisada: false, mudou: false, erro: true };
     }

@@ -7,12 +7,8 @@ import path from 'node:path';
 import { abrirBanco } from './banco.ts';
 import { aplicarRestauracaoPendente } from './copia.ts';
 import { setupAuth } from './auth.ts';
-import { setupPratica } from './pratica-servidor.ts';
-import { setupCertificados } from './certificados.ts';
-import { setupDuelos } from './duelos.ts';
 import { setupApontar } from './apontar.ts';
 import { setupMemoria } from './memoria.ts';
-import { setupTurmas } from './turmas.ts';
 import { setupAgente } from './agente.ts';
 import { criarDesempenho } from './ia/desempenho.ts';
 import { lerExtras } from './ia/adaptadores.ts';
@@ -23,7 +19,7 @@ import { setupCodigoAgente } from './codigo-agente.ts';
 import { setupSkills } from './skills-sistema.ts';
 import { setupChat } from './chat.ts';
 import { setupConfiguracao } from './configuracao.ts';
-import { setupPerfil, criarPreferencias, profileSummary } from './perfil.ts';
+import { setupPerfil, criarPreferencias } from './perfil.ts';
 import { criarImagens } from './imagens.ts';
 import { setupDiagnostico, registrarErro } from './diagnostico.ts';
 import { criarProvedores } from './provedores.ts';
@@ -129,11 +125,7 @@ const memoria = setupMemoria(app, db, { router, ...preferencias }); // memória 
 setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
 const { preferenciasIA } = setupIA(app, { preferencias, catalogo, desempenho, avisoExtras: extras.erro, asyncRoute }); // modo de resposta e modelos ligados
 setupChat(app, db, { router, uso, imagens, asyncRoute, preferencias, skills, memoria, orquestrador, preferenciasIA }); // conversas e mensagens
-const certificados = setupCertificados(app, db); // certificados dos projetos guiados (código de verificação)
 setupApontar(app, { router, asyncRoute, uso }); // "Mostrar o erro" num print (modelo com visão)
-const duelos = setupDuelos(app, db); // duelos entre contas do mesmo Gyde (memória do servidor)
-setupPratica(app, db, { router, profileSummary, asyncRoute, uso, emitirCertificados: certificados.emitirPendentes, registrarAcerto: duelos.registrarAcerto }); // exercícios, projetos, revisão, desafio do dia, amigos
-setupTurmas(app, db); // modo turma
 setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão do Chrome
 setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso, catalogo, orquestrador, preferenciasIA }); // Forja: trabalha numa pasta de projeto
 setupPerfil(app, db, preferencias); // questionário e preferências

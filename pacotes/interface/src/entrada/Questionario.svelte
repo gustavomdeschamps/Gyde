@@ -95,8 +95,8 @@
       <p class="gate-sub">O Gyde vai te tratar como <b>{p.levelLabel}</b>{#if p.languages.length}{' e usar exemplos em '}<b>{p.languages.slice(0, 3).join(', ')}</b>{/if}.</p>
       {#if erradas.length}
         <div class="quiz-review"><p>Vale reforçar:</p><ul>{#each erradas as w (w.id)}<li><b>{w.topic}</b> — a resposta era <code>{w.answer}</code></li>{/each}</ul>
-          <p class="gate-note">Pergunte ao Gyde sobre qualquer um desses, ou pratique na área Prática. Dá para refazer o questionário em Configurações > Prática.</p></div>
-      {:else}<p class="gate-sub">Acertou tudo! Vamos para desafios mais difíceis.</p>{/if}
+          <p class="gate-note">Pergunte ao Gyde sobre qualquer um desses. Dá para refazer o questionário em Configurações > Geral.</p></div>
+      {:else}<p class="gate-sub">Acertou tudo! O Gyde vai direto ao ponto com você.</p>{/if}
       <button type="button" class="btn primary wide" onclick={onfim}>Começar a usar o Gyde</button>
     </Cartao>
   {:else if q}

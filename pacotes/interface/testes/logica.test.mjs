@@ -8,7 +8,6 @@ import { z } from 'zod';
 // módulos da interface esperam um navegador: o mínimo que eles tocam ao serem importados
 globalThis.window ??= globalThis;
 const { lerEventos } = await import('../src/chat/sse.ts');
-const { mostrar } = await import('../src/pratica/icones.ts');
 const { escaparHtml } = await import('../src/util.ts');
 const { textoParaFala } = await import('../src/voz.ts');
 const { pedir, ErroContrato, mensagemDe } = await import('../src/api.ts');
@@ -28,18 +27,6 @@ test('eventos do chat: junta pedaços cortados no meio e guarda o resto para a p
   assert.equal(resto, '');
   assert.deepEqual(lerEventos('data: {"type":"delt').eventos, [], 'evento incompleto espera o resto');
   assert.deepEqual(lerEventos('data: {quebrado}\n\ndata: {"type":"ok"}\n\n').eventos, [{ type: 'ok' }], 'evento quebrado é ignorado, os outros seguem');
-});
-
-test('valores no jeito do Python, sem estragar textos', () => {
-  assert.equal(mostrar(true, 'python'), 'True');
-  assert.equal(mostrar(false, 'python'), 'False');
-  assert.equal(mostrar(null, 'python'), 'None');
-  assert.equal(mostrar([1, true, null, 'a'], 'python'), '[1, True, None, "a"]');
-  assert.equal(mostrar({ ok: false }, 'python'), '{"ok": False}');
-  assert.equal(mostrar('isso é true ou null', 'python'), '"isso é true ou null"', 'texto com as palavras fica igual');
-  assert.equal(mostrar(true, 'javascript'), 'true');
-  assert.equal(mostrar([1, 2], 'javascript'), '[1,2]');
-  assert.equal(mostrar('__undefined__', 'javascript'), 'undefined');
 });
 
 test('escapar HTML', () => {

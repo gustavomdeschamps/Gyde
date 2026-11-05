@@ -91,7 +91,7 @@ function criarJanela() {
     webPreferences: { preload: path.join(RAIZ, 'pacotes', 'desktop', 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, spellcheck: true },
   });
   janela.once('ready-to-show', () => janela?.show());
-  // links externos abrem no navegador padrão; o chat, a Prática, a Forja e as Configurações ficam nesta janela
+  // links externos abrem no navegador padrão; o chat, a Forja e as Configurações ficam nesta janela
   janela.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:\/\//.test(url) && !(endereco && url.startsWith(endereco))) shell.openExternal(url);
     return { action: 'deny' };

@@ -13,149 +13,133 @@ O Gyde é um tutor de programação com inteligência artificial, em português 
 Ele explica o erro antes de corrigir, para você aprender de verdade.
 
 4
-00:00:20.410 --> 00:00:26.750
-Monta um plano de prática no seu nível, com exercícios e projetos guiados.
-
-5
-00:00:26.950 --> 00:00:33.190
+00:00:20.410 --> 00:00:26.650
 E tem a Forja, um agente que trabalha no seu projeto e mostra tudo o que mudou.
 
-6
-00:00:33.840 --> 00:00:38.110
+5
+00:00:27.300 --> 00:00:31.570
 A versão oficial fica na página do Gyde no GitHub.
 
-7
-00:00:38.310 --> 00:00:43.570
+6
+00:00:31.770 --> 00:00:37.030
 No lado direito, clique em Releases e abra a versão mais nova.
 
-8
-00:00:44.220 --> 00:00:50.290
+7
+00:00:37.680 --> 00:00:43.750
 Em Assets, baixe o arquivo Gyde Setup, que termina em ponto e x e.
 
-9
-00:00:50.490 --> 00:00:58.640
+8
+00:00:43.950 --> 00:00:52.100
 Os outros arquivos servem para as atualizações e para quem programa. Você não precisa deles.
 
-10
-00:00:59.290 --> 00:01:08.380
+9
+00:00:52.750 --> 00:01:01.840
 Você precisa do Windows dez ou onze, de uns quinhentos megabytes livres e de internet para a inteligência artificial.
 
-11
-00:01:08.580 --> 00:01:14.790
+10
+00:01:02.040 --> 00:01:08.250
 Não precisa ser administrador do computador, nem instalar mais nada antes.
 
-12
-00:01:15.440 --> 00:01:18.090
+11
+00:01:08.900 --> 00:01:11.550
 Abra o arquivo que você baixou.
 
-13
-00:01:18.290 --> 00:01:25.470
+12
+00:01:11.750 --> 00:01:18.930
 Se o Windows disser que protegeu o computador, é porque o instalador não tem uma assinatura paga.
 
-14
-00:01:25.670 --> 00:01:33.790
+13
+00:01:19.130 --> 00:01:27.250
 Se você baixou da página oficial, clique em Mais informações, e depois em Executar assim mesmo.
 
-15
-00:01:33.990 --> 00:01:39.720
+14
+00:01:27.450 --> 00:01:33.180
 Na primeira tela, deixe marcado Apenas para mim e clique em Próximo.
 
-16
-00:01:40.370 --> 00:01:44.260
+15
+00:01:33.830 --> 00:01:37.720
 Deixe a pasta sugerida e clique em Instalar.
 
-17
-00:01:44.460 --> 00:01:46.710
+16
+00:01:37.920 --> 00:01:40.170
 Espere alguns segundos.
 
-18
-00:01:46.910 --> 00:01:51.120
+17
+00:01:40.370 --> 00:01:44.580
 Deixe marcado Executar o Gyde e clique em Concluir.
 
-19
-00:01:51.770 --> 00:02:00.840
+18
+00:01:45.230 --> 00:01:54.300
 O Gyde abre numa janela própria. Na primeira vez, passa um vídeo curto: aperte Esc para pular.
 
-20
-00:02:01.040 --> 00:02:08.870
+19
+00:01:54.500 --> 00:02:02.330
 Nos outros dias, abra pelo menu Iniciar, digitando Gyde, ou pelo atalho na Área de Trabalho.
 
-21
-00:02:09.520 --> 00:02:18.720
+20
+00:02:02.980 --> 00:02:12.180
 Clique em Criar conta. A conta fica só no seu computador: qualquer e-mail serve, e nada é enviado.
 
-22
-00:02:18.920 --> 00:02:27.060
+21
+00:02:12.380 --> 00:02:20.520
 Depois, responda o questionário. Ele diz ao Gyde o que você quer aprender e qual é o seu nível.
 
-23
-00:02:27.260 --> 00:02:34.760
+22
+00:02:20.720 --> 00:02:28.220
 Para a inteligência artificial, o Gyde usa o FreeLLMAPI, um programa grátis.
 
-24
-00:02:34.960 --> 00:02:43.070
+23
+00:02:28.420 --> 00:02:36.530
 Instale o FreeLLMAPI pelo link do guia de instalação e coloque nele uma chave grátis do Google.
 
-25
-00:02:43.270 --> 00:02:53.400
+24
+00:02:36.730 --> 00:02:46.860
 Depois, no ícone do FreeLLMAPI perto do relógio, clique em Copy Key, e cole em Configurações, IA e modelos.
 
-26
-00:02:54.050 --> 00:03:00.000
+25
+00:02:47.510 --> 00:02:53.460
 Para conversar, escreva sua dúvida na caixa de baixo e aperte Enter.
 
-27
-00:03:00.200 --> 00:03:05.770
+26
+00:02:53.660 --> 00:02:59.230
 Embaixo de cada resposta aparece o modelo que respondeu de verdade.
 
-28
-00:03:06.420 --> 00:03:11.650
-Na Prática fica o seu plano, montado a partir do questionário.
-
-29
-00:03:11.850 --> 00:03:20.330
-Tem exercícios com testes automáticos, exercícios guiados e projetos guiados de todas as linguagens.
-
-30
-00:03:20.530 --> 00:03:27.150
-Para mudar o plano, refaça o questionário. O seu progresso continua.
-
-31
-00:03:27.800 --> 00:03:36.450
+27
+00:02:59.880 --> 00:03:08.530
 A Forja é opcional. Clique em Abrir pasta do projeto, escolha a pasta e diga o que você quer.
 
-32
-00:03:36.650 --> 00:03:43.000
+28
+00:03:08.730 --> 00:03:15.080
 Ela lê os arquivos, edita, roda os testes e mostra o resumo do que mudou.
 
-33
-00:03:43.200 --> 00:03:51.330
+29
+00:03:15.280 --> 00:03:23.410
 Apagar arquivos ou instalar pacotes sempre pede a sua confirmação, e o botão Desfazer volta tudo.
 
-34
-00:03:51.980 --> 00:04:01.850
+30
+00:03:24.060 --> 00:03:33.930
 Se aparecer que a chave do FreeLLMAPI não foi configurada, clique no atalho do aviso e cole a chave em IA e modelos.
 
-35
-00:04:02.050 --> 00:04:10.610
+31
+00:03:34.130 --> 00:03:42.690
 Se aparecer que o FreeLLMAPI não está respondendo, abra o FreeLLMAPI e tente de novo.
 
-36
-00:04:10.810 --> 00:04:18.250
+32
+00:03:42.890 --> 00:03:50.330
 Se as respostas ficarem lentas, coloque mais chaves grátis no FreeLLMAPI.
 
-37
-00:04:18.450 --> 00:04:28.850
+33
+00:03:50.530 --> 00:04:00.930
 Se o Gyde não abrir, clique em Tentar de novo. Se continuar, abra o registro e mande junto com a descrição do problema.
 
-38
-00:04:29.500 --> 00:04:35.730
+34
+00:04:01.580 --> 00:04:07.810
 O Gyde avisa quando sai uma versão nova, e atualizar não apaga os seus dados.
 
-39
-00:04:35.930 --> 00:04:43.410
+35
+00:04:08.010 --> 00:04:15.490
 O guia completo, as novidades e o lugar para pedir ajuda ficam na página do Gyde no GitHub.
 
-40
-00:04:44.060 --> 00:04:49.970
+36
+00:04:16.140 --> 00:04:22.050
 Pronto! Agora é só começar. Bons estudos!

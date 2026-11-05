@@ -31,7 +31,6 @@ Além do chat, o app tem:
 - **Forja, o agente de código:** abra a pasta de um projeto, peça uma tarefa e ela trabalha sozinha,
   como um desenvolvedor: lê o código, cria e edita arquivos, roda os testes até passarem e documenta.
 - **Passo a passo:** roda o código linha por linha mostrando o valor de cada variável.
-- **Prática:** trilhas, projetos guiados com testes automáticos, XP e desafio do dia.
 
 ![Forja trabalhando num projeto](https://raw.githubusercontent.com/gustavomdeschamps/Gyde/main/docs/imagens/forja.jpg)
 

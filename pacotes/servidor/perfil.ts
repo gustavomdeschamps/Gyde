@@ -3,9 +3,15 @@ import type { Express } from 'express';
 import type { Db, Usuario } from './tipos.ts';
 import { consulta } from './tipos.ts';
 import { publicQuiz, gradeQuiz } from './quiz.ts';
-import type { Perfil } from './pratica-plano.ts';
 import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
+
+// Perfil salvo do questionário (quiz.ts). Tudo opcional: perfis antigos ou incompletos também valem.
+interface Perfil {
+  level?: string; levelLabel?: string; score?: number; total?: number; experience?: string | null; languages?: unknown;
+  goal?: string | null; style?: string | null; weak?: string[]; takenAt?: number;
+  anteriores?: { em?: number; nivel?: string; acertos?: number; total?: number }[];
+}
 
 // Preferências ficam na tabela settings, por usuário: chave "<userId>:<nome>".
 export function criarPreferencias(db: Db) {
@@ -48,7 +54,7 @@ export function setupPerfil(app: Express, db: Db, { getSetting, setSetting }: Pr
     const answers = req.body?.answers;
     if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return res.status(400).json({ error: 'Respostas do questionário inválidas.' });
     const { profile, results } = gradeQuiz(answers); // alternativas que não existem são descartadas
-    // refazer o questionário atualiza o perfil sem apagar o progresso; guarda os resultados anteriores para mostrar a evolução
+    // refazer o questionário atualiza o perfil; guarda os resultados anteriores para mostrar a evolução
     let antes: Perfil = {};
     try { antes = JSON.parse(req.user.profile || '{}') as Perfil; } catch { /* perfil antigo inválido: começa do zero */ }
     const anteriores = antes.level ? [{ em: antes.takenAt, nivel: antes.levelLabel, acertos: antes.score, total: antes.total }, ...(antes.anteriores || [])].slice(0, 5) : undefined;
@@ -57,7 +63,7 @@ export function setupPerfil(app: Express, db: Db, { getSetting, setSetting }: Pr
     responder(res, C.ResultadoQuestionario, { profile, results });
   });
 
-  // Pular o questionário (dá para fazer depois em Configurações > Prática).
+  // Pular o questionário (dá para fazer depois em Configurações > Geral).
   app.post('/api/profile/skip', (req, res) => {
     db.prepare('UPDATE users SET onboarded = 1 WHERE id = ?').run(req.user.id);
     res.json({ ok: true });

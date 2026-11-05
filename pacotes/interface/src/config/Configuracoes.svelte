@@ -3,7 +3,7 @@
   // Preferencias); tema e vídeo de abertura são deste navegador.
   import { untrack } from 'svelte';
   import * as C from '$contratos';
-  import type { TMemoria, TTokens, TPlano } from '$contratos';
+  import type { TMemoria, TTokens } from '$contratos';
   import { pedir, enviar, corpo, mensagemDe } from '../api.ts';
   import { temaSalvo, definirTema, type Tema } from '../tema.ts';
   import { uso, atualizarUso, nomeModelo, NOME_PROVEDOR } from './uso.svelte.ts';
@@ -12,13 +12,13 @@
   import { desktop } from '../desktop.ts';
   import { montarRelatorio } from '../diagnostico.ts';
 
-  type Aba = 'geral' | 'ia' | 'uso' | 'pratica' | 'dados' | 'extensoes';
+  type Aba = 'geral' | 'ia' | 'uso' | 'dados' | 'extensoes';
   let { toast, copiar, verAbertura, refazerQuiz, restaurarModelo, recarregarConversas }: {
     toast: (t: string) => void; copiar: (texto: string, botao: HTMLElement) => void; verAbertura: () => void;
     refazerQuiz: () => void; restaurarModelo: () => void; recarregarConversas: () => Promise<void>;
   } = $props();
 
-  const ABAS: [Aba, string][] = [['geral', 'Geral'], ['ia', 'IA e modelos'], ['uso', 'Uso e limites'], ['pratica', 'Prática'], ['dados', 'Privacidade e dados'], ['extensoes', 'Extensões']];
+  const ABAS: [Aba, string][] = [['geral', 'Geral'], ['ia', 'IA e modelos'], ['uso', 'Uso e limites'], ['dados', 'Privacidade e dados'], ['extensoes', 'Extensões']];
   let dialogo: HTMLDialogElement | undefined = $state();
   let aba = $state<Aba>('geral');
   let tema = $state<Tema>(temaSalvo());
@@ -27,7 +27,6 @@
   let novaMemoria = $state('');
   let tokens = $state<TTokens['tokens']>([]);
   let tokenNovo = $state('');
-  let plano = $state<{ carregando: boolean; erro: string; dados: TPlano | null }>({ carregando: false, erro: '', dados: null });
   // no modo público (servidor de uma turma) chaves, modo da IA e cópia ficam com quem cuida do servidor
   let pessoal = $state(true);
   let chave = $state({ configurada: null as boolean | null, texto: '', salvando: false });
@@ -40,7 +39,7 @@
     if (!dialogo?.open) dialogo?.showModal();
   }
   // ao trocar de aba, busca os dados dela (untrack: o carregamento escreve estado e não pode reativar o efeito)
-  $effect(() => { const a = aba; untrack(() => { if (a === 'uso' || a === 'ia') atualizarUso(); if (a === 'ia') carregarChave(); if (a === 'pratica') carregarPlano(); }); });
+  $effect(() => { const a = aba; untrack(() => { if (a === 'uso' || a === 'ia') atualizarUso(); if (a === 'ia') carregarChave(); }); });
 
   const salvar = async (dados: Partial<C.TPreferencias>) => {
     try { pref = await pedir('/api/settings', C.Preferencias, { method: 'PUT', body: JSON.stringify(dados) }); toast('Salvo'); } catch (e) { toast(mensagemDe(e)); }
@@ -66,12 +65,6 @@
     try { tokens = (await pedir(`/api/tokens/${id}`, C.Tokens, { method: 'DELETE' })).tokens; toast('Token revogado'); } catch (e) { toast(mensagemDe(e)); }
   }
   const data = (t: number | null) => (t ? new Date(t).toLocaleDateString('pt-BR') : 'nunca');
-
-  async function carregarPlano() {
-    plano = { carregando: true, erro: '', dados: plano.dados };
-    try { plano = { carregando: false, erro: '', dados: (await pedir('/api/pratica', C.EstadoPratica)).plano }; }
-    catch (e) { console.error('[Gyde] Configurações > Prática:', e); plano = { carregando: false, erro: mensagemDe(e), dados: null }; }
-  }
 
   async function carregarChave() {
     try { const s = await pedir('/api/status', C.Status); chave.configurada = s.keyConfigured; imagens.ligadas = s.imagesEnabled; pessoal = s.pessoal; } catch { chave.configurada = null; imagens.ligadas = null; }
@@ -168,7 +161,11 @@
           </div>
           <div class="config-linha">
             <div><b>Ao abrir o Gyde</b><small>Página que aparece quando você entra. Fica salvo na sua conta.</small></div>
-            <select bind:value={pref.pagina_inicial} onchange={() => salvar({ pagina_inicial: pref.pagina_inicial })} aria-label="Página inicial"><option value="chat">Conversas</option><option value="pratica">Prática</option><option value="agente">Forja</option></select>
+            <select bind:value={pref.pagina_inicial} onchange={() => salvar({ pagina_inicial: pref.pagina_inicial })} aria-label="Página inicial"><option value="chat">Conversas</option><option value="agente">Forja</option></select>
+          </div>
+          <div class="config-linha">
+            <div><b>Seu nível</b><small>O questionário ajusta as explicações e os exemplos do Gyde ao que você já sabe.</small></div>
+            <button type="button" class="btn ghost" id="redoQuiz" onclick={() => { fechar(); refazerQuiz(); }}>Refazer o questionário</button>
           </div>
           <div class="config-linha">
             <div><b>Vídeo de abertura</b><small>Aparece só na primeira vez em cada navegador.</small></div>
@@ -257,45 +254,6 @@
         </section>
       {:else if aba === 'uso'}
         <section class="config-painel" role="tabpanel" data-painel="uso"><UsoAba /></section>
-      {:else if aba === 'pratica'}
-        <section class="config-painel" role="tabpanel" data-painel="pratica">
-          {#if plano.erro}
-            <div class="config-erro" role="alert"><p>{plano.erro}</p><button type="button" class="btn small" onclick={carregarPlano}>Tentar de novo</button></div>
-          {:else if !plano.dados}
-            <div class="skeleton" style="height:90px"></div>
-          {:else}
-            {@const p = plano.dados}
-            <p class="config-nota"><b>Plano atual:</b> {p.explicacao} Tecnologias: {p.tecnologias.join(', ')}; nível {p.nivel}.</p>
-            {#if p.declarado && p.medido}
-              <h3 class="config-sub">O que você respondeu <small>em {p.declarado.em ? new Date(p.declarado.em).toLocaleDateString('pt-BR') : 'data não registrada'}</small></h3>
-              <dl class="config-dl">
-                <div><dt>Experiência</dt><dd>{p.declarado.experiencia || 'não respondeu'}</dd></div>
-                <div><dt>Linguagens</dt><dd>{p.declarado.linguagens.join(', ') || 'nenhuma escolhida'}</dd></div>
-                <div><dt>Objetivo</dt><dd>{p.declarado.objetivo || 'não respondeu'}</dd></div>
-                <div><dt>Como aprende melhor</dt><dd>{p.declarado.estilo || 'não respondeu'}</dd></div>
-              </dl>
-              <h3 class="config-sub">O que o mini desafio mediu</h3>
-              <dl class="config-dl">
-                <div><dt>Nível estimado</dt><dd>{p.medido.nivel} ({p.medido.acertos} de {p.medido.total})</dd></div>
-                <div><dt>Para reforçar</dt><dd>{p.medido.reforcar.join(', ') || 'nada: acertou tudo'}</dd></div>
-                {#if p.medido.anteriores.length}<div><dt>Antes</dt><dd>{p.medido.anteriores.map((a) => `${a.nivel} (${a.acertos}/${a.total}) em ${a.em ? new Date(a.em).toLocaleDateString('pt-BR') : '?'}`).join(' · ')}</dd></div>{/if}
-              </dl>
-              <h3 class="config-sub">O que os exercícios mostram</h3>
-              <dl class="config-dl">
-                <div><dt>Exercícios feitos</dt><dd>{p.observado.feitos}</dd></div>
-                <div><dt>Tentativas com erro</dt><dd>{p.observado.tentativasComErro}</dd></div>
-                <div><dt>Ainda travado em</dt><dd>{p.observado.travados.length ? `${p.observado.travados.length} exercício(s)` : 'nenhum'}</dd></div>
-              </dl>
-            {:else}
-              <p class="config-nota">Você ainda não respondeu o questionário. Sem ele, a Prática começa pelo mais simples (lógica e Python). Leva uns 3 minutos e muda as recomendações e o jeito do Gyde explicar.</p>
-            {/if}
-          {/if}
-          <div class="config-botoes">
-            <button type="button" class="btn primary" id="redoQuiz" onclick={() => { fechar(); refazerQuiz(); }}>{plano.dados?.temQuiz ? 'Refazer o questionário' : 'Fazer o questionário'}</button>
-            <a class="btn ghost" href="#/pratica" onclick={fechar}>Abrir a Prática</a>
-          </div>
-          <p class="config-nota">Refazer o questionário atualiza as recomendações. Exercícios feitos, XP e sequência continuam.</p>
-        </section>
       {:else if aba === 'dados'}
         <section class="config-painel" role="tabpanel" data-painel="dados">
           <div class="config-texto">

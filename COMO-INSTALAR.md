@@ -15,7 +15,7 @@ Guia para quem vai usar o Gyde pela primeira vez no próprio computador. Não pr
 - **Windows 10 ou 11** (64 bits).
 - Uns **500 MB livres** no disco (o programa usa cerca de 350 MB).
 - **Não precisa** ser administrador do computador: o Gyde instala só para o seu usuário.
-- **Internet** para a IA online. Sem internet, o Gyde abre e a Prática funciona; para conversar sem internet, veja
+- **Internet** para a IA online. Sem internet, o Gyde abre, mas o chat não responde; para conversar sem internet, veja
   "IA sem internet" no fim.
 
 ---
@@ -50,7 +50,7 @@ O instalador cria o atalho **Gyde** no menu Iniciar e na Área de Trabalho.
 2. Clique em **Criar conta**, escolha como quer ser chamado, um e-mail e uma senha.
    A conta é **só sua e só neste computador**: nada é enviado e não precisa confirmar e-mail.
 3. Responda o **questionário** (uns 3 minutos) ou pule. Ele diz ao Gyde as linguagens que você quer aprender, o
-   seu objetivo e o seu nível, e monta o seu plano na **Prática**.
+   seu objetivo e o seu nível, e adapta as respostas a você.
 
 ## Passo 4 — Ligar a IA (uma vez só)
 
@@ -75,9 +75,6 @@ O Gyde não tem IA própria: ele usa o **FreeLLMAPI**, um programa grátis que j
 
 - **Conversar:** escreva a pergunta na caixa de baixo e aperte Enter. Embaixo de cada resposta aparece o modelo
   que respondeu de verdade.
-- **Prática:** no menu **Prática** está o seu plano, com exercícios com testes automáticos (Python e JavaScript),
-  exercícios guiados e projetos guiados de todas as linguagens do questionário. Para mudar o plano, refaça o
-  questionário: o progresso continua.
 - **Forja** (opcional): o agente que trabalha num projeto seu. No menu **Forja**, clique em **Abrir pasta do
   projeto**, escolha a pasta e diga o que quer. Ela lê, edita, roda os testes e mostra o que mudou; apagar arquivos,
   instalar pacotes e acessar a internet sempre pedem a sua confirmação, e **Desfazer** volta o que ela mudou.

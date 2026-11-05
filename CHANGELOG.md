@@ -6,22 +6,29 @@ versão do `manifest.json`.
 ## Ainda não lançado
 
 ### Novidades
+- Inteligência multimodelo: o Gyde entende o tipo de pedido e escolhe o modelo que foi melhor naquela tarefa nas
+  avaliações, trocando sozinho se ele falhar ou estiver no limite. Quando vale a pena, um segundo modelo confere a
+  resposta (a tela só diz isso se foi outro modelo de verdade). Em **Configurações > IA e modelos** dá para escolher entre
+  Rápido, Equilibrado e Capricho; o padrão continua automático.
+- Forja: outro modelo lê as mudanças antes de terminar. Quem mexe nos arquivos é sempre um modelo só.
 - Passo a passo com a memória desenhada: pilha de chamadas, listas, dicionários e objetos em caixas, com setas
   mostrando quando duas variáveis apontam para o mesmo objeto (a tabela continua disponível).
 - Forja ao vivo: o site do projeto aberto ao lado da conversa, recarregando quando a Forja muda arquivos. A prévia roda
   isolada (sandbox) e o endereço vale por 2 horas.
-- Mapa de habilidades na Prática: cada linguagem por nível, aceso conforme os exercícios e projetos concluídos.
-- Certificado dos projetos guiados, emitido na última etapa, com código de conferência; pronto para imprimir ou salvar
-  em PDF.
-- Modo duelo: o mesmo exercício para duas contas; vence quem passar nos testes primeiro, com o relógio do servidor.
 - Mostrar o erro: num print enviado no chat, um modelo com visão destaca a região do problema e explica em poucas
   frases. A posição é uma estimativa e a tela avisa isso.
 - Lista de modelos recarrega assim que a chave da FreeLLMAPI é salva.
 - Página do Gyde em `docs/index.html`, pronta para o GitHub Pages.
 
+### Removido
+- Prática e tudo o que dependia dela: trilhas, exercícios, projetos guiados, plano de estudos, XP, desafio do dia, amigos,
+  e Turmas (que só passavam exercícios da Prática). O questionário de nível continua, agora em Configurações > Geral, e
+  adapta as respostas do chat. O progresso antigo não é apagado do banco, só deixa de aparecer.
+
 ### Correções
 - Uma chave do FreeLLMAPI errada fazia a tela voltar para o login (a recusa da chave chegava como "sessão expirada").
   Agora aparece um aviso dizendo para copiar a chave de novo.
+- Conversas longas e imagens antigas não travam mais os modelos grátis: cada um recebe só a parte da conversa que importa.
 
 ## 2.0.1
 

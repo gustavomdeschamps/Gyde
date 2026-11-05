@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gyde: o tutor de programação que ensina</title>
-  <meta name="description" content="Tutor de programação com IA, em português, grátis e no seu computador: explica o erro antes de corrigir, monta a sua prática e tem um agente que trabalha no seu projeto.">
+  <meta name="description" content="Tutor de programação com IA, em português, grátis e no seu computador: explica o erro antes de corrigir, mostra a memória do programa e tem um agente que trabalha no seu projeto.">
   <link rel="icon" href="imagens/logo.svg">
   <style>
     :root { --azul-escuro: #0b1220; --azul: #2563eb; --azul-claro: #93c5fd; --texto: #0f172a; --suave: #3f4b5e; --fraco: #526072; --borda: #e2e8f0; --fundo: #f6f8fc; --verde: #15803d;
@@ -49,10 +49,6 @@
     .funcao ul { margin: 12px 0 0; padding-left: 18px; color: var(--suave); }
     .funcao figure { margin: 0; border-radius: 14px; overflow: hidden; border: 1px solid var(--borda); box-shadow: 0 18px 48px rgba(15, 23, 42, .12); background: #fff; }
     .funcao figure img { display: block; width: 100%; }
-    .duelo-cartao { padding: 28px; background: #fff; }
-    .duelo-cartao .linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid #2563eb; border-radius: 12px; background: #eff6ff; font-size: 15px; }
-    .duelo-cartao .relogio { font: 700 22px var(--mono); color: #1e40af; }
-    .duelo-cartao small { display: block; margin-top: 10px; color: var(--fraco); font-size: 13px; }
     /* vídeo */
     .video { background: #fff; border-top: 1px solid var(--borda); border-bottom: 1px solid var(--borda); }
     .video video { display: block; width: 100%; margin-top: 28px; border-radius: 14px; background: #000; box-shadow: 0 18px 48px rgba(15, 23, 42, .15); }
@@ -89,7 +85,7 @@
   <main>
     <div class="abertura"><div class="largura">
       <h1>O tutor de programação que <em>ensina</em> em vez de só entregar a resposta.</h1>
-      <p>Em português, de graça e no seu computador. Ele explica o erro antes de corrigir, monta a sua prática no seu nível e tem um agente que trabalha no seu projeto e mostra tudo o que mudou.</p>
+      <p>Em português, de graça e no seu computador. Ele explica o erro antes de corrigir, se adapta ao seu nível e tem um agente que trabalha no seu projeto e mostra tudo o que mudou.</p>
       <div class="acoes">
         <a class="botao principal" href="https://github.com/gustavomdeschamps/Gyde/releases/latest">Baixar para Windows</a>
         <a class="botao secundario" href="#video">Ver como instalar</a>
@@ -116,31 +112,9 @@
       </article>
 
       <article class="funcao">
-        <div class="texto"><h3>Prática no seu nível, em 10 linguagens</h3>
-          <p>Um questionário monta o seu plano. Exercícios com testes automáticos, exercícios guiados e um projeto guiado para cada linguagem, com etapas conferidas. O mapa de habilidades acende conforme você domina.</p>
-          <ul><li>Python, JavaScript, Java, C/C++, C#, PHP</li><li>HTML e CSS, SQL, Kotlin e lógica</li></ul></div>
-        <figure><img src="imagens/mapa.jpg" alt="Mapa de habilidades com os exercícios por nível" loading="lazy"></figure>
-      </article>
-
-      <article class="funcao">
         <div class="texto"><h3>Mostre o print, ele aponta o erro</h3>
           <p>Mande um print da tela e o Gyde destaca onde está o problema, com uma explicação curta. A posição é uma estimativa do modelo de IA, e a tela diz isso.</p></div>
         <figure><img src="imagens/mostrar-erro.jpg" alt="O Gyde destacando o aviso de erro num print" loading="lazy"></figure>
-      </article>
-
-      <article class="funcao">
-        <div class="texto"><h3>Certificado de cada projeto</h3>
-          <p>Ao concluir um projeto guiado, você recebe um certificado pronto para imprimir ou salvar em PDF, com um código que confere quem fez, qual projeto e quando.</p></div>
-        <figure><img src="imagens/certificado.jpg" alt="Certificado de conclusão de um projeto guiado" loading="lazy"></figure>
-      </article>
-
-      <article class="funcao">
-        <div class="texto"><h3>Duelo com os amigos</h3>
-          <p>Desafie alguém da sua turma: os dois recebem o mesmo exercício e vence quem passar nos testes primeiro. O relógio é do servidor, então ninguém trapaceia no tempo.</p></div>
-        <figure><div class="duelo-cartao">
-          <div class="linha"><span>Duelo contra <b>Bia</b>: passe em todos os testes antes.</span><span class="relogio">01:27</span></div>
-          <small>Faixa do duelo no exercício: o oponente e o relógio ao vivo.</small>
-        </div></figure>
       </article>
     </div></section>
 

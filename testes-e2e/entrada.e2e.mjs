@@ -75,8 +75,8 @@ ok('entrar abre o app direto (sem questionário de novo)', await espera(`documen
 
 // refazer pelo Configurações
 await ev(`document.querySelector('#openSettings').click()`); await sleep(400);
-await ev(`[...document.querySelectorAll('[role="tab"]')].find((b) => /Prática/.test(b.textContent))?.click()`); await sleep(400);
-ok('Configurações > Prática oferece refazer', await espera(`/Refazer o questionário/.test(document.querySelector('#redoQuiz')?.textContent || '')`));
+await ev(`[...document.querySelectorAll('[role="tab"]')].find((b) => /Geral/.test(b.textContent))?.click()`); await sleep(400);
+ok('Configurações > Geral oferece refazer', await espera(`/Refazer o questionário/.test(document.querySelector('#redoQuiz')?.textContent || '')`));
 await ev(`document.querySelector('#redoQuiz').click()`);
 ok('refazer abre o questionário de novo', await espera(`!document.querySelector('#gate').hidden && /1 de/.test(document.querySelector('#gate .quiz-step')?.textContent || '')`));
 await clicar('#gate .quiz-nav button', 'Pular por agora');

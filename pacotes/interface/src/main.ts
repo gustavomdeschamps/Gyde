@@ -1,5 +1,5 @@
 // Casca do Gyde: login, rotas, barra lateral e montagem das telas. Cada tela vive no seu módulo (chat/, forja/,
-// pratica/, config/); aqui só se liga uma coisa na outra.
+// config/); aqui só se liga uma coisa na outra.
 import { mount } from 'svelte';
 import * as C from '$contratos';
 import { pedir, enviar as api } from './api.ts';
@@ -7,9 +7,7 @@ import { toast, copiarTexto } from './util.ts';
 import { renderMarkdown } from './markdown.ts';
 import { tocarAbertura, aberturaJaVista } from './abertura.ts';
 import { mostrarLogin, mostrarQuestionario, esconderEntrada } from './entrada.ts';
-import { createPractice } from './pratica.svelte.ts';
 import { createSkillsPage } from './skills.svelte.ts';
-import { createTurmasPage } from './turmas.svelte.ts';
 import { createAgentePage } from './agente.ts';
 import { aplicarTema, definirTema, temaAtual } from './tema.ts';
 import { vigiarErros } from './diagnostico.ts';
@@ -38,26 +36,18 @@ mount(Compositor, { target: $('#composerRaiz') });
 mount(ListaConversas, { target: $('#convList') });
 
 // ---------- telas ----------
-const pratica = createPractice({
-  root: $('#praticaView'), toast, renderMarkdown,
-  onXp: (xp: number) => { $('#xpBadge').textContent = xp ? `${xp} XP` : ''; },
-});
 const skills = createSkillsPage({ root: $('#skillsView'), renderMarkdown });
 const forja = createAgentePage({ root: $('#agenteView'), toast, renderMarkdown });
-const turmas = createTurmasPage({ root: $('#turmasView') });
 
 // ---------- rotas ----------
 async function rota() {
   app.classList.remove('sidebar-open');
   const h = location.hash;
-  const p = h.match(/^#\/pratica(?:\/([\w-]+))?(?:\/([\w-]+))?/), s = h.match(/^#\/skills(?:\/([\w-]+))?/);
-  const t = h.match(/^#\/turmas(?:\/([\w-]+))?/), a = h.match(/^#\/agente(?:\/([\w-]+))?/);
-  const secao = p ? 'pratica' : s ? 'skills' : t ? 'turmas' : a ? 'agente' : 'chat';
+  const s = h.match(/^#\/skills(?:\/([\w-]+))?/), a = h.match(/^#\/agente(?:\/([\w-]+))?/);
+  const secao = s ? 'skills' : a ? 'agente' : 'chat';
   $('.main').dataset.page = secao;
   document.querySelectorAll<HTMLElement>('.nav-item').forEach((el) => el.classList.toggle('active', el.dataset.nav === secao));
   if (a) { document.title = 'Forja · Gyde'; return forja.show(a[1]); }
-  if (t) { document.title = 'Turmas · Gyde'; return turmas.show(t[1]); }
-  if (p) { document.title = 'Prática · Gyde'; return pratica.show([p[1], p[2]].filter((x): x is string => Boolean(x))); }
   if (s) { document.title = 'Skills · Gyde'; return skills.show(s[1]); }
   const c = h.match(/^#\/c\/([\w-]+)/);
   if (c) { if (c[1] !== chat.convId) await abrirConversa(c[1]!); }
@@ -146,7 +136,6 @@ async function iniciar() {
     }
   }
   chat.convId = null; // força a rota a recarregar a conversa atual
-  pratica.refreshXp();
   skills.refresh();
   await rota();
 }
