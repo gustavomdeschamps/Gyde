@@ -9,6 +9,7 @@ import { redigir } from './seguranca.ts';
 import { classificar } from './ia/classificar.ts';
 import { selecionarHistorico, tamanhoDe, type Anexo } from './ia/contexto.ts';
 import { PROMPT_RESUMO, sistemaDoChat } from './ia/prompts.ts';
+import { limparResposta } from './ia/filtro.ts';
 import type { Orquestrador } from './ia/orquestrador.ts';
 import type { PreferenciasIA } from './ia/rotas.ts';
 import { profileSummary, type Preferencias } from './perfil.ts';
@@ -29,7 +30,7 @@ interface RespostaChat { choices?: { message?: { content?: string } }[] }
 // Modelos da marca: nomes que o usuário vê. A escolha real é do orquestrador (ia/orquestrador.ts).
 const GYDE_MODELS: Record<string, { label: string; hint: string }> = {
   'gyde-1': { label: 'Gyde 1', hint: 'Escolhe o modelo certo para cada pedido e troca sozinho se um falhar' },
-  'gyde-1-pro': { label: 'Gyde 1 Pro', hint: 'Capricho: confere com um segundo modelo o que for código ou raciocínio. Mais lento e gasta mais cota' },
+  'gyde-1-pro': { label: 'Gyde 1 Pro', hint: 'Capricho: um segundo modelo confere código e raciocínio. Mais lento e gasta cerca de 3 vezes mais cota' },
 };
 // Poucos modelos escolhidos a dedo para programação (testados com o FreeLLMAPI). Só aparecem os que o roteador marca como disponíveis.
 const CODE_MODELS = [
@@ -113,19 +114,14 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
 
   async function generateTitle(convId: string, firstUserText: string) {
     try {
-      const res = await router('/v1/chat/completions', {
-        method: 'POST',
-        body: JSON.stringify({
-          model: UTIL_MODEL,
-          max_tokens: 24,
-          messages: [
-            { role: 'system', content: 'Crie um título curto (máx. 6 palavras) em português para esta conversa. Responda só com o título, sem aspas nem pontuação final.' },
-            { role: 'user', content: firstUserText.slice(0, 2000) },
-          ],
-        }),
+      const { texto } = await completar(router, {
+        cadeia: CADEIAS.util ?? ['auto'], max_tokens: 24, tempoLimite: 20_000,
+        messages: [
+          { role: 'system', content: 'Crie um título curto (máx. 6 palavras) em português para esta conversa. Responda só com o título, sem aspas nem pontuação final.' },
+          { role: 'user', content: firstUserText.slice(0, 2000) },
+        ],
       });
-      const json = await res.json() as RespostaChat;
-      const title = (json.choices?.[0]?.message?.content || '').replace(/["*#\n]/g, '').trim().slice(0, 80);
+      const title = limparResposta(texto).replace(/["*#\n]/g, '').trim().slice(0, 80);
       if (title) db.prepare('UPDATE conversations SET title = ? WHERE id = ?').run(title, convId);
       return title;
     } catch {

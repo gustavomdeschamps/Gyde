@@ -121,7 +121,7 @@ try {
     ok('modo padrão: pergunta de código usa uma chamada de resposta', ia.pedidos.slice(antes).filter((p) => p.stream).length === 1 && !ia.pedidos.slice(antes).some((p) => /revisor técnico/.test(JSON.stringify(p.mensagens[0]))));
     ok('modo padrão: a resposta conta a estratégia usada', /"estrategia":"direta"/.test(sse));
     const pref = await (await api.pedir('PUT', '/api/ia/preferencias', { modo: 'capricho' })).json();
-    ok('preferência de modo salva', pref.modo === 'capricho' && pref.especialistas === true);
+    ok('preferência de modo salva', pref.modo === 'capricho' && pref.especialistas === false);
     ok('modo inexistente é recusado', (await api.pedir('PUT', '/api/ia/preferencias', { modo: 'turbo' })).status === 400);
     const meio = ia.pedidos.length;
     const sse2 = await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'corrija este outro bug no meu código python', attachments: [], model: 'gyde-1', kind: 'chat' })).text();

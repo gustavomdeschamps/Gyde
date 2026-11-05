@@ -41,9 +41,10 @@ const NOMES: Record<Estrategia, number> = { direta: 1, revisada: 3, comparada: 3
 const PRAZO_PRIMEIRO_TEXTO = 45_000, PRAZO_ENTRE_PEDACOS = 60_000, PRAZO_APOIO = 60_000, PRAZO_RASCUNHO = 120_000;
 const MAX_TENTATIVAS = 6; // nunca fica trocando de modelo para sempre
 const MAX_SIMULTANEAS = 8;
+const PRAZO_COLABORACAO = 150_000; // a colaboração inteira; passou disso, um modelo só responde
 
 // A decisão é uma função pura: mesma entrada, mesma estratégia. Ver testes em testes/ia.test.mjs.
-export function decidirEstrategia(c: Classificacao, { modo, especialistas = true, offline = false, fixo = false, cotaRestante = null }: { modo: ModoResposta; especialistas?: boolean; offline?: boolean; fixo?: boolean; cotaRestante?: number | null }): { estrategia: Estrategia; motivo: string } {
+export function decidirEstrategia(c: Classificacao, { modo, especialistas = false, offline = false, fixo = false, cotaRestante = null }: { modo: ModoResposta; especialistas?: boolean; offline?: boolean; fixo?: boolean; cotaRestante?: number | null }): { estrategia: Estrategia; motivo: string } {
   const direta = (motivo: string) => ({ estrategia: 'direta' as const, motivo });
   if (offline) return direta('modo offline: um modelo só, no computador');
   if (fixo) return direta('a pessoa escolheu o modelo');
@@ -93,7 +94,7 @@ export function criarOrquestrador({ router, provedores, catalogo, desempenho }: 
     await catalogo.atualizar();
     const offline = await provedores.ativo() === 'offline';
     const categorias = CATEGORIAS[c.tarefa];
-    const decisao = decidirEstrategia(c, { modo: opcoes.modo, especialistas: opcoes.especialistas ?? true, offline, fixo: Boolean(opcoes.fixo), cotaRestante: provedores.cota()?.restante ?? null });
+    const decisao = decidirEstrategia(c, { modo: opcoes.modo, especialistas: opcoes.especialistas ?? false, offline, fixo: Boolean(opcoes.fixo), cotaRestante: provedores.cota()?.restante ?? null });
     const base = { modo: opcoes.modo, tamanho: opcoes.tamanho, desligados: opcoes.desligados ?? [], reserva: opcoes.reserva };
     const principal = opcoes.fixo ?? (offline ? ['auto'] : catalogo.cadeia(categorias, { ...base, precisaVisao: c.tarefa === 'visao' }));
     const apoio = decisao.estrategia === 'direta' ? [] : catalogo.cadeia(['revisao'], { ...base, tamanho: Math.min(opcoes.tamanho, 20_000), excluir: [principal[0]!], max: 3 }).filter((m) => m !== 'auto');
@@ -200,10 +201,12 @@ export function criarOrquestrador({ router, provedores, catalogo, desempenho }: 
     const rascunho = limparResposta(r.texto);
     ex.aoStatus?.('Conferindo com outro modelo…');
     const rev = await revisar(plano, mensagens, rascunho, r.modelo, ex, conta);
-    if (!rev?.problemas.length) return { texto: entregar(ex, rascunho), modelo: r.modelo, revisadaPorOutro: Boolean(rev), mudou: false };
+    // só problema grave reescreve: nas avaliações, apontamentos menores do revisor chegaram a estragar respostas certas
+    const graves = rev?.problemas.filter((p) => p.gravidade === 'alta') ?? [];
+    if (!graves.length) return { texto: entregar(ex, rascunho), modelo: r.modelo, revisadaPorOutro: Boolean(rev), mudou: false };
     ex.aoStatus?.('Corrigindo o que a revisão encontrou…');
     try {
-      const final = await transmitir(plano.principal, [...mensagens, { role: 'assistant', content: rascunho }, { role: 'user', content: `${PROMPT_REESCRITA}\n\nPROBLEMAS APONTADOS:\n${formatarProblemas(rev.problemas)}` }], ex, conta);
+      const final = await transmitir(plano.principal, [...mensagens, { role: 'assistant', content: rascunho }, { role: 'user', content: `${PROMPT_REESCRITA}\n\nPROBLEMAS APONTADOS:\n${formatarProblemas(graves)}` }], ex, conta);
       return { texto: final.texto, modelo: final.modelo, revisadaPorOutro: true, mudou: true };
     } catch (e) {
       if (ex.signal.aborted) throw e;
@@ -258,15 +261,29 @@ export function criarOrquestrador({ router, provedores, catalogo, desempenho }: 
     const inicio = Date.now();
     const conta = { chamadas: 0, modelos: [] as string[] };
     const c = plano.classificacao;
+    let mostrou = false;
+    const aoEscrever = (t: string) => { mostrou = true; ex.aoEscrever(t); };
+    const relogio = plano.estrategia === 'direta' ? null : new AbortController();
+    const estouro = relogio ? setTimeout(() => relogio.abort(erroGyde('A colaboração entre modelos passou do prazo.', { status: 504 })), PRAZO_COLABORACAO) : null;
+    const trabalho: Execucao = { ...ex, aoEscrever, signal: relogio ? AbortSignal.any([ex.signal, relogio.signal]) : ex.signal };
     const registrar = (estrategia: string, modelos: string[], resultado: string, mudou: boolean) => desempenho?.decisao({
       userId: ex.userId ?? null, origem: ex.origem ?? 'chat', tarefa: c.tarefa, complexidade: c.complexidade, estrategia, motivo: plano.motivo, modelos, chamadas: conta.chamadas, ms: Date.now() - inicio, resultado, mudou,
     });
     try {
       const r: { texto: string; modelo: string | null; revisadaPorOutro?: boolean; mudou?: boolean; consumo?: Consumo | null } =
-        plano.estrategia === 'revisada' ? await revisadaAPartirDe(plano, ex.mensagens, ex, conta)
-          : plano.estrategia === 'comparada' ? await comparada(plano, ex.mensagens, ex, conta)
-            : plano.estrategia === 'especialistas' ? await especialistas(plano, ex.mensagens, ex, conta)
-              : await transmitirDireta(plano, ex.mensagens, ex, conta);
+        await (async () => {
+          try {
+            return plano.estrategia === 'revisada' ? await revisadaAPartirDe(plano, ex.mensagens, trabalho, conta)
+              : plano.estrategia === 'comparada' ? await comparada(plano, ex.mensagens, trabalho, conta)
+                : plano.estrategia === 'especialistas' ? await especialistas(plano, ex.mensagens, trabalho, conta)
+                  : await transmitirDireta(plano, ex.mensagens, trabalho, conta);
+          } catch (e) {
+            // a colaboração falhou antes de mostrar qualquer coisa: a pessoa ainda recebe a resposta de um modelo
+            if (plano.estrategia === 'direta' || mostrou || ex.signal.aborted || comoErro(e).status === 429) throw e;
+            ex.aoStatus?.('Respondendo com um modelo só…');
+            return { ...(await transmitirDireta(plano, ex.mensagens, { ...ex, aoEscrever }, conta)), revisadaPorOutro: false, mudou: false };
+          } finally { if (estouro) clearTimeout(estouro); }
+        })();
       const modelos = [...new Set(conta.modelos)];
       registrar(plano.estrategia, modelos, 'ok', Boolean(r.mudou));
       return {

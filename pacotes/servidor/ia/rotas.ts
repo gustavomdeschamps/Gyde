@@ -16,7 +16,7 @@ export function setupIA(app: Express, { preferencias, catalogo, desempenho, avis
     const modo = getSetting(userId, 'ia_modo', 'equilibrado') as ModoResposta;
     let desligados: string[] = [];
     try { const d = JSON.parse(getSetting(userId, 'ia_desligados', '[]')) as unknown; if (Array.isArray(d)) desligados = d.filter((x): x is string => typeof x === 'string'); } catch { /* fica vazio */ }
-    return { modo: MODOS.includes(modo) ? modo : 'equilibrado', especialistas: getSetting(userId, 'ia_especialistas', '1') === '1', desligados };
+    return { modo: MODOS.includes(modo) ? modo : 'equilibrado', especialistas: getSetting(userId, 'ia_especialistas', '0') === '1', desligados };
   }
 
   app.get('/api/ia/preferencias', (req, res) => responder(res, C.PreferenciasIA, preferenciasIA(req.user.id)));

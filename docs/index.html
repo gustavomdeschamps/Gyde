@@ -112,6 +112,12 @@
       </article>
 
       <article class="funcao">
+        <div class="texto"><h3>Uma inteligência, vários modelos</h3>
+          <p>O Gyde lê o pedido, escolhe o modelo que foi melhor naquele tipo de tarefa nos testes e troca sozinho se ele falhar. Mesmas instruções, mesma memória, mesma voz. No modo Capricho, um segundo modelo confere a resposta.</p></div>
+        <figure><img src="imagens/inteligencia.jpg" alt="Configurações do Gyde mostrando os acertos medidos de cada modelo" loading="lazy"></figure>
+      </article>
+
+      <article class="funcao">
         <div class="texto"><h3>Mostre o print, ele aponta o erro</h3>
           <p>Mande um print da tela e o Gyde destaca onde está o problema, com uma explicação curta. A posição é uma estimativa do modelo de IA, e a tela diz isso.</p></div>
         <figure><img src="imagens/mostrar-erro.jpg" alt="O Gyde destacando o aviso de erro num print" loading="lazy"></figure>
@@ -153,7 +159,7 @@
     (async () => {
       const cartoes = document.getElementById('numeros-cartoes');
       try {
-        const [modelos, forja] = await Promise.all(['avaliacao/modelos-2026-10-29.json', 'avaliacao/forja-depois-2026-10-29.json'].map((u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u); return r.json(); })));
+        const [modelos, forja] = await Promise.all(['avaliacao/modelos-2026-11-04.json', 'avaliacao/forja-multimodelo-2026-11-04.json'].map((u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u); return r.json(); })));
         const porModelo = {};
         for (const r of modelos.resultados) {
           if (r.erro) continue; // limite do provedor naquele minuto: não conta como erro do modelo
@@ -161,7 +167,7 @@
           m.n++; if (r.ok) m.ok++; m.ms.push(r.ms);
         }
         const mediana = (xs) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
-        const linhas = Object.entries(porModelo).filter(([, m]) => m.n >= 4).sort((a, b) => b[1].ok / b[1].n - a[1].ok / a[1].n || mediana(a[1].ms) - mediana(b[1].ms));
+        const linhas = Object.entries(porModelo).filter(([, m]) => m.n >= 15).sort((a, b) => b[1].ok / b[1].n - a[1].ok / a[1].n || mediana(a[1].ms) - mediana(b[1].ms));
         const forjaOk = forja.resultados.filter((r) => r.ok).length;
         const melhor = linhas[0];
         cartoes.innerHTML = '';

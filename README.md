@@ -133,9 +133,14 @@ flowchart LR
     G --> D[("Seus dados<br/>só no seu PC")]
 ```
 
-O Gyde tenta uma fila de modelos bons para programar. Se um estiver ocupado ou fora do ar, o próximo assume.
-Cada resposta mostra, embaixo, o **modelo que respondeu de verdade** (os nomes do FreeLLMAPI são apelidos: o
-"claude-sonnet-4-5" de lá, por exemplo, foi atendido pelo Qwen nos testes) e os tokens usados.
+O Gyde lê cada pedido e escolhe o modelo que foi melhor naquele tipo de tarefa nas [avaliações](docs/avaliacao/README.md),
+trocando sozinho se ele falhar ou estiver no limite. Conversa, explicação, SQL e análise podem ir para modelos diferentes, mas quem
+responde é sempre o Gyde: mesmas instruções, mesma memória, mesma voz. Em **Configurações > IA e modelos** dá para escolher
+entre Rápido, Equilibrado (o padrão) e Capricho, em que um segundo modelo confere código e raciocínio. Cada resposta mostra, embaixo,
+o **modelo que respondeu de verdade** e os tokens usados. Como isso funciona e como adicionar modelos:
+[docs/inteligencia.md](docs/inteligencia.md).
+
+<p align="center"><img src="docs/imagens/inteligencia.jpg" alt="Configurações: como o Gyde funciona, com os acertos medidos de cada modelo" width="88%"></p>
 
 **Por dentro:** tudo em TypeScript estrito. O servidor é Node.js com Express e o SQLite que já vem no Node, com o
 esquema do banco em migrações numeradas (cópia do banco antes de cada atualização). A interface é Svelte 5 com Vite.
@@ -144,11 +149,12 @@ não espera sem avisar. O app de desktop é Electron: sobe o servidor num proces
 
 ## Avaliação da IA
 
-A ordem dos modelos e as proteções da Forja foram escolhidas com chamadas reais, corrigidas automaticamente (código
-rodando contra testes, arquivos conferidos no disco). Resumo e dados brutos em [docs/avaliacao](docs/avaliacao/README.md):
-no chat, `qwen3.8-27b` e `gpt-oss-120b` acertaram as 5 tarefas em menos de 1 s; na Forja, a versão atual completou
-11 de 12 cenários (corrigir bug sem mexer no teste, preservar mudança não salva no git, mudar API e tela juntas,
-responder sem mexer em nada). Amostras pequenas: servem para comparar, não como garantia.
+A escolha dos modelos e os padrões do Gyde vêm de chamadas reais, corrigidas automaticamente (código rodando contra testes, SQL
+num banco de verdade, arquivos conferidos no disco), em 17 categorias. Resumo e dados brutos em
+[docs/avaliacao](docs/avaliacao/README.md). Nas mesmas 19 tarefas, um modelo com o núcleo novo acertou 71 de 76, contra 64 de 76 do
+fluxo antigo. Revisão e comparação entre modelos acertaram 70 e 71, gastando cerca de 3 vezes mais cota: como não mostraram ganho
+nessas tarefas, um modelo só é o padrão. Na Forja, 12 de 12 cenários. Amostras pequenas: servem para comparar, não como garantia, e
+não há comparação com outros produtos.
 
 ## Uso, cotas e limites
 
@@ -157,7 +163,7 @@ Em **Configurações > Uso e limites** (ou clicando no indicador do rodapé do c
 | O quê | O que é | De onde vem |
 |---|---|---|
 | **Uso do Gyde** | Pedidos seus (mensagem do chat, tarefa da Forja), hoje e nos últimos 7 dias, separados em concluídos, com falha, cancelados e barrados por limite | Registro do próprio Gyde, no banco local (`uso.ts`) |
-| **Chamadas** | Quantas vezes o Gyde falou com o provedor. Trocas de modelo e rodadas da Forja geram várias chamadas num pedido, e o pedido conta uma vez só | Registro do Gyde |
+| **Chamadas** | Quantas vezes o Gyde falou com o provedor. Trocas de modelo, revisões e rodadas da Forja geram várias chamadas num pedido, e o pedido conta uma vez só | Registro do Gyde |
 | **Tokens** | Entrada e saída do modelo | Campo `usage` da resposta do provedor. Se ele não manda, aparece "não informado", nunca estimado |
 | **Cota do provedor** | Pedidos por minuto livres e a hora em que renova; consumo do mês na conta do FreeLLMAPI | Cabeçalhos `x-ratelimit-*` e a rota `/v1/usage` do FreeLLMAPI |
 | **Créditos e saldo** | Não existe no FreeLLMAPI | Aparece "Saldo não disponibilizado pelo provedor" |
@@ -323,7 +329,7 @@ rodando comandos é só do Windows.
 | `pacotes/desktop/` | App de desktop (Electron). O instalador é gerado com `npm run dist:win` |
 | `pacotes/extensao-vscode/`, `pacotes/extensao-chrome/` | Extensões para o VS Code e o Chrome |
 | `testes-e2e/` | Testes de navegador (`npm run e2e`) e o teste do instalador (`npm run teste:instalacao`) |
-| `docs/` | A página do Gyde (`index.html`), as imagens desta página, o tutorial em vídeo (`docs/tutorial/`) e as avaliações da IA (`docs/avaliacao/`) |
+| `docs/` | A página do Gyde (`index.html`), as imagens desta página, o tutorial em vídeo (`docs/tutorial/`) e as avaliações da IA (`docs/avaliacao/`) e como a inteligência funciona (`docs/inteligencia.md`) |
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).
 

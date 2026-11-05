@@ -9,7 +9,8 @@ versão do `manifest.json`.
 - Inteligência multimodelo: o Gyde entende o tipo de pedido e escolhe o modelo que foi melhor naquela tarefa nas
   avaliações, trocando sozinho se ele falhar ou estiver no limite. Quando vale a pena, um segundo modelo confere a
   resposta (a tela só diz isso se foi outro modelo de verdade). Em **Configurações > IA e modelos** dá para escolher entre
-  Rápido, Equilibrado e Capricho; o padrão continua automático.
+  Rápido, Equilibrado (o padrão) e Capricho. Como a revisão gasta cerca de 3 vezes mais cota e não mostrou ganho nos testes, ela
+  não é o padrão. Provedor novo entra por um arquivo, sem mexer no código ([docs/inteligencia.md](docs/inteligencia.md)).
 - Forja: outro modelo lê as mudanças antes de terminar. Quem mexe nos arquivos é sempre um modelo só.
 - Passo a passo com a memória desenhada: pilha de chamadas, listas, dicionários e objetos em caixas, com setas
   mostrando quando duas variáveis apontam para o mesmo objeto (a tabela continua disponível).
@@ -28,6 +29,7 @@ versão do `manifest.json`.
 ### Correções
 - Uma chave do FreeLLMAPI errada fazia a tela voltar para o login (a recusa da chave chegava como "sessão expirada").
   Agora aparece um aviso dizendo para copiar a chave de novo.
+- Título de conversa não fica mais como "Nova conversa" quando um modelo está no limite.
 - Conversas longas e imagens antigas não travam mais os modelos grátis: cada um recebe só a parte da conversa que importa.
 
 ## 2.0.1

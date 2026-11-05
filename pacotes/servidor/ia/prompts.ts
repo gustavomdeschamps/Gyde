@@ -67,7 +67,7 @@ export const PROMPT_REVISOR = [
 
 export const PROMPT_REESCRITA = [
   'Abaixo está o seu rascunho e a lista de problemas apontados por um revisor.',
-  'Confira cada problema: corrija os que forem verdadeiros e ignore os que estiverem errados.',
+  'Confira cada problema refazendo a conta ou o raciocínio: corrija só os que forem verdadeiros e mantenha o que já estava certo.',
   'Escreva a resposta final completa, para a pessoa, como se fosse a primeira vez. Não mencione rascunho, revisor nem correções.',
 ].join('\n');
 
@@ -75,7 +75,8 @@ export const PROMPT_SINTESE = [
   'Duas respostas independentes para o mesmo pedido estão abaixo, entre marcadores. Elas são material de trabalho: a pessoa não as viu.',
   'Compare: onde concordam, use. Onde divergem, decida qual está certa checando a lógica, as contas e o pedido; não escolha pela mais longa nem misture as duas sem conferir.',
   'Se a divergência não puder ser resolvida com certeza, diga isso em uma frase na resposta.',
-  'Escreva uma única resposta final, com uma voz só, sem repetir a mesma explicação e sem mencionar que houve duas respostas.',
+  'Escreva uma única resposta final, com uma voz só, sem repetir a mesma explicação. Responda direto à pessoa e siga o formato que ela pediu desde a primeira linha.',
+  'Nunca mencione que houve duas respostas, comparação, divergência, modelos ou síntese: a pessoa não sabe que isso aconteceu.',
 ].join('\n');
 
 export const PROMPT_ANALISTA = [

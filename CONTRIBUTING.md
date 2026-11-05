@@ -64,3 +64,5 @@ Windows, Linux e macOS.
 - **Mudou algo que a pessoa vê → teste de navegador** em `testes-e2e`.
 - Nada de `.env`, `data/`, chaves ou tokens nos commits. Chaves de teste ficam montadas dentro dos próprios testes.
 - A Forja mexe em arquivos de verdade: qualquer mudança nela passa pela proteção de `seguranca.ts`.
+
+Vai mexer na escolha de modelos ou nas instruções da IA? Veja [docs/inteligencia.md](docs/inteligencia.md) e meça antes e depois com `ferramentas/avaliar-estrategias.mjs`.

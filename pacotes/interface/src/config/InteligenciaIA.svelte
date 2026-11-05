@@ -14,11 +14,11 @@
   const MODOS: { id: TPreferenciasIA['modo']; nome: string; texto: string }[] = [
     { id: 'rapido', nome: 'Rápido', texto: 'Um modelo por resposta. A Forja não pede revisão.' },
     { id: 'equilibrado', nome: 'Equilibrado', texto: 'Um modelo por resposta; um segundo confere o que você disser que é importante e o que a Forja mudar.' },
-    { id: 'capricho', nome: 'Capricho', texto: 'Um segundo modelo confere código, contas e dúvidas. Mais lento e gasta mais da sua cota.' },
+    { id: 'capricho', nome: 'Capricho', texto: 'Um segundo modelo confere código, contas e dúvidas. Mais lento e gasta cerca de 3 vezes mais cota; nos testes, acertou tanto quanto um modelo só.' },
   ];
   const NOME_ESTRATEGIA: Record<string, string> = { direta: 'Um modelo', revisada: 'Com revisão', comparada: 'Dois modelos comparados', especialistas: 'Análise, escrita e revisão' };
   const descricao = $derived(MODOS.find((m) => m.id === prefs?.modo)?.texto ?? '');
-  const ordenados = $derived([...(dados?.modelos ?? [])].sort((a, b) => b.acertos / (b.respondidas || 1) - a.acertos / (a.respondidas || 1) || a.id.localeCompare(b.id)));
+  const ordenados = $derived([...(dados?.modelos ?? [])].sort((a, b) => (b.acertos + 2) / (b.respondidas + 4) - (a.acertos + 2) / (a.respondidas + 4) || a.id.localeCompare(b.id)));
 
   pedir('/api/ia/preferencias', C.PreferenciasIA).then((p) => { prefs = p; }).catch((e) => { erro = mensagemDe(e); });
 
@@ -43,7 +43,7 @@
     </select>
   </div>
   <div class="config-linha">
-    <div><b>Usar especialistas em projetos grandes</b><small>No modo Capricho, quando você pede um sistema inteiro: um modelo analisa, outro escreve e outro confere.</small></div>
+    <div><b>Usar especialistas em projetos grandes</b><small>No modo Capricho, quando você pede um sistema inteiro: um modelo analisa, outro escreve e outro confere. Nos testes do Gyde, não acertou mais que um modelo só e levou bem mais tempo; por isso vem desligado.</small></div>
     <label class="switch"><input type="checkbox" aria-label="Usar especialistas" checked={prefs.especialistas} onchange={(e) => salvar({ especialistas: (e.currentTarget as HTMLInputElement).checked })}><span></span></label>
   </div>
   <details class="ia-detalhes" ontoggle={abrir}>
@@ -63,7 +63,7 @@
               <tr>
                 {#if pessoal}<td><input type="checkbox" aria-label="Usar {m.id}" checked={!prefs.desligados.includes(m.id)} onchange={(e) => alternar(m.id, (e.currentTarget as HTMLInputElement).checked)}></td>{/if}
                 <td><code>{m.id}</code></td>
-                <td>{pct(m.acertos, m.respondidas)}{#if m.limites}<small> ({m.limites} no limite)</small>{/if}</td>
+                <td>{pct(m.acertos, m.respondidas)}{#if m.limites}{" "}<small>({m.limites} no limite)</small>{/if}</td>
                 <td>{mil(m.contexto)}</td>
                 <td>{m.visao === null ? 'não medido' : m.visao ? 'sim' : 'não'}</td>
                 <td>{m.descansando ? 'descansando' : m.observado ? `${Math.round(m.observado.taxaOk * 100)}% ok` : 'sem uso ainda'}</td>

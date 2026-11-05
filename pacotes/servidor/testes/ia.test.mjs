@@ -122,8 +122,8 @@ test('decisão: pedido simples nunca usa vários modelos; colaboração só quan
   assert.equal(d(CLASSE('codigo', { importante: true }), { modo: 'rapido' }), 'direta');
   assert.equal(d(CLASSE('codigo'), { modo: 'capricho' }), 'revisada');
   assert.equal(d(CLASSE('raciocinio'), { modo: 'capricho' }), 'comparada');
-  assert.equal(d(CLASSE('backend', { complexidade: 3 }), { modo: 'capricho' }), 'especialistas');
-  assert.equal(d(CLASSE('backend', { complexidade: 3 }), { modo: 'capricho', especialistas: false }), 'revisada');
+  assert.equal(d(CLASSE('backend', { complexidade: 3 }), { modo: 'capricho', especialistas: true }), 'especialistas');
+  assert.equal(d(CLASSE('backend', { complexidade: 3 }), { modo: 'capricho' }), 'revisada', 'especialistas vêm desligados: não mostraram ganho');
   assert.equal(d(CLASSE('codigo', { importante: true }), { offline: true }), 'direta', 'offline tem um modelo só');
   assert.equal(d(CLASSE('codigo', { importante: true }), { fixo: true }), 'direta', 'modelo escolhido pela pessoa é respeitado');
   assert.equal(d(CLASSE('visao', { importante: true }), { modo: 'capricho' }), 'direta');
@@ -235,6 +235,15 @@ test('B (revisão): revisor acha o problema e a resposta final é reescrita pelo
   ctx.srv.close();
 });
 
+test('B (revisão): problema pequeno não reescreve a resposta (reescrever por pouco estragou respostas certas nas avaliações)', async () => {
+  const ctx = await montar((c) => (REVISOR.test(sistema(c)) ? { texto: JSON.stringify({ problemas: [{ gravidade: 'media', erro: 'poderia explicar mais' }] }) } : { texto: 'Rascunho correto que não deve ser reescrito por detalhe.' }));
+  const { r, tela } = await rodar(ctx, CLASSE('codigo', { importante: true }));
+  assert.equal(tela, 'Rascunho correto que não deve ser reescrito por detalhe.');
+  assert.equal(r.mudou, false);
+  assert.equal(ctx.pedidos.length, 2);
+  ctx.srv.close();
+});
+
 test('B (revisão): sem problemas entrega o rascunho, com 2 chamadas e sem reescrever', async () => {
   const ctx = await montar((c) => (REVISOR.test(sistema(c)) ? { texto: '{"problemas": []}' } : { texto: 'Rascunho já correto e bem explicado para a pessoa.' }));
   const { r, tela } = await rodar(ctx, CLASSE('codigo', { importante: true }));
@@ -296,12 +305,21 @@ test('C (especialistas): analista, implementador e verificador; a análise chega
     if (/prepara o trabalho de um desenvolvedor/.test(sistema(c))) return { texto: 'REQUISITO-SECRETO: usar transação' };
     return { texto: 'Implementação final completa e pronta para a pessoa usar.' };
   });
-  const { r, tela } = await rodar(ctx, CLASSE('backend', { complexidade: 3 }), 'capricho');
+  const { r, tela } = await rodar(ctx, CLASSE('backend', { complexidade: 3 }), 'capricho', { especialistas: true });
   assert.equal(r.estrategia, 'especialistas');
   assert.equal(tela, 'Implementação final completa e pronta para a pessoa usar.');
   assert.equal(ctx.pedidos.length, 3);
   assert.ok(JSON.stringify(ctx.pedidos[1].messages).includes('REQUISITO-SECRETO'), 'a análise chegou');
   assert.ok(!tela.includes('REQUISITO-SECRETO'));
+  ctx.srv.close();
+});
+
+test('colaboração que falha antes de mostrar algo cai para um modelo só, sem selo', async () => {
+  const ctx = await montar((c) => (c.stream ? { texto: 'Resposta de um modelo só, que chegou mesmo com o rascunho falhando.' } : { status: 500 }));
+  const { r, tela, status } = await rodar(ctx, CLASSE('codigo', { importante: true }));
+  assert.equal(tela, 'Resposta de um modelo só, que chegou mesmo com o rascunho falhando.');
+  assert.equal(r.revisadaPorOutro, false);
+  assert.ok(status.some((s) => /um modelo só/.test(s)));
   ctx.srv.close();
 });
 
