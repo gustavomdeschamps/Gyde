@@ -8,6 +8,10 @@ import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSy
 import path from 'node:path';
 import os from 'node:os';
 import { CADEIAS, completar, extrairJson } from './motor.ts';
+import type { Catalogo } from './ia/catalogo.ts';
+import type { Orquestrador } from './ia/orquestrador.ts';
+import type { PreferenciasIA } from './ia/rotas.ts';
+import { tamanhoDe } from './ia/contexto.ts';
 import { ARQUIVO_SECRETO, caminhoSeguro, classificarComando, redigir, ambienteLimpo } from './seguranca.ts';
 import type { Express, Request, Response, NextFunction } from 'express';
 import type { Db, Router, AsyncRoute, MensagemIA, ParteConteudo, ErroGyde } from './tipos.ts';
@@ -216,7 +220,7 @@ RESPONDA SEMPRE com UM objeto JSON e nada mais:
 - para agir: {"pensamento": "o que vou fazer e por quê (1 frase)", "acoes": [{"ferramenta": "ler", "args": {...}}, {"ferramenta": "ler", "args": {...}}]}
 - para terminar ou só responder: {"pensamento": "...", "resposta": "texto em markdown"}`;
 
-export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, dataDir, uso }: { router: Router; asyncRoute: AsyncRoute; dataDir: string; uso?: Uso }) {
+export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, dataDir, uso, catalogo, orquestrador, preferenciasIA }: { router: Router; asyncRoute: AsyncRoute; dataDir: string; uso?: Uso; catalogo: Catalogo; orquestrador: Orquestrador; preferenciasIA: (userId: string) => PreferenciasIA }) {
   const pessoal = process.env.GYDE_MODE !== 'publico';
   const PASTA_ANEXOS = path.join(dataDir, 'forja-anexos');
   const q = {
@@ -638,7 +642,14 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         + (camadas.frontend.length || camadas.backend.length ? `\nCAMADAS: front-end: ${camadas.frontend.join(', ') || 'nenhum arquivo identificado'}; back-end: ${camadas.backend.join(', ') || 'nenhum arquivo identificado'}.` : '')
         + (relevantes.length ? `\nARQUIVOS QUE PARECEM TER A VER COM O PEDIDO (pelas palavras do pedido; confira lendo): ${relevantes.map((r) => `${r.caminho} (${r.motivo})`).join('; ')}.` : '')
         + (naoSalvas.length ? `\nMUDANÇAS DO USUÁRIO AINDA NÃO SALVAS NO GIT (preserve): ${naoSalvas.join('; ')}.` : '');
-      const cadeia = (imagens.length ? CADEIAS.visao : CADEIAS.agente) ?? ['auto'];
+      // a ordem vem das medições (com projeto grande) e do que está disponível agora; é refeita a cada rodada porque o pedido cresce
+      const prefs = preferenciasIA(req.user.id);
+      await catalogo.atualizar();
+      const cadeiaDaRodada = () => catalogo.cadeia(imagens.length ? ['visao', 'agente'] : ['agente-grande', 'agente'], {
+        modo: prefs.modo, desligados: prefs.desligados, tamanho: tamanhoDe(msgs), max: 6, precisaVisao: imagens.length > 0, reserva: (imagens.length ? CADEIAS.visao : CADEIAS.agente) ?? [],
+      });
+      const diffs: string[] = []; // o que mudou nesta tarefa, para o revisor ler
+      let revisou = false;
       const ferramentaDe = (nome: string): Ferramenta | undefined => (ferramentas as Record<string, Ferramenta>)[nome];
       const normalizar = (o: Decisao | null): Decisao | null => {
         if (!o) return null;
@@ -669,7 +680,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted; passo++) {
         registrar('pensando', { passo });
         const { texto, modelo } = await completar(router, {
-          cadeia, messages: msgs, max_tokens: 6000, temperature: 0.2, signal: controle.signal, registro,
+          cadeia: cadeiaDaRodada(), messages: msgs, max_tokens: 6000, temperature: 0.2, signal: controle.signal, registro, tempoLimite: 180_000,
           valida: (t) => Boolean(normalizar(extrairJson(t)) || textoFinal(t)),
         });
         const o = normalizar(extrairJson(texto)) ?? { resposta: texto.trim() };
@@ -685,6 +696,19 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           cobrouTestes = true;
           msgs.push({ role: 'user', content: `Antes de responder: você alterou arquivos e não rodou nada depois disso. Rode os testes (${projeto.testes}) ou um comando que prove que funciona. Se não for possível, responda explicando por quê.` });
           continue;
+        }
+        // mudou arquivos e os testes já foram cobrados: outro modelo lê as mudanças uma vez. Só lê; quem corrige é o modelo que está
+        // trabalhando, então nunca há dois modelos mexendo nos arquivos. Se a revisão falhar, a tarefa termina normalmente.
+        if (o.resposta && prefs.modo !== 'rapido' && !revisou && diffs.length) {
+          revisou = true;
+          registrar('pensando', { passo });
+          const rev = await orquestrador.revisarTrabalho({ tarefa, mudancas: diffs.join('\n\n').slice(0, 16_000), modeloAutor: modelo, modo: prefs.modo, desligados: prefs.desligados, signal: controle.signal, registro }).catch(() => null);
+          if (rev) registrar('revisao', { problemas: rev.problemas.length, modelo: rev.modelo });
+          if (rev?.problemas.length) {
+            msgs.push({ role: 'user', content: `Um revisor independente leu suas mudanças e apontou:\n${rev.problemas.map((p, i) => `${i + 1}. ${p.onde ? `"${p.onde}": ` : ''}${p.erro}${p.correcao ? ` Sugestão: ${p.correcao}` : ''}`).join('\n')}\n\nConfira cada ponto lendo o código. Corrija os verdadeiros e rode os testes de novo; ignore os falsos. Depois responda à pessoa, sem citar o revisor.` });
+            cobrouTestes = false;
+            continue;
+          }
         }
         if (o.resposta) { registrar('resposta', { texto: redigir(String(o.resposta)), pensamento: o.pensamento || '', modelo, ...totais() }); terminou = true; break; }
         passos++;
@@ -704,6 +728,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           if (r.comando) rodadaDoUltimoComando = passo;
           for (const f of r.restaurados || []) mudancas.modificados.add(f);
           const rel = args.caminho ? String(args.caminho).replaceAll('\\', '/').replace(/^\.\//, '') : '';
+          if (r.ok && r.diff) diffs.push(`--- ${rel} ---\n${r.diff.antes !== undefined ? `ANTES:\n${String(r.diff.antes)}\nDEPOIS:\n${String(r.diff.depois)}` : String(r.diff.novo ?? '')}`);
           if (r.ok && r.mudanca === 'criado') mudancas.criados.add(rel);
           if (r.ok && r.mudanca === 'modificado') mudancas.modificados.add(rel);
           if (r.ok && r.mudanca === 'apagado') { mudancas.apagados.add(rel); mudancas.criados.delete(rel); mudancas.modificados.delete(rel); }

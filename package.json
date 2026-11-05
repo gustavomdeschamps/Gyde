@@ -60,6 +60,7 @@
       "pacotes/desktop/carregando.html",
       "pacotes/servidor/*.ts",
       "pacotes/servidor/*.ps1",
+      "pacotes/servidor/ia/**",
       "pacotes/servidor/skills-catalogo/**",
       "pacotes/compartilhado/*.ts",
       "pacotes/interface/dist/**",

@@ -32,13 +32,16 @@ export const cadeiaDe = (id: string): string[] => CADEIAS[id] || [id, 'auto'];
 // `valida(texto)` pode recusar a resposta (ex.: JSON inválido) para tentar o próximo modelo.
 export interface PedidoCompletar {
   cadeia: string[]; messages: MensagemIA[]; max_tokens?: number; temperature?: number;
-  signal?: AbortSignal; valida?: (texto: string) => boolean; registro?: Registro | undefined;
+  signal?: AbortSignal; valida?: (texto: string) => boolean; registro?: Registro | undefined; tempoLimite?: number; aoTentar?: () => void;
 }
-export async function completar(router: Router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida, registro }: PedidoCompletar): Promise<{ texto: string; modelo: string }> {
+export async function completar(router: Router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida, registro, tempoLimite = 90_000, aoTentar }: PedidoCompletar): Promise<{ texto: string; modelo: string }> {
   let ultimoErro = new Error('Nenhum modelo respondeu.');
   for (const model of cadeia) {
     try {
-      const r = await router('/v1/chat/completions', { method: 'POST', signal: signal ?? null, registro, body: JSON.stringify({ model, messages, max_tokens, temperature }) });
+      aoTentar?.();
+      // cada tentativa tem prazo próprio: um modelo que trava passa a vez em vez de segurar o pedido para sempre
+      const prazo = AbortSignal.timeout(tempoLimite);
+      const r = await router('/v1/chat/completions', { method: 'POST', signal: signal ? AbortSignal.any([signal, prazo]) : prazo, registro, body: JSON.stringify({ model, messages, max_tokens, temperature }) });
       const j = await r.json() as { usage?: import('./tipos.ts').UsoInformado; choices?: { message?: { content?: string } }[] };
       registro?.tokens(j.usage);
       const texto = j.choices?.[0]?.message?.content || '';
@@ -47,7 +50,7 @@ export async function completar(router: Router, { cadeia, messages, max_tokens =
       return { texto, modelo: r.headers.get('x-routed-via') || model };
     } catch (e) {
       const err = comoErro(e);
-      if (err.name === 'AbortError' || err.final || err.status === 429) throw err; // offline ou limite: outro modelo não resolve
+      if (signal?.aborted || err.name === 'AbortError' || err.final || err.status === 429) throw err; // offline ou limite: outro modelo não resolve
       ultimoErro = err;
     }
   }

@@ -150,4 +150,37 @@ export const MIGRACOES: Migracao[] = [
                );`);
     },
   },
+  {
+    versao: 4,
+    nome: 'inteligência multimodelo: desempenho observado de cada modelo, decisões do orquestrador e resumo das conversas longas',
+    aplicar(db) {
+      db.exec(`CREATE TABLE ia_modelos (
+                 modelo TEXT PRIMARY KEY,
+                 chamadas INTEGER NOT NULL DEFAULT 0,
+                 falhas INTEGER NOT NULL DEFAULT 0,
+                 limites INTEGER NOT NULL DEFAULT 0,
+                 taxa_ok REAL NOT NULL DEFAULT 1,
+                 ms REAL,
+                 atualizado_em INTEGER NOT NULL
+               );
+               CREATE TABLE ia_decisoes (
+                 id TEXT PRIMARY KEY,
+                 user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+                 origem TEXT NOT NULL,
+                 tarefa TEXT NOT NULL,
+                 complexidade INTEGER NOT NULL,
+                 estrategia TEXT NOT NULL,
+                 motivo TEXT NOT NULL,
+                 modelos TEXT NOT NULL,
+                 chamadas INTEGER NOT NULL,
+                 ms INTEGER NOT NULL,
+                 resultado TEXT NOT NULL,
+                 mudou INTEGER NOT NULL,
+                 em INTEGER NOT NULL
+               );
+               CREATE INDEX idx_ia_decisoes ON ia_decisoes(user_id, em);
+               ALTER TABLE conversations ADD COLUMN resumo TEXT NOT NULL DEFAULT '';
+               ALTER TABLE conversations ADD COLUMN resumo_ate INTEGER NOT NULL DEFAULT 0;`);
+    },
+  },
 ];

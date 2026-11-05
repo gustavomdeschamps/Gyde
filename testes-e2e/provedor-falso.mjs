@@ -30,6 +30,12 @@ function forja(mensagens) {
     ];
     return roteiro[Math.min(passo, roteiro.length - 1)];
   }
+  // REVISAR-ERRO: cria um arquivo e termina; o revisor aponta um problema, e a Forja responde de novo com a correção
+  if (/REVISAR-ERRO/.test(tarefa)) {
+    return passo === 0
+      ? { pensamento: 'Crio e testo.', acoes: [{ ferramenta: 'escrever', args: { caminho: 'nota-revisao.txt', conteudo: 'primeira versão\n' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] }
+      : { pensamento: 'Pronto.', resposta: '**O que fiz**\nCriei a nota.' };
+  }
   // PREVIA: troca o título do index.html (para a prévia ao vivo recarregar)
   if (/PREVIA/.test(tarefa)) {
     return passo === 0 ? { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'index.html' } }] }
@@ -60,6 +66,7 @@ function forja(mensagens) {
 
 export async function provedorFalso() {
   const pedidos = [];
+  const revisoes = new Set();
   const porta = await portaLivre();
   const servidor = http.createServer(async (req, res) => {
     const json = (status, corpo) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(corpo)); };
@@ -79,6 +86,13 @@ export async function provedorFalso() {
       const temImagem = mensagens.some((m) => Array.isArray(m.content) && m.content.some((p) => p.type === 'image_url' && /^data:image\//.test(p.image_url?.url ?? '')));
       const resposta = temImagem ? { achou: true, x: 20, y: 30, largura: 40, altura: 10, explicacao: 'A mensagem diz que a variável total não existe: ela foi usada antes de receber um valor.' } : { achou: false, explicacao: 'Não recebi imagem.' };
       return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify(resposta) } }] });
+    }
+    // revisor interno: REVISAR-ERRO aponta um problema da primeira vez; o resto está certo
+    if (/revisor técnico independente/.test(textoDe(mensagens[0]?.content))) {
+      const pedido = textoDe(mensagens.at(-1)?.content);
+      const achou = /REVISAR-ERRO/.test(pedido) && !revisoes.has('feita');
+      if (achou) revisoes.add('feita');
+      return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify({ problemas: achou ? [{ gravidade: 'alta', onde: 'soma', erro: 'falta tratar lista vazia', correcao: 'devolva 0' }] : [] }) } }] });
     }
     if (/Você é a Forja/.test(textoDe(mensagens[0]?.content))) {
       return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: ((r) => (typeof r === 'string' ? r : JSON.stringify(r)))(forja(mensagens)) } }] });

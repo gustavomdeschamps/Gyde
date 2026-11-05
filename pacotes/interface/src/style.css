@@ -542,3 +542,13 @@ label.btn.desligado { opacity: .6; pointer-events: none; }
 .config-imagens-campos input { flex: 1 1 160px; }
 /* celular: campos com 16px ou mais, senão o iPhone dá zoom ao tocar neles */
 @media (max-width: 720px) { .composer textarea, .gate-form input, .config input, .config textarea, .config select { font-size: 16px; } }
+
+/* Configurações > IA: como o Gyde funciona */
+.ia-detalhes { margin: 12px 0; }
+.ia-detalhes summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.ia-tabela-rolagem { overflow-x: auto; }
+.ia-tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ia-tabela th, .ia-tabela td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.ia-tabela th { color: var(--text-faint); font-weight: 500; }
+.ia-tabela code { font: 12px var(--mono); }
+.forja-revisao { font-size: 13px; color: var(--text-faint); margin: 6px 0; }

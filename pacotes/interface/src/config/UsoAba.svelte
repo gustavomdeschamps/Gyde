@@ -19,7 +19,7 @@
     <div class="uso-prov"><b>{NOME_PROVEDOR[prov] ?? prov}</b>
       <dl class="config-dl">
         <div><dt>Pedidos</dt><dd>{numero(p.pedidos)} <small>({p.concluidos} concluídos{p.falhas ? `, ${p.falhas} com falha` : ''}{p.cancelados ? `, ${p.cancelados} cancelados` : ''}{p.limite ? `, ${p.limite} barrados por limite` : ''})</small></dd></div>
-        <div><dt>Chamadas ao provedor</dt><dd>{numero(p.chamadas)}{#if p.chamadas > p.pedidos} <small>(inclui {p.chamadas - p.pedidos} trocas de modelo e rodadas da Forja)</small>{/if}</dd></div>
+        <div><dt>Chamadas ao provedor</dt><dd>{numero(p.chamadas)}{#if p.chamadas > p.pedidos} <small>(inclui {p.chamadas - p.pedidos} trocas de modelo, revisões e rodadas da Forja)</small>{/if}</dd></div>
         <div><dt>Tokens</dt><dd>{#if p.tokensEntrada || p.tokensSaida}{numero(p.tokensEntrada)} de entrada · {numero(p.tokensSaida)} de saída{#if p.semTokens} <small>({p.semTokens} pedido(s) sem tokens informados)</small>{/if}{:else}não informados pelo provedor{/if}</dd></div>
       </dl></div>
   {/each}

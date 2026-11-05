@@ -113,6 +113,38 @@ try {
   await avaliar(`document.querySelector('dialog.apontar .icon-btn[aria-label="Fechar"]').click()`);
   ok('fechar tira o diálogo', await esperar(`document.querySelector('dialog.apontar') === null`, 3000));
   ok('o servidor recusa o que não é imagem', (await api.pedir('POST', '/api/apontar', { imagem: 'data:text/html;base64,PGgxPg==' })).status === 400);
+  // inteligência multimodelo: o padrão chama um modelo só; capricho confere com outro e a tela diz isso
+  {
+    const antes = ia.pedidos.length;
+    const conv = await (await api.pedir('POST', '/api/conversations', {})).json();
+    const sse = await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'corrija este bug no meu código python', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
+    ok('modo padrão: pergunta de código usa uma chamada de resposta', ia.pedidos.slice(antes).filter((p) => p.stream).length === 1 && !ia.pedidos.slice(antes).some((p) => /revisor técnico/.test(JSON.stringify(p.mensagens[0]))));
+    ok('modo padrão: a resposta conta a estratégia usada', /"estrategia":"direta"/.test(sse));
+    const pref = await (await api.pedir('PUT', '/api/ia/preferencias', { modo: 'capricho' })).json();
+    ok('preferência de modo salva', pref.modo === 'capricho' && pref.especialistas === true);
+    ok('modo inexistente é recusado', (await api.pedir('PUT', '/api/ia/preferencias', { modo: 'turbo' })).status === 400);
+    const meio = ia.pedidos.length;
+    const sse2 = await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'corrija este outro bug no meu código python', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
+    const novos = ia.pedidos.slice(meio);
+    ok('capricho: um segundo modelo revisa', novos.some((p) => /revisor técnico/.test(JSON.stringify(p.mensagens[0]))) && /"estrategia":"revisada"/.test(sse2) && /"revisada":true/.test(sse2));
+    ok('capricho: a pessoa acompanha o que está acontecendo', /Conferindo com outro modelo/.test(sse2));
+    await nav.ir(`${servidor.base}/?r=10#/c/${conv.id}`, 2000);
+    const dados = await (await api.pedir('GET', '/api/ia/modelos')).json();
+    ok('a lista de modelos vem das medições, sem nota inventada', Array.isArray(dados.modelos) && dados.modelos.every((m) => typeof m.acertos === 'number' && typeof m.respondidas === 'number'));
+    ok('as decisões aparecem por estratégia', dados.estrategias.some((e) => e.estrategia === 'revisada'));
+    await avaliar(`document.querySelector('#openSettings').click()`);
+    await esperar(`document.querySelector('dialog.config[open]') !== null`, 3000);
+    await avaliar(`[...document.querySelectorAll('[role="tab"]')].find((b) => /IA e modelos/.test(b.textContent)).click()`);
+    ok('Configurações mostram "Como responder", já em Capricho', await esperar(`document.querySelector('select[aria-label="Como responder"]')?.value === 'capricho'`, 3000));
+    await avaliar(`(() => { const d = document.querySelector('.ia-detalhes'); d.open = true; d.dispatchEvent(new Event('toggle')); return 1; })()`);
+    ok('"Como o Gyde funciona" abre e avisa que grátis não é ilimitado', await esperar(`/não quer dizer ilimitado/.test(document.querySelector('.ia-detalhes').textContent)`, 3000));
+    await avaliar(`(() => { const s = document.querySelector('select[aria-label="Como responder"]'); s.value = 'rapido'; s.dispatchEvent(new Event('change', { bubbles: true })); return 1; })()`);
+    ok('trocar o modo pela tela salva no servidor', await esperar(`fetch('/api/ia/preferencias', { headers: { 'x-gyde': '1' } }).then((r) => r.json()).then((p) => p.modo === 'rapido')`, 3000));
+    await avaliar(`document.querySelector('dialog.config').close()`);
+    const meio2 = ia.pedidos.length;
+    await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'esse outro bug é importante, corrija meu código python que vai para produção', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
+    ok('rápido: nem pedido importante chama um segundo modelo', !ia.pedidos.slice(meio2).some((p) => /revisor técnico/.test(JSON.stringify(p.mensagens[0]))));
+  }
   ok('sem erro de JavaScript', nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
 } finally { await nav.fechar(); await servidor.parar(); await ia.fechar(); }

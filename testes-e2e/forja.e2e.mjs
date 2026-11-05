@@ -83,6 +83,17 @@ try {
   await avaliar(`document.querySelector('.forja-previa button[aria-label="Fechar a prévia"]').click()`);
   ok('fechar a prévia volta a conversa para a tela inteira', await esperar(`document.querySelector('.forja-previa') === null`, 3000));
 
+  await pedir('REVISAR-ERRO crie a nota');
+  ok('outro modelo lê as mudanças e a tela mostra o que ele apontou', await esperar(`/apontou 1 ponto/.test([...document.querySelectorAll('.forja-revisao')].pop()?.textContent || '')`, 30_000));
+  ok('a Forja termina o turno depois da revisão', await esperar(`document.querySelector('#agenteView .send').getAttribute('aria-label') !== 'Parar'`, 30_000));
+  {
+    const revisao = ia.pedidos.findLast((p) => /revisor técnico independente/.test(JSON.stringify(p.mensagens[0])));
+    const autor = ia.pedidos.filter((p) => /Você é a Forja/.test(JSON.stringify(p.mensagens[0]))).at(-1);
+    ok('o revisor lê as mudanças e não recebe ferramentas', /primeira versão/.test(JSON.stringify(revisao?.mensagens)) && !/Você é a Forja/.test(JSON.stringify(revisao?.mensagens)));
+    ok('quem corrige recebe o que o revisor apontou', /falta tratar lista vazia/.test(JSON.stringify(autor?.mensagens)));
+    ok('o revisor é outro modelo', revisao?.modelo !== autor?.modelo, `${revisao?.modelo} / ${autor?.modelo}`);
+  }
+
   await pedir('Rode um comando LONGA e espere terminar.');
   await esperar(`[...document.querySelectorAll('.ag-passo[data-nome="executar"]')].some((p) => p.classList.contains('rodando'))`, 30_000);
   ok('botão vira "Parar" enquanto trabalha', await avaliar(`document.querySelector('#agenteView .send').getAttribute('aria-label') === 'Parar'`));

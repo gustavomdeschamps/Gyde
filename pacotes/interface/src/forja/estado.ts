@@ -10,7 +10,8 @@ export interface EtapaAcao {
   estado: 'rodando' | 'ok' | 'falhou' | 'interrompido'; resumo?: string; saida?: string; diff?: Diff;
 }
 export interface EtapaConfirmacao { tipo: 'confirmacao'; id: string; acao: string; motivo: string; resposta: boolean | null; aoVivo: boolean }
-export type Etapa = EtapaAcao | EtapaConfirmacao;
+export interface EtapaRevisao { tipo: 'revisao'; problemas: number; modelo: string }
+export type Etapa = EtapaAcao | EtapaConfirmacao | EtapaRevisao;
 
 export interface FimTurno {
   estado: 'ok' | 'parado' | 'erro' | 'interrompido'; texto: string; duracaoMs: number;
@@ -78,6 +79,7 @@ export function aplicar(itens: Item[], ev: Evento, aoVivo = false, agora = Date.
       if (c) { c.resposta = Boolean(ev.aprovado); c.aoVivo = false; }
       break;
     }
+    case 'revisao': turno.etapas.push({ tipo: 'revisao', problemas: Number(ev.problemas ?? 0), modelo: String(ev.modelo ?? '') }); break;
     case 'resposta': fechar(turno, ev, 'ok', ev.em ?? agora); break;
     case 'erro': fechar(turno, ev, ev.texto === 'Parado por você.' ? 'parado' : 'erro', ev.em ?? agora); break;
   }

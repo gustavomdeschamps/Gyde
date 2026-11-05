@@ -8,6 +8,7 @@
   import { temaSalvo, definirTema, type Tema } from '../tema.ts';
   import { uso, atualizarUso, nomeModelo, NOME_PROVEDOR } from './uso.svelte.ts';
   import UsoAba from './UsoAba.svelte';
+  import InteligenciaIA from './InteligenciaIA.svelte';
   import { desktop } from '../desktop.ts';
   import { montarRelatorio } from '../diagnostico.ts';
 
@@ -234,11 +235,12 @@
           {:else}
             <p class="msg-error">{uso.erro ? 'Não consegui falar com o servidor do Gyde.' : 'Carregando…'}</p>
           {/if}
+          <InteligenciaIA {toast} {pessoal} />
           <label>O que o Gyde deve saber sobre você?
             <textarea rows="3" maxlength="4000" bind:value={pref.about_user} onchange={() => salvar({ about_user: pref.about_user })} placeholder="Ex.: Estou no 1º ano do técnico em informática, sei um pouco de Python e quero aprender Java."></textarea></label>
           <label>Como você quer as respostas?
             <textarea rows="3" maxlength="4000" bind:value={pref.response_style} onchange={() => salvar({ response_style: pref.response_style })} placeholder="Ex.: Respostas curtas e diretas, com exemplos de código comentados."></textarea></label>
-          <p class="config-nota">Os textos são salvos quando você sai do campo. O modelo de cada conversa é escolhido no topo do chat.</p>
+          <p class="config-nota">Os textos são salvos quando você sai do campo. No automático, o Gyde escolhe o modelo; se quiser um específico, ele fica no topo do chat.</p>
           <div class="profile-box memory-box" class:off={memoria && !memoria.ativa}>
             <div class="memory-head">
               <p><b>Memória</b><br>O Gyde lembra fatos sobre você entre conversas (projetos, objetivos, dificuldades). Diga "lembre que…" para guardar algo.</p>

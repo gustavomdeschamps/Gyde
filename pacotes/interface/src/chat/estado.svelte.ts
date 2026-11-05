@@ -233,7 +233,9 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
           const consumo = ev.consumo as Consumo | undefined;
           if (consumo) { // modelo que respondeu de verdade e tokens, como o provedor informou
             registrarUltima(consumo);
-            const partes = [nomeModelo(consumo.modelo), consumo.tokens?.total != null ? `${numero(consumo.tokens.total)} tokens` : '', consumo.provedor === 'offline' ? 'modelo local, sem internet' : ''].filter(Boolean);
+            const orq = ev.orquestracao as { estrategia: string; revisada: boolean } | null | undefined;
+            const selo = !orq?.revisada ? '' : orq.estrategia === 'comparada' ? 'comparada entre 2 modelos' : 'conferida por um 2º modelo';
+            const partes = [nomeModelo(consumo.modelo), consumo.tokens?.total != null ? `${numero(consumo.tokens.total)} tokens` : '', selo, consumo.provedor === 'offline' ? 'modelo local, sem internet' : ''].filter(Boolean);
             if (partes.length) chat.metaExtra[m.id] = partes.join(' · ');
             // troca automática para o modelo local muda a qualidade: avisa em vez de trocar em silêncio
             if (consumo.provedor === 'offline' && uso.dados?.modo === 'auto') toast('O FreeLLMAPI não respondeu: esta resposta veio do modelo local, que é mais simples.');

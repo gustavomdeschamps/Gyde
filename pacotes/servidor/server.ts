@@ -14,6 +14,11 @@ import { setupApontar } from './apontar.ts';
 import { setupMemoria } from './memoria.ts';
 import { setupTurmas } from './turmas.ts';
 import { setupAgente } from './agente.ts';
+import { criarDesempenho } from './ia/desempenho.ts';
+import { lerExtras } from './ia/adaptadores.ts';
+import { criarCatalogo } from './ia/catalogo.ts';
+import { criarOrquestrador } from './ia/orquestrador.ts';
+import { setupIA } from './ia/rotas.ts';
 import { setupCodigoAgente } from './codigo-agente.ts';
 import { setupSkills } from './skills-sistema.ts';
 import { setupChat } from './chat.ts';
@@ -59,8 +64,12 @@ const preferencias = criarPreferencias(db);
 
 // ---------- Provedor de IA (FreeLLMAPI online ou Ollama offline) ----------
 const uso = criarUso(db); // registro de uso do Gyde (uso.ts): um registro por pedido, com o que o provedor informou
-const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: process.env.FREELLMAPI_KEY || '', ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso });
+const desempenho = criarDesempenho(db); // o que cada modelo tem feito neste computador (sem texto de conversa)
+const extras = lerExtras(path.join(DATA_DIR, 'modelos-extras.json')); // provedores adicionais, sem mexer no código
+const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: process.env.FREELLMAPI_KEY || '', ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso, desempenho, extras: extras.provedores });
 const router = provedores.router;
+const catalogo = criarCatalogo({ router, desempenho, extras: extras.provedores, offline: async () => await provedores.ativo() === 'offline' });
+const orquestrador = criarOrquestrador({ router, provedores, catalogo, desempenho });
 const imagens = criarImagens({ pasta: IMAGES_DIR });
 
 // ---------- API ----------
@@ -112,20 +121,21 @@ app.get('/api/uso', asyncRoute(async (req, res) => {
   const pessoal = process.env.GYDE_MODE !== 'publico';
   responder(res, C.Uso, { ...(await provedores.resumo({ mostrarConta: pessoal })), gyde: uso.resumo(req.user.id, { mostrarInternas: pessoal }) });
 }));
-app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); res.json({ ok: true }); });
+app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); desempenho.apagarDecisoes(req.user.id); res.json({ ok: true }); });
 
 // ---------- Módulos (cada um registra as próprias rotas) ----------
 const skills = setupSkills(app, db, { root: ROOT }); // skills instaláveis (skills-catalogo/*.md + as de cada pessoa)
 const memoria = setupMemoria(app, db, { router, ...preferencias }); // memória entre conversas
 setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
-setupChat(app, db, { router, provedores, uso, imagens, asyncRoute, preferencias, skills, memoria }); // conversas e mensagens
+const { preferenciasIA } = setupIA(app, { preferencias, catalogo, desempenho, avisoExtras: extras.erro, asyncRoute }); // modo de resposta e modelos ligados
+setupChat(app, db, { router, uso, imagens, asyncRoute, preferencias, skills, memoria, orquestrador, preferenciasIA }); // conversas e mensagens
 const certificados = setupCertificados(app, db); // certificados dos projetos guiados (código de verificação)
 setupApontar(app, { router, asyncRoute, uso }); // "Mostrar o erro" num print (modelo com visão)
 const duelos = setupDuelos(app, db); // duelos entre contas do mesmo Gyde (memória do servidor)
 setupPratica(app, db, { router, profileSummary, asyncRoute, uso, emitirCertificados: certificados.emitirPendentes, registrarAcerto: duelos.registrarAcerto }); // exercícios, projetos, revisão, desafio do dia, amigos
 setupTurmas(app, db); // modo turma
 setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão do Chrome
-setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja: trabalha numa pasta de projeto
+setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso, catalogo, orquestrador, preferenciasIA }); // Forja: trabalha numa pasta de projeto
 setupPerfil(app, db, preferencias); // questionário e preferências
 setupDiagnostico(app, { db, provedores, raiz: BASE, asyncRoute }); // relatório de erro (Configurações > Geral)
 

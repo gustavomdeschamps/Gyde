@@ -155,7 +155,7 @@ export const PreviaForja = z.object({ url: z.string().nullable(), entrada: z.str
 export const EstadoPasta = z.object({ ok: z.boolean(), motivo: z.string().nullable(), texto: z.string().nullable(), temporario: z.boolean().optional() })
   .refine((e) => e.ok || Boolean(e.texto), { message: 'pasta indisponível sem explicação' });
 export const Projeto = z.object({ tecnologias: z.array(z.string()), testes: z.string().nullable(), arquivos: z.number().int(), git: z.boolean() });
-export const TIPOS_EVENTO = ['tarefa', 'pensando', 'ferramenta', 'resultado', 'confirmar', 'confirmacao', 'resposta', 'erro', 'desfeito', 'reconectado'] as const;
+export const TIPOS_EVENTO = ['tarefa', 'pensando', 'ferramenta', 'resultado', 'confirmar', 'confirmacao', 'revisao', 'resposta', 'erro', 'desfeito', 'reconectado'] as const;
 export const EventoForja = z.object({ tipo: z.enum(TIPOS_EVENTO), em: z.number() }).passthrough();
 export const ListaSessoes = z.object({
   sessoes: z.array(z.object({ id: z.string(), pasta: z.string(), titulo: z.string(), updated_at: z.number(), disponivel: z.boolean() })),
@@ -233,6 +233,20 @@ const Totais = z.object({
   pedidos: z.number().int(), concluidos: z.number().int(), falhas: z.number().int(), cancelados: z.number().int(), limite: z.number().int(),
   chamadas: z.number().int(), chamadasFalhas: z.number().int(), tokensEntrada: z.number().int(), tokensSaida: z.number().int(), semTokens: z.number().int(),
 });
+// ---------- Inteligência multimodelo ----------
+export const PreferenciasIA = z.object({ modo: z.enum(['rapido', 'equilibrado', 'capricho']), especialistas: z.boolean(), desligados: z.array(z.string()) });
+export const ModelosIA = z.object({
+  medidoEm: z.string().nullable(), aviso: z.string().nullable(),
+  modelos: z.array(z.object({
+    id: z.string(), contexto: z.number().nullable(), visao: z.boolean().nullable(), ferramentas: z.boolean().nullable(), via: z.array(z.string()),
+    acertos: z.number(), respondidas: z.number(), limites: z.number(),
+    categorias: z.record(z.string(), z.object({ acertos: z.number(), respondidas: z.number() })),
+    observado: z.object({ chamadas: z.number(), falhas: z.number(), limites: z.number(), taxaOk: z.number(), ms: z.number().nullable() }).nullable(),
+    descansando: z.boolean(),
+  })),
+  estrategias: z.array(z.object({ estrategia: z.string(), pedidos: z.number(), chamadas: z.number(), ms: z.number(), mudou: z.number() })),
+});
+
 export const Uso = z.object({
   modo: z.enum(['online', 'offline', 'auto']),
   ativo: z.enum(['online', 'offline']),
@@ -267,6 +281,8 @@ export type TUso = z.infer<typeof Uso>;
 export type TMemoria = z.infer<typeof Memoria>;
 export type TMensagem = z.infer<typeof Mensagem>;
 export type TResumoConversa = z.infer<typeof ResumoConversa>;
+export type TPreferenciasIA = z.infer<typeof PreferenciasIA>;
+export type TModelosIA = z.infer<typeof ModelosIA>;
 export type TTokens = z.infer<typeof Tokens>;
 export type TListaTurmas = z.infer<typeof ListaTurmas>;
 export type TTurmaProfessor = z.infer<typeof TurmaProfessor>;
