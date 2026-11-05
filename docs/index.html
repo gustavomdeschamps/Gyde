@@ -167,7 +167,7 @@
           m.n++; if (r.ok) m.ok++; m.ms.push(r.ms);
         }
         const mediana = (xs) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
-        const linhas = Object.entries(porModelo).filter(([, m]) => m.n >= 15).sort((a, b) => b[1].ok / b[1].n - a[1].ok / a[1].n || mediana(a[1].ms) - mediana(b[1].ms));
+        const linhas = Object.entries(porModelo).filter(([nome, m]) => m.n >= 15 && !['fusion', 'auto'].includes(nome)).sort((a, b) => b[1].ok / b[1].n - a[1].ok / a[1].n || mediana(a[1].ms) - mediana(b[1].ms));
         const forjaOk = forja.resultados.filter((r) => r.ok).length;
         const melhor = linhas[0];
         cartoes.innerHTML = '';
