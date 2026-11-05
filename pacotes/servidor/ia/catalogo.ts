@@ -21,10 +21,10 @@ export interface OpcoesCadeia {
 }
 
 // quanto o tempo de resposta pesa contra a qualidade medida em cada modo
-const PESO_TEMPO: Record<ModoResposta, number> = { rapido: 0.3, equilibrado: 0.1, capricho: 0.02 };
-const TEMPO_REFERENCIA = 20_000;
+const PESO_TEMPO: Record<ModoResposta, number> = { rapido: 0.5, equilibrado: 0.25, capricho: 0.05 };
+const TEMPO_REFERENCIA = 15_000;
 const POR_TOKEN = 3.5; // caracteres por token, estimativa para não mandar um pedido que não cabe no contexto
-const SO_RESERVA = new Set(['auto']); // o automático do provedor fica sempre no fim da fila
+const SO_RESERVA = new Set(['auto', 'fusion']); // o automático fica no fim da fila; o fusion chama vários modelos por pedido e nunca é escolhido sozinho
 
 export function lerMedicoes(arquivo = path.join(import.meta.dirname, 'medicoes.json')): Medicoes {
   if (!existsSync(arquivo)) return { em: null, modelos: {} };
@@ -81,7 +81,7 @@ export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), ex
   // de quem provou qualidade), vezes a chance de o modelo estar disponível, menos o custo do tempo no modo escolhido.
   function pontuar(id: string, categorias: string[], modo: ModoResposta): number {
     const m = medido(id, categorias);
-    const qualidade = (m.acertos + 1) / (m.respondidas + 2);
+    const qualidade = (m.acertos + 2) / (m.respondidas + 4);
     const tentativas = m.respondidas + m.limites;
     const dispMedida = tentativas ? m.respondidas / tentativas : 0.7;
     const visto = desempenho?.estatistica(id);

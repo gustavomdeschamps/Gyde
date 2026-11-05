@@ -31,7 +31,7 @@ interface Execucao {
 }
 
 export const CATEGORIAS: Record<Tarefa, string[]> = {
-  conversa: ['conversa', 'contexto'], objetiva: ['objetiva', 'conversa'], raciocinio: ['raciocinio'],
+  conversa: ['conversa', 'contexto'], objetiva: ['objetiva'], raciocinio: ['raciocinio'],
   codigo: ['codigo', 'tutor'], sql: ['sql', 'codigo'], frontend: ['frontend', 'codigo'], backend: ['backend', 'codigo'],
   escrita: ['escrita'], analise: ['analise'], etapas: ['etapas', 'instrucoes'], visao: ['visao'],
 };
