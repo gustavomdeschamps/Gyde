@@ -67,6 +67,12 @@ export const SessaoForja = z.object({
   existe: z.boolean(), pastaEstado: EstadoPasta, projeto: Projeto.nullable(), podeDesfazer: z.boolean(), trabalhando: z.boolean(),
   eventos: z.array(EventoForja),
 }).refine((s) => s.existe === s.pastaEstado.ok, { message: '"existe" e "pastaEstado.ok" discordam' });
+// Cidade do código (pacotes/servidor/cidade.ts): só nomes e números dos arquivos, nunca o conteúdo
+export const Predio = z.object({ caminho: z.string(), linhas: z.number().int().min(0), bytes: z.number().int().min(0), binario: z.boolean(), mudancas: z.number().int().min(0), ultima: z.number().nullable() });
+export const Cidade = z.object({
+  pasta: z.string(), arquivos: z.array(Predio), total: z.number().int(), cortados: z.number().int(), incompleta: z.boolean(),
+  git: z.object({ ativo: z.boolean(), commits: z.number().int() }), limite: z.number().int(),
+});
 export const Reconexao = z.object({ ok: z.literal(true), pasta: z.string(), pastaEstado: EstadoPasta });
 
 // ---------- Questionário de boas-vindas ----------
@@ -162,6 +168,8 @@ export const Uso = z.object({
 export type TRestauracaoPreparada = z.infer<typeof RestauracaoPreparada>;
 export type TPreferencias = z.infer<typeof Preferencias>;
 export type TSessaoForja = z.infer<typeof SessaoForja>;
+export type TCidade = z.infer<typeof Cidade>;
+export type TPredio = z.infer<typeof Predio>;
 export type TUso = z.infer<typeof Uso>;
 export type TMemoria = z.infer<typeof Memoria>;
 export type TMensagem = z.infer<typeof Mensagem>;

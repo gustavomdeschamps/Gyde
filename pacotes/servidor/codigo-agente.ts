@@ -19,6 +19,7 @@ import { consulta, comoErro, erroGyde } from './tipos.ts';
 import type { Uso } from './uso.ts';
 import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
+import { mapaDaCidade, LIMITE_PREDIOS } from './cidade.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).
 export interface ArgsFerramenta { caminho?: unknown; profundidade?: unknown; inicio?: unknown; fim?: unknown; texto?: unknown; conteudo?: unknown; procurar?: unknown; substituir?: unknown; comando?: unknown }
@@ -482,6 +483,14 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
     res.json({ pasta: s.pasta, arvore: ferramentas.listar(realpathSync.native(s.pasta), { caminho: '.', profundidade: 3 }).saida });
   });
+  // Cidade do código: mapa da pasta (nomes, linhas e mudanças no git; nenhum conteúdo)
+  app.get('/api/codigo/sessoes/:id/cidade', bloqueado, asyncRoute(async (req, res) => {
+    const s = q.uma.get(String(req.params.id), req.user.id);
+    if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
+    { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
+    const mapa = await mapaDaCidade(realpathSync.native(s.pasta));
+    responder(res, C.Cidade, { pasta: path.basename(s.pasta), ...mapa, limite: LIMITE_PREDIOS });
+  }));
   // imagens anexadas (só o dono da sessão vê)
   app.get('/api/codigo/sessoes/:id/anexos/:arquivo', bloqueado, (req, res) => {
     const s = q.uma.get(String(req.params.id), req.user.id);
