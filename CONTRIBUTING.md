@@ -19,7 +19,7 @@ O Gyde abre em http://127.0.0.1:3210. Para o app de desktop: `npm run desktop`.
 
 | Pasta | O quê |
 |---|---|
-| `pacotes/servidor` | Express + SQLite do Node. `server.ts` só monta os módulos (`chat.ts`, `codigo-agente.ts`, `pratica-servidor.ts`...) |
+| `pacotes/servidor` | Express + SQLite do Node. `server.ts` só monta os módulos (`chat.ts`, `codigo-agente.ts`, `ia/orquestrador.ts`...) |
 | `pacotes/interface` | Svelte 5 + Vite. `src/main.ts` é a casca; cada tela tem a sua pasta |
 | `pacotes/compartilhado` | `contratos.ts`: o formato de cada resposta, usado pelos dois lados |
 | `pacotes/desktop` | Electron |

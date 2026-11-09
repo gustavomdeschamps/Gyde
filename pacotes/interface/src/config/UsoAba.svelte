@@ -3,7 +3,7 @@
   // tokens e créditos. O que o provedor não informa aparece escrito assim, sem número inventado nem barra falsa.
   import { uso, numero, nomeModelo, horaCurta, NOME_PROVEDOR } from './uso.svelte.ts';
 
-  const ORIGEM: Record<string, string> = { chat: 'Chat', forja: 'Forja', pratica: 'Dica da Prática', imagem: 'Imagem' };
+  const ORIGEM: Record<string, string> = { chat: 'Chat', forja: 'Forja', pratica: 'Recurso antigo', imagem: 'Imagem' };
   const RESULTADO: Record<string, string> = { ok: 'concluído', erro: 'falhou', cancelado: 'cancelado', limite: 'limite atingido' };
   const d = $derived(uso.dados);
   const lim = $derived(d?.limiteRoteador ?? null);
@@ -67,7 +67,7 @@
         </ul></section>
     {/if}
     <details class="uso-glossario"><summary>O que significa cada coisa</summary>
-      <p><b>Pedido:</b> uma mensagem sua no chat, uma tarefa da Forja ou uma dica da Prática. Conta uma vez só, mesmo que o Gyde tente outro modelo.</p>
+      <p><b>Pedido:</b> uma mensagem sua no chat ou uma tarefa da Forja. Conta uma vez só, mesmo que o Gyde tente outro modelo.</p>
       <p><b>Chamada:</b> cada vez que o Gyde fala com o provedor. Trocas de modelo e rodadas da Forja geram várias chamadas num pedido.</p>
       <p><b>Token:</b> pedaço de texto que o modelo lê (entrada) ou escreve (saída). Só aparece quando o provedor informa.</p>
       <p><b>Cota:</b> limite do serviço de IA (por minuto, por dia ou por mês). Quem define é o provedor, não o Gyde.</p>

@@ -10,7 +10,7 @@ Como refazer tudo: veja "Produção" no fim.
 | # | Cena | Tempo aprox. | Captura real | Destaque |
 |---|---|---|---|---|
 | 0 | Abertura | 6 s | logo do Gyde | — |
-| 1 | O que é o Gyde | 25 s | `passo-09-conversa`, `passo-10-pratica`, `passo-11-forja-resultado` | zoom lento em cada tela |
+| 1 | O que é o Gyde | 25 s | `passo-09-conversa`, `passo-11-forja-resultado` | zoom lento em cada tela |
 | 2 | Onde baixar | 16 s | `passo-02-github` (página pública do repositório, sem login) | **Releases** |
 | 3 | O arquivo certo | 16 s | `passo-03-assets` (página da versão 2.0.0) | o `.exe`, depois os outros arquivos |
 | 4 | Requisitos | 14 s | cartão de texto | — |
