@@ -29,8 +29,8 @@ interface RespostaChat { choices?: { message?: { content?: unknown } }[] }
 
 // Modelos da marca: nomes que o usuário vê. A escolha real é do orquestrador (ia/orquestrador.ts).
 const GYDE_MODELS: Record<string, { label: string; hint: string }> = {
-  'gyde-1': { label: 'Gyde 1', hint: 'Escolhe o modelo certo para cada pedido e troca sozinho se um falhar' },
-  'gyde-1-pro': { label: 'Gyde 1 Pro', hint: 'Capricho: um segundo modelo confere código e raciocínio. Mais lento e gasta cerca de 3 vezes mais cota' },
+  'gyde-1': { label: 'Gyde 1', hint: 'Escolhe sozinho um modelo grátis para cada pedido e troca se um falhar.' },
+  'gyde-1-pro': { label: 'Gyde 1 Pro', hint: 'Um segundo modelo confere a resposta. Mais lento e usa mais da sua cota grátis.' },
 };
 const DEFAULT_MODEL = 'gyde-1';
 
