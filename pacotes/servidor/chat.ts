@@ -4,7 +4,7 @@ import type { Express } from 'express';
 import { randomUUID } from 'node:crypto';
 import type { AsyncRoute, Db, ErroGyde, MensagemIA, Router, Usuario } from './tipos.ts';
 import { consulta, comoErro } from './tipos.ts';
-import { cadeiaDe, CADEIAS, completar } from './motor.ts';
+import { cadeiaDe, CADEIAS, completar, textoDoConteudo } from './motor.ts';
 import { redigir } from './seguranca.ts';
 import { classificar } from './ia/classificar.ts';
 import { selecionarHistorico, tamanhoDe, type Anexo } from './ia/contexto.ts';
@@ -25,7 +25,7 @@ interface Conversa { id: string; user_id: string | null; title: string; model: s
 interface LinhaMensagem { id: string; conversation_id: string; role: 'user' | 'assistant'; content: string; attachments: string; model: string | null; created_at: number }
 type Mensagem = Omit<LinhaMensagem, 'attachments'> & { attachments: Anexo[] };
 // Resposta de chat do provedor (formato OpenAI), sem streaming
-interface RespostaChat { choices?: { message?: { content?: string } }[] }
+interface RespostaChat { choices?: { message?: { content?: unknown } }[] }
 
 // Modelos da marca: nomes que o usuário vê. A escolha real é do orquestrador (ia/orquestrador.ts).
 const GYDE_MODELS: Record<string, { label: string; hint: string }> = {
@@ -144,7 +144,7 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
         }),
       });
       const json = await res.json() as RespostaChat;
-      return (json.choices?.[0]?.message?.content || '').trim() || text;
+      return textoDoConteudo(json.choices?.[0]?.message?.content).trim() || text;
     } catch {
       return text;
     }

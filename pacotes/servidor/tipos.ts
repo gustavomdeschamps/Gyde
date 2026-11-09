@@ -36,7 +36,9 @@ export interface Registro {
   fim(resultado: Resultado, erro?: string | null): void;
 }
 
-export interface RouterInit extends RequestInit { registro?: Registro | undefined }
+// recuperarAcao: quem pediu espera uma ação da Forja em JSON; se o modelo tentar uma "ferramenta nativa" que o provedor recusa
+// (Groq, gpt-oss: erro 400 tool_use_failed), a chamada que ele tentou vira essa ação, quando é uma ferramenta da Forja.
+export interface RouterInit extends RequestInit { registro?: Registro | undefined; recuperarAcao?: boolean }
 // Todos os módulos falam com a IA por aqui (provedores.ts decide se vai para o FreeLLMAPI ou para o Ollama).
 export type Router = (caminho: string, init?: RouterInit) => Promise<globalThis.Response>;
 

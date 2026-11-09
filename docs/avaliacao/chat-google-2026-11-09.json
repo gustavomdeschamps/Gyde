@@ -1,0 +1,616 @@
+{
+ "em": "2026-11-09T04:33:53.505Z",
+ "repeticoes": 2,
+ "estrategias": [
+  "auto"
+ ],
+ "resultados": [
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1277,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1182,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 15053,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 22062,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1142,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 14284,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1003,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1148,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1386,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1625,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1184,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 875,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 854,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 862,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 10566,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1175,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 28940,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 7707,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 4730,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (!corpo || typeof corpo !== 'object') {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  // Validação de email: verifica formato simples (texto@texto)\n  const emailRegex = /^[^@]+@[^@]+$/;\n  if (typeof email !== 'string' || !emailRegex.test(email)) {\n    erros.push('email');\n  }\n\n  // Validação de senha: mínimo 8 caracteres\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação de idade: opcional, mas se existir deve ser int entre 13 e 120\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  return {\n    status: erros.length === 0 ? 201 : 400,\n    erros\n  };\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1329,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 3287,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (!corpo || typeof corpo !== 'object') {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  // Validação de e-mail: formato básico \"texto@texto\"\n  const emailRegex = /^.+@.+$/;\n  if (typeof email !== 'string' || !emailRegex.test(email)) {\n    erros.push('email');\n  }\n\n  // Validação de senha: mínimo 8 caracteres\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação de idade: opcional, mas se existir deve ser inteiro entre 13 e 120\n  if (idade !== undefined) {\n    const idadeNum = Number(idade);\n    if (!Number.isInteger(idadeNum) || idadeNum < 13 || idadeNum > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length > 0) {\n    return { status: 400, erros };\n  }\n\n  return { status: 201, erros: [] };\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": null,
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "O provedor google respondeu 429",
+   "chamadas": 0,
+   "modelos": [],
+   "ms": 0,
+   "revisada": false,
+   "mudou": false,
+   "erro": true
+  },
+  {
+   "pedida": "auto",
+   "usada": null,
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": false,
+   "motivo": "O provedor google respondeu 429",
+   "chamadas": 0,
+   "modelos": [],
+   "ms": 0,
+   "revisada": false,
+   "mudou": false,
+   "erro": true
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1757,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1660,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 2334,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 1939,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 2207,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 2132,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 788,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 859,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": false,
+   "motivo": "nota com z",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 5928,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "{\n\"linguagens\": [\"C\", \"Python\", \"Rust\"],\n\"total\": 3,\n\"nota\": \"trabalho feito com muito zelo\"\n}"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 6070,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 843,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 5818,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 5490,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 7313,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "gemini-3.1-flash-lite"
+   ],
+   "ms": 7747,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  }
+ ]
+}

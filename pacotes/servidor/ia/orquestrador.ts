@@ -7,7 +7,7 @@
 // melhor que existir até ali. Revisão só é anunciada se veio de outro modelo real (x-routed-via), não de outro apelido.
 import type { MensagemIA, Registro, Router } from '../tipos.ts';
 import { comoErro, erroGyde } from '../tipos.ts';
-import { CADEIAS, completar, extrairJson } from '../motor.ts';
+import { CADEIAS, completar, extrairJson, textoDoConteudo } from '../motor.ts';
 import type { Provedores } from '../provedores.ts';
 import type { Catalogo, ModoResposta } from './catalogo.ts';
 import { mesmoModeloReal } from './catalogo.ts';
@@ -85,7 +85,7 @@ function criarFila(max: number) {
   };
 }
 
-interface PedacoStream { error?: { message?: string }; model?: string; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number }; choices?: { delta?: { content?: string } }[] }
+interface PedacoStream { error?: { message?: string }; model?: string; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number }; choices?: { delta?: { content?: unknown } }[] }
 
 export function criarOrquestrador({ router, provedores, catalogo, desempenho }: { router: Router; provedores: Provedores; catalogo: Catalogo; desempenho?: Desempenho }) {
   const fila = criarFila(MAX_SIMULTANEAS);
@@ -145,7 +145,7 @@ export function criarOrquestrador({ router, provedores, catalogo, desempenho }: 
               if (json.error) throw erroGyde(json.error.message || 'Erro no provedor.', { status: 502 });
               if (json.model && !consumo.modelo) consumo.modelo = json.model;
               if (json.usage) { consumo.tokens = provedores.tokensDe(json.usage); ex.registro?.tokens(json.usage); }
-              const delta = json.choices?.[0]?.delta?.content;
+              const delta = textoDoConteudo(json.choices?.[0]?.delta?.content);
               if (delta) mostrar(filtro.passar(delta));
             }
           }

@@ -17,12 +17,17 @@ export const ARQUIVO_SECRETO = new RegExp([
 const PADROES = [
   /-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g,
   /\b(sk-(?:proj-|ant-)?[A-Za-z0-9_-]{20,}|gsk_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|gho_[A-Za-z0-9]{30,}|glpat-[A-Za-z0-9_-]{20,})\b/g,
-  /\b(AIza[0-9A-Za-z_-]{30,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|freellmapi-[A-Za-z0-9_-]{10,}|hf_[A-Za-z0-9]{30,}|npm_[A-Za-z0-9]{30,})\b/g,
+  /\b(AIza[0-9A-Za-z_-]{30,}|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]{10,}|freellmapi-[A-Za-z0-9_-]{10,}|nvapi-[A-Za-z0-9_-]{20,}|hf_[A-Za-z0-9]{30,}|npm_[A-Za-z0-9]{30,})\b/g,
   /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, // JWT
   /((?:api[_-]?key|secret|token|passw(?:or)?d|senha|client[_-]?secret|auth)\s*["']?\s*[:=]\s*["']?)([^\s"'`,;]{8,})/gi,
 ];
+// Valor exato das chaves que o Gyde carregou (.env): some de qualquer texto, mesmo sem formato reconhecível (a chave do
+// Mistral, por exemplo, não tem prefixo). Lido na hora, porque a chave pode ser trocada sem reiniciar.
+const NOME_DE_SEGREDO = /(KEY|TOKEN|SECRET|PASSWORD|SENHA)$/i;
+const valoresSecretos = () => Object.entries(process.env).filter(([k, v]) => NOME_DE_SEGREDO.test(k) && typeof v === 'string' && v.length >= 12).map(([, v]) => v as string);
 export function redigir(texto: unknown): string {
   let t = String(texto ?? '');
+  for (const v of valoresSecretos()) if (t.includes(v)) t = t.replaceAll(v, '[segredo removido]');
   for (const p of PADROES) t = t.replace(p, (_m: string, prefixo?: unknown, valor?: unknown) => (valor !== undefined && typeof prefixo === 'string' && /[:=]/.test(prefixo) ? `${prefixo}[segredo removido]` : '[segredo removido]'));
   return t;
 }

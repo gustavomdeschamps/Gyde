@@ -1,0 +1,621 @@
+{
+ "em": "2026-11-09T04:28:20.387Z",
+ "repeticoes": 2,
+ "estrategias": [
+  "auto"
+ ],
+ "resultados": [
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": false,
+   "motivo": "longa demais (112 palavras)",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 918,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Oi! É normal se sentir assim.\n\nQuando a gente estuda programação, o cérebro usa muita energia para resolver problemas e logicar, então o cansaço é esperado. Se estiver pesado, vale a pena fazer uma pausa. Levantar para beber água, dar uma caminhada rápida ou simplesmente descansar os olhos da tela pode ajudar bastante.\n\nAí, quando voltar, pode ser legal tentar algo mais leve, tipo resolver um exercícinho simples que você já dominou, só para não perder o ritmo, ou até mesmo só olhar o código de novo sem a pressão de resolver nada novo.\n\nO que tem feito hoje? Está travado em alguma coisa específica ou é mais um cansaço geral mesmo?"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": false,
+   "motivo": "longa demais (80 palavras)",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 771,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Oi, agradeço. É muito normal sentir cansaço, especialmente quando estamos nos acostumando com uma curva de aprendizado nova. Lembre-se de que a persistência é mais importante que a velocidade. Descançar um pouco também faz parte do processo para que seu cérebro possa consolidar o que aprendeu.\n\nSe quiser, podemos pausar a intensidade: revisamos algo que você já estudou, conversamos sobre um conceito teoricamente ou até apenas pensamos em como organizar seus próximos estudos de forma mais leve. O que prefere?"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 363,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 427,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 1033,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 1121,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 635,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 751,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 800,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 1172,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 706,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": false,
+   "motivo": "5/6 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 790,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction segundoMaior(lista) {\n  if (!Array.isArray(lista) || lista.length === 0) return null;\n\n  // Usa Set para eliminar duplicatas e converte de volta para array\n  const distintos = [...new Set(lista)];\n\n  if (distinctos.length < 2) return null;\n\n  // Ordena decrescente e pega o segundo elemento\n  distintos.sort((a, b) => b - a);\n  return distintos[1];\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 641,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 727,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 908,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 768,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 879,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 941,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1828,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1876,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1357,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1194,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 864,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 496,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 599,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 622,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "servico=pagamentos",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1195,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Não há nenhuma linha com `servico=pagamentos` e `status=500` no log fornecido.\n\nQuanto ao maior valor de `ms`, ele é 936 milissegundos, ocorrendo em `servico=login`.\n\nerros=0; maior=936; servico=login"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1295,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 769,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 907,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 867,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 806,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 657,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 554,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 986,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 1198,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1197,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1058,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  }
+ ]
+}

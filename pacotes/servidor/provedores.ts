@@ -34,6 +34,22 @@ const UsoFreeLLMAPI = z.object({
   byKey: z.array(z.object({ enabled: z.boolean(), platform: z.string(), requests: z.number(), tokens: z.number(), requestCap: z.number().nullable(), tokenCap: z.number().nullable() })).optional(),
 });
 
+// Chamada que o modelo tentou fazer como "ferramenta nativa" -> ação da Forja. Só ferramentas da Forja passam (nomes que alguns
+// modelos abreviam são aceitos); ferramentas que vêm de fábrica no modelo, como container.exec, continuam sendo falha.
+const FERRAMENTAS_FORJA = new Set(['listar', 'ler', 'buscar', 'escrever', 'editar', 'apagar', 'executar', 'desfazer']);
+const APELIDOS_FERRAMENTA: Record<string, string> = { lista: 'listar', list: 'listar', read: 'ler', search: 'buscar', write: 'escrever', edit: 'editar', delete: 'apagar', run: 'executar', exec: 'executar' };
+export function acaoDaChamadaRecusada(tentativa: unknown): string | null {
+  let o: { name?: unknown; arguments?: unknown };
+  try { o = JSON.parse(String(tentativa ?? '')) as typeof o; } catch { return null; }
+  const nome = String(o?.name ?? '').toLowerCase();
+  const ferramenta = FERRAMENTAS_FORJA.has(nome) ? nome : APELIDOS_FERRAMENTA[nome];
+  if (!ferramenta) return null;
+  let args = o.arguments;
+  if (typeof args === 'string') { try { args = JSON.parse(args); } catch { return null; } }
+  if (!args || typeof args !== 'object' || Array.isArray(args)) return null;
+  return JSON.stringify({ pensamento: '', acoes: [{ ferramenta, args }] });
+}
+
 export interface OpcoesProvedores { routerUrl: string; routerKey: string; ollamaUrl: string; ollamaModelo: string; modo: string; uso?: Uso; desempenho?: Desempenho; extras?: ProvedorExtraLido[] }
 export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl, ollamaModelo, modo, uso, desempenho, extras = [] }: OpcoesProvedores) {
   let routerKey = chaveInicial; // pode mudar sem reiniciar (Configurações > IA)
@@ -78,11 +94,11 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
   }
 
   // `init.registro` (uso.ts) recebe cada ida ao provedor; chamadas sem dono (títulos, memória) viram registro "interno".
-  async function router(pathname: string, { registro, ...init }: RouterInit = {}): Promise<Response> {
+  async function router(pathname: string, { registro, recuperarAcao = false, ...init }: RouterInit = {}): Promise<Response> {
     const avulso = !registro && uso && /completions|images/.test(pathname) ? uso.iniciar(null, 'interno') : null;
     const reg = registro || avulso;
     try {
-      const res = await chamar(pathname, init, reg);
+      const res = await chamar(pathname, init, reg, recuperarAcao);
       avulso?.fim('ok');
       return res;
     } catch (err) {
@@ -98,7 +114,7 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
     return extra ?? online;
   }
 
-  async function chamar(pathname: string, init: RequestInit, reg: Registro | null): Promise<Response> {
+  async function chamar(pathname: string, init: RequestInit, reg: Registro | null, recuperarAcao = false): Promise<Response> {
     const provedor = await ativo();
     const offline = provedor === 'offline';
     const pedido = typeof init.body === 'string' ? JSON.parse(init.body) as CorpoChat : null;
@@ -138,7 +154,13 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
     reg?.chamada({ provedor, ok: res.ok, modelo: offline ? ollamaModelo : via });
     if (!res.ok) {
       let detail = '';
-      try { const j = await res.json() as { error?: { message?: string }; message?: string }; detail = j.error?.message || j.message || ''; } catch { /* corpo vazio */ }
+      let erro: { error?: { message?: string; code?: string; failed_generation?: string }; message?: string } = {};
+      try { erro = await res.json() as typeof erro; detail = erro.error?.message || erro.message || ''; } catch { /* corpo vazio */ }
+      const acao = recuperarAcao && res.status === 400 && erro.error?.code === 'tool_use_failed' ? acaoDaChamadaRecusada(erro.error.failed_generation) : null;
+      if (acao) { // o modelo agiu, só que pelo caminho errado: vira a resposta em JSON que a Forja entende
+        observar(true, null, via);
+        return new Response(JSON.stringify({ model: pedido?.model, choices: [{ message: { role: 'assistant', content: acao } }] }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }
       observar(false, tipoDoErro(res.status), null);
       // 429 do roteador inteiro (acabaram os pedidos do minuto) para tudo; 429 de um modelo só deixa tentar outro
       if (res.status === 429 && ultimo.limite?.restante === 0) {

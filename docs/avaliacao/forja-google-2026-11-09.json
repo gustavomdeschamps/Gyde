@@ -1,0 +1,147 @@
+{
+  "em": "2026-11-09T03:53:53.910Z",
+  "codigo": "atual",
+  "repeticoes": 2,
+  "resultados": [
+    {
+      "cenario": "bug",
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 115450,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "google:gemini-3.1-flash-lite",
+      "erro": null
+    },
+    {
+      "cenario": "bug",
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 42117,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "google:gemini-3.1-flash-lite",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 68639,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "google:gemini-3.1-flash-lite",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 8275,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "google:gemini-3.1-flash-lite",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "ok": false,
+      "checagens": {
+        "back-end devolve hora HH:MM": false,
+        "front-end mostra a hora": false,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 9,
+      "ms": 28628,
+      "arquivos": [],
+      "comandos": 5,
+      "modelo": "google:gemini-3.1-flash-lite",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 8322,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "google:gemini-3.1-flash-lite",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 0,
+      "ms": 1156,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "google:gemini-3.1-flash-lite",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 0,
+      "ms": 968,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "google:gemini-3.1-flash-lite",
+      "erro": null
+    }
+  ]
+}

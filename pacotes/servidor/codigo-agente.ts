@@ -680,7 +680,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted; passo++) {
         registrar('pensando', { passo });
         const { texto, modelo } = await completar(router, {
-          cadeia: cadeiaDaRodada(), messages: msgs, max_tokens: 6000, temperature: 0.2, signal: controle.signal, registro, tempoLimite: 180_000,
+          cadeia: cadeiaDaRodada(), messages: msgs, max_tokens: 6000, temperature: 0.2, signal: controle.signal, registro, tempoLimite: 180_000, recuperarAcao: true,
           valida: (t) => Boolean(normalizar(extrairJson(t)) || textoFinal(t)),
         });
         const o = normalizar(extrairJson(texto)) ?? { resposta: texto.trim() };

@@ -21,6 +21,10 @@ import { classificar } from '../pacotes/servidor/ia/classificar.ts';
 import { sistemaDoChat } from '../pacotes/servidor/ia/prompts.ts';
 import { tamanhoDe } from '../pacotes/servidor/ia/contexto.ts';
 import { completar } from '../pacotes/servidor/motor.ts';
+import { redigir } from '../pacotes/servidor/seguranca.ts';
+const limparErro = (t) => redigir(t).replace(/org_[A-Za-z0-9]{10,}/g, 'org_[oculto]');
+import { PROVEDORES_GRATIS } from '../pacotes/servidor/ia/provedores-gratis.ts';
+import { lerMedicoes } from '../pacotes/servidor/ia/catalogo.ts';
 
 const RAIZ = path.join(import.meta.dirname, '..');
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
@@ -39,8 +43,12 @@ const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const db = new DatabaseSync(':memory:');
 migrar(db);
 const desempenho = criarDesempenho(db);
-const provedores = criarProvedores({ routerUrl: (env.FREELLMAPI_URL || 'http://127.0.0.1:31415').replace(/\/v1\/?$/, ''), routerKey: env.FREELLMAPI_KEY, ollamaUrl: 'http://127.0.0.1:1', ollamaModelo: 'nenhum', modo: 'online', desempenho });
-const catalogo = criarCatalogo({ router: provedores.router, desempenho });
+// --provedores nvidia,groq: só esses provedores grátis, direto, sem o FreeLLMAPI (com os modelos já medidos deles)
+const PROVS = (arg('provedores', '') || '').split(',').filter(Boolean).map((id) => PROVEDORES_GRATIS.find((p) => p.id === id)).filter(Boolean);
+for (const p of PROVS) process.env[p.chaveEnv] = env[p.chaveEnv] ?? '';
+const extras = PROVS.map((p) => ({ id: p.id, url: p.url, chaveEnv: p.chaveEnv, modelos: Object.keys(lerMedicoes().modelos).filter((id) => id.startsWith(`${p.id}:`)).map((id) => ({ id: id.slice(p.id.length + 1) })) }));
+const provedores = criarProvedores({ routerUrl: PROVS.length ? 'http://127.0.0.1:9' : (env.FREELLMAPI_URL || 'http://127.0.0.1:31415').replace(/\/v1\/?$/, ''), routerKey: PROVS.length ? 'freellmapi-desligado' : env.FREELLMAPI_KEY, ollamaUrl: 'http://127.0.0.1:1', ollamaModelo: 'nenhum', modo: 'online', desempenho, extras });
+const catalogo = criarCatalogo({ router: provedores.router, desempenho, extras, apenas: PROVS.length ? PROVS.map((p) => p.id) : null });
 const orq = criarOrquestrador({ router: provedores.router, provedores, catalogo, desempenho });
 
 // como o Gyde era antes: ordem fixa e as instruções únicas para tudo
@@ -84,7 +92,7 @@ await Promise.all(Array.from({ length: JUNTOS }, async () => {
       const nota = r.texto.trim() ? t.corrigir(r.texto) : { ok: false, motivo: 'resposta vazia' };
       linha = { pedida: e, usada: r.estrategia, tarefa: t.id, categoria: t.categoria, ok: nota.ok, motivo: nota.motivo, chamadas: r.chamadas, modelos: r.modelos, ms: r.ms, revisada: r.revisada ?? false, mudou: r.mudou ?? false, erro: false, ...(nota.ok ? {} : { texto: r.texto.slice(0, 1500) }) };
     } catch (err) {
-      linha = { pedida: e, usada: null, tarefa: t.id, categoria: t.categoria, ok: false, motivo: String(err.message).slice(0, 120), chamadas: 0, modelos: [], ms: 0, revisada: false, mudou: false, erro: true };
+      linha = { pedida: e, usada: null, tarefa: t.id, categoria: t.categoria, ok: false, motivo: limparErro(String(err.message)).slice(0, 120), chamadas: 0, modelos: [], ms: 0, revisada: false, mudou: false, erro: true };
     }
     resultados.push(linha);
     gravar();

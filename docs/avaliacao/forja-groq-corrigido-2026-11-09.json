@@ -1,0 +1,137 @@
+{
+  "em": "2026-11-09T04:23:45.040Z",
+  "codigo": "atual",
+  "repeticoes": 2,
+  "resultados": [
+    {
+      "cenario": "bug",
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 10864,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 2,
+      "modelo": "groq:openai/gpt-oss-120b",
+      "erro": null
+    },
+    {
+      "cenario": "bug",
+      "ok": false,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "erro",
+      "passos": 3,
+      "ms": 3654,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "O provedor groq respondeu 429: Rate limit reached for model `openai/gpt-oss-20b` in organization `org_[oculto]` service tier `on_demand` on to"
+    },
+    {
+      "cenario": "preservar",
+      "ok": false,
+      "checagens": {
+        "dobro funciona": false,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": false,
+        "testes passam": true
+      },
+      "terminou": "erro",
+      "passos": 1,
+      "ms": 1541,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "O provedor groq respondeu 429: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_[oculto]` service tier `on_demand` on inpu"
+    },
+    {
+      "cenario": "preservar",
+      "ok": false,
+      "checagens": {
+        "dobro funciona": false,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": false,
+        "testes passam": true
+      },
+      "terminou": "erro",
+      "passos": 1,
+      "ms": 2395,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "O provedor groq respondeu 429: Rate limit reached for model `openai/gpt-oss-20b` in organization `org_[oculto]` service tier `on_demand` on to"
+    },
+    {
+      "cenario": "front-back",
+      "ok": false,
+      "checagens": {
+        "back-end devolve hora HH:MM": false,
+        "front-end mostra a hora": false,
+        "testes passam": true
+      },
+      "terminou": "erro",
+      "passos": 0,
+      "ms": 1341,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "O provedor groq respondeu 400: Tool choice is none, but model called a tool"
+    },
+    {
+      "cenario": "front-back",
+      "ok": false,
+      "checagens": {
+        "back-end devolve hora HH:MM": false,
+        "front-end mostra a hora": false,
+        "testes passam": true
+      },
+      "terminou": "erro",
+      "passos": 0,
+      "ms": 688,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "O provedor groq respondeu 429: Rate limit reached for model `openai/gpt-oss-120b` in organization `org_[oculto]` service tier `on_demand` on t"
+    },
+    {
+      "cenario": "pergunta",
+      "ok": false,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": false
+      },
+      "terminou": "erro",
+      "passos": 0,
+      "ms": 187,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "O provedor groq respondeu 429: Rate limit reached for model `openai/gpt-oss-120b` in organization `org_[oculto]` service tier `on_demand` on t"
+    },
+    {
+      "cenario": "pergunta",
+      "ok": false,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": false
+      },
+      "terminou": "erro",
+      "passos": 0,
+      "ms": 189,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "O provedor groq respondeu 429: Rate limit reached for model `openai/gpt-oss-120b` in organization `org_[oculto]` service tier `on_demand` on t"
+    }
+  ]
+}

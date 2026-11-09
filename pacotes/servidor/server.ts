@@ -12,7 +12,8 @@ import { setupMemoria } from './memoria.ts';
 import { setupAgente } from './agente.ts';
 import { criarDesempenho } from './ia/desempenho.ts';
 import { lerExtras } from './ia/adaptadores.ts';
-import { criarCatalogo } from './ia/catalogo.ts';
+import { criarCatalogo, lerMedicoes } from './ia/catalogo.ts';
+import { PROVEDORES_GRATIS } from './ia/provedores-gratis.ts';
 import { criarOrquestrador } from './ia/orquestrador.ts';
 import { setupIA } from './ia/rotas.ts';
 import { setupCodigoAgente } from './codigo-agente.ts';
@@ -62,9 +63,16 @@ const preferencias = criarPreferencias(db);
 const uso = criarUso(db); // registro de uso do Gyde (uso.ts): um registro por pedido, com o que o provedor informou
 const desempenho = criarDesempenho(db); // o que cada modelo tem feito neste computador (sem texto de conversa)
 const extras = lerExtras(path.join(DATA_DIR, 'modelos-extras.json')); // provedores adicionais, sem mexer no código
+// GYDE_IA_SO=<provedor>[,<provedor>] (ex.: nvidia,groq): usa só esses provedores grátis, direto, com os modelos já medidos
+// deles. Serve para medir cada provedor, ou uma combinação, sem o FreeLLMAPI.
+const soProvedores = (process.env.GYDE_IA_SO ?? '').split(',').map((id) => PROVEDORES_GRATIS.find((p) => p.id === id.trim())).filter((p) => p !== undefined);
+for (const p of soProvedores) {
+  const medidos = Object.keys(lerMedicoes().modelos).filter((id) => id.startsWith(`${p.id}:`)).map((id) => ({ id: id.slice(p.id.length + 1) }));
+  extras.provedores.push({ id: p.id, url: p.url, chaveEnv: p.chaveEnv, modelos: medidos, ...(p.naoAceita ? { naoAceita: p.naoAceita } : {}) });
+}
 const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: process.env.FREELLMAPI_KEY || '', ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso, desempenho, extras: extras.provedores });
 const router = provedores.router;
-const catalogo = criarCatalogo({ router, desempenho, extras: extras.provedores, offline: async () => await provedores.ativo() === 'offline' });
+const catalogo = criarCatalogo({ router, desempenho, extras: extras.provedores, offline: async () => await provedores.ativo() === 'offline', apenas: soProvedores.length ? soProvedores.map((p) => p.id) : null });
 const orquestrador = criarOrquestrador({ router, provedores, catalogo, desempenho });
 const imagens = criarImagens({ pasta: IMAGES_DIR });
 

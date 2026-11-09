@@ -15,6 +15,8 @@ import { criarOrquestrador, decidirEstrategia, lerRevisao } from '../ia/orquestr
 import { selecionarHistorico, tamanhoDe, LIMITE_HISTORICO } from '../ia/contexto.ts';
 import { criarFiltro, limparResposta } from '../ia/filtro.ts';
 import { lerExtras } from '../ia/adaptadores.ts';
+import { completar, extrairJson } from '../motor.ts';
+import { acaoDaChamadaRecusada } from '../provedores.ts';
 import { sistemaDoChat, IDENTIDADE, POR_TAREFA } from '../ia/prompts.ts';
 
 const med = (acertos, respondidas, limites = 0, ms = 1000) => ({ acertos, respondidas, limites, ms });
@@ -42,10 +44,10 @@ function provedorFalso(comportamento) {
       pedidos.push(corpo);
       const r = await comportamento(corpo);
       const cab = { 'Content-Type': corpo.stream ? 'text/event-stream' : 'application/json', 'x-routed-via': r.via ?? `via/${corpo.model}`, 'x-ratelimit-limit': '120', 'x-ratelimit-remaining': String(r.cota ?? 100), 'x-ratelimit-reset': '1900000000' };
-      if (r.status) { res.writeHead(r.status, cab); return res.end(JSON.stringify({ error: { message: 'falso' } })); }
+      if (r.status) { res.writeHead(r.status, cab); return res.end(JSON.stringify(r.erro ?? { error: { message: 'falso' } })); }
       res.writeHead(200, cab);
       if (r.travar) return; // nunca termina
-      if (!corpo.stream) return res.end(JSON.stringify({ usage: { total_tokens: 5 }, choices: [{ message: { content: r.texto } }] }));
+      if (!corpo.stream) return res.end(JSON.stringify({ usage: { total_tokens: 5 }, choices: [{ message: { content: r.texto, ...(r.raciocinio ? { reasoning: r.raciocinio } : {}) } }] }));
       for (const p of r.pedacos ?? [r.texto]) res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: p } }] })}\n\n`);
       if (r.quebrar) return setTimeout(() => res.destroy(), 30);
       res.end('data: [DONE]\n\n');
@@ -209,6 +211,48 @@ test('direta: provedor que cai no meio mantém o que já apareceu e não recome�
   assert.ok(tela.startsWith('Parte que já foi'));
   assert.equal(ctx.pedidos.length, 1);
   ctx.srv.close();
+});
+
+test('resposta em partes (como a do Mistral) vira texto, sem streaming e em streaming', async () => {
+  const partes = [{ type: 'thinking', thinking: [{ type: 'text', text: 'raciocínio interno' }] }, { type: 'text', text: 'Resposta final em partes, só o texto conta.' }];
+  const ctx = await montar((c) => (c.stream ? { pedacos: [partes] } : { texto: partes }));
+  const { tela } = await rodar(ctx, CLASSE('codigo'));
+  assert.equal(tela, 'Resposta final em partes, só o texto conta.');
+  const { r: rev } = await rodar(ctx, CLASSE('codigo', { importante: true }));
+  assert.ok(!/raciocínio interno/.test(rev.texto));
+  ctx.srv.close();
+});
+
+test('Groq gpt-oss na Forja: ferramenta nativa recusada vira ação da Forja; resposta no raciocínio vale quando se espera JSON', async () => {
+  const recusa = (tentativa) => ({ status: 400, erro: { error: { message: 'Tool choice is none, but model called a tool', code: 'tool_use_failed', failed_generation: tentativa } } });
+  let vez = 0;
+  const ctx = await montar(() => {
+    vez++;
+    if (vez === 1) return recusa('{"name": "ler", "arguments": {"caminho":"calc.js","inicio":1,"fim":200}}');
+    if (vez === 2) return recusa('{"name": "container.exec", "arguments": {"cmd":["bash","-lc","ls -R"]}}');
+    return { texto: '', raciocinio: 'Vou ler os arquivos. {"pensamento":"ler","acoes":[{"ferramenta":"ler","args":{"caminho":"teste.js"}}]}' };
+  });
+  const valida = (t) => Array.isArray(extrairJson(t)?.acoes);
+  const a = await completar(ctx.provedores.router, { cadeia: ['bom'], messages: [], valida, recuperarAcao: true });
+  assert.deepEqual(extrairJson(a.texto).acoes, [{ ferramenta: 'ler', args: { caminho: 'calc.js', inicio: 1, fim: 200 } }]);
+  // container.exec não é da Forja: falha, e o próximo modelo da fila responde pelo raciocínio
+  const b = await completar(ctx.provedores.router, { cadeia: ['bom', 'medio'], messages: [], valida, recuperarAcao: true });
+  assert.deepEqual(extrairJson(b.texto).acoes, [{ ferramenta: 'ler', args: { caminho: 'teste.js' } }]);
+  // sem pedir ação (chat, títulos): a recusa continua sendo erro
+  vez = 0;
+  await assert.rejects(completar(ctx.provedores.router, { cadeia: ['bom'], messages: [] }));
+  // sem valida, o raciocínio nunca vira resposta
+  vez = 2;
+  await assert.rejects(completar(ctx.provedores.router, { cadeia: ['bom'], messages: [] }), /vazio/);
+  ctx.srv.close();
+});
+
+test('chamada recusada: só ferramentas da Forja (e apelidos comuns) viram ação', () => {
+  assert.equal(JSON.parse(acaoDaChamadaRecusada('{"name":"lista","arguments":{"caminho":"."}}')).acoes[0].ferramenta, 'listar');
+  assert.equal(JSON.parse(acaoDaChamadaRecusada('{"name":"executar","arguments":"{\\"comando\\":\\"npm test\\"}"}')).acoes[0].args.comando, 'npm test');
+  assert.equal(acaoDaChamadaRecusada('{"name":"container.exec","arguments":{"cmd":["bash"]}}'), null);
+  assert.equal(acaoDaChamadaRecusada('{"name":"ler","arguments":[1]}'), null);
+  assert.equal(acaoDaChamadaRecusada('não é json'), null);
 });
 
 const REVISOR = /revisor técnico independente/;
@@ -413,6 +457,20 @@ test('filtro: tira raciocínio, introdução e emoji, mesmo com a tag cortada en
   saida += f.terminar();
   assert.equal(saida, 'O resultado é 42, conferido com calma e em detalhes.');
   assert.equal(limparResposta('<think>nunca fecha'), '');
+});
+
+test('catálogo "só um provedor": só os modelos dele, sem FreeLLMAPI nem auto (para medir cada provedor sozinho)', () => {
+  const medicoes = { em: null, modelos: { ...MEDICOES.modelos, 'groq:openai/gpt-oss-120b': { via: [], categorias: { codigo: med(4, 4) } }, 'google:gemini-3.6-flash': { via: [], categorias: { codigo: med(4, 4) } } } };
+  const extras = [{ id: 'groq', url: 'http://x', chaveEnv: 'X', modelos: [{ id: 'openai/gpt-oss-120b' }] }];
+  const cat = criarCatalogo({ router: async () => { throw new Error('sem rede'); }, medicoes, extras, apenas: ['groq'] });
+  assert.deepEqual(cat.cadeia(['codigo']), ['groq:openai/gpt-oss-120b']);
+  assert.deepEqual(cat.cadeia(['codigo'], { reserva: ['bom'] }), ['groq:openai/gpt-oss-120b'], 'reserva do FreeLLMAPI não entra');
+  const db = new DatabaseSync(':memory:');
+  migrar(db);
+  const desempenho = criarDesempenho(db);
+  desempenho.observar({ modelo: 'groq:openai/gpt-oss-120b', ok: false, tipo: 'limite', ms: 1, tamanho: 1 });
+  const cansado = criarCatalogo({ router: async () => { throw new Error('sem rede'); }, medicoes, extras, apenas: ['groq'], desempenho });
+  assert.deepEqual(cansado.cadeia(['codigo']), ['groq:openai/gpt-oss-120b'], 'todos descansando: tenta assim mesmo, não desiste sem chamar');
 });
 
 // ---------- provedores extras ----------

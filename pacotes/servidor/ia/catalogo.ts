@@ -34,7 +34,7 @@ export function lerMedicoes(arquivo = path.join(import.meta.dirname, 'medicoes.j
 // provedor real por trás do nome: "groq/qwen/qwen3.8-27b" -> "groq/qwen/qwen3.8-27b" (nomes de slot não dizem quem responde)
 export const mesmoModeloReal = (a: string | null | undefined, b: string | null | undefined) => Boolean(a && b && a === b);
 
-export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), extras = [], offline }: { router: Router; desempenho?: Desempenho; medicoes?: Medicoes; extras?: ProvedorExtraLido[]; offline?: () => Promise<boolean> }) {
+export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), extras = [], offline, apenas = null }: { router: Router; desempenho?: Desempenho; medicoes?: Medicoes; extras?: ProvedorExtraLido[]; offline?: () => Promise<boolean>; apenas?: string[] | null }) {
   const doProvedor = new Map<string, { contexto: number | null }>();
   let lidoEm = 0;
   let pendente: Promise<void> | null = null;
@@ -57,7 +57,8 @@ export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), ex
     return pendente;
   }
 
-  const conhecido = (id: string) => doProvedor.size === 0 || doProvedor.has(id) || Boolean(extraDe(id));
+  // "<provedor>:<modelo>" só existe com aquele provedor ligado; os outros nomes são do FreeLLMAPI
+  const conhecido = (id: string) => (id.includes(':') ? Boolean(extraDe(id)) : doProvedor.size === 0 || doProvedor.has(id));
   const contextoDe = (id: string) => doProvedor.get(id)?.contexto ?? extraDe(id)?.contexto ?? null;
   const medido = (id: string, categorias: string[]) => {
     const m = medicoes.modelos[id];
@@ -93,7 +94,8 @@ export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), ex
   function candidatos() {
     const ids = new Set(Object.keys(medicoes.modelos));
     for (const p of extras) for (const m of p.modelos) ids.add(`${p.id}:${m.id}`);
-    return [...ids].filter((id) => !SO_RESERVA.has(id));
+    // "apenas": só os modelos de um provedor direto (ex.: medir a Forja só com o Groq), sem FreeLLMAPI nem 'auto'
+    return [...ids].filter((id) => !SO_RESERVA.has(id) && (!apenas || apenas.some((p) => id.startsWith(`${p}:`))));
   }
 
   // Ordem de modelos para uma tarefa. Termina sempre em 'auto', que funciona com qualquer conjunto de chaves.
@@ -108,6 +110,8 @@ export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), ex
     const ordem = candidatos().filter(elegivel).filter((id) => !provouErrar(id))
       .map((id) => ({ id, nota: pontuar(id, categorias, modo) }))
       .sort((a, b) => b.nota - a.nota || a.id.localeCompare(b.id)).map((x) => x.id).slice(0, max);
+    // só um provedor e todos descansando: tenta assim mesmo, em vez de desistir sem chamar ninguém
+    if (apenas) return ordem.length ? ordem : candidatos().filter((id) => !fora.has(id) && conhecido(id) && cabe(id) && (!precisaVisao || visaoDe(id) === true)).slice(0, max);
     const lista = ordem.length ? ordem : reserva.filter(elegivel);
     return fora.has('auto') ? lista : [...lista, 'auto'];
   }
