@@ -312,3 +312,34 @@ void main() {
   float perto = smoothstep(6.0, 22.0, distance(cameraPosition, vMundo)); // de perto a neblina some (senão vira um véu leitoso)
   gl_FragColor = vec4(uCor, smoothstep(0.35, 0.85, n) * borda * perto * uForca);
 }`;
+
+// ---------- brilho falso (sem pós-processamento): halos suaves e aditivos no alto dos prédios ----------
+// Funciona em qualquer placa: é só um ponto grande e transparente somado à tela, desenhado direto, sem imagem fora da tela.
+export const haloVertex = /* glsl */ `
+attribute vec3 aCor;
+attribute vec3 aHalo;   // x = tamanho no mundo, y = altura do prédio, z = atraso da subida
+attribute float aApagado;
+uniform float uSubida;
+uniform float uTempo;
+uniform float uAltura;  // altura da tela em pixels
+varying vec3 vCor;
+varying float vApagado;
+void main() {
+  float sobe = smoothstep(aHalo.z, aHalo.z + 0.75, uSubida);
+  vec3 p = position;
+  p.y += aHalo.y * sobe;
+  vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
+  gl_Position = projectionMatrix * mvPosition;
+  float pulso = 1.0 + 0.12 * sin(uTempo * 2.6 + position.x * 1.7 + position.z);
+  gl_PointSize = min(aHalo.x * projectionMatrix[1][1] * uAltura * 0.5 / -mvPosition.z * pulso, 256.0) * sobe;
+  vCor = aCor;
+  vApagado = aApagado;
+}`;
+export const haloFragment = /* glsl */ `
+varying vec3 vCor;
+varying float vApagado;
+void main() {
+  float d = length(gl_PointCoord - 0.5) * 2.0;
+  float a = exp(-d * d * 4.0) * (1.0 - smoothstep(0.8, 1.0, d));
+  gl_FragColor = vec4(vCor * a * (1.0 - vApagado * 0.9), 1.0);
+}`;

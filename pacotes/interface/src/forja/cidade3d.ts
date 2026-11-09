@@ -2,7 +2,9 @@
 // Direção de arte: cidade noturna em neon. Pasta = bairro (quadra com borda acesa), arquivo = prédio com janelas,
 // altura = tamanho, calor = quantas vezes mudou no git (os mais alterados viram faróis vermelho/laranja).
 // Ruas ligam cada bairro à pasta-mãe, com "tráfego de dados" correndo por elas.
-// Desempenho: tudo repetido é InstancedMesh (poucas chamadas de desenho); a qualidade se ajusta sozinha pelo FPS;
+// Qualidades: Leve e Média desenham direto na tela (funcionam em placa integrada); a Média faz o "brilho" com halos
+// aditivos, sem pós-processamento. A Alta (bloom de verdade, com imagem fora da tela) só liga quando a pessoa escolhe.
+// Desempenho: tudo repetido é InstancedMesh (poucas chamadas de desenho); a qualidade baixa sozinha pelo FPS;
 // com "menos movimento" não há entrada animada, órbita, pulsos nem voo de câmera, e a cena só desenha quando algo muda.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -21,6 +23,7 @@ export interface Cidade3D {
   focar(caminho: string): void; // leva a câmera até o prédio
   filtrar(termo: string): number; // escurece o que não combina; devolve quantos combinam
   definirQualidade(q: Qualidade | 'auto'): void;
+  diagnostico(): string; // texto para copiar (placa, qualidade, formatos, checagens, erros; nada pessoal)
 }
 interface Opcoes {
   aoEscolher: (p: TPredio | null) => void; // clique (ou toque) num prédio, ou no vazio
@@ -242,6 +245,36 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   feixes.frustumCulled = false;
   cena.add(feixes);
 
+  // ---------- halos (brilho falso, direto na tela) ----------
+  // um halo suave no alto de cada prédio: violeta/ciano fraco nos calmos, laranja/vermelho forte nos quentes;
+  // os faróis ganham um halo grande. Assim a Média brilha sem bloom.
+  const posHalo = new Float32Array(n * 3), corHalo = new Float32Array(n * 3), dadosHalo = new Float32Array(n * 3);
+  const apagadoHalo = new THREE.BufferAttribute(new Float32Array(n), 1);
+  const frio = new THREE.Color(COR.borda), quenteC = new THREE.Color(COR.quente), laranjaC = new THREE.Color(COR.laranja), c = new THREE.Color();
+  const farois = new Set(quentes.map((x) => x.i));
+  planta.predios.forEach((b, i) => {
+    const calor = dados[i * 3]!;
+    posHalo.set([b.x, CHAO + 0.05, b.z], i * 3);
+    c.copy(frio).multiplyScalar(0.10).lerp(laranjaC.clone().lerp(quenteC, calor).multiplyScalar(0.55), Math.min(1, calor * 1.3));
+    if (farois.has(i)) c.copy(quenteC).lerp(laranjaC, 0.3).multiplyScalar(0.8);
+    corHalo.set([c.r, c.g, c.b], i * 3);
+    dadosHalo.set([farois.has(i) ? 6 : 1.6 + calor * 2.4, b.h, dados[i * 3 + 2]!], i * 3);
+  });
+  const geoHalo = guardar(new THREE.BufferGeometry());
+  geoHalo.setAttribute('position', new THREE.BufferAttribute(posHalo, 3));
+  geoHalo.setAttribute('aCor', new THREE.BufferAttribute(corHalo, 3));
+  geoHalo.setAttribute('aHalo', new THREE.BufferAttribute(dadosHalo, 3));
+  geoHalo.setAttribute('aApagado', apagadoHalo);
+  geoHalo.setDrawRange(0, planta.predios.length);
+  const alturaTela = { value: 600 };
+  const halos = new THREE.Points(geoHalo, guardar(new THREE.ShaderMaterial({
+    vertexShader: S.haloVertex, fragmentShader: S.haloFragment, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uSubida: subida, uTempo: tempo, uAltura: alturaTela },
+  })));
+  halos.frustumCulled = false;
+  halos.renderOrder = 4;
+  cena.add(halos);
+
   // ---------- tráfego de dados pelas ruas ----------
   const ptsTrafego: [number, number, number, number, number, number, number][] = [];
   for (const [ax, az, bx, bz] of ruas) {
@@ -379,20 +412,22 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
 
   // ---------- qualidade adaptativa ----------
   const ORDEM: Qualidade[] = ['leve', 'media', 'alta'];
-  let qualidade: Qualidade = 'alta';
+  let qualidade: Qualidade = 'media';
   let forcaBloom = 0.75;
   let automatica = (opcoes.qualidade ?? 'auto') === 'auto';
   function aplicarQualidade(q: Qualidade) {
     qualidade = q;
-    const dpr = Math.min(devicePixelRatio, q === 'alta' ? 1.75 : q === 'media' ? 1.25 : 1);
+    const dpr = Math.min(devicePixelRatio, q === 'alta' ? 1.75 : q === 'media' ? 1.5 : 1);
     renderer.setPixelRatio(dpr);
     composer.setPixelRatio(dpr);
     pixel.value = dpr;
-    bloom.enabled = q !== 'leve' && bufferFloat;
-    forcaBloom = q === 'alta' ? 0.75 : 0.6;
+    // só a Alta usa o bloom (imagem fora da tela); Leve e Média desenham direto na tela
+    bloom.enabled = q === 'alta' && bufferFloat;
+    forcaBloom = 0.75;
+    halos.visible = q !== 'leve';
     trafego.visible = q !== 'leve' && nTrafego > 0;
-    geoTrafego.setDrawRange(0, q === 'alta' ? nTrafego : Math.floor(nTrafego / 2));
-    for (const c of camadas) c.visible = q === 'alta';
+    geoTrafego.setDrawRange(0, nTrafego);
+    for (const camada of camadas) camada.visible = q !== 'leve';
     reflexo.visible = q !== 'leve';
     estrelas.visible = q !== 'leve';
     ajustar();
@@ -421,6 +456,11 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     } else renderer.render(cena, camera);
     if (esconder) { predios.visible = true; reflexo.visible = reflexoAntes; }
   }
+  // material de teste: os prédios pintados de magenta puro. Se o magenta não chega à tela, a geometria dos prédios
+  // não está sendo desenhada (pipeline/placa). Se chega, mas o quadro normal fica igual ao quadro sem prédios (ou preto),
+  // o shader dos prédios é que não aparece. Assim a checagem pega também prédios que existem mas não aparecem.
+  const matTeste = guardar(new THREE.MeshBasicMaterial({ color: 0xff00ff, fog: false, toneMapped: false }));
+  const historico: string[] = [];
   const px = new Uint8Array(4);
   const amostrar = (pts: [number, number][]) => pts.map(([x, y]) => { gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); return [px[0]!, px[1]!, px[2]!]; });
   function verificarQuadro() {
@@ -433,19 +473,31 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     }
     if (pts.length < Math.min(6, pontosConferir.length) || !pts.length) return null; // quase nenhum prédio à vista neste ângulo: confere depois
     const com = amostrar(pts);
-    const refl = reflexo.visible;
-    predios.visible = false; reflexo.visible = false;
+    const refl = reflexo.visible, hal = halos.visible, materialReal = predios.material;
+    const comoMaterial = predios as unknown as { material: THREE.Material }; // troca temporária pelo material de teste
+    predios.visible = false; reflexo.visible = false; halos.visible = false;
     renderizar();
     const sem = amostrar(pts);
-    predios.visible = true; reflexo.visible = refl;
+    predios.visible = true; comoMaterial.material = matTeste;
+    renderizar();
+    const teste = amostrar(pts);
+    predios.material = materialReal; reflexo.visible = refl; halos.visible = hal;
     renderizar(); // a tela fica com o quadro normal
-    let diferenca = 0, maximo = 0;
-    com.forEach((c, i) => { const o = sem[i]!; diferenca += Math.abs(c[0]! - o[0]!) + Math.abs(c[1]! - o[1]!) + Math.abs(c[2]! - o[2]!); maximo = Math.max(maximo, ...c); });
+    let diferenca = 0, maximo = 0, magenta = 0;
+    com.forEach((c, i) => {
+      const o = sem[i]!, t = teste[i]!;
+      diferenca += Math.abs(c[0]! - o[0]!) + Math.abs(c[1]! - o[1]!) + Math.abs(c[2]! - o[2]!);
+      maximo = Math.max(maximo, ...c);
+      if (t[0]! > 120 && t[2]! > 120 && t[1]! < Math.min(t[0]!, t[2]!) * 0.6) magenta++;
+    });
     diferenca /= pts.length * 3;
-    return { ok: diferenca > 1.5 && maximo > 2, diferenca: Math.round(diferenca * 10) / 10, quadroPreto: maximo <= 2, pontos: pts.length };
+    const fracaoMagenta = magenta / pts.length;
+    const motivo = fracaoMagenta < 0.5 ? 'a geometria dos prédios não chega à tela' : maximo <= 2 ? 'quadro preto' : diferenca <= 1.5 ? 'o shader dos prédios sai igual ao fundo' : '';
+    return { ok: !motivo, motivo, diferenca: Math.round(diferenca * 10) / 10, magenta: Math.round(fracaoMagenta * 100), quadroPreto: maximo <= 2, pontos: pts.length };
   }
   function tratarVerificacao(r: NonNullable<ReturnType<typeof verificarQuadro>>) {
-    const diag = { placa, qualidade, bloom: bloom.enabled, bufferFloat, amostras, diferenca: r.diferenca, quadroPreto: r.quadroPreto, errosShader: errosGl.length };
+    const diag = { placa, qualidade, bloom: bloom.enabled, bufferFloat, amostras, diferenca: r.diferenca, magenta: `${r.magenta}%`, motivo: r.motivo || 'nenhum', errosShader: errosGl.length };
+    historico.push(`${NOME[qualidade]}: ${r.ok ? 'prédios aparecendo' : `falhou (${r.motivo})`}; diferença ${r.diferenca}; magenta ${r.magenta}% de ${r.pontos} pontos`);
     if (r.ok) { caixa.dataset.verificacao = 'ok'; console.info('[Gyde · Cidade 3D] quadro conferido: prédios aparecendo', diag); return; }
     console.warn('[Gyde · Cidade 3D] os prédios não apareceram neste quadro', diag, errosGl.slice(0, 3));
     const i = ORDEM.indexOf(qualidade);
@@ -497,7 +549,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       const r = verificarQuadro();
       if (r) tratarVerificacao(r);
       else if (++verificacao.tentativas < 6) { verificacao.em = agora + 2; continuar = true; }
-      else { caixa.dataset.verificacao = 'sem-conferir'; console.info('[Gyde · Cidade 3D] não deu para conferir o quadro: poucos prédios à vista'); }
+      else { caixa.dataset.verificacao = 'sem-conferir'; historico.push(`${NOME[qualidade]}: não deu para conferir (poucos prédios à vista)`); console.info('[Gyde · Cidade 3D] não deu para conferir o quadro: poucos prédios à vista'); }
     } else if (verificacao.em >= 0) continuar = true;
     // mede o FPS e alivia a cena se ficar pesada (só no automático)
     if (automatica && !menosMovimento) {
@@ -520,6 +572,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     const { width, height } = caixa.getBoundingClientRect();
     if (!width || !height) return;
     renderer.setSize(width, height, false);
+    alturaTela.value = height * renderer.getPixelRatio();
     composer.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
@@ -583,6 +636,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       controles.dispose();
       for (const d of descartar) d.dispose();
       lajes.dispose(); predios.dispose(); reflexo.dispose(); feixes.dispose();
+      halos.geometry.dispose();
       composer.dispose(); bloom.dispose();
       renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove(); camadaRotulos.remove();
     },
@@ -616,6 +670,8 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
         if (ok) { combinam++; bairrosVivos.add(b.quadra); }
       });
       attrApagado.needsUpdate = true;
+      (apagadoHalo.array as Float32Array).set(apagado);
+      apagadoHalo.needsUpdate = true;
       apagarFaixas.value = t ? 1 : 0;
       apagarFeixes.value = t ? 1 : 0;
       for (const r of rotulos) r.apagado = Boolean(t) && !bairrosVivos.has(r.i);
@@ -625,12 +681,25 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     definirQualidade(q) {
       automatica = q === 'auto';
       medidor.quadros = 0;
-      aplicarQualidade(q === 'auto' ? (celular ? 'leve' : 'alta') : q);
+      aplicarQualidade(q === 'auto' ? (celular ? 'leve' : 'media') : q);
+    },
+    diagnostico() {
+      const tela = renderer.getDrawingBufferSize(new THREE.Vector2());
+      return [
+        'Gyde · Cidade 3D · diagnóstico',
+        `Placa de vídeo: ${placa}`,
+        `WebGL: ${renderer.capabilities.isWebGL2 ? '2' : '1'} · imagem em ponto flutuante: ${bufferFloat ? 'aceita' : 'não aceita'} · antisserrilhado fora da tela: ${amostras} amostras (máx. ${renderer.capabilities.maxSamples}) · textura máx.: ${renderer.capabilities.maxTextureSize}`,
+        `Qualidade: ${NOME[qualidade]} (${automatica ? 'automática' : 'escolhida'}) · bloom: ${bloom.enabled ? 'ligado' : 'desligado'} · desenho: ${bloom.enabled ? 'imagem fora da tela' : 'direto na tela'}`,
+        `Tela: ${tela.x}×${tela.y} px · densidade ${renderer.getPixelRatio()} · celular: ${celular ? 'sim' : 'não'} · menos movimento: ${menosMovimento ? 'sim' : 'não'}`,
+        `Prédios: ${planta.predios.length} · bairros: ${planta.quadras.length} · faróis: ${quentes.length}`,
+        `Checagens: ${historico.length ? historico.join(' | ') : 'ainda não feita'}`,
+        `Erros: ${errosGl.length ? errosGl.slice(0, 5).join(' | ') : 'nenhum'}`,
+      ].join('\n');
     },
   };
 
   console.info('[Gyde · Cidade 3D] início', { placa, bufferFloat, amostras, qualidade: opcoes.qualidade ?? 'auto', celular, menosMovimento, predios: planta.predios.length });
-  aplicarQualidade(automatica ? (celular ? 'leve' : 'alta') : (opcoes.qualidade as Qualidade));
+  aplicarQualidade(automatica ? (celular ? 'leve' : 'media') : (opcoes.qualidade as Qualidade));
   if (menosMovimento) tempo.value = 1.7;
   desenhar();
   return api;

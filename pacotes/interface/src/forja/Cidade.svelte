@@ -29,15 +29,28 @@
   let achados = $state<number | null>(null);
   const QUALIDADES = ['auto', 'alta', 'media', 'leve'] as const;
   const NOME_QUALIDADE = { auto: 'Automática', alta: 'Alta', media: 'Média', leve: 'Leve' };
-  const qualidadeSalva = (() => { try { const q = localStorage.getItem('cidadeQualidade'); return (QUALIDADES as readonly string[]).includes(q ?? '') ? q as (typeof QUALIDADES)[number] : 'auto'; } catch { return 'auto'; } })();
+  // ao abrir, nunca começa na Alta (bloom com imagem fora da tela, que falha em algumas placas): ela é só manual
+  const qualidadeSalva = (() => { try { const q = localStorage.getItem('cidadeQualidade'); return q === 'media' || q === 'leve' ? q : 'auto'; } catch { return 'auto'; } })();
   let pedidoQualidade = $state<(typeof QUALIDADES)[number]>(qualidadeSalva);
   let qualidadeAtual = $state<Qualidade | null>(null);
   let aviso3d = $state<{ texto: string; grave: boolean } | null>(null);
   let tempoAviso: ReturnType<typeof setTimeout> | undefined;
   function trocarQualidade() {
     pedidoQualidade = QUALIDADES[(QUALIDADES.indexOf(pedidoQualidade) + 1) % QUALIDADES.length]!;
-    try { localStorage.setItem('cidadeQualidade', pedidoQualidade); } catch { /* sem storage */ }
+    try { localStorage.setItem('cidadeQualidade', pedidoQualidade === 'alta' ? 'auto' : pedidoQualidade); } catch { /* sem storage */ }
     cena?.definirQualidade(pedidoQualidade);
+  }
+  // diagnóstico para colar no chat (placa, qualidade, formatos, checagens e erros; nada pessoal)
+  let erro3d = '';
+  let copiado = $state(false);
+  async function copiarDiagnostico() {
+    const texto = cena?.diagnostico() ?? `Gyde · Cidade 3D · diagnóstico\nA cena 3D não abriu: ${erro3d || 'ainda carregando'}`;
+    try { await navigator.clipboard.writeText(texto); }
+    catch {
+      const t = document.createElement('textarea'); t.value = texto; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.append(t); t.select(); document.execCommand('copy'); t.remove();
+    }
+    copiado = true; setTimeout(() => { copiado = false; }, 2500);
   }
   function fecharCartao() { escolhido = null; cena?.selecionar(null); }
   $effect(() => { const t = busca3d; if (cena && estado3d === 'pronto') achados = t.trim() ? cena.filtrar(t) : (cena.filtrar(''), null); });
@@ -66,7 +79,7 @@
       });
       if (escolhido) cena.selecionar(escolhido.caminho);
       estado3d = 'pronto';
-    }).catch(() => { if (!cancelado) estado3d = 'falhou'; });
+    }).catch((e: unknown) => { erro3d = String((e as Error)?.message ?? e).slice(0, 300); if (!cancelado) estado3d = 'falhou'; });
     return () => { cancelado = true; cena?.destruir(); cena = null; dica = null; aviso3d = null; clearTimeout(tempoAviso); };
   });
   const numero = (n: number) => n.toLocaleString('pt-BR');
@@ -139,7 +152,7 @@
                 <input type="search" bind:value={busca3d} placeholder="Procurar" autocomplete="off" spellcheck="false">
                 {#if achados != null}<small aria-live="polite">{achados} {achados === 1 ? 'achado' : 'achados'}</small>{/if}
               </label>
-              <button type="button" class="cidade-vidro cidade-qualidade" title="Qualidade do 3D. Automática: começa alta (leve no celular) e baixa sozinha se ficar lenta." onclick={trocarQualidade}>
+              <button type="button" class="cidade-vidro cidade-qualidade" title="Qualidade do 3D. Automática: começa na média (leve no celular), desenhando direto na tela, e baixa sozinha se ficar lenta. A alta liga o brilho de verdade (bloom) e só vale até fechar a aba." onclick={trocarQualidade}>
                 <span class="cidade-hud-extra">Qualidade: </span>{#if pedidoQualidade === 'auto'}{NOME_QUALIDADE.auto}{#if qualidadeAtual}<small>({NOME_QUALIDADE[qualidadeAtual]})</small>{/if}
                 {:else}{NOME_QUALIDADE[qualidadeAtual ?? pedidoQualidade]}{#if qualidadeAtual && qualidadeAtual !== pedidoQualidade}<small>(baixou da {NOME_QUALIDADE[pedidoQualidade].toLowerCase()})</small>{/if}{/if}
               </button>
@@ -173,7 +186,10 @@
           </article>
         {/if}
       </div>
-      <p class="cidade-ajuda">Arraste para girar. Use a roda do mouse (ou dois dedos) para aproximar e o botão direito para mover. Clique num prédio para ver o arquivo.</p>
+      <div class="cidade-rodape">
+        <p class="cidade-ajuda">Arraste para girar. Use a roda do mouse (ou dois dedos) para aproximar e o botão direito para mover. Clique num prédio para ver o arquivo.</p>
+        <button type="button" class="btn small ghost" title="Copia placa de vídeo, qualidade, formatos aceitos, resultado da checagem e erros (nada pessoal), para colar no chat" onclick={copiarDiagnostico}>{copiado ? 'Diagnóstico copiado' : 'Copiar diagnóstico'}</button>
+      </div>
     {:else}
     <div class="cidade-controles">
       <label class="cidade-filtro"><span>Procurar arquivo</span><input type="search" bind:value={filtro} placeholder="ex.: server.ts" autocomplete="off" spellcheck="false"></label>

@@ -24,7 +24,7 @@ const sessao = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta: pr
 async function verificar(nav, rotulo, webgl) {
   const { avaliar, esperar } = nav;
   await nav.entrar(servidor.base, conta);
-  await avaliar(`localStorage.setItem('cidadeQualidade', 'alta'); 1`); // fixa a alta: o desenho por software do teste é lento e o automático baixaria
+  await avaliar(`localStorage.setItem('cidadeQualidade', 'alta'); 1`); // mesmo com a alta salva, a cena tem de abrir sem bloom
   await nav.ir(`${servidor.base}/?r=1#/agente/${sessao.id}`, 2500);
   ok(`${rotulo}: aba Cidade aparece ao lado da Conversa`, await esperar(`document.querySelector('#abaCidade') !== null && document.querySelector('#abaConversa')?.getAttribute('aria-selected') === 'true'`));
   const tresAntes = await avaliar(`performance.getEntriesByType('resource').some((r) => /cidade3d/.test(r.name))`);
@@ -32,6 +32,10 @@ async function verificar(nav, rotulo, webgl) {
   ok(`${rotulo}: o 3D só é baixado quando a aba abre`, !tresAntes && await esperar(`performance.getEntriesByType('resource').some((r) => /cidade3d/.test(r.name))`, 8000));
   if (webgl) {
     ok(`${rotulo}: a cidade 3D aparece`, await esperar(`document.querySelector('.cidade-canvas') !== null && !document.querySelector('.cidade-palco-info')`, 20_000));
+    await avaliar(`window.__copiado = null; navigator.clipboard.writeText = async (t) => { window.__copiado = t; }; 1`);
+    await avaliar(`[...document.querySelectorAll('.cidade-rodape button')].find((b) => /Copiar diagnóstico/.test(b.textContent)).click()`);
+    ok(`${rotulo}: abre sem a Alta (bloom desligado, desenho direto na tela)`, await esperar(`/bloom: desligado/.test(window.__copiado || '') && /direto na tela/.test(window.__copiado || '')`, 3000), await avaliar(`window.__copiado`));
+    ok(`${rotulo}: "Copiar diagnóstico" traz placa, formatos e erros, sem caminho de pasta`, await avaliar(`(() => { const t = window.__copiado || ''; return /Placa de vídeo: /.test(t) && /ponto flutuante/.test(t) && /Erros: /.test(t) && !/gyde-e2e|Users|Documents/i.test(t); })()`));
     ok(`${rotulo}: a checagem de segurança confirma prédios no quadro`, await esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok'`, 25_000), await avaliar(`document.querySelector('.cidade-3d')?.dataset.verificacao ?? 'sem resultado'`));
   }
   else ok(`${rotulo}: sem WebGL, a tela oferece a lista`, await esperar(`/Ver como lista/.test(document.querySelector('.cidade-palco-info')?.textContent || '') || document.querySelector('.cidade-canvas') !== null`, 20_000));
@@ -57,7 +61,7 @@ async function verificar(nav, rotulo, webgl) {
 async function abrirCidade(nav, pasta, { modo = '3d', extra = '' } = {}) {
   const s = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta })).json();
   await nav.entrar(servidor.base, conta);
-  await nav.avaliar(`localStorage.setItem('cidadeQualidade', 'alta'); localStorage.setItem('cidadeModo', '${modo}'); ${extra} 1`);
+  await nav.avaliar(`localStorage.setItem('cidadeQualidade', 'media'); localStorage.setItem('cidadeModo', '${modo}'); ${extra} 1`);
   await nav.ir(`${servidor.base}/?r=${Math.random()}#/agente/${s.id}`, 2500);
   await nav.esperar(`document.querySelector('#abaCidade') !== null`);
   await nav.avaliar(`document.querySelector('#abaCidade').click()`);
@@ -69,7 +73,10 @@ try {
   const falha = await abrirNavegador({ webgl: true });
   try {
     await abrirCidade(falha, proj.pasta, { extra: `localStorage.setItem('gyde-teste-cidade-falha', 'alta');` });
-    ok('falha simulada na alta: volta sozinha para a média', await falha.esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok' && /Média/.test(document.querySelector('.cidade-qualidade')?.textContent || '')`, 30_000),
+    // a Alta só liga pelo botão: média → leve → automática → alta
+    await falha.esperar(`document.querySelector('.cidade-qualidade') !== null && document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok'`, 25_000);
+    for (let k = 0; k < 3; k++) { await falha.avaliar(`document.querySelector('.cidade-qualidade').click()`); await new Promise((r) => setTimeout(r, 150)); }
+    ok('falha simulada na alta: volta sozinha para a média', await falha.esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok' && /baixou da alta/.test(document.querySelector('.cidade-qualidade')?.textContent || '') && /Média/.test(document.querySelector('.cidade-qualidade')?.textContent || '')`, 30_000),
       await falha.avaliar(`JSON.stringify([document.querySelector('.cidade-3d')?.dataset.verificacao, document.querySelector('.cidade-qualidade')?.textContent])`));
     ok('mostra um aviso discreto dizendo o que mudou', await falha.esperar(`/não apareceram na qualidade alta.*Mudei para a média/.test(document.querySelector('.cidade-aviso3d')?.textContent || '')`, 3000));
     ok('sem erro de JavaScript na falha simulada', falha.erros.length === 0, falha.erros.slice(0, 3).join(' | '));
