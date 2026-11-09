@@ -6,7 +6,7 @@
   import type { TCidade, TPredio } from '$contratos';
   import { pedir, mensagemDe } from '../api.ts';
   import { bairroDe, nomeDe, calorDe } from './cidade-comum.ts';
-  import type { Cidade3D } from './cidade3d.ts';
+  import type { Cidade3D, Qualidade } from './cidade3d.ts';
 
   let { id }: { id: string } = $props();
 
@@ -24,6 +24,21 @@
   let dica = $state<{ p: TPredio; x: number; y: number } | null>(null);
   let escolhido = $state<TPredio | null>(null);
   let cena: Cidade3D | null = null;
+  // busca dentro da cidade (escurece o resto) e qualidade do 3D (automática ou escolhida; fica salva)
+  let busca3d = $state('');
+  let achados = $state<number | null>(null);
+  const QUALIDADES = ['auto', 'alta', 'media', 'leve'] as const;
+  const NOME_QUALIDADE = { auto: 'Automática', alta: 'Alta', media: 'Média', leve: 'Leve' };
+  const qualidadeSalva = (() => { try { const q = localStorage.getItem('cidadeQualidade'); return (QUALIDADES as readonly string[]).includes(q ?? '') ? q as (typeof QUALIDADES)[number] : 'auto'; } catch { return 'auto'; } })();
+  let pedidoQualidade = $state<(typeof QUALIDADES)[number]>(qualidadeSalva);
+  let qualidadeAtual = $state<Qualidade | null>(null);
+  function trocarQualidade() {
+    pedidoQualidade = QUALIDADES[(QUALIDADES.indexOf(pedidoQualidade) + 1) % QUALIDADES.length]!;
+    try { localStorage.setItem('cidadeQualidade', pedidoQualidade); } catch { /* sem storage */ }
+    cena?.definirQualidade(pedidoQualidade);
+  }
+  function fecharCartao() { escolhido = null; cena?.selecionar(null); }
+  $effect(() => { const t = busca3d; if (cena && estado3d === 'pronto') achados = t.trim() ? cena.filtrar(t) : (cena.filtrar(''), null); });
 
   async function carregar() {
     carregando = true; erro = '';
@@ -41,8 +56,10 @@
     import('./cidade3d.ts').then(({ criarCidade3D }) => {
       if (cancelado) return;
       cena = criarCidade3D(alvo, dados.arquivos, {
-        aoEscolher: (p) => { escolhido = p; },
+        aoEscolher: (p) => { escolhido = p; dica = null; },
         aoPassar: (p, x, y) => { dica = p ? { p, x, y } : null; },
+        aoQualidade: (q) => { qualidadeAtual = q; },
+        qualidade: pedidoQualidade,
       });
       if (escolhido) cena.selecionar(escolhido.caminho);
       estado3d = 'pronto';
@@ -94,7 +111,7 @@
   {#if erro}<p class="msg-error" role="alert">{erro}</p>
   {:else if !cidade}<p class="cidade-info" role="status">Lendo a pasta do projeto…</p>
   {:else}
-    <p class="cidade-resumo" role="status">
+    <p class="cidade-resumo" class:sr-only={modo === '3d'} role="status">
       {numero(cidade.arquivos.length)} {cidade.arquivos.length === 1 ? 'prédio' : 'prédios'} em {numero(new Set(cidade.arquivos.map((a) => bairroDe(a.caminho))).size)} bairros.
       {#if cidade.git.ativo}Mudanças contadas nos últimos {numero(cidade.git.commits)} commits.{:else}Esta pasta não usa git, então todos os prédios ficam sem cor de mudança.{/if}
     </p>
@@ -110,16 +127,42 @@
         {#if estado3d === 'falhou'}
           <div class="cidade-palco-info" role="alert"><p>Este computador não conseguiu desenhar a cidade em 3D.</p><button type="button" class="btn small primary" onclick={() => trocarModo('lista')}>Ver como lista</button></div>
         {/if}
-        <div class="cidade-legenda-3d" aria-hidden="true">
-          <span>Altura = tamanho do arquivo</span>
-          <span class="cidade-escala"><i></i>nunca mudou → mais alterado</span>
-        </div>
+        {#if estado3d === 'pronto'}
+          <div class="cidade-hud">
+            <span class="cidade-vidro cidade-numeros"><b>{numero(cidade.arquivos.length)}</b> prédios <span aria-hidden="true">·</span> <b>{numero(new Set(cidade.arquivos.map((a) => bairroDe(a.caminho))).size)}</b> bairros{#if cidade.git.ativo}<span class="cidade-hud-extra"> <span aria-hidden="true">·</span> <b>{numero(cidade.git.commits)}</b> commits</span>{/if}</span>
+            <span class="cidade-hud-dir">
+              <label class="cidade-vidro cidade-busca"><span class="sr-only">Procurar na cidade</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+                <input type="search" bind:value={busca3d} placeholder="Procurar" autocomplete="off" spellcheck="false">
+                {#if achados != null}<small aria-live="polite">{achados} {achados === 1 ? 'achado' : 'achados'}</small>{/if}
+              </label>
+              <button type="button" class="cidade-vidro cidade-qualidade" title="Qualidade do 3D. Automática: começa alta (leve no celular) e baixa sozinha se ficar lenta." onclick={trocarQualidade}>
+                <span class="cidade-hud-extra">Qualidade: </span>{NOME_QUALIDADE[pedidoQualidade]}{#if pedidoQualidade === 'auto' && qualidadeAtual}<small>({NOME_QUALIDADE[qualidadeAtual]})</small>{/if}
+              </button>
+            </span>
+          </div>
+          <div class="cidade-vidro cidade-legenda-3d" aria-hidden="true">
+            <span class="cidade-leg-item"><i class="cidade-leg-predio"></i>Altura = tamanho</span>
+            <span class="cidade-leg-item cidade-escala"><i></i>nunca mudou → mais alterado</span>
+            <span class="cidade-leg-item"><i class="cidade-leg-farol"></i>Farol = muito alterado</span>
+          </div>
+        {/if}
+        {#if escolhido}
+          <article class="cidade-vidro cidade-cartao" aria-label="Arquivo escolhido">
+            <button type="button" class="cidade-cartao-fechar" aria-label="Fechar" onclick={fecharCartao}>✕</button>
+            <small class="cidade-cartao-bairro">{bairroDe(escolhido.caminho) || 'raiz do projeto'}</small>
+            <h3>{nomeDe(escolhido.caminho)}</h3>
+            <dl>
+              <div><dt>Tamanho</dt><dd>{tamanhoTexto(escolhido)}</dd></div>
+              {#if cidade.git.ativo}
+                <div><dt>Mudanças no git</dt><dd><span class="cidade-calor" style:--calor={calor(escolhido)} aria-hidden="true"></span>{escolhido.mudancas ? `${numero(escolhido.mudancas)} ${escolhido.mudancas === 1 ? 'vez' : 'vezes'}` : 'nunca mudou'}</dd></div>
+                {#if escolhido.ultima}<div><dt>Última mudança</dt><dd>{data(escolhido.ultima)}</dd></div>{/if}
+              {/if}
+            </dl>
+          </article>
+        {/if}
       </div>
       <p class="cidade-ajuda">Arraste para girar. Use a roda do mouse (ou dois dedos) para aproximar e o botão direito para mover. Clique num prédio para ver o arquivo.</p>
-      {#if escolhido}
-        <p class="cidade-escolhido" role="status"><span class="cidade-calor" style:--calor={calor(escolhido)} aria-hidden="true"></span><b class="cidade-arquivo">{escolhido.caminho}</b>
-          <span>{tamanhoTexto(escolhido)}{#if cidade.git.ativo}{' · '}{escolhido.mudancas ? `mudou ${numero(escolhido.mudancas)} ${escolhido.mudancas === 1 ? 'vez' : 'vezes'}` : 'nunca mudou'}{/if}</span></p>
-      {/if}
     {:else}
     <div class="cidade-controles">
       <label class="cidade-filtro"><span>Procurar arquivo</span><input type="search" bind:value={filtro} placeholder="ex.: server.ts" autocomplete="off" spellcheck="false"></label>
@@ -157,7 +200,7 @@
   {/if}
 </section>
 
-{#if dica}
+{#if dica && !escolhido}
   <div class="cidade-dica" style:left="{dica.x + 14}px" style:top="{dica.y + 14}px" aria-hidden="true">
     <b>{nomeDe(dica.p.caminho)}</b><small>{bairroDe(dica.p.caminho) || 'raiz do projeto'}</small>
     <span>{tamanhoTexto(dica.p)}{#if cidade?.git.ativo}{' · '}{dica.p.mudancas ? `${numero(dica.p.mudancas)} mudanças` : 'nunca mudou'}{/if}</span>

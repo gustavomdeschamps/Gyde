@@ -42,14 +42,16 @@ async function medir(arquivo: string, bytes: number): Promise<{ linhas: number; 
   } finally { await f.close(); }
 }
 
-function rodarGit(pasta: string, args: string[], tempo = 15_000): Promise<string | null> {
+function rodarGit(pasta: string, args: string[], tempo = 15_000, entrada?: string): Promise<string | null> {
   return new Promise((ok) => {
     let saida = '';
     const p = spawn('git', args, { cwd: pasta, windowsHide: true, env: ambienteLimpo({ GIT_TERMINAL_PROMPT: '0' }) });
+    p.stdin.on('error', () => { /* git saiu antes de ler tudo */ });
+    p.stdin.end(entrada ?? '');
     const t = setTimeout(() => { p.kill(); ok(null); }, tempo);
     p.stdout.setEncoding('utf8').on('data', (d: string) => { saida += d; if (saida.length > 20_000_000) p.kill(); });
     p.on('error', () => { clearTimeout(t); ok(null); });
-    p.on('close', (c) => { clearTimeout(t); ok(c === 0 ? saida : null); });
+    p.on('close', (c) => { clearTimeout(t); ok(c === 0 || (c === 1 && entrada != null) ? saida : null); }); // check-ignore sai com 1 quando nada é ignorado
   });
 }
 
@@ -94,6 +96,14 @@ export async function mapaDaCidade(pasta: string, { limite = LIMITE_PREDIOS }: {
   };
   await anda(pasta, '', 1);
   const git = await historicoGit(pasta);
+  // com git, o que o .gitignore manda ignorar (builds, caches, saídas) não vira prédio
+  if (git.ativo && achados.length) {
+    const ignorados = await rodarGit(pasta, ['-c', 'core.quotepath=off', 'check-ignore', '--stdin'], 15_000, achados.map((a) => a.caminho).join('\n'));
+    if (ignorados) {
+      const fora = new Set(ignorados.split(/\r?\n/).map((l) => l.trim()).filter(Boolean));
+      for (let i = achados.length - 1; i >= 0; i--) if (fora.has(achados[i]!.caminho)) achados.splice(i, 1);
+    }
+  }
   // limite de prédios: ficam os mais alterados e os maiores (o que mais interessa ver), o resto é contado
   const nota = (a: { caminho: string; bytes: number }) => (git.porArquivo.get(a.caminho)?.mudancas ?? 0) * 1_000_000 + a.bytes;
   const escolhidos = achados.length > limite ? [...achados].sort((a, b) => nota(b) - nota(a)).slice(0, limite) : achados;

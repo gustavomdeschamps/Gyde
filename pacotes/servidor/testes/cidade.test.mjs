@@ -37,7 +37,7 @@ test('mapa conta linhas, marca binário e pula segredos e pastas pesadas', async
 
 test('mudanças no git são contadas por arquivo, também numa subpasta do repositório', async (t) => {
   if (git(tmpdir(), '--version').status !== 0) return t.skip('git não instalado');
-  const pasta = projeto({ 'app/a.js': '1\n', 'app/b.js': '1\n', 'outro.txt': 'x' });
+  const pasta = projeto({ 'app/a.js': '1\n', 'app/b.js': '1\n', 'outro.txt': 'x', '.gitignore': 'saida/\n*.log\n', 'saida/gerado.js': 'x', 'erro.log': 'x' });
   try {
     git(pasta, 'init', '-q');
     git(pasta, 'add', '.'); git(pasta, 'commit', '-qm', 'um');
@@ -50,6 +50,7 @@ test('mudanças no git são contadas por arquivo, também numa subpasta do repos
     assert.equal(por['app/a.js'].mudancas, 3);
     assert.equal(por['app/b.js'].mudancas, 1);
     assert.ok(por['app/a.js'].ultima > 0);
+    assert.ok(!por['saida/gerado.js'] && !por['erro.log'], 'o que o .gitignore ignora não vira prédio');
     // pasta conectada = subpasta do repositório: caminhos relativos a ela
     const sub = await mapaDaCidade(path.join(pasta, 'app'));
     assert.deepEqual(sub.arquivos.map((a) => [a.caminho, a.mudancas]), [['a.js', 3], ['b.js', 1]]);
