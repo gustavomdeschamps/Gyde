@@ -129,7 +129,7 @@
         {/if}
         {#if estado3d === 'pronto'}
           <div class="cidade-hud">
-            <span class="cidade-vidro cidade-numeros"><b>{numero(cidade.arquivos.length)}</b> prédios <span aria-hidden="true">·</span> <b>{numero(new Set(cidade.arquivos.map((a) => bairroDe(a.caminho))).size)}</b> bairros{#if cidade.git.ativo}<span class="cidade-hud-extra"> <span aria-hidden="true">·</span> <b>{numero(cidade.git.commits)}</b> commits</span>{/if}</span>
+            <span class="cidade-vidro cidade-numeros"><b>{numero(cidade.arquivos.length)}</b> prédios <span aria-hidden="true">·</span> <b>{numero(new Set(cidade.arquivos.map((a) => bairroDe(a.caminho))).size)}</b> bairros{#if cidade.git.ativo}<span class="cidade-hud-extra">{' '}<span aria-hidden="true">·</span>{' '}<b>{numero(cidade.git.commits)}</b> commits</span>{/if}</span>
             <span class="cidade-hud-dir">
               <label class="cidade-vidro cidade-busca"><span class="sr-only">Procurar na cidade</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>

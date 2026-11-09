@@ -322,7 +322,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       vet.copy(r.ponto).project(camera);
       const x = (vet.x * 0.5 + 0.5) * w, y = (-vet.y * 0.5 + 0.5) * h;
       const ret: [number, number, number, number] = [x - r.w / 2 - 4, y - r.h - 4, x + r.w / 2 + 4, y + 4];
-      const dentro = vet.z < 1 && ret[0] > 4 && ret[2] < w - 4 && ret[1] > 52 && y < h - 8;
+      const dentro = vet.z < 1 && ret[0] > 4 && ret[2] < w - 4 && ret[1] > (w < 640 ? 100 : 52) && y < h - 8; // fora do HUD
       const livre = dentro && ocupados.length < maximo && !ocupados.some((o) => o[0] < ret[2] && ret[0] < o[2] && o[1] < ret[3] && ret[1] < o[3]);
       if (livre) ocupados.push(ret);
       r.el.style.transform = `translate(${Math.round(x - r.w / 2)}px, ${Math.round(y - r.h)}px)`;
@@ -361,6 +361,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   // ---------- qualidade adaptativa ----------
   const ORDEM: Qualidade[] = ['leve', 'media', 'alta'];
   let qualidade: Qualidade = 'alta';
+  let forcaBloom = 0.75;
   let automatica = (opcoes.qualidade ?? 'auto') === 'auto';
   function aplicarQualidade(q: Qualidade) {
     qualidade = q;
@@ -369,7 +370,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     composer.setPixelRatio(dpr);
     pixel.value = dpr;
     bloom.enabled = q !== 'leve';
-    bloom.strength = q === 'alta' ? 0.75 : 0.6;
+    forcaBloom = q === 'alta' ? 0.75 : 0.6;
     trafego.visible = q !== 'leve' && nTrafego > 0;
     geoTrafego.setDrawRange(0, q === 'alta' ? nTrafego : Math.floor(nTrafego / 2));
     for (const c of camadas) c.visible = q === 'alta';
@@ -407,7 +408,11 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     // órbita lenta quando ninguém mexe há alguns segundos (pausa ao interagir)
     controles.autoRotate = !menosMovimento && !interagindo && !entrada.ativa && !voo && agora - ultimoMexer > 6;
     if (controles.update()) continuar = true;
-    if (bloom.enabled) composer.render(); else renderer.render(cena, camera);
+    // de perto, as janelas ocupam a tela e o bloom vira um véu: ele enfraquece com a aproximação
+    if (bloom.enabled) {
+      bloom.strength = forcaBloom * THREE.MathUtils.clamp(camera.position.distanceTo(controles.target) / (distanciaIdeal() * 0.75), 0.25, 1);
+      composer.render();
+    } else renderer.render(cena, camera);
     posicionarRotulos();
     // mede o FPS e alivia a cena se ficar pesada (só no automático)
     if (automatica && !menosMovimento) {
