@@ -101,12 +101,12 @@ async function conferirStatus() {
     atualizarUso();
     // código novo no disco, servidor antigo na memória: telas e servidor não combinam
     if (s.desatualizado) { aviso('O Gyde foi atualizado, mas o servidor ainda está rodando a versão anterior. Feche o Gyde e abra de novo para terminar a atualização.'); return true; }
-    if (s.keyConfigured && !s.routerOnline && s.iaAtiva === 'offline') { aviso('Sem conexão com o FreeLLMAPI: usando o modelo local (offline). Ele é mais simples e mais lento.'); return true; }
+    if (s.keyConfigured && !s.routerOnline && s.iaAtiva === 'offline') { aviso('Sem conexão com a IA online: usando o modelo local (offline). Ele é mais simples e mais lento.'); return true; }
     if (!s.keyConfigured) {
-      aviso('A chave do FreeLLMAPI ainda não foi configurada. No ícone do FreeLLMAPI, clique em <b>Copy Key</b> e cole em <button type="button" class="link" id="bannerConfigIa">Configurações &gt; IA e modelos</button>.', true);
-      $('#bannerConfigIa')?.addEventListener('click', () => config.abrir('ia'));
+      aviso('A IA ainda não está conectada. É grátis e leva uns 2 minutos: <button type="button" class="link" id="bannerConfigIa">Conectar IA</button>.', true);
+      $('#bannerConfigIa')?.addEventListener('click', () => config.abrir('conectar'));
     }
-    else if (!s.routerOnline) aviso('O FreeLLMAPI não está respondendo. Abra o app FreeLLMAPI (ícone na bandeja) e recarregue a página.');
+    else if (!s.routerOnline) aviso('A IA online não está respondendo. Se você usa o FreeLLMAPI, abra o app dele (ícone na bandeja) e recarregue a página.');
     else { if (!APP_ANTIGO) banner.hidden = true; return true; }
   } catch { aviso('Não consegui falar com o servidor do Gyde.'); }
   return false;

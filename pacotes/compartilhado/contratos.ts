@@ -118,7 +118,7 @@ export const PreferenciasIA = z.object({ modo: z.enum(['rapido', 'equilibrado', 
 export const Conexoes = z.object({
   avisoIdade: z.string(),
   provedores: z.array(z.object({
-    id: z.string(), nome: z.string(), papel: z.enum(['inicial', 'opcional']), descricao: z.string(), avisos: z.array(z.string()),
+    id: z.string(), nome: z.string(), artigo: z.string(), de: z.string(), papel: z.enum(['inicial', 'opcional']), descricao: z.string(), avisos: z.array(z.string()),
     linkChave: z.string(), prefixo: z.string(), conectado: z.boolean(),
   })),
   freellmapi: z.boolean(),

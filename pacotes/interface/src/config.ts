@@ -3,7 +3,7 @@ import { mount } from 'svelte';
 import Configuracoes from './config/Configuracoes.svelte';
 import UsoChip from './config/UsoChip.svelte';
 
-type Aba = 'geral' | 'ia' | 'uso' | 'dados' | 'extensoes';
+type Aba = 'geral' | 'conectar' | 'ia' | 'uso' | 'dados' | 'extensoes';
 interface Opcoes {
   toast: (t: string) => void; copiar: (texto: string, botao: HTMLElement) => void; verAbertura: () => void;
   refazerQuiz: () => void; restaurarModelo: () => void; recarregarConversas: () => Promise<void>;

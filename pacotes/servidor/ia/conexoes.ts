@@ -15,6 +15,8 @@ const VALE_LISTA = 10 * 60_000;
 // o que não é modelo de conversa (embeddings, moderação, voz, imagem...) nunca entra na fila
 const NAO_CONVERSA = /(embed|guard|safety|moderation|whisper|tts|transcri|ocr|parse|reward|clip|translate|live|audio|image|vision-detector|fim|rerank|retriever)/i;
 
+const maiuscula = (t: string) => t[0]!.toUpperCase() + t.slice(1);
+
 export interface ResultadoTeste { ok: boolean; mensagem: string; modelo?: string }
 
 export function criarConexoes({ medicoes, buscar = fetch }: { medicoes: Medicoes; buscar?: typeof fetch }) {
@@ -56,11 +58,11 @@ export function criarConexoes({ medicoes, buscar = fetch }: { medicoes: Medicoes
   // Chamada de 1 token com a chave: a única prova de que ela funciona.
   async function testar(p: ProvedorGratis, chave: string): Promise<ResultadoTeste> {
     if (!p.formatoChave.test(chave)) {
-      return { ok: false, mensagem: p.prefixo ? `Isso não parece uma chave ${nomeCurto(p)}: ela começa com "${p.prefixo}". Copie a chave inteira, sem espaços.` : `Isso não parece uma chave ${nomeCurto(p)}.` };
+      return { ok: false, mensagem: p.prefixo ? `Isso não parece uma chave ${p.de}: ela começa com "${p.prefixo}". Copie a chave inteira, sem espaços.` : `Isso não parece uma chave ${p.de}.` };
     }
     const vivos = await listar(p, chave);
     const tentar = [...new Set([...medidosDe(p).filter((m) => !vivos || vivos.includes(m)), ...(vivos ?? []).filter((m) => !NAO_CONVERSA.test(m))])].slice(0, 3);
-    if (!tentar.length) return { ok: false, mensagem: `Não consegui falar com ${p.nome}. Confira a internet e tente de novo.` };
+    if (!tentar.length) return { ok: false, mensagem: `Não consegui falar com ${p.artigo}. Confira a internet e tente de novo.` };
     let ultimo = '';
     for (const modelo of tentar) {
       let r: globalThis.Response;
@@ -70,14 +72,14 @@ export function criarConexoes({ medicoes, buscar = fetch }: { medicoes: Medicoes
           headers: { Authorization: `Bearer ${chave}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ model: modelo, max_tokens: 1, messages: [{ role: 'user', content: 'Responda só: ok' }] }),
         });
-      } catch { return { ok: false, mensagem: `Não consegui falar com ${p.nome}. Confira a internet e tente de novo.` }; }
-      if (r.ok) return { ok: true, mensagem: `Funcionou! O Gyde já pode usar ${p.nome}.`, modelo };
+      } catch { return { ok: false, mensagem: `Não consegui falar com ${p.artigo}. Confira a internet e tente de novo.` }; }
+      if (r.ok) return { ok: true, mensagem: `Funcionou! O Gyde já pode usar ${p.artigo}.`, modelo };
       const corpo = redigir(await r.text().catch(() => ''));
-      if (r.status === 429) return { ok: true, mensagem: `A chave funciona. ${p.nome} disse que o limite deste minuto acabou: o Gyde espera e usa quando liberar.`, modelo };
+      if (r.status === 429) return { ok: true, mensagem: `A chave funciona. ${maiuscula(p.artigo)} disse que o limite deste minuto acabou: o Gyde espera e usa quando liberar.`, modelo };
       if (r.status === 401 || r.status === 403 || (r.status === 400 && /api.?key|invalid|unauthori/i.test(corpo))) {
-        return { ok: false, mensagem: `${p.nome} recusou essa chave. Confira se copiou ela inteira, sem espaços, ou crie uma nova no site.` };
+        return { ok: false, mensagem: `${maiuscula(p.artigo)} recusou essa chave. Confira se copiou ela inteira, sem espaços, ou crie uma nova no site.` };
       }
-      ultimo = `${p.nome} respondeu com erro ${r.status}.`; // modelo fora do ar ou que sumiu: tenta o próximo
+      ultimo = `${maiuscula(p.artigo)} respondeu com erro ${r.status}.`; // modelo fora do ar ou que sumiu: tenta o próximo
     }
     return { ok: false, mensagem: `${ultimo} A chave pode estar certa, mas o serviço não respondeu agora. Tente de novo em alguns minutos.` };
   }
@@ -85,7 +87,7 @@ export function criarConexoes({ medicoes, buscar = fetch }: { medicoes: Medicoes
   function estado() {
     return {
       avisoIdade: AVISO_IDADE,
-      provedores: naTela.map((p) => ({ id: p.id, nome: p.nome, papel: p.papel, descricao: p.descricao, avisos: p.avisos, linkChave: p.linkChave, prefixo: p.prefixo, conectado: Boolean(process.env[p.chaveEnv]) })),
+      provedores: naTela.map((p) => ({ id: p.id, nome: p.nome, artigo: p.artigo, de: p.de, papel: p.papel, descricao: p.descricao, avisos: p.avisos, linkChave: p.linkChave, prefixo: p.prefixo, conectado: Boolean(process.env[p.chaveEnv]) })),
       freellmapi: Boolean(process.env.FREELLMAPI_KEY),
     };
   }
@@ -94,7 +96,6 @@ export function criarConexoes({ medicoes, buscar = fetch }: { medicoes: Medicoes
 }
 export type Conexoes = ReturnType<typeof criarConexoes>;
 
-const nomeCurto = (p: ProvedorGratis) => (p.id === 'google' ? 'do Google' : `da ${p.nome}`).replace('da Groq', 'do Groq');
 
 export function setupConexoes(app: Express, { conexoes, gravarNoEnv, asyncRoute, aoMudar }: {
   conexoes: Conexoes; gravarNoEnv: (pares: Record<string, string | null>) => void; asyncRoute: AsyncRoute; aoMudar: () => void;

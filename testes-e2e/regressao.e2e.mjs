@@ -37,7 +37,7 @@ try {
     document.querySelector('dialog.config').close();
     return out;
   })()`);
-  ok('Configurações: 5 abas abrem com conteúdo', abas && Object.keys(abas).length === 5 && Object.values(abas).every((a) => a.visivel && a.texto > 20), JSON.stringify(abas));
+  ok('Configurações: 6 abas abrem com conteúdo', abas && Object.keys(abas).length === 6 && Object.values(abas).every((a) => a.visivel && a.texto > 20), JSON.stringify(abas));
   ok('Configurações: nada de undefined/NaN na tela', abas && Object.values(abas).every((a) => !a.ruim));
   ok('Configurações: sem erro de JavaScript', nav.erros.length === 0, nav.erros.join(' | '));
 

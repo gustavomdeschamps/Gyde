@@ -4,6 +4,7 @@
 // confirmado: nada de limite inventado, nada sobre dados que a fonte oficial não diz.
 export interface ProvedorGratis {
   id: string; nome: string; url: string; chaveEnv: string; linkChave: string; formatoChave: RegExp; prefixo: string;
+  artigo: string; de: string; // para o texto sair certo: "a NVIDIA" / "da NVIDIA", "o Google" / "do Google"
   naTela: boolean; // Mistral só entra na avaliação: o plano grátis dele não inclui a API para quem cria conta agora
   papel: 'inicial' | 'opcional';
   descricao: string;
@@ -15,25 +16,25 @@ export const AVISO_IDADE = 'A chave precisa ser criada por alguém com 18 anos o
 
 export const PROVEDORES_GRATIS: ProvedorGratis[] = [
   {
-    id: 'nvidia', nome: 'NVIDIA', url: 'https://integrate.api.nvidia.com/v1', chaveEnv: 'NVIDIA_API_KEY',
+    id: 'nvidia', nome: 'NVIDIA', artigo: 'a NVIDIA', de: 'da NVIDIA', url: 'https://integrate.api.nvidia.com/v1', chaveEnv: 'NVIDIA_API_KEY',
     linkChave: 'https://build.nvidia.com/settings/api-keys', formatoChave: /^nvapi-[A-Za-z0-9_-]{20,}$/, prefixo: 'nvapi-', naTela: true, papel: 'inicial',
-    descricao: 'Vários modelos. Nos testes do Gyde, fez 7 de 8 tarefas da Forja.',
+    descricao: 'Tem vários modelos e funcionou bem nos nossos testes, inclusive na Forja.',
     avisos: ['É um teste grátis da NVIDIA: as regras e os limites podem mudar, e a NVIDIA pode encerrar o teste.'],
   },
   {
-    id: 'google', nome: 'Google AI Studio', url: 'https://generativelanguage.googleapis.com/v1beta/openai', chaveEnv: 'GEMINI_API_KEY',
+    id: 'google', nome: 'Google AI Studio', artigo: 'o Google', de: 'do Google', url: 'https://generativelanguage.googleapis.com/v1beta/openai', chaveEnv: 'GEMINI_API_KEY',
     linkChave: 'https://aistudio.google.com/apikey', formatoChave: /^AIza[0-9A-Za-z_-]{30,}$/, prefixo: 'AIza', naTela: true, papel: 'inicial',
-    descricao: 'Entra com a conta Google. Nos testes do Gyde, fez 7 de 8 tarefas da Forja.',
+    descricao: 'Usa a sua conta Google e funcionou bem nos nossos testes, inclusive na Forja.',
     avisos: ['Privacidade: no plano grátis, o Google pode usar o que você envia para melhorar os produtos dele, e pessoas podem ler essas conversas. Não mande dados pessoais nem confidenciais.'],
   },
   {
-    id: 'groq', nome: 'Groq', url: 'https://api.groq.com/openai/v1', chaveEnv: 'GROQ_API_KEY',
+    id: 'groq', nome: 'Groq', artigo: 'o Groq', de: 'do Groq', url: 'https://api.groq.com/openai/v1', chaveEnv: 'GROQ_API_KEY',
     linkChave: 'https://console.groq.com/keys', formatoChave: /^gsk_[A-Za-z0-9]{20,}$/, prefixo: 'gsk_', naTela: true, papel: 'opcional',
     descricao: 'Deixa o chat mais rápido e serve de reserva.',
     avisos: [],
   },
   {
-    id: 'mistral', nome: 'Mistral', url: 'https://api.mistral.ai/v1', chaveEnv: 'MISTRAL_API_KEY',
+    id: 'mistral', nome: 'Mistral', artigo: 'o Mistral', de: 'do Mistral', url: 'https://api.mistral.ai/v1', chaveEnv: 'MISTRAL_API_KEY',
     linkChave: 'https://console.mistral.ai/api-keys', formatoChave: /^[A-Za-z0-9]{32}$/, prefixo: '', naTela: false, papel: 'opcional',
     descricao: 'Só para as avaliações: o plano grátis atual do Mistral não inclui a API.',
     avisos: [],

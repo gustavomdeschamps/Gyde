@@ -73,12 +73,13 @@ export async function provedorFalso() {
     if (req.url === '/health') return json(200, { ok: true });
     if (req.url?.startsWith('/v1/models')) return json(200, { data: ['qwen3.8-27b', 'codestral', 'mistral-code'].map((id) => ({ id })) });
     if (req.url?.startsWith('/v1/usage')) return json(200, {});
+    if (/ruim/.test(req.headers.authorization ?? '')) return json(403, { error: { message: 'Authorization failed' } });
     if (req.method !== 'POST' || !req.url?.startsWith('/v1/chat/completions')) return json(404, { error: { message: 'rota falsa inexistente' } });
     let bruto = '';
     for await (const pedaco of req) bruto += pedaco;
     const corpo = JSON.parse(bruto);
     const mensagens = corpo.messages ?? [];
-    pedidos.push({ modelo: corpo.model, stream: Boolean(corpo.stream), mensagens });
+    pedidos.push({ modelo: corpo.model, stream: Boolean(corpo.stream), mensagens, chave: (req.headers.authorization ?? '').replace('Bearer ', '') });
     const usage = { prompt_tokens: 100, completion_tokens: 20, total_tokens: 120 };
 
     // "Mostrar o erro": região fixa (só se a imagem chegou de verdade no pedido)

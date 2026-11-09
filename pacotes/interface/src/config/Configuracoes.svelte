@@ -9,16 +9,17 @@
   import { uso, atualizarUso, nomeModelo, NOME_PROVEDOR } from './uso.svelte.ts';
   import UsoAba from './UsoAba.svelte';
   import InteligenciaIA from './InteligenciaIA.svelte';
+  import ConectarIA from './ConectarIA.svelte';
   import { desktop } from '../desktop.ts';
   import { montarRelatorio } from '../diagnostico.ts';
 
-  type Aba = 'geral' | 'ia' | 'uso' | 'dados' | 'extensoes';
+  type Aba = 'geral' | 'conectar' | 'ia' | 'uso' | 'dados' | 'extensoes';
   let { toast, copiar, verAbertura, refazerQuiz, restaurarModelo, recarregarConversas }: {
     toast: (t: string) => void; copiar: (texto: string, botao: HTMLElement) => void; verAbertura: () => void;
     refazerQuiz: () => void; restaurarModelo: () => void; recarregarConversas: () => Promise<void>;
   } = $props();
 
-  const ABAS: [Aba, string][] = [['geral', 'Geral'], ['ia', 'IA e modelos'], ['uso', 'Uso e limites'], ['dados', 'Privacidade e dados'], ['extensoes', 'Extensões']];
+  const ABAS: [Aba, string][] = [['geral', 'Geral'], ['conectar', 'Conectar IA'], ['ia', 'IA e modelos'], ['uso', 'Uso e limites'], ['dados', 'Privacidade e dados'], ['extensoes', 'Extensões']];
   let dialogo: HTMLDialogElement | undefined = $state();
   let aba = $state<Aba>('geral');
   let tema = $state<Tema>(temaSalvo());
@@ -29,7 +30,7 @@
   let tokenNovo = $state('');
   // no modo público (servidor de uma turma) chaves, modo da IA e cópia ficam com quem cuida do servidor
   let pessoal = $state(true);
-  let chave = $state({ configurada: null as boolean | null, texto: '', salvando: false });
+  let chave = $state({ configurada: null as boolean | null });
   let imagens = $state({ ligadas: null as boolean | null, conta: '', token: '', salvando: false });
 
   export async function abrir(qual: Aba = 'geral') {
@@ -69,20 +70,6 @@
   async function carregarChave() {
     try { const s = await pedir('/api/status', C.Status); chave.configurada = s.keyConfigured; imagens.ligadas = s.imagesEnabled; pessoal = s.pessoal; } catch { chave.configurada = null; imagens.ligadas = null; }
   }
-  // a chave vai direto para o .env deste computador; a tela nunca recebe ela de volta
-  async function salvarChave(e: SubmitEvent) {
-    e.preventDefault();
-    chave.salvando = true;
-    try {
-      await enviar('/api/config/chave-freellmapi', { method: 'PUT', body: JSON.stringify({ chave: chave.texto }) });
-      chave.texto = ''; chave.configurada = true;
-      toast('Chave salva neste computador');
-      atualizarUso();
-      dispatchEvent(new Event('gyde:status')); // a faixa de aviso do topo confere de novo
-    } catch (err) { toast(mensagemDe(err)); }
-    chave.salvando = false;
-  }
-
   // imagens (Cloudflare): o servidor confere conta e token antes de gravar; o token nunca volta para a tela
   async function salvarImagens(e: SubmitEvent) {
     e.preventDefault();
@@ -186,28 +173,29 @@
             </div>
           {/if}
         </section>
+      {:else if aba === 'conectar'}
+        <section class="config-painel" role="tabpanel" data-painel="conectar">
+          {#if !pessoal}
+            <p class="config-nota">Neste Gyde, quem conecta a IA é quem cuida do servidor.</p>
+          {:else}
+            <ConectarIA {toast} aoMudar={() => { atualizarUso(); dispatchEvent(new Event('gyde:status')); }} />
+          {/if}
+        </section>
       {:else if aba === 'ia'}
         <section class="config-painel" role="tabpanel" data-painel="ia">
           {#if uso.dados}
             {@const d = uso.dados}
             {#if !pessoal}
-              <p class="config-nota">Neste Gyde, a chave da IA, o modo (online ou offline) e as imagens são configurados por quem cuida do servidor.</p>
+              <p class="config-nota">Neste Gyde, o modo (online ou offline) e as imagens são configurados por quem cuida do servidor.</p>
             {:else}
             <div class="config-linha">
               <div><b>Modo da IA</b><small>Vale para o Gyde inteiro neste computador.</small></div>
               <select value={d.modo} onchange={(e) => mudarModo((e.currentTarget as HTMLSelectElement).value)} aria-label="Modo da IA">
                 <option value="auto">Automático (online; local se cair)</option>
-                <option value="online">Só online (FreeLLMAPI)</option>
+                <option value="online">Só online</option>
                 <option value="offline" disabled={!d.offline.disponivel}>Só offline ({d.offline.modelo}){d.offline.disponivel ? '' : ' · indisponível'}</option>
               </select>
             </div>
-            <form class="config-linha config-chave" onsubmit={salvarChave}>
-              <div><b>Chave do FreeLLMAPI</b><small>{chave.configurada ? 'Configurada neste computador. Para trocar, cole a nova.' : 'No ícone do FreeLLMAPI na bandeja, clique em "Copy Key" e cole aqui.'}</small></div>
-              <span class="config-chave-campo">
-                <input type="password" autocomplete="off" spellcheck="false" placeholder={chave.configurada ? '••••••••' : 'freellmapi-…'} aria-label="Chave do FreeLLMAPI" bind:value={chave.texto}>
-                <button class="btn small primary" disabled={!chave.texto.trim() || chave.salvando}>Salvar</button>
-              </span>
-            </form>
             {#if imagens.ligadas}
               <div class="config-linha"><div><b>Gerar imagens</b><small>Ligado (Cloudflare Workers AI, cota diária grátis). Use o botão Imagem no chat.</small></div>
                 <button type="button" class="btn small ghost" onclick={desligarImagens}>Desligar</button></div>

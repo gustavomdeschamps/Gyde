@@ -38,7 +38,7 @@ for (const tema of ['light', 'dark']) {
     await nav.ir(`${servidor.base}/?r=${Date.now()}#/`, 2500);
     await nav.avaliar(`document.querySelector('#openSettings').click()`);
     await nav.esperar('false', 600); // a animação de abertura deixa o texto semitransparente por um instante
-    for (const aba of ['geral', 'ia', 'uso', 'dados', 'extensoes']) {
+    for (const aba of ['geral', 'conectar', 'ia', 'uso', 'dados', 'extensoes']) {
       await nav.avaliar(`document.querySelector('[data-aba="${aba}"]').click()`);
       await nav.esperar(`document.querySelector('[data-painel="${aba}"] .skeleton') === null`, 4000);
       await auditar(nav, `Configurações > ${aba} (tema ${tema === 'light' ? 'claro' : 'escuro'})`, `document.querySelector('dialog.config')`);
