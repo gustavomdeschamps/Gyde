@@ -9,6 +9,7 @@
   import { ic } from './icones.ts';
   import { aplicar, fecharPendentes, type Item, type Evento } from './estado.ts';
   import Turno from './Turno.svelte';
+  import Cidade from './Cidade.svelte';
 
   type Recente = { id: string; pasta: string; titulo: string; updated_at: number; disponivel: boolean };
   type AnexoNovo = { nome: string; tipo: 'imagem' | 'arquivo'; dataUrl?: string; texto?: string; tamanho: number };
@@ -32,6 +33,8 @@
   let arvore = $state<{ aberta: boolean; texto: string; erro: string }>({ aberta: false, texto: '', erro: '' });
   let controle: AbortController | null = null;
   let trabalhando = $state(false);
+  // aba aberta: a conversa com a Forja ou a Cidade do código (mapa da pasta)
+  let vista = $state<'conversa' | 'cidade'>('conversa');
   let ocupadoBotao = $state(false);
   let rolagem: HTMLElement | undefined = $state();
   let campo: HTMLTextAreaElement | undefined = $state();
@@ -67,7 +70,7 @@
       if (pendente.__forjaPendente) { texto = pendente.__forjaPendente; pendente.__forjaPendente = null; await tick(); enviarTarefa(); }
     } catch (e) { erro = mensagemDe(e); sessao = null; }
   }
-  $effect(() => { void id; previa = { aberta: false, url: null, motivo: '', versao: 0, carregando: false }; carregar(); });
+  $effect(() => { void id; vista = 'conversa'; previa = { aberta: false, url: null, motivo: '', versao: 0, carregando: false }; carregar(); });
 
   async function alternarPrevia() {
     if (previa.aberta) { previa.aberta = false; return; }
@@ -225,6 +228,13 @@
     {/if}
   </header>
 
+  {#if sessao}
+    <div class="forja-abas" role="tablist" aria-label="Forja">
+      <button type="button" role="tab" id="abaConversa" aria-selected={vista === 'conversa'} aria-controls="painelForja" onclick={() => (vista = 'conversa')}>Conversa</button>
+      <button type="button" role="tab" id="abaCidade" aria-selected={vista === 'cidade'} aria-controls="painelForja" disabled={!sessao.pastaEstado.ok} title={sessao.pastaEstado.ok ? 'A pasta do projeto vista como uma cidade' : 'Reconecte a pasta para ver a cidade'} onclick={() => (vista = 'cidade')}>Cidade</button>
+    </div>
+  {/if}
+
   {#if arvore.aberta}
     <div class="forja-arvore">
       {#if arvore.erro}<p class="msg-error">{arvore.erro}</p>
@@ -247,7 +257,10 @@
     <p class="forja-aviso">A Forja ainda está trabalhando nesta conversa (em outra aba ou depois de recarregar). Espere ela terminar para mandar outra mensagem.</p>
   {/if}
 
-  <div class="forja-rolagem" bind:this={rolagem}><div class="messages">
+  {#if vista === 'cidade' && id && sessao?.pastaEstado.ok}
+  <div class="forja-rolagem" id="painelForja" role="tabpanel" aria-labelledby="abaCidade"><Cidade {id} /></div>
+  {:else}
+  <div class="forja-rolagem" bind:this={rolagem} id="painelForja" role={sessao ? 'tabpanel' : undefined} aria-labelledby={sessao ? 'abaConversa' : undefined}><div class="messages">
     {#if !id}
       <div class="ag-vazio"><span class="forja-marca grande">{@html ic.forja}</span>
         <h2>Forja: o Gyde trabalhando no seu projeto</h2>
@@ -303,6 +316,7 @@
       <button type="submit" class="send" class:streaming={trabalhando} aria-label={trabalhando ? 'Parar' : 'Enviar'}>{@html ic.enviar}</button>
     </div>
   </form>
+  {/if}
 </div>
 {#if previa.aberta}
   <aside class="forja-previa" aria-label="Prévia ao vivo do projeto">

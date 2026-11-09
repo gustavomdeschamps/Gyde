@@ -166,3 +166,46 @@
 @keyframes previa-entra { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .forja-previa { animation: none; } }
 @media (max-width: 900px) { .forja-area.com-previa { flex-direction: column; } .forja-previa { width: 100%; height: 45%; border-left: 0; border-top: 1px solid var(--border); } }
+
+/* ---------- Abas da Forja e Cidade do código ---------- */
+.forja-abas { display: flex; gap: 4px; padding: 6px 16px 0; border-bottom: 1px solid var(--border); }
+.forja-abas button { appearance: none; border: 0; background: none; color: var(--text-soft); font: inherit; font-size: 13.5px; font-weight: 600; padding: 8px 12px 9px; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; border-radius: 8px 8px 0 0; }
+.forja-abas button:hover:not(:disabled) { color: var(--text); background: var(--hover); }
+.forja-abas button[aria-selected="true"] { color: var(--accent-text); border-bottom-color: var(--accent); }
+.forja-abas button:disabled { opacity: .5; cursor: not-allowed; }
+.forja-abas button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.cidade { max-width: 980px; margin: 0 auto; padding: 18px 20px 40px; }
+.cidade-topo { display: flex; align-items: flex-start; gap: 16px; justify-content: space-between; }
+.cidade-topo h2 { margin: 0 0 4px; font: 650 19px/1.3 var(--font-display); }
+.cidade-legenda, .cidade-resumo, .cidade-info { margin: 0; color: var(--text-soft); font-size: 13.5px; line-height: 1.5; }
+.cidade-resumo { margin-top: 14px; color: var(--text); }
+.cidade-aviso { margin: 10px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--accent-soft); color: var(--text); font-size: 13px; line-height: 1.45; }
+.cidade-controles { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 6px; }
+.cidade-controles label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--text-faint); }
+.cidade-filtro { flex: 1 1 220px; }
+.cidade-controles input, .cidade-controles select { font: inherit; font-size: 14px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 9px; padding: 7px 10px; min-width: 0; }
+.cidade-controles input:focus-visible, .cidade-controles select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cidade-bairro { margin-top: 18px; }
+.cidade-bairro h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 6px; font-size: 14px; }
+.cidade-bairro-nome { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+.cidade-bairro h3 small { font-weight: 400; color: var(--text-faint); font-size: 12.5px; }
+.cidade-bairro table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cidade-bairro th, .cidade-bairro td { text-align: left; padding: 6px 10px; border-top: 1px solid var(--border); font-weight: 400; color: var(--text-soft); white-space: nowrap; }
+.cidade-bairro thead th { border-top: 0; font-size: 11.5px; font-weight: 600; color: var(--text-faint); background: var(--surface-2); }
+.cidade-bairro tbody th { color: var(--text); width: 100%; white-space: normal; }
+.cidade-arquivo { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+/* escala de calor: frio (cinza-azulado) até quente (vermelho), igual à da cidade 3D */
+.cidade-calor { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 8px; vertical-align: 1px;
+  background: color-mix(in oklab, #dc2626 calc(var(--calor, 0) * 100%), #94a3b8); }
+@media (max-width: 720px) {
+  .cidade { padding: 14px 14px 32px; }
+  .cidade-topo { flex-direction: column; gap: 10px; }
+  .cidade-bairro table, .cidade-bairro thead, .cidade-bairro tbody, .cidade-bairro tr { display: block; }
+  .cidade-bairro thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .cidade-bairro tr { padding: 7px 10px; border-top: 1px solid var(--border); }
+  .cidade-bairro tr:first-child { border-top: 0; }
+  .cidade-bairro th, .cidade-bairro td { display: inline; padding: 0; border: 0; white-space: normal; }
+  .cidade-bairro tbody th { display: block; margin-bottom: 2px; }
+  .cidade-bairro td + td::before { content: " · "; }
+}
