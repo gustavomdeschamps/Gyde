@@ -366,6 +366,8 @@ uniform float uAltura;  // altura da tela em pixels
 varying vec3 vCor;
 varying float vApagado;
 void main() {
+  // sem halo: joga o ponto para fora da tela (tamanho 0 ainda pode virar 1 pixel em algumas placas)
+  if (aHalo.x <= 0.0) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; vCor = vec3(0.0); vApagado = 1.0; return; }
   float sobe = smoothstep(aHalo.z, aHalo.z + 0.9, uSubida);
   float liga = smoothstep(aHalo.z + 0.9, aHalo.z + 1.6, uSubida);
   vec3 p = position;

@@ -96,7 +96,7 @@ export const normalizarCaminho = (c: string) => c.replaceAll('\\', '/').replace(
 // paleta: azul-marinho e violeta de base, ciano nas ruas, janelas âmbar e ciano, calor em laranja e vermelho;
 // eventos da Forja: ciano (leu), verde-limão (editou ou criou), vermelho-rosa (apagou). Valores acima de 1 brilham.
 const COR = {
-  ceuHorizonte: '#2a1b5c', ceuMeio: '#120d33', ceuTopo: '#04040f', nevoa: '#160f3a',
+  ceuHorizonte: '#211650', ceuMeio: '#110c31', ceuTopo: '#04040f', nevoa: '#211650', // névoa = cor do horizonte: o chão some no céu sem faixa
   corpo: '#0e1336', corpoAlto: '#2a2068', borda: '#7c5cff', lua: '#9db4ff',
   quente: '#ff2a3d', laranja: '#ff8a1f', janelaFria: '#7fe3ff', janelaQuente: '#ffd27a',
   rua: '#2fd9ff', quadra: '#8b6cff', trafego: '#9ff3ff', chao: '#05061a', chaoBrilho: '#3b1f8f', grade: '#3a3f9e',
@@ -120,7 +120,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   const planta = montarPlanta(arquivos);
   const tamanho = Math.max(planta.largura, planta.fundo, 12);
   const raio = Math.hypot(planta.largura, planta.fundo) / 2 + 4;
-  cena.fog = new THREE.FogExp2(new THREE.Color(COR.nevoa), 0.46 / (tamanho * 1.6));
+  cena.fog = new THREE.FogExp2(new THREE.Color(COR.nevoa), 0.55 / (tamanho * 1.6));
   const descartar: { dispose(): void }[] = [];
   const guardar = <T extends { dispose(): void }>(x: T) => { descartar.push(x); return x; };
   const comNevoa = (u: Record<string, THREE.IUniform>) => ({ ...THREE.UniformsUtils.clone(THREE.UniformsLib.fog), ...u });
@@ -163,7 +163,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   cena.add(estrelas);
 
   // ---------- chão de vidro escuro ----------
-  const chao = new THREE.Mesh(guardar(new THREE.PlaneGeometry(tamanho * 7, tamanho * 7).rotateX(-Math.PI / 2)), guardar(new THREE.ShaderMaterial({
+  const chao = new THREE.Mesh(guardar(new THREE.PlaneGeometry(tamanho * 16, tamanho * 16).rotateX(-Math.PI / 2)), guardar(new THREE.ShaderMaterial({
     vertexShader: S.chaoVertex, fragmentShader: S.chaoFragment, fog: true, transparent: true,
     uniforms: comNevoa({ uRaio: { value: raio }, uLuz: luz, uFundo: { value: new THREE.Color(COR.chao) }, uBrilho: { value: new THREE.Color(COR.chaoBrilho) }, uGrade: { value: new THREE.Color(COR.grade) } }),
   })));
@@ -255,8 +255,9 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   const indice = new Map(planta.predios.map((b, i) => [b.p.caminho, i]));
 
   // ---------- faróis: os arquivos mais alterados ----------
-  const quentes = planta.predios.map((b, i) => ({ b, i, calor: dados[i * 3]! })).filter((x) => x.b.p.mudancas > 0 && x.calor >= 0.55)
-    .sort((a, b) => b.calor - a.calor).slice(0, 10);
+  // faróis: os 8 arquivos mais alterados (com pelo menos 3 mudanças), não importa o tamanho do projeto
+  const quentes = planta.predios.map((b, i) => ({ b, i, calor: dados[i * 3]! })).filter((x) => x.b.p.mudancas >= 3)
+    .sort((a, b) => b.b.p.mudancas - a.b.p.mudancas).slice(0, 8);
   const apagarFeixes = { value: 0 };
   const geoFeixe = guardar(new THREE.CylinderGeometry(0.85, 0.12, 1, 28, 1, true).translate(0, 0.5, 0));
   const fases = new Float32Array(Math.max(1, quentes.length));
@@ -286,7 +287,9 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     tom.copy(frio).multiplyScalar(0.10).lerp(laranjaC.clone().lerp(quenteC, calor).multiplyScalar(0.55), Math.min(1, calor * 1.3));
     if (farois.has(i)) tom.copy(quenteC).lerp(laranjaC, 0.3).multiplyScalar(0.8);
     corHalo.set([tom.r, tom.g, tom.b], i * 3);
-    dadosHalo.set([farois.has(i) ? 6 : 1.6 + calor * 2.4, b.h, dados[i * 3 + 2]!], i * 3);
+    // prédio frio fica sem halo (tamanho 0 = a placa nem desenha): em projeto grande, mil halos quase invisíveis
+    // somados custariam caro numa placa integrada
+    dadosHalo.set([farois.has(i) ? 6 : calor < 0.25 ? 0 : 1.6 + calor * 2.4, b.h, dados[i * 3 + 2]!], i * 3);
   });
   const geoHalo = guardar(new THREE.BufferGeometry());
   geoHalo.setAttribute('position', new THREE.BufferAttribute(posHalo, 3));
@@ -380,7 +383,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     const w = caixa.clientWidth, h = caixa.clientHeight;
     if (!medidos) { for (const r of rotulos) { r.w = r.el.offsetWidth; r.h = r.el.offsetHeight; } medidos = true; }
     const ocupados: [number, number, number, number][] = [];
-    const maximo = w < 640 ? 6 : 12; // poucos nomes, os dos maiores bairros: o resto aparece ao aproximar
+    const maximo = w < 640 ? 5 : 8; // poucos nomes, os dos maiores bairros: o resto aparece ao aproximar
     for (const r of rotulos) {
       vet.copy(r.ponto).project(camera);
       const x = (vet.x * 0.5 + 0.5) * w, y = (-vet.y * 0.5 + 0.5) * h;
@@ -409,11 +412,12 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   const distanciaIdeal = () => {
     const meiaVista = THREE.MathUtils.degToRad(camera.fov / 2);
     const meiaLargura = Math.atan(Math.tan(meiaVista) * camera.aspect);
-    return (raioCidade / Math.sin(Math.min(meiaVista, meiaLargura))) * 0.68;
+    // tela estreita (celular): mais perto, cortando as laterais (a órbita lenta mostra o resto)
+    return (raioCidade / Math.sin(Math.min(meiaVista, meiaLargura))) * (camera.aspect < 0.9 ? 0.46 : 0.6);
   };
   const final = { pos: new THREE.Vector3(), alvo: new THREE.Vector3(0, alturaMax * 0.12, 0) };
   // câmera baixa (uns 25 graus), como quem olha a cidade de um prédio vizinho
-  const calcularFinal = () => { const d = distanciaIdeal(); final.pos.set(d * 0.6, d * 0.42, d * 0.68); };
+  const calcularFinal = () => { const d = distanciaIdeal(); final.pos.set(d * 0.62, d * 0.34, d * 0.72); };
 
   // ---------- diagnóstico (sem dados pessoais: placa de vídeo, recursos do WebGL, extras, checagens e erros) ----------
   const gl = renderer.getContext();
@@ -589,9 +593,12 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
 
   // ---------- laço de desenho ----------
   const inicioRelogio = performance.now();
-  const relogio = () => (performance.now() - inicioRelogio) / 1000; // segundos desde que a cena abriu
-  let quadro = 0, visivelNaTela = true, ultimoMexer = -1e9, interagindo = false;
-  const entrada = { ativa: !menosMovimento, inicio: 0 };
+  // segundos desde que a cena abriu (os testes de captura podem desacelerar, para fotografar a abertura em quadros lentos)
+  const escalaTempo = Number(teste('gyde-teste-cidade-lento')) || 1;
+  const relogio = () => ((performance.now() - inicioRelogio) / 1000) * escalaTempo;
+  let quadro = 0, visivelNaTela = true, ultimoMexer = -1e9, interagindo = false, quadrosDesenhados = 0;
+  // a abertura só começa depois do primeiro quadro na tela (compilar os shaders demora, e comeria o começo)
+  const entrada = { ativa: !menosMovimento, inicio: 0, pronta: menosMovimento };
   let voo: { de: THREE.Vector3; para: THREE.Vector3; alvoDe: THREE.Vector3; alvoPara: THREE.Vector3; inicio: number } | null = null;
   const medidor = { quadros: 0, inicio: 0, testouExtras: false };
   const esfera = new THREE.Spherical(), esferaFinal = new THREE.Spherical(), esferaInicio = new THREE.Spherical();
@@ -600,6 +607,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     quadro = 0;
     const agora = relogio();
     let continuar = !menosMovimento; // pulsos, tráfego e órbita lenta pedem desenho contínuo
+    if (!entrada.pronta && enquadrada) { entrada.pronta = quadrosDesenhados > 0; entrada.inicio = agora; }
     if (!menosMovimento) {
       tempo.value = agora;
       subida.value = agora - entrada.inicio;
@@ -631,6 +639,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     controles.autoRotate = !menosMovimento && !interagindo && !entrada.ativa && !voo && agora - ultimoMexer > 6;
     if (controles.update()) continuar = true;
     renderizar();
+    quadrosDesenhados++;
     posicionarRotulos();
     // confere depois que a abertura terminou (prédios de pé) e a câmera parou de voar
     if (verificacao.em >= 0 && agora >= verificacao.em && !entrada.ativa && !voo && subida.value >= 4.5) {

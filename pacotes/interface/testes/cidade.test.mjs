@@ -34,7 +34,8 @@ test('altura cresce com o tamanho, com teto; cor vai de 0 (nunca mudou) a 1 (o m
   assert.ok(alturaDe(predio('c', 1_000_000)) <= 12.3);
   assert.equal(calorDe(0, 16), 0);
   assert.equal(calorDe(16, 16), 1);
-  assert.equal(calorDe(4, 16), 0.25);
+  assert.ok(Math.abs(calorDe(4, 16) - Math.log(5) / Math.log(17)) < 1e-9, 'escala logarítmica');
+  assert.ok(calorDe(2, 60) > 0.2, 'quem mudou pouco ainda aparece morno');
 });
 
 test('sinais da Forja para a Cidade: ler na hora; editar, criar e apagar pelo resultado', async () => {
