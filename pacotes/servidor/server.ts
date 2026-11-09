@@ -14,6 +14,7 @@ import { criarDesempenho } from './ia/desempenho.ts';
 import { lerExtras } from './ia/adaptadores.ts';
 import { criarCatalogo, lerMedicoes } from './ia/catalogo.ts';
 import { PROVEDORES_GRATIS } from './ia/provedores-gratis.ts';
+import { criarConexoes, setupConexoes } from './ia/conexoes.ts';
 import { criarOrquestrador } from './ia/orquestrador.ts';
 import { setupIA } from './ia/rotas.ts';
 import { setupCodigoAgente } from './codigo-agente.ts';
@@ -72,7 +73,13 @@ for (const p of soProvedores) {
 }
 const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: process.env.FREELLMAPI_KEY || '', ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso, desempenho, extras: extras.provedores });
 const router = provedores.router;
-const catalogo = criarCatalogo({ router, desempenho, extras: extras.provedores, offline: async () => await provedores.ativo() === 'offline', apenas: soProvedores.length ? soProvedores.map((p) => p.id) : null });
+// Conectar IA: chaves coladas na tela, sem o FreeLLMAPI. Sem chave do FreeLLMAPI, a fila é só desses provedores (sem 'auto').
+const conexoes = criarConexoes({ medicoes: lerMedicoes() });
+const catalogo = criarCatalogo({
+  router, desempenho, offline: async () => await provedores.ativo() === 'offline', aoAtualizar: conexoes.atualizar,
+  extras: () => [...extras.provedores, ...(soProvedores.length ? [] : conexoes.extras())],
+  apenas: () => (soProvedores.length ? soProvedores.map((p) => p.id) : process.env.FREELLMAPI_KEY ? null : conexoes.ids()),
+});
 const orquestrador = criarOrquestrador({ router, provedores, catalogo, desempenho });
 const imagens = criarImagens({ pasta: IMAGES_DIR });
 
@@ -117,7 +124,7 @@ app.get('/api/status', asyncRoute(async (_req, res) => {
   const u = await provedores.resumo({ mostrarConta: false });
   let desatualizado = false;
   try { desatualizado = impressaoDoCodigo() !== VERSAO_INICIO; } catch { /* sem como checar */ }
-  responder(res, C.Status, { keyConfigured: provedores.temChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico' });
+  responder(res, C.Status, { keyConfigured: provedores.temAlgumaChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico' });
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).
@@ -130,7 +137,8 @@ app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); desempenho.apa
 // ---------- Módulos (cada um registra as próprias rotas) ----------
 const skills = setupSkills(app, db, { root: ROOT }); // skills instaláveis (skills-catalogo/*.md + as de cada pessoa)
 const memoria = setupMemoria(app, db, { router, ...preferencias }); // memória entre conversas
-setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
+const { gravarNoEnv } = setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
+setupConexoes(app, { conexoes, gravarNoEnv, asyncRoute, aoMudar: () => provedores.definirChave(process.env.FREELLMAPI_KEY ?? '') }); // Conectar IA
 const { preferenciasIA } = setupIA(app, { preferencias, catalogo, desempenho, avisoExtras: extras.erro, asyncRoute }); // modo de resposta e modelos ligados
 setupChat(app, db, { router, uso, imagens, asyncRoute, preferencias, skills, memoria, orquestrador, preferenciasIA }); // conversas e mensagens
 setupApontar(app, { router, asyncRoute, uso }); // "Mostrar o erro" num print (modelo com visão)

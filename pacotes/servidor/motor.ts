@@ -6,7 +6,7 @@
 // Toda cadeia termina em 'auto' para funcionar com qualquer conjunto de chaves que a pessoa tiver no FreeLLMAPI.
 
 import type { Router, Registro, MensagemIA } from './tipos.ts';
-import { comoErro } from './tipos.ts';
+import { comoErro, erroGyde } from './tipos.ts';
 
 // Ordem medida com ferramentas/avaliar-modelos.mjs (resultados em docs/avaliacao/): qwen3.8-27b e gpt-oss-120b acertaram
 // código, correção de bug, explicação sem entregar a resposta e o formato da Forja, em menos de 1 s; os slots
@@ -43,6 +43,7 @@ export interface PedidoCompletar {
   signal?: AbortSignal; valida?: (texto: string) => boolean; registro?: Registro | undefined; tempoLimite?: number; aoTentar?: () => void; recuperarAcao?: boolean;
 }
 export async function completar(router: Router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida, registro, tempoLimite = 90_000, aoTentar, recuperarAcao }: PedidoCompletar): Promise<{ texto: string; modelo: string }> {
+  if (!cadeia.length) throw erroGyde('A IA ainda não está conectada. Abra Configurações > Conectar IA e cole uma chave grátis.', { status: 503, final: true });
   let ultimoErro = new Error('Nenhum modelo respondeu.');
   for (const model of cadeia) {
     try {

@@ -115,6 +115,15 @@ const Totais = z.object({
 });
 // ---------- Inteligência multimodelo ----------
 export const PreferenciasIA = z.object({ modo: z.enum(['rapido', 'equilibrado', 'capricho']), especialistas: z.boolean(), desligados: z.array(z.string()) });
+export const Conexoes = z.object({
+  avisoIdade: z.string(),
+  provedores: z.array(z.object({
+    id: z.string(), nome: z.string(), papel: z.enum(['inicial', 'opcional']), descricao: z.string(), avisos: z.array(z.string()),
+    linkChave: z.string(), prefixo: z.string(), conectado: z.boolean(),
+  })),
+  freellmapi: z.boolean(),
+});
+export const ResultadoTesteChave = z.object({ ok: z.boolean(), mensagem: z.string(), conexoes: Conexoes });
 export const ModelosIA = z.object({
   medidoEm: z.string().nullable(), aviso: z.string().nullable(),
   modelos: z.array(z.object({
@@ -159,6 +168,8 @@ export type TMensagem = z.infer<typeof Mensagem>;
 export type TResumoConversa = z.infer<typeof ResumoConversa>;
 export type TPreferenciasIA = z.infer<typeof PreferenciasIA>;
 export type TModelosIA = z.infer<typeof ModelosIA>;
+export type TConexoes = z.infer<typeof Conexoes>;
+export type TResultadoTesteChave = z.infer<typeof ResultadoTesteChave>;
 export type TTokens = z.infer<typeof Tokens>;
 export type TSkill = z.infer<typeof Skill>;
 export type TItemLoja = z.infer<typeof ItemLoja>;

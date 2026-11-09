@@ -7,6 +7,7 @@ import type { Registro, RouterInit, Provedor, UsoInformado } from './tipos.ts';
 import { erroGyde, comoErro } from './tipos.ts';
 import { adaptadorFreeLLMAPI, adaptadorOllama, adaptadorOpenAI, tipoDoErro, type Adaptador, type CorpoChat, type ProvedorExtraLido } from './ia/adaptadores.ts';
 import type { Desempenho } from './ia/desempenho.ts';
+import { PROVEDORES_GRATIS, urlDe } from './ia/provedores-gratis.ts';
 
 const SEGUNDO = 1000;
 
@@ -55,7 +56,12 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
   let routerKey = chaveInicial; // pode mudar sem reiniciar (Configurações > IA)
   const online = adaptadorFreeLLMAPI({ url: routerUrl, chave: () => routerKey });
   const local = adaptadorOllama({ url: ollamaUrl, modelo: ollamaModelo });
-  const externos = new Map<string, Adaptador>(extras.map((e) => [e.id, adaptadorOpenAI(e)]));
+  // provedores grátis sempre registrados (a chave pode chegar depois, pela tela Conectar IA); modelos-extras.json por cima
+  const externos = new Map<string, Adaptador>([
+    ...PROVEDORES_GRATIS.map((p): [string, Adaptador] => [p.id, adaptadorOpenAI({ id: p.id, url: urlDe(p), chaveEnv: p.chaveEnv, ...(p.naoAceita ? { naoAceita: p.naoAceita } : {}) })]),
+    ...extras.map((e): [string, Adaptador] => [e.id, adaptadorOpenAI(e)]),
+  ]);
+  const temChaveDireta = () => PROVEDORES_GRATIS.some((p) => p.naTela && Boolean(process.env[p.chaveEnv]));
   // modo: 'online' (só FreeLLMAPI), 'offline' (só Ollama) ou 'auto' (FreeLLMAPI; se ele não responder, Ollama)
   const cfg: { modo: ModoIA } = { modo: ehModo(modo) ? modo : 'auto' };
   const saude = { online: false, offline: false, em: 0, modelosLocais: [] as string[] };
@@ -69,7 +75,7 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
       tenta(`${routerUrl}/health`),
       tenta(`${ollamaUrl}/api/tags`),
     ]);
-    saude.online = Boolean(on && routerKey);
+    saude.online = Boolean(on && routerKey) || temChaveDireta();
     const tags = off ? await off.json().catch(() => ({})) as { models?: { name: string }[] } : {};
     saude.modelosLocais = (tags.models || []).map((m) => m.name);
     saude.offline = saude.modelosLocais.includes(ollamaModelo);
@@ -120,7 +126,7 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
     const pedido = typeof init.body === 'string' ? JSON.parse(init.body) as CorpoChat : null;
     const adaptador = adaptadorDe(provedor, pedido?.model);
     if (!adaptador.temChave()) {
-      throw erroGyde(adaptador === online ? 'Chave do FreeLLMAPI não configurada. Cole a chave em Configurações > IA e modelos.' : `Chave do provedor ${adaptador.id} não configurada no .env.`, { status: 503 });
+      throw erroGyde(adaptador === online ? 'A IA ainda não está conectada. Abra Configurações > Conectar IA e cole uma chave grátis.' : `A chave de ${adaptador.id} não está configurada. Abra Configurações > Conectar IA.`, { status: 503 });
     }
     const body = pedido ? JSON.stringify(adaptador.corpo(pedido)) : init.body;
     const inicio = Date.now();
@@ -224,6 +230,7 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
     definirModo(m: unknown): ModoIA { if (ehModo(m)) { cfg.modo = m; saude.em = 0; } return cfg.modo; },
     definirChave(chave: string) { routerKey = chave; saude.em = 0; },
     temChave: () => Boolean(routerKey),
+    temAlgumaChave: () => Boolean(routerKey) || temChaveDireta(),
   };
 }
 export type Provedores = ReturnType<typeof criarProvedores>;

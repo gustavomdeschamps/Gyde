@@ -34,14 +34,26 @@ export function lerMedicoes(arquivo = path.join(import.meta.dirname, 'medicoes.j
 // provedor real por trás do nome: "groq/qwen/qwen3.8-27b" -> "groq/qwen/qwen3.8-27b" (nomes de slot não dizem quem responde)
 export const mesmoModeloReal = (a: string | null | undefined, b: string | null | undefined) => Boolean(a && b && a === b);
 
-export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), extras = [], offline, apenas = null }: { router: Router; desempenho?: Desempenho; medicoes?: Medicoes; extras?: ProvedorExtraLido[]; offline?: () => Promise<boolean>; apenas?: string[] | null }) {
+// extras e apenas aceitam função: a tela Conectar IA liga e desliga provedores sem reiniciar o Gyde.
+// aoAtualizar: buscar a lista de modelos ao vivo dos provedores diretos antes de montar a fila.
+export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), extras: extrasDados = [], offline, apenas: apenasDado = null, aoAtualizar }: {
+  router: Router; desempenho?: Desempenho; medicoes?: Medicoes; extras?: ProvedorExtraLido[] | (() => ProvedorExtraLido[]); offline?: () => Promise<boolean>;
+  apenas?: string[] | null | (() => string[] | null); aoAtualizar?: () => Promise<void>;
+}) {
+  const listaExtras = () => (typeof extrasDados === 'function' ? extrasDados() : extrasDados);
+  const listaApenas = () => (typeof apenasDado === 'function' ? apenasDado() : apenasDado);
   const doProvedor = new Map<string, { contexto: number | null }>();
   let lidoEm = 0;
   let pendente: Promise<void> | null = null;
-  const extraDe = (id: string) => { for (const p of extras) for (const m of p.modelos) if (`${p.id}:${m.id}` === id) return m; return null; };
+  const extraDe = (id: string) => { for (const p of listaExtras()) for (const m of p.modelos) if (`${p.id}:${m.id}` === id) return m; return null; };
 
   // lista do provedor: lida no máximo a cada 5 minutos e sem pedidos repetidos ao mesmo tempo
-  function atualizar(): Promise<void> {
+  async function atualizar(): Promise<void> {
+    await aoAtualizar?.().catch(() => {});
+    if (listaApenas()) return; // só provedores diretos: a lista do FreeLLMAPI não importa
+    return atualizarFreeLLMAPI();
+  }
+  function atualizarFreeLLMAPI(): Promise<void> {
     if (Date.now() - lidoEm < 5 * 60_000) return Promise.resolve();
     pendente ??= (async () => {
       try {
@@ -93,8 +105,9 @@ export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), ex
 
   function candidatos() {
     const ids = new Set(Object.keys(medicoes.modelos));
-    for (const p of extras) for (const m of p.modelos) ids.add(`${p.id}:${m.id}`);
+    for (const p of listaExtras()) for (const m of p.modelos) ids.add(`${p.id}:${m.id}`);
     // "apenas": só os modelos de um provedor direto (ex.: medir a Forja só com o Groq), sem FreeLLMAPI nem 'auto'
+    const apenas = listaApenas();
     return [...ids].filter((id) => !SO_RESERVA.has(id) && (!apenas || apenas.some((p) => id.startsWith(`${p}:`))));
   }
 
@@ -111,7 +124,7 @@ export function criarCatalogo({ router, desempenho, medicoes = lerMedicoes(), ex
       .map((id) => ({ id, nota: pontuar(id, categorias, modo) }))
       .sort((a, b) => b.nota - a.nota || a.id.localeCompare(b.id)).map((x) => x.id).slice(0, max);
     // só um provedor e todos descansando: tenta assim mesmo, em vez de desistir sem chamar ninguém
-    if (apenas) return ordem.length ? ordem : candidatos().filter((id) => !fora.has(id) && conhecido(id) && cabe(id) && (!precisaVisao || visaoDe(id) === true)).slice(0, max);
+    if (listaApenas()) return ordem.length ? ordem : candidatos().filter((id) => !fora.has(id) && conhecido(id) && cabe(id) && (!precisaVisao || visaoDe(id) === true)).slice(0, max);
     const lista = ordem.length ? ordem : reserva.filter(elegivel);
     return fora.has('auto') ? lista : [...lista, 'auto'];
   }

@@ -498,7 +498,7 @@ test('provedor novo por arquivo: modelo "<id>:<nome>" vai para ele, com a chave 
   assert.deepEqual(cat.cadeia(['visao'], { precisaVisao: true }), ['novo:modelo-x', 'auto'], 'capacidade declarada vale até ser medida');
   assert.deepEqual(cat.cadeia(['codigo'], { tamanho: 100_000 }), ['auto'], 'contexto declarado é respeitado');
   delete process.env.GYDE_TESTE_CHAVE_EXTRA;
-  await assert.rejects(p.router('/v1/chat/completions', { method: 'POST', body: JSON.stringify({ model: 'novo:modelo-x' }) }), /não configurada/);
+  await assert.rejects(p.router('/v1/chat/completions', { method: 'POST', body: JSON.stringify({ model: 'novo:modelo-x' }) }), /não está configurada/);
   writeFileSync(arq, '{ "provedores": [{ "id": "SEM ISSO" }] }');
   assert.equal(lerExtras(arq).provedores.length, 0);
   assert.match(lerExtras(arq).erro, /ignorado/);

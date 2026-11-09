@@ -84,4 +84,6 @@ export function setupConfiguracao(app: Express, { arquivoEnv, routerUrl, provedo
     if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ error: 'Envie o arquivo .zip da cópia.' });
     responder(res, C.RestauracaoPreparada, { ...prepararRestauracao(new Uint8Array(req.body), pastaDados), reiniciar: true });
   });
+
+  return { gravarNoEnv };
 }

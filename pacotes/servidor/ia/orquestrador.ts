@@ -112,6 +112,7 @@ export function criarOrquestrador({ router, provedores, catalogo, desempenho }: 
 
   // Resposta em streaming com troca de modelo: enquanto nada foi para a tela, um modelo que falha ou não responde é trocado.
   async function transmitir(cadeia: string[], mensagens: MensagemIA[], ex: Execucao, conta: { chamadas: number; modelos: string[] }): Promise<{ texto: string; modelo: string | null; consumo: Consumo | null }> {
+    if (!cadeia.length) throw erroGyde('A IA ainda não está conectada. Abra Configurações > Conectar IA e cole uma chave grátis.', { status: 503, final: true });
     let ultimoErro: Error = erroGyde('Nenhum modelo respondeu.', { status: 502 });
     for (const modelo of cadeia.slice(0, MAX_TENTATIVAS)) {
       const prazo = new AbortController();
