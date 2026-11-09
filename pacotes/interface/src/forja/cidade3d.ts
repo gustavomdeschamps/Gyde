@@ -26,6 +26,7 @@ interface Opcoes {
   aoEscolher: (p: TPredio | null) => void; // clique (ou toque) num prédio, ou no vazio
   aoPassar: (p: TPredio | null, x: number, y: number) => void; // mouse em cima de um prédio
   aoQualidade?: (q: Qualidade, automatica: boolean) => void;
+  aoAviso?: (texto: string, grave: boolean) => void; // aviso discreto (ex.: a qualidade baixou porque os prédios não apareceram)
   qualidade?: Qualidade | 'auto';
 }
 
@@ -94,7 +95,7 @@ const COR = {
 const hdr = (hex: string, k: number) => new THREE.Color(hex).multiplyScalar(k);
 
 export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: Opcoes): Cidade3D {
-  const { aoEscolher, aoPassar, aoQualidade } = opcoes;
+  const { aoEscolher, aoPassar, aoQualidade, aoAviso } = opcoes;
   const menosMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const celular = matchMedia('(pointer: coarse)').matches || caixa.clientWidth < 640;
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' }); // sem WebGL, lança erro e a tela oferece a lista
@@ -352,7 +353,25 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   // câmera baixa (uns 25 graus), como quem olha a cidade de um prédio vizinho
   const calcularFinal = () => { const d = distanciaIdeal(); final.pos.set(d * 0.6, d * 0.42, d * 0.68); };
 
-  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
+  // ---------- diagnóstico (sem dados pessoais: placa de vídeo, recursos do WebGL, qualidade e erros) ----------
+  const gl = renderer.getContext();
+  const infoPlaca = gl.getExtension('WEBGL_debug_renderer_info');
+  const placa = String(infoPlaca ? gl.getParameter(infoPlaca.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)).slice(0, 120);
+  // O bloom desenha antes numa imagem fora da tela, em ponto flutuante. Placas que não aceitam esse formato (ou o
+  // antisserrilhado nele) devolvem um quadro vazio: os prédios somem e só os nomes (que são HTML) ficam. Por isso o
+  // formato e as amostras dependem do que a placa diz aceitar, e o bloom só liga quando ela aceita.
+  const bufferFloat = renderer.extensions.has('EXT_color_buffer_float') || renderer.extensions.has('EXT_color_buffer_half_float');
+  const amostras = bufferFloat ? Math.min(4, renderer.capabilities.maxSamples) : 0;
+  const errosGl: string[] = [];
+  renderer.debug.onShaderError = (glc, programa, vs, fs) => {
+    const log = (glc.getProgramInfoLog(programa) || glc.getShaderInfoLog(fs) || glc.getShaderInfoLog(vs) || 'erro de shader').trim().slice(0, 300);
+    errosGl.push(log);
+    console.warn('[Gyde · Cidade 3D] um shader não compilou:', log);
+  };
+  const aoPerderContexto = () => { errosGl.push('contexto WebGL perdido'); console.warn('[Gyde · Cidade 3D] a placa de vídeo descartou a cena (contexto WebGL perdido)'); };
+  renderer.domElement.addEventListener('webglcontextlost', aoPerderContexto);
+
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: bufferFloat ? THREE.HalfFloatType : THREE.UnsignedByteType, samples: amostras }));
   composer.addPass(new RenderPass(cena, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.75, 0.5, 0.92);
   composer.addPass(bloom);
@@ -369,7 +388,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     renderer.setPixelRatio(dpr);
     composer.setPixelRatio(dpr);
     pixel.value = dpr;
-    bloom.enabled = q !== 'leve';
+    bloom.enabled = q !== 'leve' && bufferFloat;
     forcaBloom = q === 'alta' ? 0.75 : 0.6;
     trafego.visible = q !== 'leve' && nTrafego > 0;
     geoTrafego.setDrawRange(0, q === 'alta' ? nTrafego : Math.floor(nTrafego / 2));
@@ -378,10 +397,72 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     estrelas.visible = q !== 'leve';
     ajustar();
     aoQualidade?.(q, automatica);
+    agendarVerificacao();
+  }
+
+  // ---------- checagem de segurança: o quadro saiu com prédios? ----------
+  // Desenha o mesmo quadro com e sem os prédios e compara alguns pixels onde eles deveriam estar. Se não muda nada,
+  // os prédios não estão aparecendo nesta qualidade (placa de vídeo, driver): baixa um nível e avisa.
+  const NOME: Record<Qualidade, string> = { alta: 'alta', media: 'média', leve: 'leve' };
+  const verificacao = { em: -1, tentativas: 0 };
+  // só para o teste automático provar o recuo: finge que a qualidade alta não mostra os prédios
+  const simularFalha = (() => { try { return localStorage.getItem('gyde-teste-cidade-falha') === 'alta'; } catch { return false; } })();
+  function agendarVerificacao() { verificacao.em = menosMovimento ? 0 : relogio.getElapsedTime() + 0.6; verificacao.tentativas = 0; desenhar(); }
+  const pontosConferir = [...planta.predios].sort((a, b) => b.h - a.h).slice(0, 80).map((b) => new THREE.Vector3(b.x, CHAO + b.h * 0.5, b.z));
+  function renderizar() {
+    // (a falha simulada esconde prédios e reflexo, como uma placa que não desenha a cena 3D)
+    const esconder = simularFalha && qualidade === 'alta' && predios.visible;
+    const reflexoAntes = reflexo.visible;
+    if (esconder) { predios.visible = false; reflexo.visible = false; }
+    if (bloom.enabled) {
+      // de perto, as janelas ocupam a tela e o bloom vira um véu: ele enfraquece com a aproximação
+      bloom.strength = forcaBloom * THREE.MathUtils.clamp(camera.position.distanceTo(controles.target) / (distanciaIdeal() * 0.75), 0.25, 1);
+      composer.render();
+    } else renderer.render(cena, camera);
+    if (esconder) { predios.visible = true; reflexo.visible = reflexoAntes; }
+  }
+  const px = new Uint8Array(4);
+  const amostrar = (pts: [number, number][]) => pts.map(([x, y]) => { gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); return [px[0]!, px[1]!, px[2]!]; });
+  function verificarQuadro() {
+    const tam = renderer.getDrawingBufferSize(new THREE.Vector2());
+    const pts: [number, number][] = [];
+    for (const p of pontosConferir) {
+      vet.copy(p).project(camera);
+      if (vet.z < 1 && Math.abs(vet.x) < 0.95 && Math.abs(vet.y) < 0.95) pts.push([Math.floor((vet.x * 0.5 + 0.5) * tam.x), Math.floor((vet.y * 0.5 + 0.5) * tam.y)]);
+      if (pts.length >= 24) break;
+    }
+    if (pts.length < Math.min(6, pontosConferir.length) || !pts.length) return null; // quase nenhum prédio à vista neste ângulo: confere depois
+    const com = amostrar(pts);
+    const refl = reflexo.visible;
+    predios.visible = false; reflexo.visible = false;
+    renderizar();
+    const sem = amostrar(pts);
+    predios.visible = true; reflexo.visible = refl;
+    renderizar(); // a tela fica com o quadro normal
+    let diferenca = 0, maximo = 0;
+    com.forEach((c, i) => { const o = sem[i]!; diferenca += Math.abs(c[0]! - o[0]!) + Math.abs(c[1]! - o[1]!) + Math.abs(c[2]! - o[2]!); maximo = Math.max(maximo, ...c); });
+    diferenca /= pts.length * 3;
+    return { ok: diferenca > 1.5 && maximo > 2, diferenca: Math.round(diferenca * 10) / 10, quadroPreto: maximo <= 2, pontos: pts.length };
+  }
+  function tratarVerificacao(r: NonNullable<ReturnType<typeof verificarQuadro>>) {
+    const diag = { placa, qualidade, bloom: bloom.enabled, bufferFloat, amostras, diferenca: r.diferenca, quadroPreto: r.quadroPreto, errosShader: errosGl.length };
+    if (r.ok) { caixa.dataset.verificacao = 'ok'; console.info('[Gyde · Cidade 3D] quadro conferido: prédios aparecendo', diag); return; }
+    console.warn('[Gyde · Cidade 3D] os prédios não apareceram neste quadro', diag, errosGl.slice(0, 3));
+    const i = ORDEM.indexOf(qualidade);
+    if (i > 0) {
+      const de = qualidade, para = ORDEM[i - 1]!;
+      caixa.dataset.verificacao = `recuou-${para}`;
+      aplicarQualidade(para);
+      aoAviso?.(`Os prédios não apareceram na qualidade ${NOME[de]} nesta placa de vídeo. Mudei para a ${NOME[para]}.`, false);
+    } else {
+      caixa.dataset.verificacao = 'falhou';
+      aoAviso?.('Esta placa de vídeo não conseguiu mostrar os prédios em 3D. Use a Lista para ver os mesmos dados.', true);
+    }
   }
 
   // ---------- laço de desenho ----------
-  const relogio = new THREE.Clock();
+  const inicioRelogio = performance.now();
+  const relogio = { getElapsedTime: () => (performance.now() - inicioRelogio) / 1000 }; // segundos desde que a cena abriu
   let quadro = 0, visivelNaTela = true, ultimoMexer = -1e9, interagindo = false;
   const entrada = { ativa: !menosMovimento, inicio: 0 };
   let voo: { de: THREE.Vector3; para: THREE.Vector3; alvoDe: THREE.Vector3; alvoPara: THREE.Vector3; inicio: number } | null = null;
@@ -408,12 +489,16 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     // órbita lenta quando ninguém mexe há alguns segundos (pausa ao interagir)
     controles.autoRotate = !menosMovimento && !interagindo && !entrada.ativa && !voo && agora - ultimoMexer > 6;
     if (controles.update()) continuar = true;
-    // de perto, as janelas ocupam a tela e o bloom vira um véu: ele enfraquece com a aproximação
-    if (bloom.enabled) {
-      bloom.strength = forcaBloom * THREE.MathUtils.clamp(camera.position.distanceTo(controles.target) / (distanciaIdeal() * 0.75), 0.25, 1);
-      composer.render();
-    } else renderer.render(cena, camera);
+    renderizar();
     posicionarRotulos();
+    // confere depois que a entrada terminou (prédios já de pé) e a câmera parou de voar
+    if (verificacao.em >= 0 && agora >= verificacao.em && !entrada.ativa && !voo && subida.value >= 3) {
+      verificacao.em = -1;
+      const r = verificarQuadro();
+      if (r) tratarVerificacao(r);
+      else if (++verificacao.tentativas < 6) { verificacao.em = agora + 2; continuar = true; }
+      else { caixa.dataset.verificacao = 'sem-conferir'; console.info('[Gyde · Cidade 3D] não deu para conferir o quadro: poucos prédios à vista'); }
+    } else if (verificacao.em >= 0) continuar = true;
     // mede o FPS e alivia a cena se ficar pesada (só no automático)
     if (automatica && !menosMovimento) {
       medidor.quadros++;
@@ -494,6 +579,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     destruir() {
       cancelAnimationFrame(quadro);
       observador.disconnect(); naTela.disconnect(); document.removeEventListener('visibilitychange', aoMudarAba);
+      renderer.domElement.removeEventListener('webglcontextlost', aoPerderContexto);
       controles.dispose();
       for (const d of descartar) d.dispose();
       lajes.dispose(); predios.dispose(); reflexo.dispose(); feixes.dispose();
@@ -543,6 +629,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     },
   };
 
+  console.info('[Gyde · Cidade 3D] início', { placa, bufferFloat, amostras, qualidade: opcoes.qualidade ?? 'auto', celular, menosMovimento, predios: planta.predios.length });
   aplicarQualidade(automatica ? (celular ? 'leve' : 'alta') : (opcoes.qualidade as Qualidade));
   if (menosMovimento) tempo.value = 1.7;
   desenhar();

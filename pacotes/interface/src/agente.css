@@ -244,6 +244,11 @@
 .cidade-cartao .cidade-calor { margin: 0; box-shadow: 0 0 8px currentColor; }
 .cidade-cartao-fechar { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 8px; border: 0; background: rgb(255 255 255 / .06); color: #d6d3ff; cursor: pointer; font-size: 13px; }
 .cidade-cartao-fechar:hover { background: rgb(255 255 255 / .14); }
+.cidade-aviso3d { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); width: max-content; max-width: min(460px, calc(100% - 24px)); z-index: 3;
+  display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 12px; font-size: 12.5px; line-height: 1.4; animation: cartao-entra var(--t3) var(--ease); }
+.cidade-aviso3d .cidade-cartao-fechar { position: static; flex: none; }
+.cidade-aviso3d.grave { border-color: rgb(255 120 120 / .45); padding: 10px 12px; }
+@media (max-width: 720px) { .cidade-aviso3d { top: 96px; } }
 @keyframes cartao-entra { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 /* nomes dos bairros flutuando sobre a cidade */
 .cidade-rotulos { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }

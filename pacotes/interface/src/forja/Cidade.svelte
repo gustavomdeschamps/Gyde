@@ -32,6 +32,8 @@
   const qualidadeSalva = (() => { try { const q = localStorage.getItem('cidadeQualidade'); return (QUALIDADES as readonly string[]).includes(q ?? '') ? q as (typeof QUALIDADES)[number] : 'auto'; } catch { return 'auto'; } })();
   let pedidoQualidade = $state<(typeof QUALIDADES)[number]>(qualidadeSalva);
   let qualidadeAtual = $state<Qualidade | null>(null);
+  let aviso3d = $state<{ texto: string; grave: boolean } | null>(null);
+  let tempoAviso: ReturnType<typeof setTimeout> | undefined;
   function trocarQualidade() {
     pedidoQualidade = QUALIDADES[(QUALIDADES.indexOf(pedidoQualidade) + 1) % QUALIDADES.length]!;
     try { localStorage.setItem('cidadeQualidade', pedidoQualidade); } catch { /* sem storage */ }
@@ -59,12 +61,13 @@
         aoEscolher: (p) => { escolhido = p; dica = null; },
         aoPassar: (p, x, y) => { dica = p ? { p, x, y } : null; },
         aoQualidade: (q) => { qualidadeAtual = q; },
+        aoAviso: (texto, grave) => { aviso3d = { texto, grave }; clearTimeout(tempoAviso); if (!grave) tempoAviso = setTimeout(() => { aviso3d = null; }, 9000); },
         qualidade: pedidoQualidade,
       });
       if (escolhido) cena.selecionar(escolhido.caminho);
       estado3d = 'pronto';
     }).catch(() => { if (!cancelado) estado3d = 'falhou'; });
-    return () => { cancelado = true; cena?.destruir(); cena = null; dica = null; };
+    return () => { cancelado = true; cena?.destruir(); cena = null; dica = null; aviso3d = null; clearTimeout(tempoAviso); };
   });
   const numero = (n: number) => n.toLocaleString('pt-BR');
   const data = (ms: number | null) => (ms == null ? '' : new Date(ms).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }));
@@ -137,7 +140,8 @@
                 {#if achados != null}<small aria-live="polite">{achados} {achados === 1 ? 'achado' : 'achados'}</small>{/if}
               </label>
               <button type="button" class="cidade-vidro cidade-qualidade" title="Qualidade do 3D. Automática: começa alta (leve no celular) e baixa sozinha se ficar lenta." onclick={trocarQualidade}>
-                <span class="cidade-hud-extra">Qualidade: </span>{NOME_QUALIDADE[pedidoQualidade]}{#if pedidoQualidade === 'auto' && qualidadeAtual}<small>({NOME_QUALIDADE[qualidadeAtual]})</small>{/if}
+                <span class="cidade-hud-extra">Qualidade: </span>{#if pedidoQualidade === 'auto'}{NOME_QUALIDADE.auto}{#if qualidadeAtual}<small>({NOME_QUALIDADE[qualidadeAtual]})</small>{/if}
+                {:else}{NOME_QUALIDADE[qualidadeAtual ?? pedidoQualidade]}{#if qualidadeAtual && qualidadeAtual !== pedidoQualidade}<small>(baixou da {NOME_QUALIDADE[pedidoQualidade].toLowerCase()})</small>{/if}{/if}
               </button>
             </span>
           </div>
@@ -145,6 +149,13 @@
             <span class="cidade-leg-item"><i class="cidade-leg-predio"></i>Altura = tamanho</span>
             <span class="cidade-leg-item cidade-escala"><i></i>nunca mudou → mais alterado</span>
             <span class="cidade-leg-item"><i class="cidade-leg-farol"></i>Farol = muito alterado</span>
+          </div>
+        {/if}
+        {#if aviso3d}
+          <div class="cidade-vidro cidade-aviso3d" class:grave={aviso3d.grave} role="status">
+            <span>{aviso3d.texto}</span>
+            {#if aviso3d.grave}<button type="button" class="btn small primary" onclick={() => trocarModo('lista')}>Ver como lista</button>
+            {:else}<button type="button" class="cidade-cartao-fechar" aria-label="Fechar aviso" onclick={() => { aviso3d = null; }}>✕</button>{/if}
           </div>
         {/if}
         {#if escolhido}
