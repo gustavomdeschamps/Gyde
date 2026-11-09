@@ -48,7 +48,8 @@ export const chat = $state({
 
 let controle: AbortController | null = null;
 const salvo = () => { try { return (localStorage.getItem('model') || MODELO_PADRAO).replace(/^bugo-/, 'gyde-'); } catch { return MODELO_PADRAO; } };
-export const rotuloModelo = (id: string | null | undefined) => [...chat.marcas, ...chat.modelos].find((m) => m.id === id)?.label ?? (id === 'auto' ? 'Automático' : id ?? '');
+// embaixo da resposta: o nome do modelo que respondeu (respostas antigas podem ter guardado só "Gyde 1")
+export const rotuloModelo = (id: string | null | undefined) => chat.marcas.find((m) => m.id === id)?.label ?? (id === 'auto' ? 'Automático' : nomeModelo(id));
 
 // ---------- conversas ----------
 export async function carregarConversas() {

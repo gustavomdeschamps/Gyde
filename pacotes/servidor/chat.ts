@@ -32,13 +32,6 @@ const GYDE_MODELS: Record<string, { label: string; hint: string }> = {
   'gyde-1': { label: 'Gyde 1', hint: 'Escolhe o modelo certo para cada pedido e troca sozinho se um falhar' },
   'gyde-1-pro': { label: 'Gyde 1 Pro', hint: 'Capricho: um segundo modelo confere código e raciocínio. Mais lento e gasta cerca de 3 vezes mais cota' },
 };
-// Poucos modelos escolhidos a dedo para programação (testados com o FreeLLMAPI). Só aparecem os que o roteador marca como disponíveis.
-const CODE_MODELS = [
-  { id: 'qwen3.8-27b', label: 'Qwen 3.8', hint: 'Ótimo em código e rápido' },
-  { id: 'codestral', label: 'Codestral', hint: 'Especialista em código, da Mistral' },
-  { id: 'mistral-code', label: 'Mistral Code', hint: 'Focado em escrever e corrigir código' },
-  { id: 'nemotron-3-ultra-550b', label: 'Nemotron Ultra', hint: 'Modelo grande da NVIDIA, bom para raciocinar' },
-];
 const DEFAULT_MODEL = 'gyde-1';
 
 // anexos vêm do navegador: só passam os campos conhecidos, com tipos conferidos
@@ -150,15 +143,10 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
     }
   }
 
-  app.get('/api/models', asyncRoute(async (_req, res) => {
-    const r = await router('/v1/models');
-    const json = await r.json() as { data?: { id: string; available?: boolean }[] };
-    const available = new Set((json.data || []).filter((m) => m.available !== false).map((m) => m.id));
-    responder(res, C.Modelos, {
-      brand: Object.entries(GYDE_MODELS).map(([id, m]) => ({ id, label: m.label, hint: m.hint })),
-      models: CODE_MODELS.filter((m) => available.has(m.id)),
-    });
-  }));
+  // Na lista só aparecem as opções do Gyde; o modelo de verdade é escolhido por trás e aparece embaixo de cada resposta.
+  app.get('/api/models', (_req, res) => {
+    responder(res, C.Modelos, { brand: Object.entries(GYDE_MODELS).map(([id, m]) => ({ id, label: m.label, hint: m.hint })), models: [] });
+  });
 
   app.get('/api/conversations', (req, res) => {
     const term = String(req.query.q || '').trim();
@@ -225,7 +213,9 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
     let isImage = req.body?.kind === 'image';
     // "Gerar de novo" numa imagem gera outra imagem.
     if (mode === 'regenerate' && messageId) isImage ||= /^!\[/.test(q.getMessage.get(messageId, conv.id)?.content || '');
-    const chosenModel = String(model || conv.model || DEFAULT_MODEL).replace(/^bugo-/, 'gyde-');
+    // conversas antigas (ou pedidos de fora) com um modelo avulso passam a usar o Gyde 1: a escolha do modelo é do roteador
+    const pedido = String(model || conv.model || DEFAULT_MODEL).replace(/^bugo-/, 'gyde-');
+    const chosenModel = GYDE_MODELS[pedido] ? pedido : DEFAULT_MODEL;
     if (chosenModel !== conv.model) db.prepare('UPDATE conversations SET model = ? WHERE id = ?').run(chosenModel, conv.id);
 
     // Ajusta o histórico conforme o modo.
@@ -286,21 +276,19 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
         cortadas = selecao.cortadas;
         const mensagens: MensagemIA[] = [{ role: 'system', content: sistemaDoChat({ tarefa: classificacao.tarefa, extras: extrasDoSistema(req.user, activeSkills, selecao.nota) }) }, ...selecao.mensagens];
         const prefs = preferenciasIA(req.user.id);
-        const marca = Boolean(GYDE_MODELS[chosenModel]);
         const plano = await orquestrador.planejar(classificacao, {
           modo: chosenModel === 'gyde-1-pro' ? 'capricho' : prefs.modo,
           especialistas: prefs.especialistas,
-          ...(!marca && !comImagem ? { fixo: cadeiaDe(chosenModel) } : {}),
           desligados: prefs.desligados,
           tamanho: tamanhoDe(mensagens),
-          reserva: comImagem ? CADEIAS.visao ?? [] : cadeiaDe(marca ? chosenModel : 'gyde-1').filter((m) => m !== 'auto'),
+          reserva: comImagem ? CADEIAS.visao ?? [] : cadeiaDe(chosenModel).filter((m) => m !== 'auto'),
         });
         const r = await orquestrador.executar(plano, {
           mensagens, signal: controller.signal, registro, userId: req.user.id, origem: 'chat',
           aoEscrever: (texto) => { answer += texto; send({ type: 'delta', text: texto }); },
           aoStatus: (texto) => send({ type: 'status', text: texto }),
         });
-        if (!marca && r.modelo) servedModel = r.modelo;
+        if (r.modelo) servedModel = r.modelo; // guarda o modelo que respondeu de verdade, para aparecer embaixo da resposta
         consumo = r.consumo;
         orquestracao = { estrategia: r.estrategia, revisada: r.revisadaPorOutro, mudou: r.mudou, chamadas: r.chamadas, modelos: r.modelos };
       }

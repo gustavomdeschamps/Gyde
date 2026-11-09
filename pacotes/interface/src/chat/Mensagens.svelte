@@ -96,7 +96,7 @@
             <button title="Copiar" onclick={(e) => copiarTexto(m.content, e.currentTarget)}>{@html icone.copiar}</button>
             {#if temVoz}<button title="Ouvir resposta" onclick={(e) => falar(m.content, e.currentTarget)}>{@html icone.falar}</button>{/if}
             {#if m.id === ultimaResposta}<button title="Gerar de novo" onclick={() => enviar({ mode: 'regenerate', messageId: m.id })}>{@html icone.repetir}</button>{/if}
-            <span class="msg-meta" title={chat.metaExtra[m.id] ? 'Modelo que respondeu e tokens usados, informados pelo provedor' : ''}>{[m.model ? rotuloModelo(m.model) : '', chat.metaExtra[m.id] ?? ''].filter(Boolean).join(' · ')}</span>
+            <span class="msg-meta" title={chat.metaExtra[m.id] ? 'Modelo que respondeu e tokens usados, informados pelo provedor' : ''}>{chat.metaExtra[m.id] ?? (m.model ? rotuloModelo(m.model) : '')}</span>
           </div>
         {/if}
       </article>

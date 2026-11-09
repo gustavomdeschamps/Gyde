@@ -20,7 +20,7 @@ try {
   ok('quatro sugestões e botão Enviar desligado', await avaliar(`document.querySelectorAll('#suggestions button').length === 4 && document.querySelector('#sendBtn').disabled`));
   await avaliar(`document.querySelectorAll('#suggestions button')[2].click()`);
   ok('sugestão preenche o campo e liga o Enviar', await esperar(`/lógica de programação/.test(document.querySelector('#input').value) && !document.querySelector('#sendBtn').disabled`, 2000));
-  ok('seletor de modelo com o Gyde 1 e os modelos do provedor', await avaliar(`document.querySelector('#model').value === 'gyde-1' && document.querySelectorAll('#model option').length >= 3`), String(await avaliar(`document.querySelectorAll('#model option').length`)));
+  ok('seletor de modelo só com as opções do Gyde', await avaliar(`document.querySelector('#model').value === 'gyde-1' && [...document.querySelectorAll('#model option')].every((o) => /^gyde-/.test(o.value)) && document.querySelectorAll('#model option').length >= 2`), String(await avaliar(`[...document.querySelectorAll('#model option')].map((o) => o.value).join(',')`)));
 
   await digitar('/');
   ok('digitar "/" abre o menu de skills', await esperar(`document.querySelector('.slash-menu') !== null`, 2000));
