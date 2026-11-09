@@ -18,12 +18,18 @@ git('init', '-q'); git('add', 'soma.js', 'teste.js', 'package.json', 'src'); git
 writeFileSync(path.join(proj.pasta, 'soma.js'), proj.ler('soma.js') + '\n// mudou\n'); git('commit', '-qam', 'dois');
 const sessao = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta: proj.pasta })).json();
 
-async function verificar(nav, rotulo) {
+async function verificar(nav, rotulo, webgl) {
   const { avaliar, esperar } = nav;
   await nav.entrar(servidor.base, conta);
   await nav.ir(`${servidor.base}/?r=1#/agente/${sessao.id}`, 2500);
   ok(`${rotulo}: aba Cidade aparece ao lado da Conversa`, await esperar(`document.querySelector('#abaCidade') !== null && document.querySelector('#abaConversa')?.getAttribute('aria-selected') === 'true'`));
+  const tresAntes = await avaliar(`performance.getEntriesByType('resource').some((r) => /cidade3d/.test(r.name))`);
   await avaliar(`document.querySelector('#abaCidade').click()`);
+  ok(`${rotulo}: o 3D só é baixado quando a aba abre`, !tresAntes && await esperar(`performance.getEntriesByType('resource').some((r) => /cidade3d/.test(r.name))`, 8000));
+  if (webgl) ok(`${rotulo}: a cidade 3D aparece`, await esperar(`document.querySelector('.cidade-canvas') !== null && !document.querySelector('.cidade-palco-info')`, 20_000));
+  else ok(`${rotulo}: sem WebGL, a tela oferece a lista`, await esperar(`/Ver como lista/.test(document.querySelector('.cidade-palco-info')?.textContent || '') || document.querySelector('.cidade-canvas') !== null`, 20_000));
+  await avaliar(`[...document.querySelectorAll('.cidade-modo button')].find((b) => b.textContent === 'Lista').click()`);
+  ok(`${rotulo}: a cena 3D é desmontada ao trocar para a lista`, await esperar(`document.querySelector('.cidade-canvas') === null`, 3000));
   ok(`${rotulo}: a lista mostra os arquivos reais da pasta`, await esperar(`document.querySelectorAll('.cidade-bairro tbody tr').length === 4`, 8000), await avaliar(`document.querySelector('.cidade')?.textContent.slice(0, 300)`));
   ok(`${rotulo}: .env não aparece`, await avaliar(`!/\\.env|nao-pode-aparecer/.test(document.querySelector('.cidade').textContent)`));
   ok(`${rotulo}: mudanças do git contadas (soma.js mudou 2 vezes)`, await avaliar(`(()=>{ const l = [...document.querySelectorAll('.cidade-bairro tbody tr')].find((tr) => /soma\\.js/.test(tr.textContent)); return Boolean(l) && /2 vezes/.test(l.textContent); })()`));
@@ -37,13 +43,14 @@ async function verificar(nav, rotulo) {
   ok(`${rotulo}: sem erro de JavaScript`, nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   await avaliar(`document.querySelector('#abaConversa').click()`);
   ok(`${rotulo}: voltar para a Conversa mostra o campo da Forja`, await esperar(`document.querySelector('#agenteView textarea') !== null`, 2000));
+  await avaliar(`localStorage.removeItem('cidadeModo'); 1`); // a próxima rodada começa de novo no 3D
 }
 
 try {
-  const pc = await abrirNavegador();
-  try { await verificar(pc, 'computador'); } finally { await pc.fechar(); }
+  const pc = await abrirNavegador({ webgl: true });
+  try { await verificar(pc, 'computador', true); } finally { await pc.fechar(); }
   const cel = await abrirNavegador({ largura: 390, altura: 844, movel: true });
-  try { await verificar(cel, 'celular'); } finally { await cel.fechar(); }
+  try { await verificar(cel, 'celular', false); } finally { await cel.fechar(); }
 } finally {
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
   await servidor.parar();
