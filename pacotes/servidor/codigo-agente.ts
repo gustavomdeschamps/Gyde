@@ -20,6 +20,7 @@ import type { Uso } from './uso.ts';
 import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 import { mapaDaCidade, LIMITE_PREDIOS } from './cidade.ts';
+import { acharEntradaPrevia } from './previa.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).
 export interface ArgsFerramenta { caminho?: unknown; profundidade?: unknown; inicio?: unknown; fim?: unknown; texto?: unknown; conteudo?: unknown; procurar?: unknown; substituir?: unknown; comando?: unknown }
@@ -507,14 +508,15 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
   // isolado em sandbox: o JavaScript do projeto fica numa origem opaca e não alcança os cookies nem a API do Gyde.
   // A chave vale 2 horas e só para a pasta daquela conversa.
   const previas = new Map<string, { pasta: string; expira: number }>();
-  const ENTRADAS = ['index.html', 'public/index.html', 'src/index.html', 'docs/index.html', 'site/index.html'];
   app.post('/api/codigo/sessoes/:id/previa', bloqueado, (req, res) => {
     const s = q.uma.get(String(req.params.id), req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
     { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
     const pasta = realpathSync.native(s.pasta);
-    const entrada = ENTRADAS.find((f) => existsSync(path.join(pasta, f)));
-    if (!entrada) return responder(res, C.PreviaForja, { url: null, entrada: null, motivo: 'A prévia ao vivo mostra sites feitos com HTML, CSS e JavaScript: este projeto não tem um index.html (na raiz, em public/, src/, docs/ ou site/).' });
+    // acha a página que abre como site pronto; se nenhuma serve, o motivo diz o limite e o que fazer (previa.ts)
+    const achado = acharEntradaPrevia(pasta);
+    if (!achado.entrada) return responder(res, C.PreviaForja, { url: null, entrada: null, motivo: achado.motivo });
+    const entrada = achado.entrada;
     for (const [k, v] of previas) if (v.expira < Date.now()) previas.delete(k);
     const chave = randomBytes(24).toString('hex');
     previas.set(chave, { pasta, expira: Date.now() + 2 * 3_600_000 });

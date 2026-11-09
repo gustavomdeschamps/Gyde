@@ -64,7 +64,7 @@ try {
   // prévia ao vivo: sem index.html explica; com index.html mostra o site isolado e recarrega quando a Forja edita
   const botaoAoVivo = `[...document.querySelectorAll('.forja-acoes .btn')].find((b) => /Ao vivo/.test(b.textContent))`;
   await avaliar(`${botaoAoVivo}.click()`);
-  ok('Ao vivo sem index.html explica o motivo', await esperar(`/não tem um index.html/.test(document.querySelector('.forja-previa-info')?.textContent || '')`, 5000));
+  ok('Ao vivo sem index.html explica o motivo', await esperar(`/não achei nenhuma página index[.]html/.test(document.querySelector('.forja-previa-info')?.textContent || '')`, 5000));
   await avaliar(`${botaoAoVivo}.click()`);
   writeFileSync(path.join(proj.pasta, 'index.html'), '<!doctype html><html><head><link rel="stylesheet" href="estilo.css"></head><body><h1>Olá, mundo</h1></body></html>');
   writeFileSync(path.join(proj.pasta, 'estilo.css'), 'h1 { color: blue; }');
