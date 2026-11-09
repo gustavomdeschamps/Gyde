@@ -36,3 +36,20 @@ test('altura cresce com o tamanho, com teto; cor vai de 0 (nunca mudou) a 1 (o m
   assert.equal(calorDe(16, 16), 1);
   assert.equal(calorDe(4, 16), 0.25);
 });
+
+test('sinais da Forja para a Cidade: ler na hora; editar, criar e apagar pelo resultado', async () => {
+  const { sinalDoEvento, ouvirCidade, avisarCidade } = await import('../src/forja/sinais-cidade.ts');
+  const { normalizarCaminho } = await import('../src/forja/cidade3d.ts');
+  assert.deepEqual(sinalDoEvento({ tipo: 'ferramenta', nome: 'ler', args: { caminho: 'src/a.js' } }), { tipo: 'ler', caminho: 'src/a.js' });
+  assert.equal(sinalDoEvento({ tipo: 'ferramenta', nome: 'editar', args: { caminho: 'src/a.js' } }), null, 'editar espera o resultado');
+  assert.deepEqual(sinalDoEvento({ tipo: 'resultado', ok: true, caminho: 'b.js', mudanca: 'criado' }), { tipo: 'criar', caminho: 'b.js' });
+  assert.deepEqual(sinalDoEvento({ tipo: 'resultado', ok: true, caminho: 'b.js', mudanca: 'modificado' }), { tipo: 'editar', caminho: 'b.js' });
+  assert.deepEqual(sinalDoEvento({ tipo: 'resultado', ok: true, caminho: 'b.js', mudanca: 'apagado' }), { tipo: 'apagar', caminho: 'b.js' });
+  assert.equal(sinalDoEvento({ tipo: 'resultado', ok: false, caminho: 'b.js', mudanca: 'modificado' }), null, 'falhou: nada acende');
+  assert.equal(normalizarCaminho(String.raw`.\src\telas\a.js`), 'src/telas/a.js');
+  assert.equal(normalizarCaminho('./x/'), 'x');
+  const recebidos = [];
+  const parar = ouvirCidade((s) => recebidos.push(s));
+  avisarCidade({ tipo: 'ler', caminho: 'a' }); parar(); avisarCidade({ tipo: 'ler', caminho: 'b' });
+  assert.deepEqual(recebidos.map((s) => s.caminho), ['a'], 'depois de parar de ouvir, nada chega');
+});

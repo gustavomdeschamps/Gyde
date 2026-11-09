@@ -6,7 +6,8 @@
   import type { TCidade, TPredio } from '$contratos';
   import { pedir, mensagemDe } from '../api.ts';
   import { bairroDe, nomeDe, calorDe } from './cidade-comum.ts';
-  import type { Cidade3D, Qualidade } from './cidade3d.ts';
+  import type { Cidade3D } from './cidade3d.ts';
+  import { ouvirCidade, type SinalCidade } from './sinais-cidade.ts';
 
   let { id }: { id: string } = $props();
 
@@ -24,22 +25,14 @@
   let dica = $state<{ p: TPredio; x: number; y: number } | null>(null);
   let escolhido = $state<TPredio | null>(null);
   let cena: Cidade3D | null = null;
-  // busca dentro da cidade (escurece o resto) e qualidade do 3D (automática ou escolhida; fica salva)
+  // busca dentro da cidade (escurece o resto)
   let busca3d = $state('');
   let achados = $state<number | null>(null);
-  const QUALIDADES = ['auto', 'alta', 'media', 'leve'] as const;
-  const NOME_QUALIDADE = { auto: 'Automática', alta: 'Alta', media: 'Média', leve: 'Leve' };
-  // ao abrir, nunca começa na Alta (bloom com imagem fora da tela, que falha em algumas placas): ela é só manual
-  const qualidadeSalva = (() => { try { const q = localStorage.getItem('cidadeQualidade'); return q === 'media' || q === 'leve' ? q : 'auto'; } catch { return 'auto'; } })();
-  let pedidoQualidade = $state<(typeof QUALIDADES)[number]>(qualidadeSalva);
-  let qualidadeAtual = $state<Qualidade | null>(null);
   let aviso3d = $state<{ texto: string; grave: boolean } | null>(null);
-  let tempoAviso: ReturnType<typeof setTimeout> | undefined;
-  function trocarQualidade() {
-    pedidoQualidade = QUALIDADES[(QUALIDADES.indexOf(pedidoQualidade) + 1) % QUALIDADES.length]!;
-    try { localStorage.setItem('cidadeQualidade', pedidoQualidade === 'alta' ? 'auto' : pedidoQualidade); } catch { /* sem storage */ }
-    cena?.definirQualidade(pedidoQualidade);
-  }
+  // o que a Forja está fazendo agora (aparece no HUD enquanto o prédio pisca)
+  const VERBO = { ler: 'lendo', editar: 'editando', criar: 'criando', apagar: 'apagando' } as const;
+  let atividade = $state<(SinalCidade & { existe: boolean }) | null>(null);
+  let tempoAtividade: ReturnType<typeof setTimeout> | undefined;
   // diagnóstico para colar no chat (placa, qualidade, formatos, checagens e erros; nada pessoal)
   let erro3d = '';
   let copiado = $state(false);
@@ -73,15 +66,21 @@
       cena = criarCidade3D(alvo, dados.arquivos, {
         aoEscolher: (p) => { escolhido = p; dica = null; },
         aoPassar: (p, x, y) => { dica = p ? { p, x, y } : null; },
-        aoQualidade: (q) => { qualidadeAtual = q; },
-        aoAviso: (texto, grave) => { aviso3d = { texto, grave }; clearTimeout(tempoAviso); if (!grave) tempoAviso = setTimeout(() => { aviso3d = null; }, 9000); },
-        qualidade: pedidoQualidade,
+        aoAviso: (texto, grave) => { aviso3d = { texto, grave }; },
       });
       if (escolhido) cena.selecionar(escolhido.caminho);
       estado3d = 'pronto';
     }).catch((e: unknown) => { erro3d = String((e as Error)?.message ?? e).slice(0, 300); if (!cancelado) estado3d = 'falhou'; });
-    return () => { cancelado = true; cena?.destruir(); cena = null; dica = null; aviso3d = null; clearTimeout(tempoAviso); };
+    return () => { cancelado = true; cena?.destruir(); cena = null; dica = null; aviso3d = null; };
   });
+  // a Forja mexeu num arquivo: o prédio acende na cidade e o HUD diz o quê
+  $effect(() => ouvirCidade((sinal) => {
+    if (!cena) return;
+    const existe = cena.reagir(sinal);
+    atividade = { ...sinal, existe };
+    clearTimeout(tempoAtividade);
+    tempoAtividade = setTimeout(() => { atividade = null; }, 4500);
+  }));
   const numero = (n: number) => n.toLocaleString('pt-BR');
   const data = (ms: number | null) => (ms == null ? '' : new Date(ms).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }));
   const tamanhoTexto = (p: TPredio) => (p.binario ? `${Math.max(1, Math.round(p.bytes / 1024))} KB (arquivo binário)` : `${numero(p.linhas)} ${p.linhas === 1 ? 'linha' : 'linhas'}`);
@@ -152,12 +151,11 @@
                 <input type="search" bind:value={busca3d} placeholder="Procurar" autocomplete="off" spellcheck="false">
                 {#if achados != null}<small aria-live="polite">{achados} {achados === 1 ? 'achado' : 'achados'}</small>{/if}
               </label>
-              <button type="button" class="cidade-vidro cidade-qualidade" title="Qualidade do 3D. Automática: começa na média (leve no celular), desenhando direto na tela, e baixa sozinha se ficar lenta. A alta liga o brilho de verdade (bloom) e só vale até fechar a aba." onclick={trocarQualidade}>
-                <span class="cidade-hud-extra">Qualidade: </span>{#if pedidoQualidade === 'auto'}{NOME_QUALIDADE.auto}{#if qualidadeAtual}<small>({NOME_QUALIDADE[qualidadeAtual]})</small>{/if}
-                {:else}{NOME_QUALIDADE[qualidadeAtual ?? pedidoQualidade]}{#if qualidadeAtual && qualidadeAtual !== pedidoQualidade}<small>(baixou da {NOME_QUALIDADE[pedidoQualidade].toLowerCase()})</small>{/if}{/if}
-              </button>
             </span>
           </div>
+          {#if atividade}
+            <p class="cidade-vidro cidade-atividade tipo-{atividade.tipo}" role="status"><i aria-hidden="true"></i>Forja {VERBO[atividade.tipo]} <code>{atividade.caminho}</code>{#if !atividade.existe}<small>(fora da cidade: clique em Atualizar)</small>{/if}</p>
+          {/if}
           <div class="cidade-vidro cidade-legenda-3d" aria-hidden="true">
             <span class="cidade-leg-item"><i class="cidade-leg-predio"></i>Altura = tamanho</span>
             <span class="cidade-leg-item cidade-escala"><i></i>nunca mudou → mais alterado</span>
@@ -188,7 +186,7 @@
       </div>
       <div class="cidade-rodape">
         <p class="cidade-ajuda">Arraste para girar. Use a roda do mouse (ou dois dedos) para aproximar e o botão direito para mover. Clique num prédio para ver o arquivo.</p>
-        <button type="button" class="btn small ghost" title="Copia placa de vídeo, qualidade, formatos aceitos, resultado da checagem e erros (nada pessoal), para colar no chat" onclick={copiarDiagnostico}>{copiado ? 'Diagnóstico copiado' : 'Copiar diagnóstico'}</button>
+        <button type="button" class="btn small ghost" title="Copia placa de vídeo, formatos aceitos, extras ligados ou não, resultado da checagem e erros (nada pessoal), para colar no chat" onclick={copiarDiagnostico}>{copiado ? 'Diagnóstico copiado' : 'Copiar diagnóstico'}</button>
       </div>
     {:else}
     <div class="cidade-controles">

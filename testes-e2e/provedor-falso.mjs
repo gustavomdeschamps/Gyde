@@ -20,6 +20,15 @@ function forja(mensagens) {
       ? { pensamento: 'Vou rodar o comando pedido.', acoes: [{ ferramenta: 'executar', args: { comando: 'node -e "setTimeout(() => {}, 60000)"' } }] }
       : { pensamento: 'Terminei.', resposta: '**O que fiz**\nRodei o comando.' };
   }
+  // CIDADE-AO-VIVO: lê soma.js, corrige e cria um arquivo novo num bairro que já existe (a Cidade reage a cada passo)
+  if (/CIDADE-AO-VIVO/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] },
+      { pensamento: 'Corrijo e crio.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a - b', substituir: 'a + b' } }, { ferramenta: 'escrever', args: { caminho: 'src/telas/novo.js', conteudo: 'export const novo = 1;\n' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nCorrigi a soma e criei src/telas/novo.js.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
   // PREGUICA: pedido de correção que o modelo tenta encerrar sem agir; depois da cobrança, lê, corrige e testa
   if (/PREGUICA/.test(tarefa)) {
     const roteiro = [
@@ -96,6 +105,8 @@ export async function provedorFalso() {
       return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify({ problemas: achou ? [{ gravidade: 'alta', onde: 'soma', erro: 'falta tratar lista vazia', correcao: 'devolva 0' }] : [] }) } }] });
     }
     if (/Você é a Forja/.test(textoDe(mensagens[0]?.content))) {
+      // CIDADE-AO-VIVO anda devagar, para dar tempo de a Cidade abrir e mostrar cada passo
+      if (/CIDADE-AO-VIVO/.test(mensagens.map((m) => textoDe(m.content)).join(' '))) await new Promise((r) => setTimeout(r, 2500));
       return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: ((r) => (typeof r === 'string' ? r : JSON.stringify(r)))(forja(mensagens)) } }] });
     }
     const pergunta = textoDe(mensagens.filter((m) => m.role === 'user').at(-1)?.content).trim();

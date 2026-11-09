@@ -2,10 +2,12 @@
 // Direção de arte: cidade noturna em neon. Pasta = bairro (quadra com borda acesa), arquivo = prédio com janelas,
 // altura = tamanho, calor = quantas vezes mudou no git (os mais alterados viram faróis vermelho/laranja).
 // Ruas ligam cada bairro à pasta-mãe, com "tráfego de dados" correndo por elas.
-// Qualidades: Leve e Média desenham direto na tela (funcionam em placa integrada); a Média faz o "brilho" com halos
-// aditivos, sem pós-processamento. A Alta (bloom de verdade, com imagem fora da tela) só liga quando a pessoa escolhe.
-// Desempenho: tudo repetido é InstancedMesh (poucas chamadas de desenho); a qualidade baixa sozinha pelo FPS;
-// com "menos movimento" não há entrada animada, órbita, pulsos nem voo de câmera, e a cena só desenha quando algo muda.
+// Um visual só: a base desenha direto na tela (sem imagem fora da tela) e roda em placa integrada (referência:
+// Intel UHD 620). Em computador mais forte, extras ligam sozinhos e em silêncio (bloom de verdade, mais nitidez),
+// só depois de passar na checagem de segurança, e desligam se o FPS cair. Se a máquina sofrer, a base se alivia.
+// Abertura: escuro; a cidade acende bairro por bairro, os prédios sobem em onda e a câmera desce do alto.
+// A cidade reage à Forja: o prédio do arquivo lido, editado, criado ou apagado acende e pulsa na hora.
+// Com "menos movimento" não há abertura, órbita, pulsos nem voo de câmera, e a cena só desenha quando algo muda.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -14,23 +16,21 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import type { TPredio } from '$contratos';
 import { calorDe, bairroDe } from './cidade-comum.ts';
+import type { SinalCidade } from './sinais-cidade.ts';
 import * as S from './cidade3d-shaders.ts';
 
-export type Qualidade = 'alta' | 'media' | 'leve';
 export interface Cidade3D {
   destruir(): void;
   selecionar(caminho: string | null): void; // destaca um prédio (ou nenhum)
   focar(caminho: string): void; // leva a câmera até o prédio
   filtrar(termo: string): number; // escurece o que não combina; devolve quantos combinam
-  definirQualidade(q: Qualidade | 'auto'): void;
-  diagnostico(): string; // texto para copiar (placa, qualidade, formatos, checagens, erros; nada pessoal)
+  reagir(sinal: SinalCidade): boolean; // a Forja mexeu num arquivo; devolve se o prédio existe (ou foi criado)
+  diagnostico(): string; // texto para copiar (placa, formatos, checagens, extras, erros; nada pessoal)
 }
 interface Opcoes {
   aoEscolher: (p: TPredio | null) => void; // clique (ou toque) num prédio, ou no vazio
   aoPassar: (p: TPredio | null, x: number, y: number) => void; // mouse em cima de um prédio
-  aoQualidade?: (q: Qualidade, automatica: boolean) => void;
-  aoAviso?: (texto: string, grave: boolean) => void; // aviso discreto (ex.: a qualidade baixou porque os prédios não apareceram)
-  qualidade?: Qualidade | 'auto';
+  aoAviso?: (texto: string, grave: boolean) => void; // só para o caso grave (nem a base mostrou os prédios)
 }
 
 const CELULA = 1.6; // espaço de cada prédio na quadra
@@ -38,6 +38,8 @@ const LADO = 1; // largura do prédio
 const MARGEM = 0.9; // borda da quadra em volta dos prédios
 const RUA = 1.6; // espaço entre quadras
 const CHAO = 0.06; // altura da laje das quadras
+const NOVOS = 64; // vagas para prédios que a Forja criar com a cidade aberta
+const ABERTURA = 5.2; // segundos da abertura (câmera)
 // raiz quadrada com teto: um arquivo de 7 mil linhas não esconde o resto da cidade
 export const alturaDe = (p: TPredio) => 0.3 + Math.min(12, Math.sqrt(p.binario ? p.bytes / 40 : p.linhas) * 0.22);
 
@@ -62,11 +64,12 @@ export function montarPlanta(arquivos: TPredio[]) {
   const predios: { p: TPredio; x: number; z: number; h: number; quadra: number }[] = [];
   quadras.forEach((q, iq) => {
     q.x -= larguraTotal / 2; q.z -= fundoTotal / 2; // cidade centrada na origem
-    q.lista.forEach((p, i) => predios.push({ p, h: alturaDe(p), quadra: iq,
-      x: q.x + MARGEM + (i % q.colunas) * CELULA + LADO / 2, z: q.z + MARGEM + Math.floor(i / q.colunas) * CELULA + LADO / 2 }));
+    q.lista.forEach((p, i) => predios.push({ p, h: alturaDe(p), quadra: iq, ...posicaoNaQuadra(q, i) }));
   });
   return { quadras, predios, largura: larguraTotal, fundo: fundoTotal };
 }
+const posicaoNaQuadra = (q: { x: number; z: number; colunas: number }, i: number) =>
+  ({ x: q.x + MARGEM + (i % q.colunas) * CELULA + LADO / 2, z: q.z + MARGEM + Math.floor(i / q.colunas) * CELULA + LADO / 2 });
 
 // Ruas: cada bairro liga à pasta-mãe mais próxima que também é bairro (ou à praça central), em "L" pelo chão.
 export function montarRuas(quadras: { nome: string; x: number; z: number; largura: number; fundo: number }[]) {
@@ -87,20 +90,26 @@ export function montarRuas(quadras: { nome: string; x: number; z: number; largur
   return ruas;
 }
 
-// paleta (valores multiplicados acima de 1 brilham com o bloom)
+// caminho como a Forja manda ("./src\\app.js") no formato da cidade ("src/app.js")
+export const normalizarCaminho = (c: string) => c.replaceAll('\\', '/').replace(/^(\.\/)+/, '').replace(/\/+$/, '');
+
+// paleta: azul-marinho e violeta de base, ciano nas ruas, janelas âmbar e ciano, calor em laranja e vermelho;
+// eventos da Forja: ciano (leu), verde-limão (editou ou criou), vermelho-rosa (apagou). Valores acima de 1 brilham.
 const COR = {
   ceuHorizonte: '#2a1b5c', ceuMeio: '#120d33', ceuTopo: '#04040f', nevoa: '#160f3a',
   corpo: '#0e1336', corpoAlto: '#2a2068', borda: '#7c5cff', lua: '#9db4ff',
   quente: '#ff2a3d', laranja: '#ff8a1f', janelaFria: '#7fe3ff', janelaQuente: '#ffd27a',
   rua: '#2fd9ff', quadra: '#8b6cff', trafego: '#9ff3ff', chao: '#05061a', chaoBrilho: '#3b1f8f', grade: '#3a3f9e',
-  realce: '#5ee7ff', escolhido: '#ffffff',
+  realce: '#5ee7ff', escolhido: '#ffffff', ler: '#38e8ff', editar: '#8dff5a', apagar: '#ff3d7f',
 };
 const hdr = (hex: string, k: number) => new THREE.Color(hex).multiplyScalar(k);
+const CHAVE_EXTRAS = 'gyde-cidade-extras-falharam'; // placas em que o bloom já falhou (não tenta de novo)
 
 export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: Opcoes): Cidade3D {
-  const { aoEscolher, aoPassar, aoQualidade, aoAviso } = opcoes;
+  const { aoEscolher, aoPassar, aoAviso } = opcoes;
   const menosMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const celular = matchMedia('(pointer: coarse)').matches || caixa.clientWidth < 640;
+  const teste = (chave: string) => { try { return localStorage.getItem(chave); } catch { return null; } };
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' }); // sem WebGL, lança erro e a tela oferece a lista
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -116,11 +125,22 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   const guardar = <T extends { dispose(): void }>(x: T) => { descartar.push(x); return x; };
   const comNevoa = (u: Record<string, THREE.IUniform>) => ({ ...THREE.UniformsUtils.clone(THREE.UniformsLib.fog), ...u });
   const tempo = { value: 0 };
+  const subida = { value: menosMovimento ? 100 : 0 }; // segundos desde que a cidade abriu (a abertura inteira lê daqui)
+  const luz = { value: menosMovimento ? 1 : 0 }; // céu, chão e névoa acendendo
+  const movimento = { value: menosMovimento ? 0 : 1 };
+
+  // ---------- ordem da abertura: bairros do centro para fora, prédios em onda dentro do bairro ----------
+  const nq = planta.quadras.length;
+  const ordemQuadra = new Map([...planta.quadras.keys()].sort((a, b) => {
+    const qa = planta.quadras[a]!, qb = planta.quadras[b]!;
+    return Math.hypot(qa.x + qa.largura / 2, qa.z + qa.fundo / 2) - Math.hypot(qb.x + qb.largura / 2, qb.z + qb.fundo / 2);
+  }).map((iq, k) => [iq, k]));
+  const atrasoQuadra = (iq: number) => 0.5 + (nq > 1 ? (ordemQuadra.get(iq)! / (nq - 1)) * 2.3 : 0);
 
   // ---------- céu e estrelas ----------
   const ceu = new THREE.Mesh(guardar(new THREE.SphereGeometry(tamanho * 8, 32, 16)), guardar(new THREE.ShaderMaterial({
     vertexShader: S.ceuVertex, fragmentShader: S.ceuFragment, side: THREE.BackSide, depthWrite: false,
-    uniforms: { uHorizonte: { value: new THREE.Color(COR.ceuHorizonte) }, uMeio: { value: new THREE.Color(COR.ceuMeio) }, uTopo: { value: new THREE.Color(COR.ceuTopo) } },
+    uniforms: { uHorizonte: { value: new THREE.Color(COR.ceuHorizonte) }, uMeio: { value: new THREE.Color(COR.ceuMeio) }, uTopo: { value: new THREE.Color(COR.ceuTopo) }, uLuz: luz },
   })));
   ceu.renderOrder = -10;
   cena.add(ceu);
@@ -145,7 +165,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   // ---------- chão de vidro escuro ----------
   const chao = new THREE.Mesh(guardar(new THREE.PlaneGeometry(tamanho * 7, tamanho * 7).rotateX(-Math.PI / 2)), guardar(new THREE.ShaderMaterial({
     vertexShader: S.chaoVertex, fragmentShader: S.chaoFragment, fog: true, transparent: true,
-    uniforms: comNevoa({ uRaio: { value: raio }, uFundo: { value: new THREE.Color(COR.chao) }, uBrilho: { value: new THREE.Color(COR.chaoBrilho) }, uGrade: { value: new THREE.Color(COR.grade) } }),
+    uniforms: comNevoa({ uRaio: { value: raio }, uLuz: luz, uFundo: { value: new THREE.Color(COR.chao) }, uBrilho: { value: new THREE.Color(COR.chaoBrilho) }, uGrade: { value: new THREE.Color(COR.grade) } }),
   })));
   chao.renderOrder = -1;
   cena.add(chao);
@@ -153,14 +173,14 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   // ---------- quadras: laje escura ----------
   const m = new THREE.Matrix4();
   const lajes = new THREE.InstancedMesh(guardar(new THREE.BoxGeometry(1, CHAO, 1).translate(0, CHAO / 2, 0)),
-    guardar(new THREE.MeshBasicMaterial({ color: new THREE.Color('#0c1030') })), Math.max(1, planta.quadras.length));
+    guardar(new THREE.MeshBasicMaterial({ color: new THREE.Color('#0c1030') })), Math.max(1, nq));
   planta.quadras.forEach((q, i) => { m.makeScale(q.largura, 1, q.fundo).setPosition(q.x + q.largura / 2, 0, q.z + q.fundo / 2); lajes.setMatrixAt(i, m); });
-  lajes.count = planta.quadras.length;
+  lajes.count = nq;
   cena.add(lajes);
 
   // ---------- faixas de neon: bordas das quadras e ruas (uma malha só) ----------
-  const vertsFaixa: number[] = [], uvsFaixa: number[] = [], distFaixa: number[] = [], tipoFaixa: number[] = [], idxFaixa: number[] = [];
-  const faixa = (ax: number, az: number, bx: number, bz: number, largura: number, y: number, tipo: number, dist0 = 0) => {
+  const vertsFaixa: number[] = [], uvsFaixa: number[] = [], distFaixa: number[] = [], tipoFaixa: number[] = [], atrasoFaixa: number[] = [], idxFaixa: number[] = [];
+  const faixa = (ax: number, az: number, bx: number, bz: number, largura: number, y: number, tipo: number, atraso: number, dist0 = 0) => {
     const dx = bx - ax, dz = bz - az, comp = Math.hypot(dx, dz);
     if (comp < 0.01) return;
     const nx = (-dz / comp) * largura / 2, nz = (dx / comp) * largura / 2;
@@ -169,56 +189,63 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     uvsFaixa.push(0, 0, 0, 1, 1, 0, 1, 1);
     distFaixa.push(dist0, dist0, dist0 + comp, dist0 + comp);
     tipoFaixa.push(tipo, tipo, tipo, tipo);
+    atrasoFaixa.push(atraso, atraso, atraso, atraso);
     idxFaixa.push(base, base + 2, base + 1, base + 1, base + 2, base + 3);
   };
-  for (const q of planta.quadras) {
-    const y = CHAO + 0.004, e = 0.09, x0 = q.x + e / 2, x1 = q.x + q.largura - e / 2, z0 = q.z + e / 2, z1 = q.z + q.fundo - e / 2;
-    faixa(x0, z0, x1, z0, e, y, 0); faixa(x1, z0, x1, z1, e, y, 0); faixa(x1, z1, x0, z1, e, y, 0); faixa(x0, z1, x0, z0, e, y, 0);
-  }
+  planta.quadras.forEach((q, iq) => {
+    const y = CHAO + 0.004, e = 0.09, x0 = q.x + e / 2, x1 = q.x + q.largura - e / 2, z0 = q.z + e / 2, z1 = q.z + q.fundo - e / 2, a = atrasoQuadra(iq) - 0.25;
+    faixa(x0, z0, x1, z0, e, y, 0, a); faixa(x1, z0, x1, z1, e, y, 0, a); faixa(x1, z1, x0, z1, e, y, 0, a); faixa(x0, z1, x0, z0, e, y, 0, a);
+  });
+  // as ruas acendem depois dos bairros: a rede "conecta" a cidade no fim da abertura
   const ruas = montarRuas(planta.quadras);
-  for (const [ax, az, bx, bz] of ruas) faixa(ax, az, bx, bz, 0.2, 0.012, 1, Math.random() * 10);
+  for (const [ax, az, bx, bz] of ruas) faixa(ax, az, bx, bz, 0.2, 0.012, 1, 2.9 + Math.hypot(ax, az) / raio * 0.6, Math.random() * 10);
   const geoFaixa = guardar(new THREE.BufferGeometry());
   geoFaixa.setAttribute('position', new THREE.Float32BufferAttribute(vertsFaixa, 3));
   geoFaixa.setAttribute('uv', new THREE.Float32BufferAttribute(uvsFaixa, 2));
   geoFaixa.setAttribute('aDist', new THREE.Float32BufferAttribute(distFaixa, 1));
   geoFaixa.setAttribute('aTipo', new THREE.Float32BufferAttribute(tipoFaixa, 1));
+  geoFaixa.setAttribute('aAtraso', new THREE.Float32BufferAttribute(atrasoFaixa, 1));
   geoFaixa.setIndex(idxFaixa);
   const apagarFaixas = { value: 0 };
   const faixas = new THREE.Mesh(geoFaixa, guardar(new THREE.ShaderMaterial({
     vertexShader: S.faixaVertex, fragmentShader: S.faixaFragment, fog: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    uniforms: comNevoa({ uTempo: tempo, uRua: { value: hdr(COR.rua, 1.6) }, uQuadra: { value: hdr(COR.quadra, 1.5) }, uApagar: apagarFaixas }),
+    uniforms: comNevoa({ uTempo: tempo, uSubida: subida, uRua: { value: hdr(COR.rua, 1.6) }, uQuadra: { value: hdr(COR.quadra, 1.5) }, uApagar: apagarFaixas }),
   })));
   cena.add(faixas);
 
   // ---------- prédios (e o reflexo no chão, com a mesma geometria) ----------
-  const n = Math.max(1, planta.predios.length);
+  const capacidade = planta.predios.length + NOVOS;
   const geoPredio = guardar(new THREE.BoxGeometry(LADO, 1, LADO).translate(0, 0.5, 0));
   const maxMudancas = Math.max(1, ...arquivos.map((a) => a.mudancas));
-  const dados = new Float32Array(n * 3), apagado = new Float32Array(n);
-  const raioMax = Math.max(1, ...planta.predios.map((b) => Math.hypot(b.x, b.z)));
+  const dados = new Float32Array(capacidade * 3), apagado = new Float32Array(capacidade), evento = new Float32Array(capacidade * 3);
+  const contaNaQuadra = planta.quadras.map(() => 0);
   planta.predios.forEach((b, i) => {
-    dados.set([calorDe(b.p.mudancas, maxMudancas), Math.random(), (Math.hypot(b.x, b.z) / raioMax) * 1.5 + Math.random() * 0.25], i * 3);
+    const local = contaNaQuadra[b.quadra]!++ / Math.max(1, planta.quadras[b.quadra]!.lista.length);
+    dados.set([calorDe(b.p.mudancas, maxMudancas), Math.random(), atrasoQuadra(b.quadra) + local * 0.4 + Math.random() * 0.08], i * 3);
   });
-  geoPredio.setAttribute('aDados', new THREE.InstancedBufferAttribute(dados, 3));
+  const attrDados = new THREE.InstancedBufferAttribute(dados, 3);
   const attrApagado = new THREE.InstancedBufferAttribute(apagado, 1);
+  const attrEvento = new THREE.InstancedBufferAttribute(evento, 3);
+  geoPredio.setAttribute('aDados', attrDados);
   geoPredio.setAttribute('aApagado', attrApagado);
-  const subida = { value: menosMovimento ? 10 : 0 };
+  geoPredio.setAttribute('aEvento', attrEvento);
   const uniformesPredio = () => comNevoa({
-    uTempo: tempo, uSubida: subida, uCorBase: { value: new THREE.Color(COR.corpo) }, uCorAlto: { value: new THREE.Color(COR.corpoAlto) },
+    uTempo: tempo, uSubida: subida, uMovimento: movimento, uCorBase: { value: new THREE.Color(COR.corpo) }, uCorAlto: { value: new THREE.Color(COR.corpoAlto) },
     uBorda: { value: hdr(COR.borda, 1.2) }, uQuente: { value: hdr(COR.quente, 2) }, uLaranja: { value: hdr(COR.laranja, 1.8) },
     uJanelaFria: { value: hdr(COR.janelaFria, 1.5) }, uJanelaQuente: { value: hdr(COR.janelaQuente, 1.5) }, uLua: { value: new THREE.Color(COR.lua) },
+    uLer: { value: hdr(COR.ler, 1.5) }, uEditar: { value: hdr(COR.editar, 1.5) }, uApagarCor: { value: hdr(COR.apagar, 1.6) },
   });
   const predios = new THREE.InstancedMesh(geoPredio, guardar(new THREE.ShaderMaterial({
     vertexShader: S.predioVertex, fragmentShader: S.predioFragment, fog: true, uniforms: uniformesPredio(),
-  })), n);
+  })), capacidade);
   planta.predios.forEach((b, i) => { m.makeScale(1, b.h, 1).setPosition(b.x, CHAO, b.z); predios.setMatrixAt(i, m); });
   predios.count = planta.predios.length;
-  predios.computeBoundingSphere();
+  predios.frustumCulled = false; // prédios novos podem nascer fora da esfera calculada no começo
   cena.add(predios);
   const reflexo = new THREE.InstancedMesh(geoPredio, guardar(new THREE.ShaderMaterial({
     vertexShader: S.predioVertex, fragmentShader: S.predioFragment, fog: true, transparent: true, depthWrite: false,
     defines: { ESPELHO: '' }, uniforms: uniformesPredio(),
-  })), n);
+  })), capacidade);
   reflexo.instanceMatrix = predios.instanceMatrix;
   reflexo.count = predios.count;
   reflexo.scale.y = -1;
@@ -237,7 +264,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   geoFeixe.setAttribute('aFase', new THREE.InstancedBufferAttribute(fases, 1));
   const feixes = new THREE.InstancedMesh(geoFeixe, guardar(new THREE.ShaderMaterial({
     vertexShader: S.feixeVertex, fragmentShader: S.feixeFragment, transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
-    uniforms: { uTempo: tempo, uQuente: { value: hdr(COR.quente, 1.4) }, uLaranja: { value: hdr(COR.laranja, 1.2) }, uApagar: apagarFeixes },
+    uniforms: { uTempo: tempo, uSubida: subida, uQuente: { value: hdr(COR.quente, 1.4) }, uLaranja: { value: hdr(COR.laranja, 1.2) }, uApagar: apagarFeixes },
   })), Math.max(1, quentes.length));
   const alturaFeixe = tamanho * 0.55;
   quentes.forEach(({ b }, k) => { m.makeScale(1, alturaFeixe, 1).setPosition(b.x, CHAO + b.h, b.z); feixes.setMatrixAt(k, m); });
@@ -247,17 +274,18 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
 
   // ---------- halos (brilho falso, direto na tela) ----------
   // um halo suave no alto de cada prédio: violeta/ciano fraco nos calmos, laranja/vermelho forte nos quentes;
-  // os faróis ganham um halo grande. Assim a Média brilha sem bloom.
-  const posHalo = new Float32Array(n * 3), corHalo = new Float32Array(n * 3), dadosHalo = new Float32Array(n * 3);
-  const apagadoHalo = new THREE.BufferAttribute(new Float32Array(n), 1);
-  const frio = new THREE.Color(COR.borda), quenteC = new THREE.Color(COR.quente), laranjaC = new THREE.Color(COR.laranja), c = new THREE.Color();
+  // os faróis ganham um halo grande. Assim a base brilha sem bloom.
+  const nBase = planta.predios.length;
+  const posHalo = new Float32Array(Math.max(1, nBase) * 3), corHalo = new Float32Array(Math.max(1, nBase) * 3), dadosHalo = new Float32Array(Math.max(1, nBase) * 3);
+  const apagadoHalo = new THREE.BufferAttribute(new Float32Array(Math.max(1, nBase)), 1);
+  const frio = new THREE.Color(COR.borda), quenteC = new THREE.Color(COR.quente), laranjaC = new THREE.Color(COR.laranja), tom = new THREE.Color();
   const farois = new Set(quentes.map((x) => x.i));
   planta.predios.forEach((b, i) => {
     const calor = dados[i * 3]!;
     posHalo.set([b.x, CHAO + 0.05, b.z], i * 3);
-    c.copy(frio).multiplyScalar(0.10).lerp(laranjaC.clone().lerp(quenteC, calor).multiplyScalar(0.55), Math.min(1, calor * 1.3));
-    if (farois.has(i)) c.copy(quenteC).lerp(laranjaC, 0.3).multiplyScalar(0.8);
-    corHalo.set([c.r, c.g, c.b], i * 3);
+    tom.copy(frio).multiplyScalar(0.10).lerp(laranjaC.clone().lerp(quenteC, calor).multiplyScalar(0.55), Math.min(1, calor * 1.3));
+    if (farois.has(i)) tom.copy(quenteC).lerp(laranjaC, 0.3).multiplyScalar(0.8);
+    corHalo.set([tom.r, tom.g, tom.b], i * 3);
     dadosHalo.set([farois.has(i) ? 6 : 1.6 + calor * 2.4, b.h, dados[i * 3 + 2]!], i * 3);
   });
   const geoHalo = guardar(new THREE.BufferGeometry());
@@ -265,7 +293,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   geoHalo.setAttribute('aCor', new THREE.BufferAttribute(corHalo, 3));
   geoHalo.setAttribute('aHalo', new THREE.BufferAttribute(dadosHalo, 3));
   geoHalo.setAttribute('aApagado', apagadoHalo);
-  geoHalo.setDrawRange(0, planta.predios.length);
+  geoHalo.setDrawRange(0, nBase);
   const alturaTela = { value: 600 };
   const halos = new THREE.Points(geoHalo, guardar(new THREE.ShaderMaterial({
     vertexShader: S.haloVertex, fragmentShader: S.haloFragment, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
@@ -295,16 +323,17 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   geoTrafego.setDrawRange(0, nTrafego);
   const trafego = new THREE.Points(geoTrafego, guardar(new THREE.ShaderMaterial({
     vertexShader: S.trafegoVertex, fragmentShader: S.trafegoFragment, fog: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    uniforms: comNevoa({ uTempo: tempo, uPixel: pixel, uCor: { value: new THREE.Color(COR.trafego) } }),
+    uniforms: comNevoa({ uTempo: tempo, uPixel: pixel, uSubida: subida, uCor: { value: new THREE.Color(COR.trafego) } }),
   })));
   trafego.frustumCulled = false;
+  trafego.visible = nTrafego > 0;
   cena.add(trafego);
 
   // ---------- névoa em camadas ----------
   const camadas = [1.4, 3.8].map((y, k) => {
     const c = new THREE.Mesh(guardar(new THREE.PlaneGeometry(raio * 2.6, raio * 2.6).rotateX(-Math.PI / 2)), guardar(new THREE.ShaderMaterial({
       vertexShader: S.nevoaVertex, fragmentShader: S.nevoaFragment, transparent: true, depthWrite: false,
-      uniforms: { uTempo: tempo, uRaio: { value: raio * 1.2 }, uCor: { value: new THREE.Color(k ? '#3a2a8a' : '#2a2370') }, uForca: { value: k ? 0.1 : 0.16 } },
+      uniforms: { uTempo: tempo, uRaio: { value: raio * 1.2 }, uLuz: luz, uCor: { value: new THREE.Color(k ? '#3a2a8a' : '#2a2370') }, uForca: { value: k ? 0.1 : 0.16 } },
     })));
     c.position.y = y;
     c.renderOrder = 5;
@@ -334,7 +363,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   const maisAlto = planta.quadras.map(() => 0);
   for (const b of planta.predios) maisAlto[b.quadra] = Math.max(maisAlto[b.quadra]!, b.h);
   const rotulos = planta.quadras.map((q, i) => ({ q, i, peso: q.lista.length + (q.nome === '' ? 1000 : 0), el: document.createElement('span'), w: 0, h: 0,
-    ponto: new THREE.Vector3(q.x + q.largura / 2, CHAO + maisAlto[i]! + 0.9, q.z + q.fundo / 2), apagado: false }))
+    ponto: new THREE.Vector3(q.x + q.largura / 2, CHAO + maisAlto[i]! + 0.9, q.z + q.fundo / 2), apagado: false, acende: atrasoQuadra(i) + 1.1 }))
     .sort((a, b) => b.peso - a.peso).slice(0, 80);
   for (const r of rotulos) {
     const nome = r.q.nome === '' ? 'raiz do projeto' : r.q.nome.slice(r.q.nome.lastIndexOf('/') + 1);
@@ -356,7 +385,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       vet.copy(r.ponto).project(camera);
       const x = (vet.x * 0.5 + 0.5) * w, y = (-vet.y * 0.5 + 0.5) * h;
       const ret: [number, number, number, number] = [x - r.w / 2 - 4, y - r.h - 4, x + r.w / 2 + 4, y + 4];
-      const dentro = vet.z < 1 && ret[0] > 4 && ret[2] < w - 4 && ret[1] > (w < 640 ? 100 : 52) && y < h - 8; // fora do HUD
+      const dentro = subida.value >= r.acende && vet.z < 1 && ret[0] > 4 && ret[2] < w - 4 && ret[1] > (w < 640 ? 100 : 52) && y < h - 8; // aceso e fora do HUD
       const livre = dentro && ocupados.length < maximo && !ocupados.some((o) => o[0] < ret[2] && ret[0] < o[2] && o[1] < ret[3] && ret[1] < o[3]);
       if (livre) ocupados.push(ret);
       r.el.style.transform = `translate(${Math.round(x - r.w / 2)}px, ${Math.round(y - r.h)}px)`;
@@ -365,7 +394,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     }
   }
 
-  // ---------- câmera, controles e pós-processamento ----------
+  // ---------- câmera e controles ----------
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, tamanho * 20);
   const alturaMax = Math.max(1, ...planta.predios.map((b) => b.h));
   const raioCidade = Math.hypot(planta.largura / 2, planta.fundo / 2, alturaMax / 2);
@@ -386,13 +415,12 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   // câmera baixa (uns 25 graus), como quem olha a cidade de um prédio vizinho
   const calcularFinal = () => { const d = distanciaIdeal(); final.pos.set(d * 0.6, d * 0.42, d * 0.68); };
 
-  // ---------- diagnóstico (sem dados pessoais: placa de vídeo, recursos do WebGL, qualidade e erros) ----------
+  // ---------- diagnóstico (sem dados pessoais: placa de vídeo, recursos do WebGL, extras, checagens e erros) ----------
   const gl = renderer.getContext();
   const infoPlaca = gl.getExtension('WEBGL_debug_renderer_info');
   const placa = String(infoPlaca ? gl.getParameter(infoPlaca.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)).slice(0, 120);
   // O bloom desenha antes numa imagem fora da tela, em ponto flutuante. Placas que não aceitam esse formato (ou o
-  // antisserrilhado nele) devolvem um quadro vazio: os prédios somem e só os nomes (que são HTML) ficam. Por isso o
-  // formato e as amostras dependem do que a placa diz aceitar, e o bloom só liga quando ela aceita.
+  // antisserrilhado nele) devolvem um quadro vazio. Por isso ele é só um extra, ligado depois de passar na checagem.
   const bufferFloat = renderer.extensions.has('EXT_color_buffer_float') || renderer.extensions.has('EXT_color_buffer_half_float');
   const amostras = bufferFloat ? Math.min(4, renderer.capabilities.maxSamples) : 0;
   const errosGl: string[] = [];
@@ -404,61 +432,68 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   const aoPerderContexto = () => { errosGl.push('contexto WebGL perdido'); console.warn('[Gyde · Cidade 3D] a placa de vídeo descartou a cena (contexto WebGL perdido)'); };
   renderer.domElement.addEventListener('webglcontextlost', aoPerderContexto);
 
-  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: bufferFloat ? THREE.HalfFloatType : THREE.UnsignedByteType, samples: amostras }));
-  composer.addPass(new RenderPass(cena, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.75, 0.5, 0.92);
-  composer.addPass(bloom);
-  composer.addPass(new OutputPass());
+  let composer: EffectComposer | null = null; // só existe se os extras ligarem
+  let bloom: UnrealBloomPass | null = null;
+  function criarBloom() {
+    composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: amostras }));
+    composer.addPass(new RenderPass(cena, camera));
+    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.75, 0.5, 0.92);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+  }
 
-  // ---------- qualidade adaptativa ----------
-  const ORDEM: Qualidade[] = ['leve', 'media', 'alta'];
-  let qualidade: Qualidade = 'media';
-  let forcaBloom = 0.75;
-  let automatica = (opcoes.qualidade ?? 'auto') === 'auto';
-  function aplicarQualidade(q: Qualidade) {
-    qualidade = q;
-    const dpr = Math.min(devicePixelRatio, q === 'alta' ? 1.75 : q === 'media' ? 1.5 : 1);
+  // ---------- adaptação: um visual só, o melhor que a máquina aguenta ----------
+  // alivio 0 = base completa; 1 = menos nitidez e metade do tráfego; 2 = também sem névoa em camadas, reflexo e
+  // estrelas (é o modo seguro, usado também se a checagem da base falhar). Extras = bloom de verdade e mais nitidez.
+  const estado = { alivio: 0, extras: false, extrasMotivo: 'ainda não testados', fps: 0 };
+  const placasSemExtras = (() => { try { return JSON.parse(localStorage.getItem(CHAVE_EXTRAS) ?? '[]') as string[]; } catch { return []; } })();
+  const podeExtras = () => bufferFloat && !celular && !placasSemExtras.includes(placa);
+  function aplicar() {
+    const teto = estado.extras ? 1.75 : estado.alivio === 0 ? (celular ? 1.25 : 1.5) : 1;
+    const dpr = Math.min(devicePixelRatio, teto);
     renderer.setPixelRatio(dpr);
-    composer.setPixelRatio(dpr);
+    composer?.setPixelRatio(dpr);
     pixel.value = dpr;
-    // só a Alta usa o bloom (imagem fora da tela); Leve e Média desenham direto na tela
-    bloom.enabled = q === 'alta' && bufferFloat;
-    forcaBloom = 0.75;
-    halos.visible = q !== 'leve';
-    trafego.visible = q !== 'leve' && nTrafego > 0;
-    geoTrafego.setDrawRange(0, nTrafego);
-    for (const camada of camadas) camada.visible = q !== 'leve';
-    reflexo.visible = q !== 'leve';
-    estrelas.visible = q !== 'leve';
+    if (bloom) bloom.enabled = estado.extras;
+    geoTrafego.setDrawRange(0, estado.alivio >= 1 ? Math.floor(nTrafego / 2) : nTrafego);
+    for (const camada of camadas) camada.visible = estado.alivio < 2;
+    reflexo.visible = estado.alivio < 2;
+    estrelas.visible = estado.alivio < 2;
     ajustar();
-    aoQualidade?.(q, automatica);
-    agendarVerificacao();
+  }
+  function ligarExtras() {
+    if (!composer) criarBloom();
+    estado.extras = true; estado.extrasMotivo = 'em teste';
+    aplicar();
+    agendarVerificacao('extras');
+  }
+  function desligarExtras(motivo: string, lembrar: boolean) {
+    estado.extras = false; estado.extrasMotivo = motivo;
+    if (lembrar) { try { localStorage.setItem(CHAVE_EXTRAS, JSON.stringify([...placasSemExtras, placa].slice(-8))); } catch { /* sem storage */ } }
+    aplicar();
   }
 
   // ---------- checagem de segurança: o quadro saiu com prédios? ----------
-  // Desenha o mesmo quadro com e sem os prédios e compara alguns pixels onde eles deveriam estar. Se não muda nada,
-  // os prédios não estão aparecendo nesta qualidade (placa de vídeo, driver): baixa um nível e avisa.
-  const NOME: Record<Qualidade, string> = { alta: 'alta', media: 'média', leve: 'leve' };
-  const verificacao = { em: -1, tentativas: 0 };
-  // só para o teste automático provar o recuo: finge que a qualidade alta não mostra os prédios
-  const simularFalha = (() => { try { return localStorage.getItem('gyde-teste-cidade-falha') === 'alta'; } catch { return false; } })();
-  function agendarVerificacao() { verificacao.em = menosMovimento ? 0 : relogio.getElapsedTime() + 0.6; verificacao.tentativas = 0; desenhar(); }
+  // 1) desenha o mesmo quadro com e sem os prédios e compara pixels onde eles deveriam estar;
+  // 2) pinta os prédios de magenta puro por um instante e confere que a cor chega à tela.
+  // Assim pega tanto prédios que não são desenhados quanto prédios que existem mas não aparecem.
+  const verificacao = { em: -1, tentativas: 0, alvo: 'base' as 'base' | 'extras' };
+  // só para os testes automáticos: finge que os extras não mostram os prédios, ou força tentar os extras
+  const simularFalha = teste('gyde-teste-cidade-falha') === 'extras';
+  const forcarExtras = teste('gyde-teste-cidade-extras') === '1';
+  function agendarVerificacao(alvo: 'base' | 'extras') { verificacao.alvo = alvo; verificacao.em = menosMovimento ? 0 : relogio() + 0.6; verificacao.tentativas = 0; desenhar(); }
   const pontosConferir = [...planta.predios].sort((a, b) => b.h - a.h).slice(0, 80).map((b) => new THREE.Vector3(b.x, CHAO + b.h * 0.5, b.z));
   function renderizar() {
-    // (a falha simulada esconde prédios e reflexo, como uma placa que não desenha a cena 3D)
-    const esconder = simularFalha && qualidade === 'alta' && predios.visible;
+    const esconder = simularFalha && estado.extras && predios.visible;
     const reflexoAntes = reflexo.visible;
     if (esconder) { predios.visible = false; reflexo.visible = false; }
-    if (bloom.enabled) {
+    if (estado.extras && composer && bloom) {
       // de perto, as janelas ocupam a tela e o bloom vira um véu: ele enfraquece com a aproximação
-      bloom.strength = forcaBloom * THREE.MathUtils.clamp(camera.position.distanceTo(controles.target) / (distanciaIdeal() * 0.75), 0.25, 1);
+      bloom.strength = 0.75 * THREE.MathUtils.clamp(camera.position.distanceTo(controles.target) / (distanciaIdeal() * 0.75), 0.25, 1);
       composer.render();
     } else renderer.render(cena, camera);
     if (esconder) { predios.visible = true; reflexo.visible = reflexoAntes; }
   }
-  // material de teste: os prédios pintados de magenta puro. Se o magenta não chega à tela, a geometria dos prédios
-  // não está sendo desenhada (pipeline/placa). Se chega, mas o quadro normal fica igual ao quadro sem prédios (ou preto),
-  // o shader dos prédios é que não aparece. Assim a checagem pega também prédios que existem mas não aparecem.
   const matTeste = guardar(new THREE.MeshBasicMaterial({ color: 0xff00ff, fog: false, toneMapped: false }));
   const historico: string[] = [];
   const px = new Uint8Array(4);
@@ -480,12 +515,12 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     const sem = amostrar(pts);
     predios.visible = true; comoMaterial.material = matTeste;
     renderizar();
-    const teste = amostrar(pts);
+    const magentaPx = amostrar(pts);
     predios.material = materialReal; reflexo.visible = refl; halos.visible = hal;
     renderizar(); // a tela fica com o quadro normal
     let diferenca = 0, maximo = 0, magenta = 0;
     com.forEach((c, i) => {
-      const o = sem[i]!, t = teste[i]!;
+      const o = sem[i]!, t = magentaPx[i]!;
       diferenca += Math.abs(c[0]! - o[0]!) + Math.abs(c[1]! - o[1]!) + Math.abs(c[2]! - o[2]!);
       maximo = Math.max(maximo, ...c);
       if (t[0]! > 120 && t[2]! > 120 && t[1]! < Math.min(t[0]!, t[2]!) * 0.6) magenta++;
@@ -493,43 +528,90 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     diferenca /= pts.length * 3;
     const fracaoMagenta = magenta / pts.length;
     const motivo = fracaoMagenta < 0.5 ? 'a geometria dos prédios não chega à tela' : maximo <= 2 ? 'quadro preto' : diferenca <= 1.5 ? 'o shader dos prédios sai igual ao fundo' : '';
-    return { ok: !motivo, motivo, diferenca: Math.round(diferenca * 10) / 10, magenta: Math.round(fracaoMagenta * 100), quadroPreto: maximo <= 2, pontos: pts.length };
+    return { ok: !motivo, motivo, diferenca: Math.round(diferenca * 10) / 10, magenta: Math.round(fracaoMagenta * 100), pontos: pts.length };
   }
   function tratarVerificacao(r: NonNullable<ReturnType<typeof verificarQuadro>>) {
-    const diag = { placa, qualidade, bloom: bloom.enabled, bufferFloat, amostras, diferenca: r.diferenca, magenta: `${r.magenta}%`, motivo: r.motivo || 'nenhum', errosShader: errosGl.length };
-    historico.push(`${NOME[qualidade]}: ${r.ok ? 'prédios aparecendo' : `falhou (${r.motivo})`}; diferença ${r.diferenca}; magenta ${r.magenta}% de ${r.pontos} pontos`);
-    if (r.ok) { caixa.dataset.verificacao = 'ok'; console.info('[Gyde · Cidade 3D] quadro conferido: prédios aparecendo', diag); return; }
+    const alvo = verificacao.alvo;
+    historico.push(`${alvo === 'extras' ? 'extras (bloom)' : estado.alivio >= 2 ? 'base segura' : 'base'}: ${r.ok ? 'prédios aparecendo' : `falhou (${r.motivo})`}; diferença ${r.diferenca}; magenta ${r.magenta}% de ${r.pontos} pontos`);
+    const diag = { placa, alvo, alivio: estado.alivio, bufferFloat, amostras, diferenca: r.diferenca, magenta: `${r.magenta}%`, motivo: r.motivo || 'nenhum', errosShader: errosGl.length };
+    if (r.ok) {
+      caixa.dataset.verificacao = 'ok';
+      if (alvo === 'extras') { estado.extrasMotivo = 'ligados (passaram na checagem)'; caixa.dataset.extras = 'ligados'; }
+      console.info('[Gyde · Cidade 3D] quadro conferido: prédios aparecendo', diag);
+      if (alvo === 'base' && forcarExtras && podeExtras() && !estado.extras) ligarExtras();
+      return;
+    }
     console.warn('[Gyde · Cidade 3D] os prédios não apareceram neste quadro', diag, errosGl.slice(0, 3));
-    const i = ORDEM.indexOf(qualidade);
-    if (i > 0) {
-      const de = qualidade, para = ORDEM[i - 1]!;
-      caixa.dataset.verificacao = `recuou-${para}`;
-      aplicarQualidade(para);
-      aoAviso?.(`Os prédios não apareceram na qualidade ${NOME[de]} nesta placa de vídeo. Mudei para a ${NOME[para]}.`, false);
+    if (alvo === 'extras') { // os extras não servem nesta placa: volta para a base em silêncio e não tenta de novo nela
+      desligarExtras(`desligados: falharam na checagem (${r.motivo})`, true);
+      caixa.dataset.extras = 'falharam';
+      agendarVerificacao('base');
+    } else if (estado.alivio < 2) {
+      estado.alivio = 2;
+      if (estado.extras) desligarExtras('desligados: a base falhou', false); else aplicar();
+      caixa.dataset.verificacao = 'recuou-segura';
+      agendarVerificacao('base');
     } else {
       caixa.dataset.verificacao = 'falhou';
       aoAviso?.('Esta placa de vídeo não conseguiu mostrar os prédios em 3D. Use a Lista para ver os mesmos dados.', true);
     }
   }
 
+  // ---------- a Forja mexeu num arquivo ----------
+  const TIPO = { ler: 1, editar: 2, criar: 3, apagar: 4 } as const;
+  let acompanhar: { alvo: THREE.Vector3; ate: number } | null = null;
+  function marcar(i: number, tipo: number) {
+    evento.set([tipo, tempo.value, 0], i * 3);
+    attrEvento.needsUpdate = true;
+    if (menosMovimento) { // sem animação: fica aceso alguns segundos e apaga
+      setTimeout(() => { if (evento[i * 3] === tipo) { evento[i * 3] = 0; attrEvento.needsUpdate = true; desenhar(); } }, 5000);
+    }
+  }
+  function criarPredio(caminho: string): number {
+    const iq = planta.quadras.findIndex((q) => q.nome === bairroDe(caminho));
+    if (iq < 0 || predios.count >= capacidade) return -1; // pasta nova: aparece ao clicar em Atualizar
+    const q = planta.quadras[iq]!;
+    const vaga = contaNaQuadra[iq]!++;
+    const pos = posicaoNaQuadra(q, vaga);
+    const p: TPredio = { caminho, linhas: 20, bytes: 600, binario: false, mudancas: 1, ultima: Date.now() };
+    const b = { p, h: alturaDe(p), quadra: iq, ...pos };
+    const i = predios.count;
+    planta.predios.push(b);
+    indice.set(caminho, i);
+    m.makeScale(1, b.h, 1).setPosition(b.x, CHAO, b.z);
+    predios.setMatrixAt(i, m);
+    predios.instanceMatrix.needsUpdate = true;
+    dados.set([0.2, Math.random(), 0], i * 3);
+    attrDados.needsUpdate = true;
+    predios.count = reflexo.count = i + 1;
+    return i;
+  }
+
   // ---------- laço de desenho ----------
   const inicioRelogio = performance.now();
-  const relogio = { getElapsedTime: () => (performance.now() - inicioRelogio) / 1000 }; // segundos desde que a cena abriu
+  const relogio = () => (performance.now() - inicioRelogio) / 1000; // segundos desde que a cena abriu
   let quadro = 0, visivelNaTela = true, ultimoMexer = -1e9, interagindo = false;
   const entrada = { ativa: !menosMovimento, inicio: 0 };
   let voo: { de: THREE.Vector3; para: THREE.Vector3; alvoDe: THREE.Vector3; alvoPara: THREE.Vector3; inicio: number } | null = null;
-  const medidor = { quadros: 0, inicio: 0 };
-  const eixoY = new THREE.Vector3(0, 1, 0);
+  const medidor = { quadros: 0, inicio: 0, testouExtras: false };
+  const esfera = new THREE.Spherical(), esferaFinal = new THREE.Spherical(), esferaInicio = new THREE.Spherical();
   function desenhar() { if (!quadro && visivelNaTela && !document.hidden) quadro = requestAnimationFrame(passo); }
   function passo() {
     quadro = 0;
-    const agora = relogio.getElapsedTime();
+    const agora = relogio();
     let continuar = !menosMovimento; // pulsos, tráfego e órbita lenta pedem desenho contínuo
-    if (!menosMovimento) { tempo.value = agora; subida.value = Math.min((agora - entrada.inicio) * 1.15, 10); }
+    if (!menosMovimento) {
+      tempo.value = agora;
+      subida.value = agora - entrada.inicio;
+      luz.value = THREE.MathUtils.smoothstep(subida.value, 0.1, 1.8);
+    }
     if (entrada.ativa) {
-      const t = Math.min(1, (agora - entrada.inicio) / 3.4), s = 1 - (1 - t) ** 3;
-      camera.position.copy(final.pos).sub(final.alvo).applyAxisAngle(eixoY, (1 - s) * -1.2).multiplyScalar(THREE.MathUtils.lerp(1.45, 1, s)).add(final.alvo);
-      camera.position.y = THREE.MathUtils.lerp(final.pos.y * 1.6, final.pos.y, s);
+      // a câmera desce do alto (quase olhando para baixo) numa curva até a vista final
+      const t = Math.min(1, (agora - entrada.inicio) / ABERTURA), s = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
+      esfera.radius = THREE.MathUtils.lerp(esferaInicio.radius, esferaFinal.radius, s);
+      esfera.phi = THREE.MathUtils.lerp(esferaInicio.phi, esferaFinal.phi, s);
+      esfera.theta = THREE.MathUtils.lerp(esferaInicio.theta, esferaFinal.theta, s);
+      camera.position.setFromSpherical(esfera).add(final.alvo);
       controles.target.copy(final.alvo);
       if (t >= 1) entrada.ativa = false;
     }
@@ -538,42 +620,52 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       camera.position.lerpVectors(voo.de, voo.para, s); controles.target.lerpVectors(voo.alvoDe, voo.alvoPara, s);
       if (t < 1) continuar = true; else voo = null;
     }
+    // a câmera acompanha de leve o prédio em que a Forja mexeu (sem tirar o controle de quem está mexendo)
+    if (acompanhar && !interagindo && !voo && !entrada.ativa) {
+      const antes = controles.target.clone();
+      controles.target.lerp(acompanhar.alvo, 0.03);
+      camera.position.add(controles.target.clone().sub(antes));
+      if (agora > acompanhar.ate) acompanhar = null;
+    }
     // órbita lenta quando ninguém mexe há alguns segundos (pausa ao interagir)
     controles.autoRotate = !menosMovimento && !interagindo && !entrada.ativa && !voo && agora - ultimoMexer > 6;
     if (controles.update()) continuar = true;
     renderizar();
     posicionarRotulos();
-    // confere depois que a entrada terminou (prédios já de pé) e a câmera parou de voar
-    if (verificacao.em >= 0 && agora >= verificacao.em && !entrada.ativa && !voo && subida.value >= 3) {
+    // confere depois que a abertura terminou (prédios de pé) e a câmera parou de voar
+    if (verificacao.em >= 0 && agora >= verificacao.em && !entrada.ativa && !voo && subida.value >= 4.5) {
       verificacao.em = -1;
       const r = verificarQuadro();
       if (r) tratarVerificacao(r);
       else if (++verificacao.tentativas < 6) { verificacao.em = agora + 2; continuar = true; }
-      else { caixa.dataset.verificacao = 'sem-conferir'; historico.push(`${NOME[qualidade]}: não deu para conferir (poucos prédios à vista)`); console.info('[Gyde · Cidade 3D] não deu para conferir o quadro: poucos prédios à vista'); }
+      else { caixa.dataset.verificacao = 'sem-conferir'; historico.push('não deu para conferir (poucos prédios à vista)'); }
     } else if (verificacao.em >= 0) continuar = true;
-    // mede o FPS e alivia a cena se ficar pesada (só no automático)
-    if (automatica && !menosMovimento) {
+    // mede o FPS depois da abertura: alivia se sofrer; liga extras se sobrar (só uma tentativa por abertura)
+    if (!menosMovimento && !entrada.ativa && caixa.dataset.verificacao === 'ok' && verificacao.em < 0) {
       medidor.quadros++;
       if (medidor.quadros === 1) medidor.inicio = agora;
-      else if (agora - medidor.inicio > 2.5) {
+      else if (agora - medidor.inicio > 3) {
         const fps = (medidor.quadros - 1) / (agora - medidor.inicio);
+        estado.fps = Math.round(fps);
         medidor.quadros = 0;
-        const i = ORDEM.indexOf(qualidade);
-        if (fps < 38 && i > 0) aplicarQualidade(ORDEM[i - 1]!);
+        if (estado.extras && fps < 45) desligarExtras(`desligados: o FPS caiu para ${Math.round(fps)}`, false);
+        else if (!estado.extras && fps < 28 && estado.alivio < 2) { estado.alivio++; aplicar(); }
+        else if (!estado.extras && !medidor.testouExtras && estado.alivio === 0 && fps >= 55 && podeExtras()) { medidor.testouExtras = true; ligarExtras(); }
+        else if (!estado.extras && !podeExtras() && estado.extrasMotivo === 'ainda não testados') estado.extrasMotivo = !bufferFloat ? 'desligados: a placa não aceita imagem em ponto flutuante' : celular ? 'desligados: celular' : 'desligados: já falharam nesta placa';
       }
     }
     if (continuar) desenhar();
   }
   controles.addEventListener('change', desenhar);
   controles.addEventListener('start', () => { interagindo = true; entrada.ativa = false; voo = null; });
-  controles.addEventListener('end', () => { interagindo = false; ultimoMexer = relogio.getElapsedTime(); desenhar(); });
+  controles.addEventListener('end', () => { interagindo = false; ultimoMexer = relogio(); desenhar(); });
 
   function ajustar() {
     const { width, height } = caixa.getBoundingClientRect();
     if (!width || !height) return;
     renderer.setSize(width, height, false);
+    composer?.setSize(width, height);
     alturaTela.value = height * renderer.getPixelRatio();
-    composer.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     medidos = false;
@@ -584,8 +676,11 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     ajustar();
     if (!enquadrada && caixa.clientWidth) {
       enquadrada = true; calcularFinal();
-      camera.position.copy(final.pos); controles.target.copy(final.alvo); controles.update();
-      entrada.inicio = relogio.getElapsedTime();
+      esferaFinal.setFromVector3(final.pos.clone().sub(final.alvo));
+      esferaInicio.set(esferaFinal.radius * 1.55, 0.06, esferaFinal.theta - 1.15); // do alto, quase de cima, girado
+      camera.position.copy(menosMovimento ? final.pos : new THREE.Vector3().setFromSpherical(esferaInicio).add(final.alvo));
+      controles.target.copy(final.alvo); controles.update();
+      entrada.inicio = relogio();
     }
   });
   observador.observe(caixa);
@@ -636,8 +731,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       controles.dispose();
       for (const d of descartar) d.dispose();
       lajes.dispose(); predios.dispose(); reflexo.dispose(); feixes.dispose();
-      halos.geometry.dispose();
-      composer.dispose(); bloom.dispose();
+      composer?.dispose(); bloom?.dispose();
       renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove(); camadaRotulos.remove();
     },
     selecionar(caminho) {
@@ -655,7 +749,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       const direcao = camera.position.clone().sub(controles.target).setY(0).normalize();
       const para = alvoPara.clone().add(direcao.multiplyScalar(distancia)).setY(alvoPara.y + distancia * 0.5);
       entrada.ativa = false;
-      ultimoMexer = relogio.getElapsedTime();
+      ultimoMexer = relogio();
       if (menosMovimento) { camera.position.copy(para); controles.target.copy(alvoPara); controles.update(); desenhar(); return; }
       voo = { de: camera.position.clone(), para, alvoDe: controles.target.clone(), alvoPara, inicio: performance.now() };
       desenhar();
@@ -670,7 +764,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
         if (ok) { combinam++; bairrosVivos.add(b.quadra); }
       });
       attrApagado.needsUpdate = true;
-      (apagadoHalo.array as Float32Array).set(apagado);
+      (apagadoHalo.array as Float32Array).set(apagado.subarray(0, nBase));
       apagadoHalo.needsUpdate = true;
       apagarFaixas.value = t ? 1 : 0;
       apagarFeixes.value = t ? 1 : 0;
@@ -678,10 +772,17 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       desenhar();
       return combinam;
     },
-    definirQualidade(q) {
-      automatica = q === 'auto';
-      medidor.quadros = 0;
-      aplicarQualidade(q === 'auto' ? (celular ? 'leve' : 'media') : q);
+    reagir({ tipo, caminho }) {
+      const c = normalizarCaminho(caminho);
+      let i = indice.get(c) ?? -1;
+      if (i < 0 && (tipo === 'criar' || tipo === 'editar')) i = criarPredio(c);
+      if (i < 0) return false;
+      marcar(i, TIPO[tipo === 'editar' && evento[i * 3] === TIPO.criar ? 'criar' : tipo]);
+      if (tipo === 'apagar') { indice.delete(c); if (selecionado === i) api.selecionar(null); }
+      const b = planta.predios[i]!;
+      if (!menosMovimento) acompanhar = { alvo: new THREE.Vector3(b.x, CHAO + b.h * 0.4, b.z), ate: relogio() + 2.5 };
+      desenhar();
+      return true;
     },
     diagnostico() {
       const tela = renderer.getDrawingBufferSize(new THREE.Vector2());
@@ -689,17 +790,19 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
         'Gyde · Cidade 3D · diagnóstico',
         `Placa de vídeo: ${placa}`,
         `WebGL: ${renderer.capabilities.isWebGL2 ? '2' : '1'} · imagem em ponto flutuante: ${bufferFloat ? 'aceita' : 'não aceita'} · antisserrilhado fora da tela: ${amostras} amostras (máx. ${renderer.capabilities.maxSamples}) · textura máx.: ${renderer.capabilities.maxTextureSize}`,
-        `Qualidade: ${NOME[qualidade]} (${automatica ? 'automática' : 'escolhida'}) · bloom: ${bloom.enabled ? 'ligado' : 'desligado'} · desenho: ${bloom.enabled ? 'imagem fora da tela' : 'direto na tela'}`,
+        `Desenho: ${estado.extras ? 'com extras (bloom, imagem fora da tela)' : 'direto na tela'} · alívio: ${['nenhum', 'menos nitidez', 'modo seguro'][estado.alivio]} · extras: ${estado.extrasMotivo} · FPS medido: ${estado.fps || 'ainda não'}`,
         `Tela: ${tela.x}×${tela.y} px · densidade ${renderer.getPixelRatio()} · celular: ${celular ? 'sim' : 'não'} · menos movimento: ${menosMovimento ? 'sim' : 'não'}`,
-        `Prédios: ${planta.predios.length} · bairros: ${planta.quadras.length} · faróis: ${quentes.length}`,
+        `Prédios: ${predios.count} · bairros: ${nq} · faróis: ${quentes.length}`,
         `Checagens: ${historico.length ? historico.join(' | ') : 'ainda não feita'}`,
         `Erros: ${errosGl.length ? errosGl.slice(0, 5).join(' | ') : 'nenhum'}`,
       ].join('\n');
     },
   };
 
-  console.info('[Gyde · Cidade 3D] início', { placa, bufferFloat, amostras, qualidade: opcoes.qualidade ?? 'auto', celular, menosMovimento, predios: planta.predios.length });
-  aplicarQualidade(automatica ? (celular ? 'leve' : 'media') : (opcoes.qualidade as Qualidade));
+  console.info('[Gyde · Cidade 3D] início', { placa, bufferFloat, amostras, celular, menosMovimento, predios: planta.predios.length });
+  caixa.dataset.extras = 'desligados';
+  aplicar();
+  agendarVerificacao('base');
   if (menosMovimento) tempo.value = 1.7;
   desenhar();
   return api;

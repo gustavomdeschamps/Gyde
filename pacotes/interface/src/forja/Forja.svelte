@@ -10,6 +10,7 @@
   import { aplicar, fecharPendentes, type Item, type Evento } from './estado.ts';
   import Turno from './Turno.svelte';
   import Cidade from './Cidade.svelte';
+  import { avisarCidade, sinalDoEvento } from './sinais-cidade.ts';
 
   type Recente = { id: string; pasta: string; titulo: string; updated_at: number; disponivel: boolean };
   type AnexoNovo = { nome: string; tipo: 'imagem' | 'arquivo'; dataUrl?: string; texto?: string; tamanho: number };
@@ -175,6 +176,7 @@
           const ev = JSON.parse(linha.slice(6)) as Evento;
           if (ev.tipo === 'fim') { if (sessao) sessao.podeDesfazer = Boolean(ev.podeDesfazer); } else aplicar(itens, ev, true);
           if (ev.tipo === 'resultado' && ev.ok && MUDA_ARQUIVO.has(String(ev.nome))) recarregarPrevia();
+          { const sinal = sinalDoEvento(ev); if (sinal) avisarCidade(sinal); } // a Cidade (se aberta) acende o prédio
           descer();
         }
       }

@@ -742,7 +742,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           if (r.ok && r.mudanca === 'modificado') mudancas.modificados.add(rel);
           if (r.ok && r.mudanca === 'apagado') { mudancas.apagados.add(rel); mudancas.criados.delete(rel); mudancas.modificados.delete(rel); }
           if (r.comando) mudancas.comandos.push({ comando: redigir(r.comando.comando), ok: r.comando.codigo === 0, codigo: r.comando.codigo });
-          registrar('resultado', { nome: a.ferramenta, ok: r.ok, resumo: redigir(r.resumo || ''), saida: corta(r.saida, 3000), diff: r.diff });
+          registrar('resultado', { nome: a.ferramenta, ok: r.ok, resumo: redigir(r.resumo || ''), saida: corta(r.saida, 3000), diff: r.diff, ...(rel ? { caminho: rel } : {}), ...(r.mudanca ? { mudanca: r.mudanca } : {}) }); // caminho e mudança: a Cidade acende o prédio
           resultados.push(`RESULTADO ${i + 1} — ${a.ferramenta} ${JSON.stringify(args.caminho || args.comando || args.texto || '')} (${r.ok ? 'ok' : 'falhou'}):\n${r.saida}`);
         }
         msgs.push({ role: 'user', content: resultados.join('\n\n') });

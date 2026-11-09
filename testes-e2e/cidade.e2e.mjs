@@ -1,15 +1,18 @@
 // Cidade do código na tela: a aba aparece na Forja, a lista em texto mostra os arquivos reais da pasta
 // (com as mudanças do git), esconde segredos, filtra e ordena, e cabe no celular sem rolagem para o lado.
-// A checagem de segurança do 3D confere que os prédios aparecem e, se não aparecerem, baixa a qualidade e avisa.
+// Um visual só: a base desenha direto na tela; extras (bloom) só ligam depois de passar na checagem de segurança e,
+// se falharem, desligam em silêncio. A cidade reage à Forja (o prédio acende; arquivo novo vira prédio novo).
 // Também: outro projeto qualquer vira cidade, pasta sem git funciona sem cores, e pasta grande avisa o que ficou de fora.
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { subirServidor, abrirNavegador, clienteApi, placar, criarProjetoForja } from './ajuda.mjs';
+import { provedorFalso } from './provedor-falso.mjs';
 
 const { ok, fim } = placar();
-const servidor = await subirServidor({ env: { FREELLMAPI_URL: 'http://127.0.0.1:1', FREELLMAPI_KEY: '' } });
+const ia = await provedorFalso();
+const servidor = await subirServidor({ env: { FREELLMAPI_URL: ia.url, FREELLMAPI_KEY: 'freellmapi-teste-falsa-0000' } });
 const api = clienteApi(servidor.base);
 const conta = await api.criarConta({ nome: 'Cidade' });
 const proj = criarProjetoForja();
@@ -24,7 +27,6 @@ const sessao = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta: pr
 async function verificar(nav, rotulo, webgl) {
   const { avaliar, esperar } = nav;
   await nav.entrar(servidor.base, conta);
-  await avaliar(`localStorage.setItem('cidadeQualidade', 'alta'); 1`); // mesmo com a alta salva, a cena tem de abrir sem bloom
   await nav.ir(`${servidor.base}/?r=1#/agente/${sessao.id}`, 2500);
   ok(`${rotulo}: aba Cidade aparece ao lado da Conversa`, await esperar(`document.querySelector('#abaCidade') !== null && document.querySelector('#abaConversa')?.getAttribute('aria-selected') === 'true'`));
   const tresAntes = await avaliar(`performance.getEntriesByType('resource').some((r) => /cidade3d/.test(r.name))`);
@@ -34,7 +36,8 @@ async function verificar(nav, rotulo, webgl) {
     ok(`${rotulo}: a cidade 3D aparece`, await esperar(`document.querySelector('.cidade-canvas') !== null && !document.querySelector('.cidade-palco-info')`, 20_000));
     await avaliar(`window.__copiado = null; navigator.clipboard.writeText = async (t) => { window.__copiado = t; }; 1`);
     await avaliar(`[...document.querySelectorAll('.cidade-rodape button')].find((b) => /Copiar diagnóstico/.test(b.textContent)).click()`);
-    ok(`${rotulo}: abre sem a Alta (bloom desligado, desenho direto na tela)`, await esperar(`/bloom: desligado/.test(window.__copiado || '') && /direto na tela/.test(window.__copiado || '')`, 3000), await avaliar(`window.__copiado`));
+    ok(`${rotulo}: abre desenhando direto na tela (sem imagem fora da tela)`, await esperar(`/Desenho: direto na tela/.test(window.__copiado || '')`, 3000), await avaliar(`window.__copiado`));
+    ok(`${rotulo}: não há botão de qualidade (um visual só)`, await avaliar(`document.querySelector('.cidade-qualidade') === null`));
     ok(`${rotulo}: "Copiar diagnóstico" traz placa, formatos e erros, sem caminho de pasta`, await avaliar(`(() => { const t = window.__copiado || ''; return /Placa de vídeo: /.test(t) && /ponto flutuante/.test(t) && /Erros: /.test(t) && !/gyde-e2e|Users|Documents/i.test(t); })()`));
     ok(`${rotulo}: a checagem de segurança confirma prédios no quadro`, await esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok'`, 25_000), await avaliar(`document.querySelector('.cidade-3d')?.dataset.verificacao ?? 'sem resultado'`));
   }
@@ -61,7 +64,7 @@ async function verificar(nav, rotulo, webgl) {
 async function abrirCidade(nav, pasta, { modo = '3d', extra = '' } = {}) {
   const s = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta })).json();
   await nav.entrar(servidor.base, conta);
-  await nav.avaliar(`localStorage.setItem('cidadeQualidade', 'media'); localStorage.setItem('cidadeModo', '${modo}'); ${extra} 1`);
+  await nav.avaliar(`localStorage.setItem('cidadeModo', '${modo}'); ${extra} 1`);
   await nav.ir(`${servidor.base}/?r=${Math.random()}#/agente/${s.id}`, 2500);
   await nav.esperar(`document.querySelector('#abaCidade') !== null`);
   await nav.avaliar(`document.querySelector('#abaCidade').click()`);
@@ -69,18 +72,47 @@ async function abrirCidade(nav, pasta, { modo = '3d', extra = '' } = {}) {
 const pastaTemp = (nome) => mkdtempSync(path.join(tmpdir(), `gyde-e2e-${nome}-`));
 
 try {
-  // checagem de segurança: com a falha simulada na qualidade alta, a cena volta sozinha para a média e avisa
+  // extras: forçados a tentar (o desenho por software do teste é lento demais para ligarem sozinhos)
+  const extras = await abrirNavegador({ webgl: true });
+  try {
+    await abrirCidade(extras, proj.pasta, { extra: `localStorage.setItem('gyde-teste-cidade-extras', '1');` });
+    ok('extras passam na checagem e ligam', await extras.esperar(`document.querySelector('.cidade-3d')?.dataset.extras === 'ligados' && document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok'`, 40_000),
+      await extras.avaliar(`JSON.stringify(document.querySelector('.cidade-3d')?.dataset)`));
+  } finally { await extras.fechar(); }
+  // com a falha simulada nos extras: desligam em silêncio, a base continua com prédios e nada de aviso
   const falha = await abrirNavegador({ webgl: true });
   try {
-    await abrirCidade(falha, proj.pasta, { extra: `localStorage.setItem('gyde-teste-cidade-falha', 'alta');` });
-    // a Alta só liga pelo botão: média → leve → automática → alta
-    await falha.esperar(`document.querySelector('.cidade-qualidade') !== null && document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok'`, 25_000);
-    for (let k = 0; k < 3; k++) { await falha.avaliar(`document.querySelector('.cidade-qualidade').click()`); await new Promise((r) => setTimeout(r, 150)); }
-    ok('falha simulada na alta: volta sozinha para a média', await falha.esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok' && /baixou da alta/.test(document.querySelector('.cidade-qualidade')?.textContent || '') && /Média/.test(document.querySelector('.cidade-qualidade')?.textContent || '')`, 30_000),
-      await falha.avaliar(`JSON.stringify([document.querySelector('.cidade-3d')?.dataset.verificacao, document.querySelector('.cidade-qualidade')?.textContent])`));
-    ok('mostra um aviso discreto dizendo o que mudou', await falha.esperar(`/não apareceram na qualidade alta.*Mudei para a média/.test(document.querySelector('.cidade-aviso3d')?.textContent || '')`, 3000));
+    await abrirCidade(falha, proj.pasta, { extra: `localStorage.setItem('gyde-teste-cidade-extras', '1'); localStorage.setItem('gyde-teste-cidade-falha', 'extras');` });
+    ok('extras que falham desligam sozinhos e a base volta com prédios', await falha.esperar(`document.querySelector('.cidade-3d')?.dataset.extras === 'falharam' && document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok'`, 40_000),
+      await falha.avaliar(`JSON.stringify(document.querySelector('.cidade-3d')?.dataset)`));
+    ok('sem aviso na tela (o recuo é silencioso)', await falha.avaliar(`document.querySelector('.cidade-aviso3d') === null`));
+    await falha.avaliar(`window.__copiado = null; navigator.clipboard.writeText = async (t) => { window.__copiado = t; }; [...document.querySelectorAll('.cidade-rodape button')].find((b) => /Copiar diagnóstico/.test(b.textContent)).click(); 1`);
+    ok('o diagnóstico conta que os extras falharam e por quê', await falha.esperar(`(window.__copiado || '').includes('extras: desligados: falharam na checagem (a geometria dos prédios não chega à tela)')`, 3000), await falha.avaliar(`window.__copiado`));
     ok('sem erro de JavaScript na falha simulada', falha.erros.length === 0, falha.erros.slice(0, 3).join(' | '));
   } finally { await falha.fechar(); }
+
+  // a Cidade reage à Forja: lê (prédio acende), edita e cria um arquivo novo (prédio novo sobe)
+  const projAoVivo = criarProjetoForja();
+  mkdirSync(path.join(projAoVivo.pasta, 'src', 'telas'), { recursive: true });
+  writeFileSync(path.join(projAoVivo.pasta, 'src', 'telas', 'inicio.js'), 'linha\n'.repeat(12));
+  const aoVivo = await abrirNavegador({ webgl: true });
+  try {
+    const s = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta: projAoVivo.pasta })).json();
+    await aoVivo.entrar(servidor.base, conta);
+    await aoVivo.avaliar(`localStorage.setItem('cidadeModo', '3d'); 1`);
+    await aoVivo.ir(`${servidor.base}/?r=${Math.random()}#/agente/${s.id}`, 2500);
+    await aoVivo.esperar(`document.querySelector('#agenteView textarea') !== null`);
+    await aoVivo.avaliar(`(()=>{ const t = document.querySelector('#agenteView textarea'); t.value = 'CIDADE-AO-VIVO: corrija a soma e crie um arquivo'; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('#agenteView form').requestSubmit(); return 1; })()`);
+    await aoVivo.esperar(`document.querySelector('.forja-turno') !== null`, 5000);
+    await aoVivo.avaliar(`document.querySelector('#abaCidade').click()`);
+    ok('Forja leu: o HUD mostra e o prédio existe na cidade', await aoVivo.esperar(`(document.querySelector('.cidade-atividade')?.textContent || '').includes('Forja lendo soma.js') && !/fora da cidade/.test(document.querySelector('.cidade-atividade')?.textContent || '')`, 20_000),
+      await aoVivo.avaliar(`document.querySelector('.cidade-atividade')?.textContent ?? 'sem atividade'`));
+    ok('Forja criou um arquivo: o HUD mostra a criação', await aoVivo.esperar(`(document.querySelector('.cidade-atividade')?.textContent || '').includes('Forja criando src/telas/novo.js')`, 20_000),
+      await aoVivo.avaliar(`document.querySelector('.cidade-atividade')?.textContent ?? 'sem atividade'`));
+    await aoVivo.avaliar(`window.__copiado = null; navigator.clipboard.writeText = async (t) => { window.__copiado = t; }; [...document.querySelectorAll('.cidade-rodape button')].find((b) => /Copiar diagnóstico/.test(b.textContent)).click(); 1`);
+    ok('o arquivo novo virou um prédio novo (5 prédios)', await aoVivo.esperar(`(window.__copiado || '').includes('Prédios: 5 ')`, 3000), await aoVivo.avaliar(`(window.__copiado || '').split('\\n').find((l) => l.startsWith('Prédios')) ?? ''`));
+    ok('sem erro de JavaScript com a Forja trabalhando', aoVivo.erros.length === 0, aoVivo.erros.slice(0, 3).join(' | '));
+  } finally { await aoVivo.fechar(); projAoVivo.apagar(); }
 
   // (1) outro projeto qualquer (Python, sem nada do Gyde) vira cidade sozinho; (2) sem git: funciona, sem cores;
   // (3) mais de 1.500 arquivos: avisa quantos ficaram de fora
@@ -118,6 +150,7 @@ try {
 } finally {
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
   await servidor.parar();
+  await ia.fechar();
   proj.apagar();
 }
 process.exit(fim());
