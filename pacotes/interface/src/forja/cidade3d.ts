@@ -486,7 +486,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   // 1) desenha o mesmo quadro com e sem os prédios e compara pixels onde eles deveriam estar;
   // 2) pinta os prédios de magenta puro por um instante e confere que a cor chega à tela.
   // Assim pega tanto prédios que não são desenhados quanto prédios que existem mas não aparecem.
-  const verificacao = { em: -1, tentativas: 0, alvo: 'base' as 'base' | 'extras' };
+  const verificacao = { em: -1, tentativas: 0, alvo: 'base' as 'base' | 'extras', forcou: false };
   // só para os testes automáticos: finge que os extras não mostram os prédios, ou força tentar os extras
   const simularFalha = teste('gyde-teste-cidade-falha') === 'extras';
   const forcarExtras = teste('gyde-teste-cidade-extras') === '1';
@@ -547,7 +547,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       caixa.dataset.verificacao = 'ok';
       if (alvo === 'extras') { estado.extrasMotivo = 'ligados (passaram na checagem)'; caixa.dataset.extras = 'ligados'; }
       console.info('[Gyde · Cidade 3D] quadro conferido: prédios aparecendo', diag);
-      if (alvo === 'base' && forcarExtras && bufferFloat && !estado.extras) ligarExtras(); // teste: força mesmo em placa integrada
+      if (alvo === 'base' && forcarExtras && bufferFloat && !estado.extras && !verificacao.forcou) { verificacao.forcou = true; ligarExtras(); } // teste: força uma vez, mesmo em placa integrada
       return;
     }
     console.warn('[Gyde · Cidade 3D] os prédios não apareceram neste quadro', diag, errosGl.slice(0, 3));

@@ -70,15 +70,25 @@
         aoAviso: (texto, grave) => { aviso3d = { texto, grave }; },
       });
       if (escolhido) cena.selecionar(escolhido.caminho);
+      const agora = Date.now(); // o que a Forja fez enquanto a cena carregava acende agora
+      for (const p of pendentes.splice(0)) if (agora - p.em < 15_000) cena.reagir(p.sinal);
       estado3d = 'pronto';
     }).catch((e: unknown) => { erro3d = String((e as Error)?.message ?? e).slice(0, 300); if (!cancelado) estado3d = 'falhou'; });
     return () => { cancelado = true; cena?.destruir(); cena = null; dica = null; aviso3d = null; };
   });
   $effect(() => { const p = segundoPlano; if (estado3d === 'pronto') cena?.pausar(p); });
   // a Forja mexeu num arquivo: o prédio acende na cidade e o HUD diz o quê
+  // Se a cena 3D ainda está carregando (computador lento), o HUD mostra na hora e o prédio acende quando ela ficar pronta.
+  let pendentes: { sinal: SinalCidade; em: number }[] = [];
+  const semBarra = (c: string) => c.replaceAll('\\', '/').replace(/^(\.\/)+/, '').replace(/\/+$/, '');
   $effect(() => ouvirCidade((sinal) => {
-    if (!cena) return;
-    const existe = cena.reagir(sinal);
+    if (modo !== '3d' || !cidade) return;
+    let existe: boolean;
+    if (cena) existe = cena.reagir(sinal);
+    else {
+      pendentes = [...pendentes, { sinal, em: Date.now() }].slice(-20);
+      existe = sinal.tipo === 'criar' || cidade.arquivos.some((a) => semBarra(a.caminho) === semBarra(sinal.caminho));
+    }
     atividade = { ...sinal, existe };
     clearTimeout(tempoAtividade);
     tempoAtividade = setTimeout(() => { atividade = null; }, 4500);
@@ -140,7 +150,10 @@
     {#if modo === '3d'}
       <div class="cidade-palco">
         <div class="cidade-3d" bind:this={caixa} role="img" aria-label="Cidade em 3D com {cidade.arquivos.length} prédios. Para ler os mesmos dados em texto, use o botão Lista."></div>
-        {#if estado3d === 'carregando'}<p class="cidade-palco-info" role="status">Montando a cidade…</p>{/if}
+        {#if estado3d === 'carregando'}
+          <p class="cidade-palco-info" role="status">Montando a cidade…</p>
+          {#if atividade}<p class="cidade-vidro cidade-atividade tipo-{atividade.tipo}" role="status"><i aria-hidden="true"></i>Forja {VERBO[atividade.tipo]} <code>{atividade.caminho}</code></p>{/if}
+        {/if}
         {#if estado3d === 'falhou'}
           <div class="cidade-palco-info" role="alert"><p>Este computador não conseguiu desenhar a cidade em 3D.</p><button type="button" class="btn small primary" onclick={() => trocarModo('lista')}>Ver como lista</button></div>
         {/if}
