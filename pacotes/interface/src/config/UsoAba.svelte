@@ -38,17 +38,18 @@
       {#if d.gyde.internasHoje}<p class="config-nota">Além disso, {d.gyde.internasHoje} chamada(s) internas hoje (títulos de conversas e memória).</p>{/if}
     </section>
     <section class="uso-sec">
-      <h3 class="config-sub">Cota do provedor <small>informada por {d.ativo === 'offline' ? 'ninguém: roda no seu PC' : 'FreeLLMAPI'}</small></h3>
+      <h3 class="config-sub">Cota do provedor <small>informada por {d.ativo === 'offline' ? 'ninguém: roda no seu PC' : 'cada serviço de IA'}</small></h3>
       {#if d.ativo === 'offline'}
         <p class="config-nota">O modelo local não tem cota nem custo: o limite é a memória e a velocidade do seu computador.</p>
       {:else}
         <dl class="config-dl">
-          <div><dt>Pedidos por minuto</dt><dd>{#if lim}{numero(lim.restante)} de {numero(lim.total)} livres{lim.renovaEm ? ` · renova às ${horaCurta(lim.renovaEm)}` : ''}<span class="uso-barra" role="img" aria-label="{pctLivre}% livres"><i style="width:{pctLivre}%"></i></span>{:else}aparece depois do primeiro pedido{/if}</dd></div>
+          {#if lim}<div><dt>Pedidos por minuto no FreeLLMAPI</dt><dd>{numero(lim.restante)} de {numero(lim.total)} livres{lim.renovaEm ? ` · renova às ${horaCurta(lim.renovaEm)}` : ''}<span class="uso-barra" role="img" aria-label="{pctLivre}% livres"><i style="width:{pctLivre}%"></i></span></dd></div>{/if}
+          <div><dt>NVIDIA, Google e Groq</dt><dd>Cada um tem um limite grátis próprio, que eles podem mudar e não informam aqui. Quando um modelo chega ao limite, o Gyde troca de modelo sozinho.</dd></div>
           {#if d.mes}
             <div><dt>No mês, na conta do FreeLLMAPI</dt><dd>{numero(d.mes.pedidos)} pedidos · {numero(d.mes.tokens)} tokens<small class="uso-sub">Conta tudo que usa a chave do FreeLLMAPI (não só o Gyde). Zera em {dataHora(d.mes.renovaEm)}.</small></dd></div>
             <div><dt>Limite mensal</dt><dd>{comLimite.length ? comLimite.map((k) => `${k.provedor}: ${k.limitePedidos ? `${numero(k.limitePedidos)} pedidos` : `${numero(k.limiteTokens)} tokens`}`).join(' · ') : 'Limite não informado (nenhum definido no FreeLLMAPI)'}</dd></div>
           {/if}
-          <div><dt>Créditos e saldo</dt><dd>Saldo não disponibilizado pelo provedor. Os serviços grátis por trás do FreeLLMAPI têm cotas diárias próprias que ele não repassa.</dd></div>
+          <div><dt>Créditos e saldo</dt><dd>Saldo não disponibilizado pelos provedores grátis.</dd></div>
         </dl>
       {/if}
     </section>
@@ -71,7 +72,7 @@
       <p><b>Chamada:</b> cada vez que o Gyde fala com o provedor. Trocas de modelo e rodadas da Forja geram várias chamadas num pedido.</p>
       <p><b>Token:</b> pedaço de texto que o modelo lê (entrada) ou escreve (saída). Só aparece quando o provedor informa.</p>
       <p><b>Cota:</b> limite do serviço de IA (por minuto, por dia ou por mês). Quem define é o provedor, não o Gyde.</p>
-      <p><b>Créditos:</b> saldo em dinheiro ou unidades. O FreeLLMAPI não tem nem informa saldo.</p>
+      <p><b>Créditos:</b> saldo em dinheiro ou unidades. Os planos grátis usados pelo Gyde não informam saldo.</p>
     </details>
   {/if}
 </div>
