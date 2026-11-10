@@ -64,5 +64,12 @@ Windows, Linux e macOS.
 - **Mudou algo que a pessoa vê → teste de navegador** em `testes-e2e`.
 - Nada de `.env`, `data/`, chaves ou tokens nos commits. Chaves de teste ficam montadas dentro dos próprios testes.
 - A Forja mexe em arquivos de verdade: qualquer mudança nela passa pela proteção de `seguranca.ts`.
+- **A cada atualização, remover o que ficou obsoleto** (código morto, arquivos, imagens, instaladores e cópias antigas),
+  sem tocar em dados do usuário. Em commit separado, para dar para voltar, conferido com `npm test`.
+
+  **Nunca se apaga:** `%APPDATA%\Gyde` (dados do app: o banco `gyde.db`, a pasta `data`, os registros e o `.env` do app),
+  o `.env` e a pasta `data/` do projeto, e cópias de segurança com menos de 7 dias ou entre as 5 mais recentes
+  (`Documentos\Gyde-backups`). Fora do repositório, quem apaga é um script que mostra a lista e pergunta antes
+  (`limpar-antigos.ps1`); o script de preparar a atualização já apaga só as cópias antigas, pela mesma regra.
 
 Vai mexer na escolha de modelos ou nas instruções da IA? Veja [docs/inteligencia.md](docs/inteligencia.md) e meça antes e depois com `ferramentas/avaliar-estrategias.mjs`.
