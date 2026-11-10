@@ -27,7 +27,7 @@ function renderConnect(error) {
     <h1>Conectar ao Gyde</h1>
     <p>Leva menos de um minuto, e só precisa fazer uma vez.</p>
     <ol class="steps">
-      <li><span>Deixe o app do Gyde aberto no computador.</span></li>
+      <li><span>Deixe o app do Gyde aberto no computador, com a IA conectada (no app: <b>Configurações → Conectar IA</b>).</span></li>
       <li><span>No Gyde, abra <b>Configurações → Extensões → Gerar token</b> e copie.</span></li>
       <li><span>Clique no botão abaixo e cole o token.</span></li>
     </ol>
@@ -39,7 +39,9 @@ function renderConnect(error) {
 
 function renderChat() {
   app.innerHTML = `<main class="chat">
-    <header class="topo">${logo()}<b>Gyde</b><span class="status">conectado</span>
+    <header class="topo">${logo()}<b>Gyde</b>
+      <select id="modelo" class="modelo" aria-label="Modelo" title="O Gyde escolhe o modelo certo para cada pedido">${opcoesModelo()}</select>
+      <span class="status">conectado</span>
       <button class="icon-btn" id="nova" title="Nova conversa" aria-label="Nova conversa">${ic.nova}</button></header>
     <div class="messages" id="messages">${hello()}</div>
     <form class="composer" id="composer">
@@ -59,8 +61,17 @@ function renderChat() {
     if (current) { e.preventDefault(); vscode.postMessage({ type: 'stop' }); }
   };
   document.getElementById('nova').onclick = () => vscode.postMessage({ type: 'cmd', id: 'gyde.novaConversa' });
+  document.getElementById('modelo').onchange = (e) => { modeloEscolhido = e.target.value; vscode.postMessage({ type: 'modelo', id: modeloEscolhido }); };
   bindHello();
 }
+
+// só as opções do Gyde (Gyde 1, Gyde 1 Pro); o modelo que respondeu aparece embaixo de cada resposta
+let modelos = [{ id: 'gyde-1', label: 'Gyde 1', hint: '' }, { id: 'gyde-1-pro', label: 'Gyde 1 Pro', hint: '' }];
+let modeloEscolhido = 'gyde-1';
+const opcoesModelo = () => modelos.map((o) => `<option value="${esc(o.id)}" title="${esc(o.hint)}"${o.id === modeloEscolhido ? ' selected' : ''}>${esc(o.label)}</option>`).join('');
+const meta = (modelo) => (modelo ? `<div class="meta" title="Modelo que respondeu">${esc(modelo)}</div>` : '');
+// a IA do app ainda não foi conectada: explica e manda abrir o Conectar IA no app (sem erro técnico)
+const semIAHtml = () => `<div class="aviso"><b>A IA do Gyde ainda não está conectada.</b><p>No app do Gyde, abra <b>Configurações → Conectar IA</b> e cole uma chave grátis (NVIDIA ou Google). Leva uns 2 minutos.</p><button class="btn" data-abrir-app>Abrir o Gyde</button></div>`;
 
 function hello() {
   const card = (attr, icone, titulo, sub) => `<button class="card" ${attr}><span class="ic">${icone}</span><span><b>${titulo}</b><small>${sub}</small></span></button>`;
@@ -143,7 +154,7 @@ window.addEventListener('message', ({ data: m }) => {
     document.getElementById('openWeb').onclick = (e) => { e.preventDefault(); vscode.postMessage({ type: 'openWeb' }); };
     for (const x of m.messages) {
       if (x.role === 'user') add('user', userHtml(x.content, x.tags));
-      else decorate(add('assistant', `${quem}<div class="md">${md(x.content)}</div>`));
+      else decorate(add('assistant', `${quem}<div class="md">${md(x.content)}</div>${meta(x.modelo)}`));
     }
   } else if (m.type === 'user') {
     if (!document.getElementById('messages')) renderChat();
@@ -164,10 +175,19 @@ window.addEventListener('message', ({ data: m }) => {
     else out.querySelector('.cursor')?.classList.remove('cursor');
     if (m.stopped) out.insertAdjacentHTML('beforeend', '<p class="muted">Resposta interrompida.</p>');
     decorate(out);
+    out.insertAdjacentHTML('afterend', meta(m.modelo));
     current = null;
     setBusy(false);
+  } else if (m.type === 'modelos') {
+    modelos = m.opcoes?.length ? m.opcoes : modelos;
+    modeloEscolhido = modelos.some((o) => o.id === m.escolhido) ? m.escolhido : modelos[0].id;
+    const sel = document.getElementById('modelo');
+    if (sel) sel.innerHTML = opcoesModelo();
   } else if (m.type === 'error') {
-    if (current) current.querySelector('.md').innerHTML = `<div class="error">${esc(m.message)}</div>`;
+    if (current) {
+      current.querySelector('.md').innerHTML = m.semIA ? semIAHtml() : `<div class="error">${esc(m.message)}</div>`;
+      current.querySelector('[data-abrir-app]')?.addEventListener('click', () => vscode.postMessage({ type: 'abrirApp' }));
+    }
     current = null;
     setBusy(false);
   }

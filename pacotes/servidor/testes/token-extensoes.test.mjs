@@ -38,6 +38,19 @@ test('token das extensões conversa, mas não mexe em chaves, configurações, F
   assert.equal((await pedir('GET', `/api/conversations/${conv.id}`, undefined, comToken)).status, 200);
   assert.equal((await pedir('GET', '/api/conversations', undefined, comToken)).status, 200);
   assert.notEqual((await pedir('POST', '/api/agente/passo', {}, comToken)).status, 403, 'agente do navegador (Chrome)');
+  // as extensões mostram só as opções do Gyde (o modelo de verdade aparece embaixo de cada resposta)
+  const modelos = await (await pedir('GET', '/api/models', undefined, comToken)).json();
+  assert.deepEqual(modelos.brand.map((m) => m.id), ['gyde-1', 'gyde-1-pro']);
+  assert.deepEqual(modelos.models, []);
+  // sem IA conectada: a mensagem chega em português e manda abrir o Conectar IA (nada de erro técnico)
+  const resposta = await (await pedir('POST', `/api/conversations/${conv.id}/messages`, { content: 'oi', mode: 'new', model: 'gyde-1-pro' }, comToken)).text();
+  assert.match(resposta, /"type":"error"[^\n]*A IA ainda não está conectada[^\n]*Conectar IA/, resposta.slice(0, 300));
+  // o cliente da extensão do VS Code: lista só as opções do Gyde e reconhece "IA não conectada" (para mostrar o aviso)
+  const { createClient } = await import('../../extensao-vscode/cliente.js');
+  const cliente = createClient({ server: base, token });
+  assert.deepEqual((await cliente.modelos()).map((o) => o.label), ['Gyde 1', 'Gyde 1 Pro']);
+  await assert.rejects(cliente.send(conv.id, 'oi', [], { modelo: 'gyde-1-pro' }), (e) => e.semIA === true && /Conectar IA/.test(e.message));
+  assert.equal((await (await pedir('GET', `/api/conversations/${conv.id}`, undefined, comToken)).json()).model, 'gyde-1-pro', 'o modelo escolhido na extensão vai junto');
 
   // o que não é delas fica fechado, mesmo com o token certo
   const fechadas = [

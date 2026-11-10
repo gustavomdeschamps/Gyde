@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { zipSync } from 'fflate';
 
 const raiz = path.dirname(fileURLToPath(import.meta.url));
-const FORA = new Set(['package.json', 'empacotar.mjs', 'node_modules']); // só desenvolvimento, não vai para a loja
+const FORA = new Set(['package.json', 'empacotar.mjs', 'node_modules', 'LOJA.md', 'loja']); // só desenvolvimento e textos/imagem da página da loja: não vão dentro do .zip
 const manifesto = JSON.parse(readFileSync(path.join(raiz, 'manifest.json'), 'utf8'));
 
 const arquivos = {};
