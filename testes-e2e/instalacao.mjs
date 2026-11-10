@@ -98,7 +98,7 @@ try {
     await fetch('/api/conversations/' + c.id,{method:'PATCH',headers:${H},body:JSON.stringify({title:'Conversa do teste de instalação'})}); return 1; })()`);
   await app.enviar('Page.reload'); await espera(2500);
   ok('chat abre com a conta criada', await app.esperar(`document.querySelector('#userName')?.textContent === 'Instalada' && document.querySelector('#greeting') !== null`));
-  for (const [h, sel] of [['#/pratica', '#praticaView .plano'], ['#/agente', '#agenteView form'], ['#/skills', '#skillsView .tab'], ['#/turmas', '#turmasView .turma-form'], ['#/', '#greeting']]) {
+  for (const [h, sel] of [['#/agente', '#agenteView form'], ['#/skills', '#skillsView .tab'], ['#/', '#greeting']]) {
     await app.avaliar(`(location.hash = '${h}', 1)`);
     ok(`navega para ${h} dentro da janela do Gyde`, await app.esperar(`document.querySelector('${sel}') !== null`), await app.avaliar('location.href'));
   }

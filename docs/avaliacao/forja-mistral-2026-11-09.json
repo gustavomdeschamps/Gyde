@@ -1,0 +1,149 @@
+{
+  "em": "2026-11-09T04:08:33.673Z",
+  "codigo": "atual",
+  "repeticoes": 2,
+  "resultados": [
+    {
+      "cenario": "bug",
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 13639,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 2,
+      "modelo": "mistral:mistral-large-4",
+      "erro": null
+    },
+    {
+      "cenario": "bug",
+      "ok": false,
+      "checagens": {
+        "testes passam": false,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "erro",
+      "passos": 0,
+      "ms": 1768,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "mistral:mistral-large-4 respondeu vazio"
+    },
+    {
+      "cenario": "preservar",
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 13589,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "mistral:mistral-large-4",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 13727,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "mistral:mistral-large-4",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 17257,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "mistral:mistral-large-4",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 23569,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "mistral:mistral-code-latest",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "ok": false,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": false
+      },
+      "terminou": "erro",
+      "passos": 0,
+      "ms": 1837,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "O provedor mistral respondeu 429: Rate limit exceeded"
+    },
+    {
+      "cenario": "pergunta",
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 7381,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "mistral:mistral-large-4",
+      "erro": null
+    }
+  ]
+}

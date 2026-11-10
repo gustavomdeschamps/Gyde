@@ -11,12 +11,23 @@ const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const textoDe = (c) => (typeof c === 'string' ? c : Array.isArray(c) ? c.map((p) => p.text ?? '').join(' ') : '');
 
 function forja(mensagens) {
-  const tarefa = textoDe(mensagens.find((m) => m.role === 'user')?.content);
+  // só o pedido novo: a primeira mensagem também traz o histórico da conversa, com as palavras-chave dos pedidos antigos
+  const inicial = textoDe(mensagens.find((m) => m.role === 'user')?.content);
+  const tarefa = inicial.split('NOVA MENSAGEM DO USUÁRIO:').pop() ?? inicial;
   const passo = mensagens.filter((m) => m.role === 'assistant').length;
   if (/LONGA/.test(tarefa)) {
     return passo === 0
       ? { pensamento: 'Vou rodar o comando pedido.', acoes: [{ ferramenta: 'executar', args: { comando: 'node -e "setTimeout(() => {}, 60000)"' } }] }
       : { pensamento: 'Terminei.', resposta: '**O que fiz**\nRodei o comando.' };
+  }
+  // CIDADE-AO-VIVO: lê soma.js, corrige e cria um arquivo novo num bairro que já existe (a Cidade reage a cada passo)
+  if (/CIDADE-AO-VIVO/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] },
+      { pensamento: 'Corrijo e crio.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a - b', substituir: 'a + b' } }, { ferramenta: 'escrever', args: { caminho: 'src/telas/novo.js', conteudo: 'export const novo = 1;\n' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nCorrigi a soma e criei src/telas/novo.js.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
   }
   // PREGUICA: pedido de correção que o modelo tenta encerrar sem agir; depois da cobrança, lê, corrige e testa
   if (/PREGUICA/.test(tarefa)) {
@@ -27,6 +38,18 @@ function forja(mensagens) {
       { pensamento: 'Pronto.', resposta: '**O que fiz**\nCorrigi a soma e rodei os testes.' },
     ];
     return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
+  // REVISAR-ERRO: cria um arquivo e termina; o revisor aponta um problema, e a Forja responde de novo com a correção
+  if (/REVISAR-ERRO/.test(tarefa)) {
+    return passo === 0
+      ? { pensamento: 'Crio e testo.', acoes: [{ ferramenta: 'escrever', args: { caminho: 'nota-revisao.txt', conteudo: 'primeira versão\n' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] }
+      : { pensamento: 'Pronto.', resposta: '**O que fiz**\nCriei a nota.' };
+  }
+  // PREVIA: troca o título do index.html (para a prévia ao vivo recarregar)
+  if (/PREVIA/.test(tarefa)) {
+    return passo === 0 ? { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'index.html' } }] }
+      : passo === 1 ? { pensamento: 'Troco o título.', acoes: [{ ferramenta: 'editar', args: { caminho: 'index.html', procurar: 'Olá, mundo', substituir: 'Olá, Gyde' } }] }
+        : { pensamento: 'Pronto.', resposta: '**O que fiz**\nTroquei o título.' };
   }
   // TEXTOPURO: lê um arquivo e termina com texto puro (sem JSON), como muitos modelos grátis fazem
   if (/TEXTOPURO/.test(tarefa)) return passo === 0 ? { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] } : 'O arquivo soma.js tem a função soma, que hoje subtrai os dois números.';
@@ -52,21 +75,38 @@ function forja(mensagens) {
 
 export async function provedorFalso() {
   const pedidos = [];
+  const revisoes = new Set();
   const porta = await portaLivre();
   const servidor = http.createServer(async (req, res) => {
     const json = (status, corpo) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(corpo)); };
     if (req.url === '/health') return json(200, { ok: true });
     if (req.url?.startsWith('/v1/models')) return json(200, { data: ['qwen3.8-27b', 'codestral', 'mistral-code'].map((id) => ({ id })) });
     if (req.url?.startsWith('/v1/usage')) return json(200, {});
+    if (/ruim/.test(req.headers.authorization ?? '')) return json(403, { error: { message: 'Authorization failed' } });
     if (req.method !== 'POST' || !req.url?.startsWith('/v1/chat/completions')) return json(404, { error: { message: 'rota falsa inexistente' } });
     let bruto = '';
     for await (const pedaco of req) bruto += pedaco;
     const corpo = JSON.parse(bruto);
     const mensagens = corpo.messages ?? [];
-    pedidos.push({ modelo: corpo.model, stream: Boolean(corpo.stream), mensagens });
+    pedidos.push({ modelo: corpo.model, stream: Boolean(corpo.stream), mensagens, chave: (req.headers.authorization ?? '').replace('Bearer ', '') });
     const usage = { prompt_tokens: 100, completion_tokens: 20, total_tokens: 120 };
 
+    // "Mostrar o erro": região fixa (só se a imagem chegou de verdade no pedido)
+    if (/print de tela de alguém aprendendo/.test(textoDe(mensagens[0]?.content))) {
+      const temImagem = mensagens.some((m) => Array.isArray(m.content) && m.content.some((p) => p.type === 'image_url' && /^data:image\//.test(p.image_url?.url ?? '')));
+      const resposta = temImagem ? { achou: true, x: 20, y: 30, largura: 40, altura: 10, explicacao: 'A mensagem diz que a variável total não existe: ela foi usada antes de receber um valor.' } : { achou: false, explicacao: 'Não recebi imagem.' };
+      return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify(resposta) } }] });
+    }
+    // revisor interno: REVISAR-ERRO aponta um problema da primeira vez; o resto está certo
+    if (/revisor técnico independente/.test(textoDe(mensagens[0]?.content))) {
+      const pedido = textoDe(mensagens.at(-1)?.content);
+      const achou = /REVISAR-ERRO/.test(pedido) && !revisoes.has('feita');
+      if (achou) revisoes.add('feita');
+      return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify({ problemas: achou ? [{ gravidade: 'alta', onde: 'soma', erro: 'falta tratar lista vazia', correcao: 'devolva 0' }] : [] }) } }] });
+    }
     if (/Você é a Forja/.test(textoDe(mensagens[0]?.content))) {
+      // CIDADE-AO-VIVO anda devagar, para dar tempo de a Cidade abrir e mostrar cada passo
+      if (/CIDADE-AO-VIVO/.test(mensagens.map((m) => textoDe(m.content)).join(' '))) await new Promise((r) => setTimeout(r, 2500));
       return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: ((r) => (typeof r === 'string' ? r : JSON.stringify(r)))(forja(mensagens)) } }] });
     }
     const pergunta = textoDe(mensagens.filter((m) => m.role === 'user').at(-1)?.content).trim();

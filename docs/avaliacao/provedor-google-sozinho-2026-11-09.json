@@ -1,0 +1,711 @@
+{
+ "em": "2026-11-09T04:28:28.880Z",
+ "repeticoes": 2,
+ "modelos": [
+  "gemini-3.1-flash-lite"
+ ],
+ "tarefas": [
+  {
+   "id": "conversa",
+   "categoria": "conversa"
+  },
+  {
+   "id": "objetiva",
+   "categoria": "objetiva"
+  },
+  {
+   "id": "raciocinio-conta",
+   "categoria": "raciocinio"
+  },
+  {
+   "id": "raciocinio-ordem",
+   "categoria": "raciocinio"
+  },
+  {
+   "id": "raciocinio-conjuntos",
+   "categoria": "raciocinio"
+  },
+  {
+   "id": "codigo-js",
+   "categoria": "codigo"
+  },
+  {
+   "id": "codigo-python",
+   "categoria": "codigo"
+  },
+  {
+   "id": "sql",
+   "categoria": "sql"
+  },
+  {
+   "id": "frontend",
+   "categoria": "frontend"
+  },
+  {
+   "id": "backend-validar",
+   "categoria": "backend"
+  },
+  {
+   "id": "backend-limite",
+   "categoria": "backend"
+  },
+  {
+   "id": "escrita-acrostico",
+   "categoria": "escrita"
+  },
+  {
+   "id": "escrita-pronta",
+   "categoria": "escrita"
+  },
+  {
+   "id": "analise-log",
+   "categoria": "analise"
+  },
+  {
+   "id": "analise-sem-resposta",
+   "categoria": "analise"
+  },
+  {
+   "id": "instrucoes",
+   "categoria": "instrucoes"
+  },
+  {
+   "id": "contexto",
+   "categoria": "contexto"
+  },
+  {
+   "id": "etapas",
+   "categoria": "etapas"
+  },
+  {
+   "id": "tutor",
+   "categoria": "tutor"
+  },
+  {
+   "id": "agente",
+   "categoria": "agente"
+  },
+  {
+   "id": "agente-grande",
+   "categoria": "agente-grande"
+  },
+  {
+   "id": "revisao-com-bug",
+   "categoria": "revisao"
+  },
+  {
+   "id": "revisao-sem-bug",
+   "categoria": "revisao"
+  },
+  {
+   "id": "visao",
+   "categoria": "visao"
+  },
+  {
+   "id": "ferramentas",
+   "categoria": "ferramentas"
+  }
+ ],
+ "resultados": [
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": false,
+   "motivo": "longa demais (274 palavras)",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 3406,
+   "tokens": 424,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": false,
+   "motivo": "longa demais (241 palavras)",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 2495,
+   "tokens": 366,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 853,
+   "tokens": 41,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 806,
+   "tokens": 41,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1286,
+   "tokens": 319,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1352,
+   "tokens": 311,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1003,
+   "tokens": 184,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1042,
+   "tokens": 184,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1782,
+   "tokens": 480,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1579,
+   "tokens": 475,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1169,
+   "tokens": 176,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 18306,
+   "tokens": 176,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 923,
+   "tokens": 140,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 878,
+   "tokens": 140,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 816,
+   "tokens": 155,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 844,
+   "tokens": 155,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 26266,
+   "tokens": 195,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 927,
+   "tokens": 195,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1470,
+   "tokens": 422,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1392,
+   "tokens": 422,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1072,
+   "tokens": 274,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1067,
+   "tokens": 274,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1663,
+   "tokens": 98,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 30399,
+   "tokens": 101,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": false,
+   "motivo": "começou comentando, deixou lacuna entre colchetes",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1396,
+   "tokens": 178,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": false,
+   "motivo": "começou comentando, deixou lacuna entre colchetes",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1085,
+   "tokens": 170,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1063,
+   "tokens": 7415,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 855,
+   "tokens": 7415,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 839,
+   "tokens": 94,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 790,
+   "tokens": 80,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 854,
+   "tokens": 103,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 837,
+   "tokens": 103,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 746,
+   "tokens": 129,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 904,
+   "tokens": 127,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 988,
+   "tokens": 144,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 926,
+   "tokens": 144,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 2086,
+   "tokens": 387,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1452,
+   "tokens": 372,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "agente",
+   "categoria": "agente",
+   "ok": true,
+   "motivo": "duas ações certas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 870,
+   "tokens": 235,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "agente",
+   "categoria": "agente",
+   "ok": true,
+   "motivo": "duas ações certas",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1148,
+   "tokens": 235,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "agente-grande",
+   "categoria": "agente-grande",
+   "ok": true,
+   "motivo": "foi direto ao arquivo certo",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1525,
+   "tokens": 26337,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "agente-grande",
+   "categoria": "agente-grande",
+   "ok": true,
+   "motivo": "foi direto ao arquivo certo",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1541,
+   "tokens": 26339,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "revisao-com-bug",
+   "categoria": "revisao",
+   "ok": true,
+   "motivo": "achou o bug",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1005,
+   "tokens": 346,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "revisao-com-bug",
+   "categoria": "revisao",
+   "ok": true,
+   "motivo": "achou o bug",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1365,
+   "tokens": 346,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "revisao-sem-bug",
+   "categoria": "revisao",
+   "ok": true,
+   "motivo": "não inventou problema",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 681,
+   "tokens": 252,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "revisao-sem-bug",
+   "categoria": "revisao",
+   "ok": true,
+   "motivo": "não inventou problema",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1792,
+   "tokens": 252,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "visao",
+   "categoria": "visao",
+   "ok": true,
+   "motivo": "viu as duas cores",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 3437,
+   "tokens": 1137,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "visao",
+   "categoria": "visao",
+   "ok": true,
+   "motivo": "viu as duas cores",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 1095,
+   "tokens": 1137,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "ferramentas",
+   "categoria": "ferramentas",
+   "ok": true,
+   "motivo": "chamou a ferramenta",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 63142,
+   "tokens": 73,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "google:gemini-3.1-flash-lite",
+   "tarefa": "ferramentas",
+   "categoria": "ferramentas",
+   "ok": true,
+   "motivo": "chamou a ferramenta",
+   "via": "google/gemini-3.1-flash-lite",
+   "ms": 850,
+   "tokens": 73,
+   "erro": false,
+   "limite": false
+  }
+ ]
+}

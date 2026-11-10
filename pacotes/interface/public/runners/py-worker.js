@@ -55,15 +55,52 @@ def __gyde_trace(__src, __limit=500):
                 continue
             res[k] = fmt(v)
         return res
+    # memória estruturada para o desenho: cada lista/tupla/dicionário/conjunto/objeto vira uma caixa com número fixo,
+    # e as variáveis apontam para ela (duas variáveis no mesmo objeto apontam para a mesma caixa)
+    numeros = {}
+    PRIMITIVOS = (int, float, complex, bool, str, bytes, type(None))
+    def visivel(k, v):
+        return not (k.startswith('__') or isinstance(v, (__types.ModuleType, __types.FunctionType, type)) or k == 'print')
+    def memoria(frames_gyde):
+        heap = {}
+        def ref(v, prof=0):
+            if isinstance(v, PRIMITIVOS) or prof > 4 or len(heap) >= 60:
+                return {'v': fmt(v)}
+            n = numeros.setdefault(id(v), len(numeros) + 1)
+            if n in heap:
+                return {'r': n}
+            heap[n] = None
+            if isinstance(v, (list, tuple)):
+                caixa = {'tipo': 'lista' if isinstance(v, list) else 'tupla', 'itens': [ref(x, prof + 1) for x in list(v)[:30]], 'total': len(v)}
+            elif isinstance(v, (set, frozenset)):
+                caixa = {'tipo': 'conjunto', 'itens': [ref(x, prof + 1) for x in list(v)[:30]], 'total': len(v)}
+            elif isinstance(v, dict):
+                pares = list(v.items())[:30]
+                caixa = {'tipo': 'dicionario', 'pares': [[ref(a, prof + 1), ref(b, prof + 1)] for a, b in pares], 'total': len(v)}
+            elif hasattr(v, '__dict__') and not callable(v):
+                attrs = [(a, b) for a, b in vars(v).items() if not a.startswith('__')][:30]
+                caixa = {'tipo': 'objeto', 'classe': type(v).__name__, 'pares': [[{'v': a}, ref(b, prof + 1)] for a, b in attrs], 'total': len(attrs)}
+            else:
+                heap.pop(n)
+                return {'v': fmt(v)}
+            heap[n] = caixa
+            return {'r': n}
+        quadros = []
+        for f in frames_gyde:
+            nome = 'programa principal' if f.f_code.co_name == '<module>' else f.f_code.co_name + '()'
+            origem = f.f_globals if f.f_code.co_name == '<module>' else f.f_locals
+            quadros.append({'nome': nome, 'vars': {k: ref(v) for k, v in list(origem.items()) if visivel(k, v)}})
+        return {'quadros': quadros, 'heap': {str(k): c for k, c in heap.items() if c is not None}}
     def tracer(frame, event, arg):
         if frame.f_code.co_filename != '<gyde>':
             return None
         if event in ('line', 'return'):
             if len(steps) >= __limit:
                 raise _Limite()
-            stack, f = [], frame
+            stack, frames_gyde, f = [], [], frame
             while f is not None and f.f_code.co_filename == '<gyde>':
                 stack.append('programa principal' if f.f_code.co_name == '<module>' else f.f_code.co_name + '()')
+                frames_gyde.append(f)
                 f = f.f_back
             is_fn = frame.f_code.co_name != '<module>'
             steps.append({
@@ -71,6 +108,7 @@ def __gyde_trace(__src, __limit=500):
                 'vars': snap(frame.f_locals), 'globals': snap(frame.f_globals) if is_fn else None,
                 'stack': stack[::-1], 'out': out.getvalue(),
                 'ret': fmt(arg) if event == 'return' and is_fn else None,
+                'mem': memoria(frames_gyde[::-1]),
             })
         return tracer
     old = __sys.stdout

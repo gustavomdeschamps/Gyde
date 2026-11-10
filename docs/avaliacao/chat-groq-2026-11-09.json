@@ -1,0 +1,613 @@
+{
+ "em": "2026-11-09T04:31:53.163Z",
+ "repeticoes": 2,
+ "estrategias": [
+  "auto"
+ ],
+ "resultados": [
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 726,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 965,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 331,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 389,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 1004,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": false,
+   "motivo": "resposta: <número>\".",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 2301,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Vamos definir variáveis para o número de bolas em cada caixa:\n\n*  Seja $b$ o número de bolas na caixa B.\n*  A caixa A tem o dobro das bolas da caixa B, então tem $2b$ bolas.\n*  A caixa C tem 5 bolas a menos que a caixa A, então tem $2b - 5$ bolas.\n\nSabemos que o total de bolas é 35. Assim, podemos montar a equação:\n\n$$B + A + C = 35$$\n$$b + 2b + (2b - 5) = 35$$\n\nAgora, somamos os termos semelhantes e resolvemos para $b$:\n\n$$3b - 5 = 35$$\n$$3b = 35 + 5$$\n$$3b = 40$$\n$$b = \\frac{40}{3}$$\n\nAqui encontramos um problema: o número de bolas deve ser um inteiro, mas $40/3$ não é um número inteiro (é aproximadamente 13,33). Isso indica que os dados do problema podem estar inconsistentes para uma solução inteira exata.\n\nNo entanto, seguindo a lógica matemática estrita para encontrar o valor da variável $C$:\n\n$$C = 2b - 5$$\n$$C = 2 \\cdot \\left(\\frac{40}{3}\\right) - 5$$\n$$C = \\frac{80}{3} - \\frac{15}{3}$$\n$$C = \\frac{65}{3}$$\n\nFração 65/3 é igual a $21,666...$\n\nComo o problema pede um número e tipicamente esses exercícios exigem inteiros, é possível que haja um erro de digitação no enunciado (por exemplo, se o total fosse 38, $3b = 43$ não funciona; se o total fosse 35 e a relação fosse diferente...). Mas assumindo que devemos seguir a conta estrita do enunciado fornecido:\n\nOutra possibilidade: talvez a pergunta seja um teste de verificação. Se arredondarmos para o número inteiro mais próximo porque \"bolas\" são indivisíveis na prática, ficaríamos com 22. Mas matematicamente, a resposta d"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 1409,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1045,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1029,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1831,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 595,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 660,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 956,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 774,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 849,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 657,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 737,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 674,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1182,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  // Verifica se corpo é um objeto válido\n  if (typeof corpo !== 'object' || corpo === null) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  // ----- EMAIL -----\n  const email = corpo.email;\n  const emailValido = typeof email === 'string' && /^[^@]+@[^@]+$/.test(email);\n  if (!emailValido) erros.push('email');\n\n  // ----- SENHA -----\n  const senha = corpo.senha;\n  const senhaValida = typeof senha === 'string' && senha.length >= 8;\n  if (!senhaValida) erros.push('senha');\n\n  // ----- IDADE (opcional) -----\n  if (Object.prototype.hasOwnProperty.call(corpo, 'idade')) {\n    const idade = corpo.idade;\n    const idadeValida = Number.isInteger(idade) && idade >= 13 && idade <= 120;\n    if (!idadeValida) erros.push('idade');\n  }\n\n  // Se houver algum erro, devolve 400, senão 201\n  if (erros.length) {\n    return { status: 400, erros };\n  }\n  return { status: 201, erros: [] };\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1361,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1466,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1263,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1358,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 1915,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 594,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "openai/gpt-oss-120b"
+   ],
+   "ms": 728,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "maior=932 (certo: 936)",
+   "chamadas": 3,
+   "modelos": [
+    "openai/gpt-oss-20b"
+   ],
+   "ms": 1537,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Erros=0; maior=932; servico=login"
+  },
+  {
+   "pedida": "auto",
+   "usada": null,
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "O provedor groq respondeu 429: Rate limit reached for model `openai/gpt-oss-20b` in organization `org_[oculto]` service ",
+   "chamadas": 0,
+   "modelos": [],
+   "ms": 0,
+   "revisada": false,
+   "mudou": false,
+   "erro": true
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 453,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": null,
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "O provedor groq respondeu 429: Request too large for model `qwen/qwen3.8-27b` in organization `org_[oculto]` service tie",
+   "chamadas": 0,
+   "modelos": [],
+   "ms": 0,
+   "revisada": false,
+   "mudou": false,
+   "erro": true
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 537,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 428,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": null,
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": false,
+   "motivo": "O provedor groq respondeu 429: Request too large for model `qwen/qwen3.8-27b` in organization `org_[oculto]` service tie",
+   "chamadas": 0,
+   "modelos": [],
+   "ms": 0,
+   "revisada": false,
+   "mudou": false,
+   "erro": true
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": false,
+   "motivo": "não usou o framework da conversa",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 387,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```python\n@get(\"/status\")\ndef status() -> dict:\n    return {\"ok\": True}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 456,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 493,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": null,
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": false,
+   "motivo": "O provedor groq respondeu 429: Request too large for model `qwen/qwen3.8-27b` in organization `org_[oculto]` service tie",
+   "chamadas": 0,
+   "modelos": [],
+   "ms": 0,
+   "revisada": false,
+   "mudou": false,
+   "erro": true
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "qwen/qwen3.8-27b"
+   ],
+   "ms": 676,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  }
+ ]
+}

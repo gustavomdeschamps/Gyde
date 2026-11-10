@@ -1,0 +1,620 @@
+{
+ "em": "2026-11-09T04:32:26.955Z",
+ "repeticoes": 2,
+ "estrategias": [
+  "auto"
+ ],
+ "resultados": [
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 9343,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 9240,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 659,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 650,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 2377,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 2775,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1147,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1294,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 4365,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 8640,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1147,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1007,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 9676,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 6328,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1133,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 968,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1763,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1770,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 3043,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (corpo === null || typeof corpo !== 'object') {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  if (email === undefined || email === null || typeof email !== 'string' || !/.+@.+\\..+/.test(email)) {\n    erros.push('email');\n  }\n\n  if (senha === undefined || senha === null || typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  if (idade !== undefined && idade !== null) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  return erros.length === 0\n    ? { status: 201, erros: [] }\n    : { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "4/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 3417,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n    const erros = [];\n\n    if (typeof corpo !== 'object' || corpo === null) {\n        return { status: 400, erros: ['email', 'senha', 'idade'] };\n    }\n\n    // Validação do email\n    const email = corpo.email;\n    const emailValido = typeof email === 'string' && \n        /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email);\n    if (!emailValido) {\n        erros.push('email');\n    }\n\n    // Validação da senha\n    const senha = corpo.senha;\n    if (typeof senha !== 'string' || senha.length < 8) {\n        erros.push('senha');\n    }\n\n    // Validação da idade\n    const idade = corpo.idade;\n    const idadeValida = idade !== undefined && \n        Number.isInteger(idade) && \n        idade >= 13 && \n        idade <= 120;\n    if (!idadeValida) {\n        erros.push('idade');\n    }\n\n    return erros.length === 0 \n        ? { status: 201, erros: [] } \n        : { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 5961,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "não rodou: ChaveEstado is not a constructor",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 6601,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction criarLimitador(max, janelaMs) {\n  const ChaveEstado = (chave) => {\n    this.chave = chave;\n    this.marcaTemporais = [];\n  };\n  const estados = new Map();\n\n  return function permitir(chave, agora) {\n    if (!estados.has(chave)) {\n      estados.set(chave, new ChaveEstado(chave));\n    }\n    const estado = estados.get(chave);\n\n    const recentes = estado.marcaTemporais.filter(t => agora - t < janelaMs);\n    if (recentes.length < max) {\n      recents.push(agora);\n      estado.marcaTemporais = recentes;\n      return true;\n    }\n    return false;\n  };\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1078,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1167,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1066,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1194,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 599,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 673,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1319,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 894,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 727,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 705,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 873,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 825,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1185,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1575,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1295,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "poolside/laguna-xs-2.1"
+   ],
+   "ms": 1396,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  }
+ ]
+}

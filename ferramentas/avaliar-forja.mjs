@@ -10,13 +10,16 @@ import { createHash } from 'node:crypto';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { redigir } from '../pacotes/servidor/seguranca.ts';
+const limparErro = (t) => redigir(t).replace(/org_[A-Za-z0-9]{10,}/g, 'org_[oculto]'); // sem chaves e sem o ID da conta no provedor
 
 const RAIZ = path.join(import.meta.dirname, '..');
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
 const CODIGO = path.resolve(arg('codigo', RAIZ));
 const REPETICOES = Number(arg('repeticoes', '1'));
 const env = Object.fromEntries(readFileSync(path.join(RAIZ, '.env'), 'utf8').split(/\r?\n/).filter((l) => /^\w+=/.test(l)).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1).trim()]));
-if (!env.FREELLMAPI_KEY) { console.error('FREELLMAPI_KEY não está no .env.'); process.exit(1); }
+const SO = arg('provedor', null); // ex.: --provedor groq ou --provedor nvidia,groq: o Gyde usa só esses provedores grátis, direto (precisa das medições deles)
+if (SO ? !Object.keys(env).some((k) => k.endsWith('_API_KEY')) : !env.FREELLMAPI_KEY) { console.error('Faltam chaves no .env.'); process.exit(1); }
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const sha = (t) => createHash('sha1').update(t).digest('hex');
 const portaLivre = () => new Promise((ok) => { const s = createServer(); s.listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => ok(port)); }); });
@@ -25,7 +28,7 @@ const portaLivre = () => new Promise((ok) => { const s = createServer(); s.liste
 const dados = mkdtempSync(path.join(tmpdir(), 'gyde-aval-forja-'));
 const porta = await portaLivre();
 const servidor = spawn(process.execPath, [path.join(CODIGO, 'pacotes', 'servidor', 'server.ts')], {
-  env: { ...process.env, DATA_DIR: dados, PORT: String(porta), GYDE_DESKTOP: '1', GYDE_ENV_FILE: path.join(dados, '.env'), FREELLMAPI_URL: env.FREELLMAPI_URL || 'http://127.0.0.1:31415', FREELLMAPI_KEY: env.FREELLMAPI_KEY, GYDE_MODO_IA: 'online', OLLAMA_URL: 'http://127.0.0.1:9' },
+  env: { ...process.env, DATA_DIR: dados, PORT: String(porta), GYDE_DESKTOP: '1', GYDE_ENV_FILE: path.join(dados, '.env'), FREELLMAPI_URL: SO ? 'http://127.0.0.1:9' : env.FREELLMAPI_URL || 'http://127.0.0.1:31415', FREELLMAPI_KEY: SO ? 'freellmapi-desligado-na-medicao' : env.FREELLMAPI_KEY, GYDE_MODO_IA: 'online', ...(SO ? { GYDE_IA_SO: SO, ...Object.fromEntries(Object.entries(env).filter(([k]) => k.endsWith('_API_KEY'))) } : {}), OLLAMA_URL: 'http://127.0.0.1:9' },
   stdio: 'ignore',
 });
 const base = `http://127.0.0.1:${porta}`;
@@ -149,7 +152,7 @@ try {
       const checagens = c.conferir(proj, eventos);
       const comandos = eventos.filter((e) => e.tipo === 'ferramenta' && e.nome === 'executar').length;
       const r = { cenario: c.id, ok: fim.tipo === 'resposta' && checagens.every(([, v]) => v), checagens: Object.fromEntries(checagens), terminou: fim.tipo || 'sem fim',
-        passos: fim.passos ?? null, ms: Date.now() - inicio, arquivos: fim.arquivos ?? [], comandos, modelo: fim.modelo ?? null, erro: fim.tipo === 'erro' ? String(fim.texto).slice(0, 160) : null };
+        passos: fim.passos ?? null, ms: Date.now() - inicio, arquivos: fim.arquivos ?? [], comandos, modelo: fim.modelo ?? null, erro: fim.tipo === 'erro' ? limparErro(String(fim.texto)).slice(0, 160) : null };
       resultados.push(r);
       console.log(`${r.ok ? 'OK   ' : 'FALHA'} ${c.id.padEnd(11)} ${String(Math.round(r.ms / 1000)).padStart(4)} s  ${String(r.passos ?? '-').padStart(2)} passos  ${comandos} comando(s)  ${checagens.map(([k, v]) => `${v ? '✓' : '✗'} ${k}`).join(' · ')}${r.erro ? `  [${r.erro}]` : ''}`);
       rmSync(proj.pasta, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });

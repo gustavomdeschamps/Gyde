@@ -6,7 +6,7 @@
 // Toda cadeia termina em 'auto' para funcionar com qualquer conjunto de chaves que a pessoa tiver no FreeLLMAPI.
 
 import type { Router, Registro, MensagemIA } from './tipos.ts';
-import { comoErro } from './tipos.ts';
+import { comoErro, erroGyde } from './tipos.ts';
 
 // Ordem medida com ferramentas/avaliar-modelos.mjs (resultados em docs/avaliacao/): qwen3.8-27b e gpt-oss-120b acertaram
 // código, correção de bug, explicação sem entregar a resposta e o formato da Forja, em menos de 1 s; os slots
@@ -20,31 +20,53 @@ export const CADEIAS: Record<string, string[]> = {
   util: [process.env.UTIL_MODEL || 'mistral-code', 'qwen3.8-27b', 'auto'],
   // com imagens: só modelos que enxergam (o FreeLLMAPI recusa os que não têm visão e o 'auto' escolhe um que tenha)
   visao: ['qwen3.8-27b', 'gemini-3.8-flash', 'auto'],
+  // "Mostrar o erro" num print: o gemini-robotics-er (feito para localização espacial) acertou a região em teste real;
+  // o qwen3.8-27b devolveu pixels em vez de porcentagem (a resposta é conferida e recusada)
+  apontar: ['gemini-robotics-er-2-preview', 'gemini-3.8-flash', 'qwen3.8-27b', 'auto'],
 };
 
 // Modelos que o usuário escolhe pelo nome direto continuam funcionando (cadeia de um modelo + automático).
 export const cadeiaDe = (id: string): string[] => CADEIAS[id] || [id, 'auto'];
 
+// Conteúdo da resposta como texto. Alguns provedores (o Mistral, por exemplo) mandam uma lista de partes, com o raciocínio
+// separado do texto: fica só o texto.
+export function textoDoConteudo(c: unknown): string {
+  if (typeof c === 'string') return c;
+  if (Array.isArray(c)) return c.map((p: { type?: string; text?: unknown }) => (p && p.type === 'text' && typeof p.text === 'string' ? p.text : '')).join('');
+  return '';
+}
+
 // Chamada sem streaming com troca automática de modelo. Devolve { texto, modelo }.
 // `valida(texto)` pode recusar a resposta (ex.: JSON inválido) para tentar o próximo modelo.
 export interface PedidoCompletar {
   cadeia: string[]; messages: MensagemIA[]; max_tokens?: number; temperature?: number;
-  signal?: AbortSignal; valida?: (texto: string) => boolean; registro?: Registro | undefined;
+  signal?: AbortSignal; valida?: (texto: string) => boolean; registro?: Registro | undefined; tempoLimite?: number; aoTentar?: () => void; recuperarAcao?: boolean;
 }
-export async function completar(router: Router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida, registro }: PedidoCompletar): Promise<{ texto: string; modelo: string }> {
+export async function completar(router: Router, { cadeia, messages, max_tokens = 1500, temperature = 0.2, signal, valida, registro, tempoLimite = 90_000, aoTentar, recuperarAcao }: PedidoCompletar): Promise<{ texto: string; modelo: string }> {
+  if (!cadeia.length) throw erroGyde('A IA ainda não está conectada. Abra Configurações > Conectar IA e cole uma chave grátis.', { status: 503, final: true });
   let ultimoErro = new Error('Nenhum modelo respondeu.');
   for (const model of cadeia) {
     try {
-      const r = await router('/v1/chat/completions', { method: 'POST', signal: signal ?? null, registro, body: JSON.stringify({ model, messages, max_tokens, temperature }) });
-      const j = await r.json() as { usage?: import('./tipos.ts').UsoInformado; choices?: { message?: { content?: string } }[] };
+      aoTentar?.();
+      // cada tentativa tem prazo próprio: um modelo que trava passa a vez em vez de segurar o pedido para sempre
+      const prazo = AbortSignal.timeout(tempoLimite);
+      const r = await router('/v1/chat/completions', { method: 'POST', signal: signal ? AbortSignal.any([signal, prazo]) : prazo, registro, recuperarAcao, body: JSON.stringify({ model, messages, max_tokens, temperature }) });
+      const j = await r.json() as { usage?: import('./tipos.ts').UsoInformado; choices?: { message?: { content?: unknown; reasoning?: unknown } }[] };
       registro?.tokens(j.usage);
-      const texto = j.choices?.[0]?.message?.content || '';
+      let texto = textoDoConteudo(j.choices?.[0]?.message?.content);
+      // Groq com gpt-oss: às vezes a resposta em JSON fica no fim do raciocínio e o texto vem vazio. Quando quem pediu espera
+      // JSON (valida), o último objeto do raciocínio vale como resposta; o raciocínio em si nunca vai para a tela.
+      const raciocinio = j.choices?.[0]?.message?.reasoning;
+      if (!texto.trim() && valida && typeof raciocinio === 'string') {
+        const ultimo = extrairJson(raciocinio);
+        if (ultimo) texto = JSON.stringify(ultimo);
+      }
       if (!texto.trim()) throw new Error(`${model} respondeu vazio`);
       if (valida && !valida(texto)) throw new Error(`${model} respondeu num formato inválido`);
       return { texto, modelo: r.headers.get('x-routed-via') || model };
     } catch (e) {
       const err = comoErro(e);
-      if (err.name === 'AbortError' || err.final || err.status === 429) throw err; // offline ou limite: outro modelo não resolve
+      if (signal?.aborted || err.name === 'AbortError' || err.final || err.status === 429) throw err; // offline ou limite: outro modelo não resolve
       ultimoErro = err;
     }
   }

@@ -151,3 +151,197 @@
 .forja-recentes time { font-size: 12px; color: var(--text-faint); flex: none; }
 .forja-aviso.erro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 .forja-aviso-acoes { display: flex; gap: 6px; }
+/* prévia ao vivo ao lado da conversa */
+.forja-area { display: flex; height: 100%; min-height: 0; }
+.forja-area > .forja-chat { flex: 1; min-width: 0; }
+.forja-previa { width: min(48%, 720px); flex: none; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: var(--surface); animation: previa-entra var(--t3) var(--ease); }
+.forja-previa-topo { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.forja-previa-topo small { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-faint); font: 12px var(--mono); }
+.forja-previa-ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); }
+.forja-previa-ponto.on { background: var(--success); box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 25%, transparent); }
+.forja-previa iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+.forja-previa-info { margin: 24px 18px; color: var(--text-soft); line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; } /* o motivo pode ter várias linhas */
+.forja-previa-nota { margin: 0; padding: 6px 12px; font-size: 12px; color: var(--text-faint); border-top: 1px solid var(--border); }
+.forja-acoes .btn.ativo { color: var(--accent-text); background: var(--accent-soft); }
+@keyframes previa-entra { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .forja-previa { animation: none; } }
+@media (max-width: 900px) { .forja-area.com-previa { flex-direction: column; } .forja-previa { width: 100%; height: 45%; border-left: 0; border-top: 1px solid var(--border); } }
+
+/* ---------- Abas da Forja e Cidade do código ---------- */
+.forja-abas { display: flex; gap: 4px; padding: 6px 16px 0; border-bottom: 1px solid var(--border); }
+.forja-abas button { appearance: none; border: 0; background: none; color: var(--text-soft); font: inherit; font-size: 13.5px; font-weight: 600; padding: 8px 12px 9px; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; border-radius: 8px 8px 0 0; }
+.forja-abas button:hover:not(:disabled) { color: var(--text); background: var(--hover); }
+.forja-abas button[aria-selected="true"] { color: var(--accent-text); border-bottom-color: var(--accent); }
+.forja-abas button:disabled { opacity: .5; cursor: not-allowed; }
+.forja-abas button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.cidade { max-width: 980px; margin: 0 auto; padding: 18px 20px 40px; }
+.cidade-topo { display: flex; align-items: flex-start; gap: 16px; justify-content: space-between; }
+.cidade-topo h2 { margin: 0 0 4px; font: 650 19px/1.3 var(--font-display); }
+.cidade-legenda, .cidade-resumo, .cidade-info { margin: 0; color: var(--text-soft); font-size: 13.5px; line-height: 1.5; }
+.cidade-resumo { margin-top: 14px; color: var(--text); }
+.cidade-aviso { margin: 10px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--accent-soft); color: var(--text); font-size: 13px; line-height: 1.45; }
+.cidade-controles { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 6px; }
+.cidade-controles label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--text-faint); }
+.cidade-filtro { flex: 1 1 220px; }
+.cidade-controles input, .cidade-controles select { font: inherit; font-size: 14px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 9px; padding: 7px 10px; min-width: 0; }
+.cidade-controles input:focus-visible, .cidade-controles select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cidade-bairro { margin-top: 18px; }
+.cidade-bairro h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 6px; font-size: 14px; }
+.cidade-bairro-nome { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+.cidade-bairro h3 small { font-weight: 400; color: var(--text-faint); font-size: 12.5px; }
+.cidade-bairro table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cidade-bairro th, .cidade-bairro td { text-align: left; padding: 6px 10px; border-top: 1px solid var(--border); font-weight: 400; color: var(--text-soft); white-space: nowrap; }
+.cidade-bairro thead th { border-top: 0; font-size: 11.5px; font-weight: 600; color: var(--text-faint); background: var(--surface-2); }
+.cidade-bairro tbody th { color: var(--text); width: 100%; white-space: normal; }
+.cidade-arquivo { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+/* escala de calor: frio (cinza-azulado) até quente (vermelho), igual à da cidade 3D */
+.cidade-calor { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 8px; vertical-align: 1px;
+  background: color-mix(in oklab, #dc2626 calc(var(--calor, 0) * 100%), #94a3b8); }
+.cidade-botoes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cidade-modo { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--bg-soft); border: 1px solid var(--border); }
+.cidade-modo button { appearance: none; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--text-soft); padding: 5px 12px; border-radius: 7px; cursor: pointer; }
+.cidade-modo button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+.cidade-modo button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cidade-palco { position: relative; margin-top: 14px; height: min(66vh, 600px); min-height: 320px; border-radius: 16px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(120% 90% at 50% 100%, #2a1b5c 0%, #0d0a2a 55%, #04040f 100%); border: 1px solid #2a2560;
+  box-shadow: 0 30px 60px -30px rgb(20 10 60 / .55), inset 0 0 0 1px rgb(255 255 255 / .03); color-scheme: dark; }
+.cidade-3d { position: absolute; inset: 0; touch-action: none; }
+/* vinheta: bordas escurecidas como num filme (CSS puro, não pesa na placa de vídeo) */
+.cidade-palco::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(120% 95% at 50% 55%, transparent 55%, rgb(3 2 14 / .55) 100%); }
+.cidade-canvas { display: block; width: 100%; height: 100%; outline: none; }
+.cidade-palco-info { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; margin: 0; color: #c9c6f5; font-size: 14px; text-align: center; padding: 20px; }
+.cidade-palco-info p { margin: 0; }
+/* vidro: o mesmo material para HUD, legenda, cartão e dica */
+.cidade-vidro { background: linear-gradient(180deg, rgb(30 26 72 / .62), rgb(12 12 40 / .58)); border: 1px solid rgb(160 150 255 / .22);
+  box-shadow: 0 10px 30px -12px rgb(0 0 0 / .6), inset 0 1px 0 rgb(255 255 255 / .07); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+  color: #e4e2ff; border-radius: 12px; }
+.cidade-hud { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; pointer-events: none; z-index: 2; }
+.cidade-hud > * { pointer-events: auto; }
+.cidade-hud-dir { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.cidade-numeros { padding: 8px 12px; font-size: 12.5px; color: #b9b5ec; white-space: nowrap; }
+.cidade-numeros b { color: #fff; font-weight: 650; font-variant-numeric: tabular-nums; }
+.cidade-busca { display: flex; align-items: center; gap: 7px; padding: 0 10px; height: 36px; }
+.cidade-busca svg { width: 15px; height: 15px; fill: none; stroke: #a5a0ff; stroke-width: 2; stroke-linecap: round; flex: none; }
+.cidade-busca input { width: 170px; background: none; border: 0; outline: none; color: #fff; font: inherit; font-size: 13px; min-width: 0; }
+.cidade-busca input::placeholder { color: #8f8ac9; }
+.cidade-busca:focus-within { border-color: #8b6cff; box-shadow: 0 0 0 3px rgb(139 108 255 / .28); }
+.cidade-busca small { color: #7fe3ff; font-size: 11.5px; white-space: nowrap; }
+.cidade-qualidade { height: 36px; padding: 0 12px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.cidade-qualidade small { color: #a29ddb; font-weight: 400; }
+.cidade-qualidade:hover { border-color: rgb(160 150 255 / .45); }
+.cidade-qualidade:focus-visible, .cidade-cartao-fechar:focus-visible { outline: 2px solid #7fe3ff; outline-offset: 2px; }
+.cidade-legenda-3d { position: absolute; left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 8px 12px; font-size: 12px; color: #c9c6f5; pointer-events: none; z-index: 2; max-width: calc(100% - 24px); }
+.cidade-leg-item { display: inline-flex; align-items: center; gap: 7px; }
+.cidade-leg-predio { width: 7px; height: 14px; border-radius: 2px; background: linear-gradient(180deg, #7fe3ff 0 18%, #231a52 18% 30%, #ffd27a 30% 42%, #0a0f24 42%); box-shadow: 0 0 6px #7c5cff; }
+.cidade-escala i { width: 58px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #7c5cff, #ff8a1f 65%, #ff2a3d); box-shadow: 0 0 8px rgb(255 60 60 / .45); }
+.cidade-leg-farol { width: 12px; height: 14px; background: linear-gradient(0deg, #ff2a3d, transparent); clip-path: polygon(40% 100%, 60% 100%, 100% 0, 0 0); }
+.cidade-cartao { position: absolute; right: 12px; bottom: 12px; width: min(300px, calc(100% - 24px)); padding: 14px 16px 12px; z-index: 3; animation: cartao-entra var(--t3) var(--ease); }
+.cidade-cartao h3 { margin: 2px 26px 10px 0; font: 650 16px/1.3 var(--mono); color: #fff; overflow-wrap: anywhere; }
+.cidade-cartao-bairro { display: block; font: 11.5px/1.3 var(--mono); color: #a5a0ff; overflow-wrap: anywhere; padding-right: 26px; }
+.cidade-cartao dl { margin: 0; display: grid; gap: 6px; }
+.cidade-cartao dl div { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; border-top: 1px solid rgb(160 150 255 / .14); padding-top: 6px; }
+.cidade-cartao dt { color: #a29ddb; }
+.cidade-cartao dd { margin: 0; color: #fff; text-align: right; display: inline-flex; align-items: center; gap: 6px; }
+.cidade-cartao .cidade-calor { margin: 0; box-shadow: 0 0 8px currentColor; }
+.cidade-cartao-fechar { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 8px; border: 0; background: rgb(255 255 255 / .06); color: #d6d3ff; cursor: pointer; font-size: 13px; }
+.cidade-cartao-fechar:hover { background: rgb(255 255 255 / .14); }
+.cidade-aviso3d { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); width: max-content; max-width: min(460px, calc(100% - 24px)); z-index: 3;
+  display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 12px; font-size: 12.5px; line-height: 1.4; animation: cartao-entra var(--t3) var(--ease); }
+.cidade-aviso3d .cidade-cartao-fechar { position: static; flex: none; }
+.cidade-aviso3d.grave { border-color: rgb(255 120 120 / .45); padding: 10px 12px; }
+@media (max-width: 720px) { .cidade-aviso3d { top: 96px; } }
+.cidade-atividade { position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%); z-index: 3; margin: 0; max-width: calc(100% - 24px);
+  display: flex; align-items: center; gap: 8px; padding: 7px 12px; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: cartao-entra var(--t3) var(--ease); }
+.cidade-atividade code { font: 12px var(--mono); color: #fff; overflow: hidden; text-overflow: ellipsis; }
+.cidade-atividade small { color: #a29ddb; }
+.cidade-atividade i { width: 8px; height: 8px; border-radius: 50%; flex: none; background: #38e8ff; box-shadow: 0 0 10px currentColor; color: #38e8ff; }
+.cidade-atividade.tipo-editar i, .cidade-atividade.tipo-criar i { background: #8dff5a; color: #8dff5a; }
+.cidade-atividade.tipo-apagar i { background: #ff3d7f; color: #ff3d7f; }
+@media (max-width: 720px) { .cidade-atividade { bottom: 72px; } }
+@keyframes cartao-entra { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+/* nomes dos bairros flutuando sobre a cidade */
+.cidade-rotulos { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 2; }
+.cidade-rotulo { position: absolute; left: 0; top: 0; display: grid; justify-items: center; padding: 2px 6px; white-space: nowrap;
+  font: 11px/1.25 var(--mono); color: #eeeaff; text-shadow: 0 0 10px rgb(124 92 255 / .9), 0 1px 2px rgb(0 0 0 / .9);
+  border-bottom: 1px solid rgb(139 108 255 / .55); opacity: 0; transition: opacity .35s; will-change: transform; }
+.cidade-rotulo small { font-size: 9.5px; color: #8f8ac9; }
+.cidade-rotulo b { font-weight: 600; letter-spacing: .01em; }
+.cidade-rotulo.visivel { opacity: 1; }
+.cidade-rotulo.visivel.apagado { opacity: .22; }
+.cidade-rodape { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; margin-top: 8px; }
+.cidade-rodape .cidade-ajuda { margin: 4px 0 0; flex: 1 1 320px; }
+.cidade-rodape .btn { flex: none; }
+.cidade-ajuda { margin: 8px 0 0; font-size: 12.5px; color: var(--text-faint); }
+.cidade-escolhido { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 10px 0 0; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 13px; color: var(--text-soft); }
+.cidade-escolhido .cidade-calor { margin-right: 0; }
+.cidade-escolhido b { color: var(--text); font-weight: 600; }
+.cidade-dica { position: fixed; z-index: 50; display: grid; gap: 1px; max-width: 280px; padding: 8px 11px; border-radius: 10px; pointer-events: none;
+  background: rgb(16 14 48 / .86); border: 1px solid rgb(160 150 255 / .3); box-shadow: 0 12px 30px -10px rgb(0 0 0 / .6); backdrop-filter: blur(10px); color: #c9c6f5; font-size: 12.5px; }
+.cidade-dica b { font-family: var(--mono); font-size: 12.5px; color: #fff; overflow-wrap: anywhere; }
+.cidade-dica small { font-family: var(--mono); font-size: 11.5px; color: #a5a0ff; overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  .cidade { padding: 14px 14px 32px; }
+  .cidade-topo { flex-direction: column; gap: 10px; }
+  .cidade-palco { height: 62vh; min-height: 340px; border-radius: 14px; }
+  .cidade-hud { top: 8px; left: 8px; right: 8px; flex-direction: column; }
+  .cidade-hud-dir { width: 100%; justify-content: stretch; flex-wrap: nowrap; }
+  .cidade-busca { flex: 1; } .cidade-busca input { width: 100%; }
+  .cidade-numeros { padding: 6px 10px; }
+  .cidade-legenda-3d { left: 8px; bottom: 8px; gap: 4px 12px; font-size: 11px; padding: 6px 10px; }
+  .cidade-cartao { left: 8px; right: 8px; bottom: 8px; width: auto; }
+  .cidade-hud-extra { display: none; }
+  .cidade-leg-item:first-child { display: none; }
+  .cidade-bairro table, .cidade-bairro thead, .cidade-bairro tbody, .cidade-bairro tr { display: block; }
+  .cidade-bairro thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .cidade-bairro tr { padding: 7px 10px; border-top: 1px solid var(--border); }
+  .cidade-bairro tr:first-child { border-top: 0; }
+  .cidade-bairro th, .cidade-bairro td { display: inline; padding: 0; border: 0; white-space: normal; }
+  .cidade-bairro tbody th { display: block; margin-bottom: 2px; }
+  .cidade-bairro td + td::before { content: " · "; }
+}
+/* celular: as etiquetas de tecnologia escondem o nome do projeto (a regra da linha 64 perdia para a .forja-tecs declarada depois) */
+@media (max-width: 700px) { .forja-tecs { display: none; } }
+
+/* ---------- Ao vivo: liga o projeto ---------- */
+.forja-previa.ao-vivo { min-height: 0; }
+.forja-previa-topo .btn { flex: none; }
+.forja-previa-ponto.carregando { background: var(--accent); animation: ao-vivo-pulso 1s ease-in-out infinite; }
+.forja-previa-ponto.erro { background: var(--danger); }
+@keyframes ao-vivo-pulso { 50% { opacity: .35; } }
+.ao-vivo-escolha { padding: 16px 16px 20px; overflow-y: auto; display: grid; gap: 10px; align-content: start; }
+.ao-vivo-campo { display: grid; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--text-faint); }
+.ao-vivo-campo select { font: inherit; font-size: 14px; font-weight: 400; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 9px; padding: 7px 10px; }
+.ao-vivo-detalhe { margin: 0; font-size: 13.5px; color: var(--text-soft); line-height: 1.5; }
+.ao-vivo-tipo { display: inline-block; margin-left: 4px; padding: 1px 8px; border-radius: 99px; background: var(--bg-soft); font-size: 12px; color: var(--text-faint); }
+.ao-vivo-rotulo { margin: 4px 0 0; font-size: 12.5px; color: var(--text-faint); }
+.ao-vivo-cmd { margin: 0; padding: 9px 12px; border-radius: 9px; background: var(--code-bg); border: 1px solid var(--border); font: 13px/1.5 var(--mono); color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.ao-vivo-cmd span { color: var(--text-faint); }
+.ao-vivo-cmd small { font-family: var(--font); color: var(--text-faint); }
+.ao-vivo-nota { margin: 0; font-size: 12.5px; color: var(--text-faint); line-height: 1.45; }
+.ao-vivo-botoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ao-vivo-outro { border-top: 1px solid var(--border); padding-top: 10px; font-size: 13px; color: var(--text-soft); }
+.ao-vivo-outro summary { cursor: pointer; font-weight: 600; }
+.ao-vivo-outro form { display: flex; gap: 8px; margin: 8px 0 6px; }
+.ao-vivo-outro input { flex: 1; min-width: 0; font: 13px var(--mono); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 9px; padding: 7px 10px; }
+.ao-vivo-outro small { color: var(--text-faint); }
+.ao-vivo-progresso { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0; padding: 10px 12px; font-size: 13px; color: var(--text-soft); border-bottom: 1px solid var(--border); }
+.ao-vivo-progresso code { font: 12px var(--mono); color: var(--text-faint); overflow-wrap: anywhere; }
+.ao-vivo-giro { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--border-strong); border-top-color: var(--accent); animation: ao-vivo-gira .8s linear infinite; flex: none; }
+@keyframes ao-vivo-gira { to { transform: rotate(360deg); } }
+.ao-vivo-aviso { margin: 10px 12px 0; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 13.5px; line-height: 1.5; color: var(--text); display: grid; gap: 8px; }
+.ao-vivo-aviso p { margin: 0; }
+.ao-vivo-aviso.falhou { background: var(--danger-soft); }
+.ao-vivo-erro { margin: 10px 12px 0; padding: 8px 12px; border-radius: 9px; background: var(--danger-soft); color: var(--danger); font-size: 13px; }
+.ao-vivo-barra { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.ao-vivo-abas { display: flex; gap: 2px; }
+.ao-vivo-abas button { appearance: none; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--text-soft); padding: 7px 10px 8px; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.ao-vivo-abas button[aria-selected="true"] { color: var(--accent-text); border-bottom-color: var(--accent); }
+.ao-vivo-abas button:disabled { opacity: .45; cursor: not-allowed; }
+.ao-vivo-barra .ao-vivo-botoes { padding-bottom: 6px; }
+.ao-vivo-saida { flex: 1; min-height: 120px; overflow: auto; background: #0b1020; color: #d5dcf0; }
+.ao-vivo-saida pre { margin: 0; padding: 10px 12px; font: 12px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.ao-vivo-saida p { margin: 12px; font-size: 13px; color: #8f9ab8; }
+.ao-vivo-copiar { margin: 6px 12px; align-self: flex-start; }
+@media (prefers-reduced-motion: reduce) { .forja-previa-ponto.carregando, .ao-vivo-giro { animation: none; } }

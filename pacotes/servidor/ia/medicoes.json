@@ -1,0 +1,4665 @@
+{
+ "em": "2026-11-09T04:04:35.746Z",
+ "modelos": {
+  "gpt-oss-120b": {
+   "via": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2482
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 639
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 1088
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1410
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1037
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1224
+    },
+    "backend": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1523
+    },
+    "escrita": {
+     "acertos": 3,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 975
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2595
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1350
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 585
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1764
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1825
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1088
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1100
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 537
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "mistral-code": {
+   "via": [
+    "mistral/mistral-code-latest"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3445
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 658
+    },
+    "raciocinio": {
+     "acertos": 4,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 2186
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 831
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 916
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1320
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2036
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1267
+    },
+    "analise": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1269
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1189
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 9719
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1494
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2158
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1644
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 959
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 662
+    },
+    "agente-grande": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2243
+    }
+   }
+  },
+  "codestral": {
+   "via": [
+    "mistral/codestral-latest"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3733
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 656
+    },
+    "raciocinio": {
+     "acertos": 4,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 2232
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 775
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1059
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1641
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2068
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 979
+    },
+    "analise": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1053
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 982
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 9431
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1280
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4377
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1486
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1068
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 605
+    },
+    "agente-grande": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2254
+    }
+   }
+  },
+  "auto": {
+   "via": [
+    "google/gemini-3.6-flash",
+    "groq/qwen/qwen3.8-27b",
+    "groq/openai/gpt-oss-120b",
+    "google/gemini-robotics-er-2-preview",
+    "google/gemini-3.5-flash",
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/meta/muse-glimmer-30b",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 10695
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 528
+    },
+    "raciocinio": {
+     "acertos": 5,
+     "respondidas": 5,
+     "limites": 0,
+     "ms": 1283
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 5474
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7014
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3364
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 3239
+    },
+    "escrita": {
+     "acertos": 3,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 60717
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2740
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 809
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3040
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4225
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1150
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 989
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2380
+    },
+    "visao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 548
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 420
+    },
+    "agente-grande": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 16290
+    }
+   }
+  },
+  "gemini-3.8-flash": {
+   "via": [],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "qwen3.8-27b": {
+   "via": [
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 762
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 347
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 1063
+    },
+    "codigo": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 1,
+     "ms": 449
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 471
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 563
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 799
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 492
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 500
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 397
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 362
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 551
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1257
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 721
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 617
+    },
+    "visao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 613
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 600
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "gemini-3.5-flash": {
+   "via": [
+    "google/gemini-3.5-flash"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 15455
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 4297
+    },
+    "raciocinio": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 13427
+    },
+    "codigo": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 10486
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 4290
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 7039
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 16823
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 7798
+    },
+    "analise": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 5360
+    },
+    "instrucoes": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 5175
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "gemini-2.5-flash": {
+   "via": [],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "gemini-flash-lite": {
+   "via": [
+    "google/gemini-flash-lite-latest"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 6675
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 935
+    },
+    "raciocinio": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 3,
+     "ms": 3691
+    },
+    "codigo": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 3183
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 3341
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 2064
+    },
+    "backend": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 3859
+    },
+    "escrita": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 2673
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 2359
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 1634
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 934
+    },
+    "etapas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 1035
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 3666
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "claude-sonnet-4-5": {
+   "via": [
+    "google/gemini-robotics-er-2-preview",
+    "groq/qwen/qwen3.8-27b",
+    "groq/openai/gpt-oss-120b",
+    "openrouter/dots-studio/dots-3-note-preview:free",
+    "google/gemini-3.6-flash",
+    "google/gemini-3.1-flash-lite-preview",
+    "google/gemini-flash-lite-latest",
+    "nvidia/poolside/laguna-xs-2.1",
+    "google/gemini-3-flash-preview"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3029
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 966
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 1315
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 3363
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4791
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 570
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 4643
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1047
+    },
+    "analise": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1265
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 501
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 686
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 8982
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1814
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2293
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 4014
+    },
+    "visao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1784
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1842
+    },
+    "agente-grande": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2406
+    }
+   }
+  },
+  "claude-opus-4-5": {
+   "via": [
+    "groq/qwen/qwen3.8-27b",
+    "groq/openai/gpt-oss-120b",
+    "nvidia/google/diffusiongemma-26b-a4b-it",
+    "google/gemini-robotics-er-2-preview",
+    "openrouter/dots-studio/dots-3-note-preview:free",
+    "mistral/mistral-code-latest",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 773
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 410
+    },
+    "raciocinio": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 0,
+     "ms": 1143
+    },
+    "codigo": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2230
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 4327
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 5226
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 12565
+    },
+    "escrita": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2097
+    },
+    "analise": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 11370
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 980
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 706
+    },
+    "etapas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 10195
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 6469
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 12678
+    },
+    "revisao": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 12534
+    },
+    "visao": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 566
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 611
+    },
+    "agente-grande": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2325
+    }
+   }
+  },
+  "claude-haiku-4-5": {
+   "via": [
+    "groq/openai/gpt-oss-120b",
+    "groq/qwen/qwen3.8-27b",
+    "openrouter/dots-studio/dots-3-note-preview:free",
+    "google/gemini-3.1-flash-lite"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2247
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 322
+    },
+    "raciocinio": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1209
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 12112
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 4960
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 11772
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 14735
+    },
+    "escrita": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 14137
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1665
+    },
+    "instrucoes": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 1037
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 510
+    },
+    "etapas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 9352
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 7108
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 645
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 13319
+    },
+    "visao": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 631
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 413
+    }
+   }
+  },
+  "nemotron-3-ultra-550b": {
+   "via": [
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 45363
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 34344
+    },
+    "backend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 41559
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 20937
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 21951
+    }
+   }
+  },
+  "nemotron-3-super-120b": {
+   "via": [],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "command-a-reasoning": {
+   "via": [
+    "cohere/command-a-reasoning-08-2025"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2728
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2458
+    },
+    "raciocinio": {
+     "acertos": 2,
+     "respondidas": 3,
+     "limites": 0,
+     "ms": 6108
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7217
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 7034
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 8384
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 9507
+    },
+    "analise": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 8535
+    },
+    "instrucoes": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 1936
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 1512
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 6743
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 4596
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 3226
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 1833
+    }
+   }
+  },
+  "glm-4.7-flash": {
+   "via": [
+    "zhipu/glm-4.7-flash"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 1,
+     "ms": 52885
+    },
+    "codigo": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 53766
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 37841
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "command-a": {
+   "via": [
+    "cohere/command-a-03-2025"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3963
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 12943
+    },
+    "raciocinio": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 1,
+     "ms": 7351
+    },
+    "codigo": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 11288
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 1769
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 6839
+    },
+    "escrita": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 1896
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 1828
+    },
+    "instrucoes": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 837
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 846
+    },
+    "etapas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 4315
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 2474
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 2593
+    },
+    "revisao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 2317
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 1747
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "north-mini-code": {
+   "via": [
+    "cohere/north-mini-code-1-0",
+    "openrouter/cohere/north-mini-code:free"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 10181
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1843
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 5235
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 4606
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2728
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 8645
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 1,
+     "ms": 30119
+    },
+    "escrita": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 1,
+     "ms": 9541
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 1,
+     "ms": 6425
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 5322
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 909
+    },
+    "etapas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 6370
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 4513
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 1566
+    },
+    "revisao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 11434
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 1041
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "gemma-4-31b": {
+   "via": [],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 3,
+     "ms": null
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "dots3-note-preview": {
+   "via": [
+    "openrouter/dots-studio/dots-3-note-preview:free"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 11801
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 3506
+    },
+    "raciocinio": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 0,
+     "ms": 4225
+    },
+    "codigo": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7617
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 8621
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 11932
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 12015
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 14484
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 10724
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 1,
+     "ms": null
+    }
+   }
+  },
+  "poolside-laguna-xs-2.1": {
+   "via": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2664
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 618
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 2810
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1005
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1506
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1492
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2140
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1591
+    },
+    "analise": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 947
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 679
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 763
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2081
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1498
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1366
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 992
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1896
+    },
+    "agente-grande": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2322
+    }
+   }
+  },
+  "gpt-oss-20b": {
+   "via": [
+    "groq/openai/gpt-oss-20b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1114
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 534
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 1069
+    },
+    "codigo": {
+     "acertos": 2,
+     "respondidas": 3,
+     "limites": 0,
+     "ms": 612
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1224
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 840
+    },
+    "backend": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1153
+    },
+    "escrita": {
+     "acertos": 3,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1351
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1816
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1477
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1078
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1106
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 661
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 918
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 770
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    }
+   }
+  },
+  "muse-glimmer-30b": {
+   "via": [
+    "nvidia/meta/muse-glimmer-30b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 8613
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 6437
+    },
+    "raciocinio": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 0,
+     "ms": 10615
+    },
+    "codigo": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 27105
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 20524
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 28191
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 53248
+    },
+    "escrita": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 20950
+    },
+    "analise": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 77986
+    },
+    "instrucoes": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 32983
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 25450
+    },
+    "etapas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 54029
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 75050
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 58136
+    },
+    "revisao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 45596
+    },
+    "visao": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 10141
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 4322
+    },
+    "agente-grande": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 22355
+    }
+   }
+  },
+  "fusion": {
+   "via": [
+    "fusion(qwen/qwen3.8-27b+poolside/laguna-xs-2.1+mistral-code-latest+command-a-reasoning-08-2025 -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(qwen/qwen3.8-27b+poolside/laguna-xs-2.1+mistral-code-latest+command-a-reasoning-08-2025 -> groq/qwen/qwen3.8-27b)",
+    "fusion(qwen/qwen3.8-27b+poolside/laguna-xs-2.1+codestral-latest+command-a-reasoning-08-2025 -> groq/qwen/qwen3.8-27b)",
+    "fusion(poolside/laguna-xs-2.1+openai/gpt-oss-120b+mistral-code-latest+command-a-reasoning-08-2025 -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(poolside/laguna-xs-2.1+openai/gpt-oss-20b+codestral-latest+command-a-reasoning-08-2025 -> groq/openai/gpt-oss-20b)",
+    "fusion(poolside/laguna-xs-2.1+openai/gpt-oss-20b+mistral-code-latest+command-a-reasoning-08-2025 -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(poolside/laguna-xs-2.1+openai/gpt-oss-20b+codestral-latest+command-a-reasoning-08-2025 -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(poolside/laguna-xs-2.1+openai/gpt-oss-20b+mistral-code-latest+north-mini-code-1-0 -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(poolside/laguna-xs-2.1+openai/gpt-oss-20b+mistral-code-latest+gemini-3.5-flash-lite -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(poolside/laguna-xs-2.1+openai/gpt-oss-120b+codestral-latest+gemini-3.5-flash-lite -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(poolside/laguna-xs-2.1+openai/gpt-oss-120b+mistral-code-latest+gemini-3.5-flash-lite -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(poolside/laguna-xs-2.1+qwen/qwen3.8-27b+gemini-3.5-flash-lite+codestral-latest -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(qwen/qwen3.8-27b+poolside/laguna-xs-2.1+mistral-code-latest+gemini-3.5-flash-lite -> groq/qwen/qwen3.8-27b)",
+    "fusion(qwen/qwen3.8-27b+poolside/laguna-xs-2.1+gemini-3.5-flash-lite+command-a-reasoning-08-2025 -> nvidia/poolside/laguna-xs-2.1)",
+    "fusion(qwen/qwen3.8-27b+poolside/laguna-xs-2.1+gemini-3.5-flash-lite+codestral-latest -> groq/qwen/qwen3.8-27b)",
+    "fusion(gemini-3.5-flash-lite+meta/muse-glimmer-30b+command-a-plus-05-2026+ministral-14b-2512 -> groq/qwen/qwen3.8-27b)",
+    "fusion(qwen/qwen3.8-27b -> tool_call:qwen/qwen3.8-27b)"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 9276
+    },
+    "objetiva": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2621
+    },
+    "raciocinio": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 0,
+     "ms": 6909
+    },
+    "codigo": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7905
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 5479
+    },
+    "frontend": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 9712
+    },
+    "backend": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 18506
+    },
+    "escrita": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 5078
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4143
+    },
+    "instrucoes": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 2329
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 1534
+    },
+    "etapas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 10198
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 3834
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 3374
+    },
+    "revisao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3413
+    },
+    "visao": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 11857
+    },
+    "ferramentas": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 433
+    }
+   }
+  },
+  "groq:qwen/qwen3.8-27b": {
+   "via": [
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1093
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 369
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 1332
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 496
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 642
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 597
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 998
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 554
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 2,
+     "ms": 989
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 370
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 303
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 533
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1177
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 758
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 648
+    },
+    "visao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 684
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 639
+    }
+   }
+  },
+  "groq:openai/gpt-oss-20b": {
+   "via": [
+    "groq/openai/gpt-oss-20b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 971
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 583
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 513
+    },
+    "codigo": {
+     "acertos": 3,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 635
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 797
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 891
+    },
+    "backend": {
+     "acertos": 3,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1292
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 725
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1607
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 764
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 508
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 948
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1428
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 571
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 768
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 443
+    }
+   }
+  },
+  "groq:openai/gpt-oss-120b": {
+   "via": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2257
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 568
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 946
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1124
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1083
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 971
+    },
+    "backend": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1608
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 749
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2635
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 684
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 558
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1607
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1633
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 949
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1049
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 528
+    }
+   }
+  },
+  "google:gemini-2.5-pro": {
+   "via": [],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    }
+   }
+  },
+  "google:gemini-3.1-flash-lite": {
+   "via": [
+    "google/gemini-3.1-flash-lite"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2825
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 10109
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 5760
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 881
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 802
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1126
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 6369
+    },
+    "escrita": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1021
+    },
+    "analise": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 874
+    },
+    "instrucoes": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 848
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 20419
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 19029
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 6401
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 5537
+    },
+    "agente-grande": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1889
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 997
+    },
+    "visao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3045
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4496
+    }
+   }
+  },
+  "google:gemini-3.8-flash": {
+   "via": [
+    "google/gemini-3.8-flash"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 62963
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 3,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    }
+   }
+  },
+  "google:gemini-3.6-flash": {
+   "via": [
+    "google/gemini-3.6-flash"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7039
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2287
+    },
+    "raciocinio": {
+     "acertos": 4,
+     "respondidas": 5,
+     "limites": 1,
+     "ms": 3866
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    }
+   }
+  },
+  "google:gemini-3.5-flash": {
+   "via": [
+    "google/gemini-3.5-flash"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7901
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2209
+    },
+    "raciocinio": {
+     "acertos": 4,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 5307
+    },
+    "codigo": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 1,
+     "ms": 4042
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4287
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    }
+   }
+  },
+  "nvidia:poolside/laguna-xs-2.1": {
+   "via": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3233
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 796
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 2496
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1354
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2089
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1678
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2471
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 9042
+    },
+    "analise": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 2292
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 605
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 798
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3835
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1704
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2447
+    },
+    "agente-grande": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7805
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1051
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 910
+    }
+   }
+  },
+  "nvidia:nvidia/nemotron-3-ultra-550b-a55b": {
+   "via": [
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 14835
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3799
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 8238
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 6871
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 5331
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 5022
+    },
+    "backend": {
+     "acertos": 3,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 5736
+    },
+    "escrita": {
+     "acertos": 1,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 21653
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 16218
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 33816
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3026
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 10856
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 6403
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 5032
+    },
+    "agente-grande": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3957
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 7919
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2951
+    }
+   }
+  },
+  "nvidia:minimaxai/minimax-m3.1-flash": {
+   "via": [
+    "nvidia/minimaxai/minimax-m3.1-flash"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 16867
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 28076
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 10085
+    },
+    "codigo": {
+     "acertos": 3,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 43422
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 11546
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 16945
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 37554
+    },
+    "escrita": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 36400
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 15356
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 23407
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 8684
+    },
+    "etapas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 23716
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 37793
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 20574
+    },
+    "agente-grande": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 13309
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 28120
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 12203
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4217
+    }
+   }
+  },
+  "nvidia:stepfun-ai/step-5-preview": {
+   "via": [
+    "nvidia/stepfun-ai/step-5-preview"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 41104
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2793
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 15542
+    },
+    "codigo": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 32656
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 29456
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 46578
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 3,
+     "limites": 0,
+     "ms": 44521
+    },
+    "escrita": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 27657
+    },
+    "analise": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 31673
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 19491
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 31974
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 38283
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 59808
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 19999
+    },
+    "agente-grande": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 5727
+    },
+    "revisao": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 14293
+    },
+    "visao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 12643
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 22737
+    }
+   }
+  },
+  "nvidia:mistralai/mistral-large-4-1t-a52b": {
+   "via": [
+    "nvidia/mistralai/mistral-large-4-1t-a52b"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 76848
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 75196
+    },
+    "raciocinio": {
+     "acertos": 5,
+     "respondidas": 5,
+     "limites": 0,
+     "ms": 15497
+    },
+    "codigo": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 71127
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 37171
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 67526
+    },
+    "escrita": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 60591
+    },
+    "analise": {
+     "acertos": 1,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 21918
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 46722
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 89306
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 1,
+     "limites": 0,
+     "ms": 50249
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    }
+   }
+  },
+  "mistral:mistral-code-latest": {
+   "via": [
+    "mistral/mistral-code-latest"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4272
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 593
+    },
+    "raciocinio": {
+     "acertos": 4,
+     "respondidas": 5,
+     "limites": 1,
+     "ms": 2195
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 773
+    },
+    "sql": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 904
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1390
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 3,
+     "limites": 1,
+     "ms": 1223
+    },
+    "escrita": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 1,
+     "ms": 770
+    },
+    "analise": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 1363
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 693
+    },
+    "contexto": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 715
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1138
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 1772
+    },
+    "agente": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 1014
+    },
+    "agente-grande": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2110
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 946
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 621
+    }
+   }
+  },
+  "mistral:codestral-latest": {
+   "via": [
+    "mistral/codestral-latest"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 1,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4233
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 596
+    },
+    "raciocinio": {
+     "acertos": 5,
+     "respondidas": 5,
+     "limites": 1,
+     "ms": 2052
+    },
+    "codigo": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 765
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 932
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1862
+    },
+    "backend": {
+     "acertos": 2,
+     "respondidas": 3,
+     "limites": 1,
+     "ms": 1836
+    },
+    "escrita": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 1,
+     "ms": 876
+    },
+    "analise": {
+     "acertos": 3,
+     "respondidas": 3,
+     "limites": 1,
+     "ms": 1147
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1175
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1124
+    },
+    "tutor": {
+     "acertos": 1,
+     "respondidas": 1,
+     "limites": 1,
+     "ms": 2722
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1397
+    },
+    "agente-grande": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 2547
+    },
+    "revisao": {
+     "acertos": 4,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 915
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 0,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 595
+    }
+   }
+  },
+  "mistral:mistral-large-4": {
+   "via": [
+    "mistral/mistral-large-4"
+   ],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7186
+    },
+    "objetiva": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 10675
+    },
+    "raciocinio": {
+     "acertos": 6,
+     "respondidas": 6,
+     "limites": 0,
+     "ms": 3113
+    },
+    "codigo": {
+     "acertos": 1,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 6221
+    },
+    "sql": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4557
+    },
+    "frontend": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3805
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 6932
+    },
+    "escrita": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 6521
+    },
+    "analise": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 5117
+    },
+    "instrucoes": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 3251
+    },
+    "contexto": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1535
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7761
+    },
+    "tutor": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 7343
+    },
+    "agente": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1816
+    },
+    "agente-grande": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 4974
+    },
+    "revisao": {
+     "acertos": 2,
+     "respondidas": 4,
+     "limites": 0,
+     "ms": 6225
+    },
+    "visao": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1208
+    },
+    "ferramentas": {
+     "acertos": 2,
+     "respondidas": 2,
+     "limites": 0,
+     "ms": 1198
+    }
+   }
+  },
+  "mistral:mistral-medium-latest": {
+   "via": [],
+   "categorias": {
+    "conversa": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "objetiva": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "raciocinio": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 6,
+     "ms": null
+    },
+    "codigo": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "sql": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "frontend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "backend": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "escrita": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "analise": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "instrucoes": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "contexto": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "etapas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "tutor": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "agente-grande": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "revisao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 4,
+     "ms": null
+    },
+    "visao": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    },
+    "ferramentas": {
+     "acertos": 0,
+     "respondidas": 0,
+     "limites": 2,
+     "ms": null
+    }
+   }
+  }
+ }
+}

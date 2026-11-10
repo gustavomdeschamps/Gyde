@@ -1,0 +1,549 @@
+{
+ "em": "2026-11-05T17:11:59.002Z",
+ "repeticoes": 2,
+ "estrategias": [
+  "revisada",
+  "comparada"
+ ],
+ "resultados": [
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 2252,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 2310,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 1887,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 3806,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2227,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-120b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1661,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-120b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2151,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-120b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2167,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-120b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1830,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-120b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1598,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/codestral-latest"
+   ],
+   "ms": 973,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 3273,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1589,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 2382,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "ms": 1192,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "ms": 2986,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/qwen/qwen3.8-27b",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 126132,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4946,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2102,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 4,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b",
+    "groq/openai/gpt-oss-20b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 5010,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": false,
+   "motivo": "resposta: 25",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 5907,
+   "revisada": true,
+   "mudou": true,
+   "erro": false,
+   "texto": "Para calcular quantos valores de x de 1 a 100 são múltiplos de 6 ou de 10, uso o princípio da inclusão-exclusão.\n\nMúltiplos de 6: ⌊100/6⌋ = 16 (6, 12, 18, ..., 96)\n\nMúltiplos de 10: ⌊100/10⌋ = 10 (10, 20, 30, ..., 100)\n\nMúltiplos de ambos (mínimo múltiplo comum: lcm(6,10)=60): ⌊100/60⌋ = 1 (apenas 60)\n\nAplicando inclusão-exclusão: 16 + 10 - 1 = 25\n\nRESPOSTA: 25"
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 4,
+   "modelos": [
+    "groq/openai/gpt-oss-120b",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 4566,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-120b",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 4488,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/codestral-latest"
+   ],
+   "ms": 5764,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "3/8 passos errados",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/codestral-latest"
+   ],
+   "ms": 4072,
+   "revisada": true,
+   "mudou": true,
+   "erro": false,
+   "texto": "```js\nfunction criarLimitador(max, janelaMs) {\n  const estado = new Map();\n\n  return function permitir(chave, agora) {\n    if (!estado.has(chave)) {\n      estado.set(chave, []);\n    }\n\n    const timestamps = estado.get(chave);\n\n    // Remove timestamps fora da janela deslizante\n    while (timestamps.length > 0 && timestamps[0] < agora - janelaMs) {\n      timestamps.shift();\n    }\n\n    if (timestamps.length < max) {\n      timestamps.push(agora);\n      return true;\n    }\n\n    return false;\n  };\n}\n```"
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 816,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 643,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 5325,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 3105,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": null,
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "The operation was aborted due to timeout",
+   "chamadas": 0,
+   "modelos": [],
+   "ms": 0,
+   "revisada": false,
+   "mudou": false,
+   "erro": true
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 10145,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 6242,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  }
+ ]
+}

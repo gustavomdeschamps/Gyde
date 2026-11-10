@@ -48,7 +48,8 @@ export const chat = $state({
 
 let controle: AbortController | null = null;
 const salvo = () => { try { return (localStorage.getItem('model') || MODELO_PADRAO).replace(/^bugo-/, 'gyde-'); } catch { return MODELO_PADRAO; } };
-export const rotuloModelo = (id: string | null | undefined) => [...chat.marcas, ...chat.modelos].find((m) => m.id === id)?.label ?? (id === 'auto' ? 'Automático' : id ?? '');
+// embaixo da resposta: o nome do modelo que respondeu (respostas antigas podem ter guardado só "Gyde 1")
+export const rotuloModelo = (id: string | null | undefined) => chat.marcas.find((m) => m.id === id)?.label ?? (id === 'auto' ? 'Automático' : nomeModelo(id));
 
 // ---------- conversas ----------
 export async function carregarConversas() {
@@ -233,7 +234,9 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
           const consumo = ev.consumo as Consumo | undefined;
           if (consumo) { // modelo que respondeu de verdade e tokens, como o provedor informou
             registrarUltima(consumo);
-            const partes = [nomeModelo(consumo.modelo), consumo.tokens?.total != null ? `${numero(consumo.tokens.total)} tokens` : '', consumo.provedor === 'offline' ? 'modelo local, sem internet' : ''].filter(Boolean);
+            const orq = ev.orquestracao as { estrategia: string; revisada: boolean } | null | undefined;
+            const selo = !orq?.revisada ? '' : orq.estrategia === 'comparada' ? 'comparada entre 2 modelos' : 'conferida por um 2º modelo';
+            const partes = [nomeModelo(consumo.modelo), consumo.tokens?.total != null ? `${numero(consumo.tokens.total)} tokens` : '', selo, consumo.provedor === 'offline' ? 'modelo local, sem internet' : ''].filter(Boolean);
             if (partes.length) chat.metaExtra[m.id] = partes.join(' · ');
             // troca automática para o modelo local muda a qualidade: avisa em vez de trocar em silêncio
             if (consumo.provedor === 'offline' && uso.dados?.modo === 'auto') toast('O FreeLLMAPI não respondeu: esta resposta veio do modelo local, que é mais simples.');

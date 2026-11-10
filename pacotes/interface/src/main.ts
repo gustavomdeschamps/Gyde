@@ -1,5 +1,5 @@
 // Casca do Gyde: login, rotas, barra lateral e montagem das telas. Cada tela vive no seu módulo (chat/, forja/,
-// pratica/, config/); aqui só se liga uma coisa na outra.
+// config/); aqui só se liga uma coisa na outra.
 import { mount } from 'svelte';
 import * as C from '$contratos';
 import { pedir, enviar as api } from './api.ts';
@@ -7,9 +7,7 @@ import { toast, copiarTexto } from './util.ts';
 import { renderMarkdown } from './markdown.ts';
 import { tocarAbertura, aberturaJaVista } from './abertura.ts';
 import { mostrarLogin, mostrarQuestionario, esconderEntrada } from './entrada.ts';
-import { createPractice } from './pratica.svelte.ts';
 import { createSkillsPage } from './skills.svelte.ts';
-import { createTurmasPage } from './turmas.svelte.ts';
 import { createAgentePage } from './agente.ts';
 import { aplicarTema, definirTema, temaAtual } from './tema.ts';
 import { vigiarErros } from './diagnostico.ts';
@@ -38,26 +36,18 @@ mount(Compositor, { target: $('#composerRaiz') });
 mount(ListaConversas, { target: $('#convList') });
 
 // ---------- telas ----------
-const pratica = createPractice({
-  root: $('#praticaView'), toast, renderMarkdown,
-  onXp: (xp: number) => { $('#xpBadge').textContent = xp ? `${xp} XP` : ''; },
-});
 const skills = createSkillsPage({ root: $('#skillsView'), renderMarkdown });
 const forja = createAgentePage({ root: $('#agenteView'), toast, renderMarkdown });
-const turmas = createTurmasPage({ root: $('#turmasView') });
 
 // ---------- rotas ----------
 async function rota() {
   app.classList.remove('sidebar-open');
   const h = location.hash;
-  const p = h.match(/^#\/pratica(?:\/([\w-]+))?(?:\/([\w-]+))?/), s = h.match(/^#\/skills(?:\/([\w-]+))?/);
-  const t = h.match(/^#\/turmas(?:\/([\w-]+))?/), a = h.match(/^#\/agente(?:\/([\w-]+))?/);
-  const secao = p ? 'pratica' : s ? 'skills' : t ? 'turmas' : a ? 'agente' : 'chat';
+  const s = h.match(/^#\/skills(?:\/([\w-]+))?/), a = h.match(/^#\/agente(?:\/([\w-]+))?/);
+  const secao = s ? 'skills' : a ? 'agente' : 'chat';
   $('.main').dataset.page = secao;
   document.querySelectorAll<HTMLElement>('.nav-item').forEach((el) => el.classList.toggle('active', el.dataset.nav === secao));
   if (a) { document.title = 'Forja · Gyde'; return forja.show(a[1]); }
-  if (t) { document.title = 'Turmas · Gyde'; return turmas.show(t[1]); }
-  if (p) { document.title = 'Prática · Gyde'; return pratica.show([p[1], p[2]].filter((x): x is string => Boolean(x))); }
   if (s) { document.title = 'Skills · Gyde'; return skills.show(s[1]); }
   const c = h.match(/^#\/c\/([\w-]+)/);
   if (c) { if (c[1] !== chat.convId) await abrirConversa(c[1]!); }
@@ -111,12 +101,12 @@ async function conferirStatus() {
     atualizarUso();
     // código novo no disco, servidor antigo na memória: telas e servidor não combinam
     if (s.desatualizado) { aviso('O Gyde foi atualizado, mas o servidor ainda está rodando a versão anterior. Feche o Gyde e abra de novo para terminar a atualização.'); return true; }
-    if (s.keyConfigured && !s.routerOnline && s.iaAtiva === 'offline') { aviso('Sem conexão com o FreeLLMAPI: usando o modelo local (offline). Ele é mais simples e mais lento.'); return true; }
+    if (s.keyConfigured && !s.routerOnline && s.iaAtiva === 'offline') { aviso('Sem conexão com a IA online: usando o modelo local (offline). Ele é mais simples e mais lento.'); return true; }
     if (!s.keyConfigured) {
-      aviso('A chave do FreeLLMAPI ainda não foi configurada. No ícone do FreeLLMAPI, clique em <b>Copy Key</b> e cole em <button type="button" class="link" id="bannerConfigIa">Configurações &gt; IA e modelos</button>.', true);
-      $('#bannerConfigIa')?.addEventListener('click', () => config.abrir('ia'));
+      aviso('A IA ainda não está conectada. É grátis e leva uns 2 minutos: <button type="button" class="link" id="bannerConfigIa">Conectar IA</button>.', true);
+      $('#bannerConfigIa')?.addEventListener('click', () => config.abrir('conectar'));
     }
-    else if (!s.routerOnline) aviso('O FreeLLMAPI não está respondendo. Abra o app FreeLLMAPI (ícone na bandeja) e recarregue a página.');
+    else if (!s.routerOnline) aviso('A IA online não está respondendo. Se você usa o FreeLLMAPI, abra o app dele (ícone na bandeja) e recarregue a página.');
     else { if (!APP_ANTIGO) banner.hidden = true; return true; }
   } catch { aviso('Não consegui falar com o servidor do Gyde.'); }
   return false;
@@ -146,7 +136,6 @@ async function iniciar() {
     }
   }
   chat.convId = null; // força a rota a recarregar a conversa atual
-  pratica.refreshXp();
   skills.refresh();
   await rota();
 }

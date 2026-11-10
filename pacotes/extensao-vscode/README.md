@@ -4,7 +4,7 @@
 Selecione um código e ele explica. Clique numa linha com erro e ele mostra **onde está, por que acontece e como
 corrigir**, no nível de quem está aprendendo. Grátis.
 
-![Gyde no VS Code](https://raw.githubusercontent.com/gustavomdeschamps/Gyde/main/docs/imagens/vscode.jpg)
+![Gyde no VS Code: conectar, tela inicial e explicando um erro](https://raw.githubusercontent.com/gustavomdeschamps/Gyde/main/docs/imagens/vscode.jpg)
 
 ## O que ele faz
 
@@ -14,38 +14,43 @@ corrigir**, no nível de quem está aprendendo. Grátis.
 | **Explicar o erro desta linha** | Com o cursor numa linha sublinhada de vermelho: ele lê o erro e o código em volta e explica a causa. |
 | **Revisar com o Gyde** | Revisa a seleção ou o arquivo inteiro: bugs, nomes, organização e dicas para melhorar. |
 | **Chat na barra lateral** | Pergunte qualquer coisa de programação. As respostas vêm formatadas, com blocos de código. |
+| **Gyde 1 ou Gyde 1 Pro** | No topo do painel. O Gyde escolhe o modelo certo para cada pedido; no Pro, um segundo modelo confere a resposta. Embaixo de cada resposta aparece o modelo que respondeu. |
 | **Inserir no editor** | Cada bloco de código da resposta tem **Inserir** (no cursor) e **Copiar**. |
 | **Skills** | Use as suas skills do Gyde no chat, como `/revisar`, `/git` e `/sql`. |
-| **Continua no navegador** | A conversa fica salva: **abrir no Gyde** mostra a mesma conversa no app completo. |
+| **Continua no app** | A conversa fica salva: **abrir no Gyde** mostra a mesma conversa no app completo. |
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/gustavomdeschamps/Gyde/main/docs/imagens/vscode-inicio.jpg" alt="Tela inicial do Gyde no VS Code" width="300">
   <img src="https://raw.githubusercontent.com/gustavomdeschamps/Gyde/main/docs/imagens/vscode-conversa.jpg" alt="Gyde explicando um erro no VS Code" width="300">
 </p>
 
-## O app completo, de graça
-
-A extensão conversa com o **Gyde**, um app grátis que roda no seu computador e usa modelos de IA grátis.
-Além do chat, o app tem:
-
-- **Forja, o agente de código:** abra a pasta de um projeto, peça uma tarefa e ela trabalha sozinha,
-  como um desenvolvedor: lê o código, cria e edita arquivos, roda os testes até passarem e documenta.
-- **Passo a passo:** roda o código linha por linha mostrando o valor de cada variável.
-- **Prática:** trilhas, projetos guiados com testes automáticos, XP e desafio do dia.
-
-![Forja trabalhando num projeto](https://raw.githubusercontent.com/gustavomdeschamps/Gyde/main/docs/imagens/forja.jpg)
-
 ## Como começar
 
-A extensão precisa do app Gyde aberto no seu computador (Windows).
+A extensão conversa com o **app do Gyde**, grátis, que roda no seu computador (Windows). A IA também é a do app.
 
-1. **Instale o Gyde** seguindo o passo a passo:
-   [github.com/gustavomdeschamps/Gyde](https://github.com/gustavomdeschamps/Gyde/blob/main/COMO-INSTALAR.md) (uns 15 minutos, tudo grátis).
-2. **Abra o app do Gyde**.
-3. No Gyde, vá em **Configurações → Extensões → Gerar token** e copie.
+1. **Instale o app do Gyde** pelo passo a passo:
+   [COMO-INSTALAR](https://github.com/gustavomdeschamps/Gyde/blob/main/COMO-INSTALAR.md).
+2. **Conecte a IA no app:** em **Configurações → Conectar IA**, cole uma chave grátis da NVIDIA ou do Google
+   (o app ensina a criar; leva uns 2 minutos).
+3. No app, abra **Configurações → Extensões → Gerar token** e copie o token.
 4. No VS Code, clique no ícone do Gyde na barra da esquerda e em **Colar token**.
 
 Pronto. O token fica guardado no cofre de senhas do VS Code. Para sair: comando **Gyde: Desconectar**.
+
+O token só serve para conversar: com ele a extensão não lê nem muda as suas chaves, as configurações, a Forja ou
+os seus dados. Isso tudo fica só no app.
+
+## O app completo, de graça
+
+Além do chat, o app do Gyde tem:
+
+- **Forja, o agente de código:** abra a pasta de um projeto, peça uma tarefa e ela trabalha sozinha: lê o código,
+  edita, roda os testes e mostra o que mudou.
+- **Ao vivo:** liga o seu projeto (React, Vue, Vite, site de HTML, Python e outros) e mostra ao lado da conversa.
+- **Cidade do código:** o projeto vira uma cidade em 3D, e o prédio acende quando a Forja mexe no arquivo.
+- **Passo a passo:** roda o código linha por linha mostrando o valor de cada variável.
+
+![Forja corrigindo um erro e rodando os testes](https://raw.githubusercontent.com/gustavomdeschamps/Gyde/main/docs/imagens/forja.jpg)
 
 ## Comandos e atalhos
 
@@ -63,19 +68,21 @@ Pronto. O token fica guardado no cofre de senhas do VS Code. Para sair: comando 
 
 | Opção | Padrão | Para que serve |
 |---|---|---|
-| `gyde.servidor` | `http://127.0.0.1:3210` | Endereço do Gyde (o mesmo que abre no navegador). Mude se você trocou a porta. |
+| `gyde.servidor` | `http://127.0.0.1:3210` | Endereço do app do Gyde. Só mude se a porta do Gyde for outra. |
 
 ## Privacidade
 
-A extensão só conversa com o Gyde do **seu** computador. Ela manda o código que você selecionou ou o arquivo que
-pediu para revisar, e nada mais. Sua conta e suas conversas ficam no seu computador.
+A extensão só conversa com o app do Gyde do **seu** computador. Ela manda o código que você selecionou ou o arquivo
+que pediu para revisar, e nada mais. O app manda a pergunta para o serviço de IA que você conectou (NVIDIA, Google
+ou Groq). Sua conta e suas conversas ficam no seu computador.
 
 ## Problemas comuns
 
 | O que aparece | O que fazer |
 |---|---|
 | "Não consegui falar com o Gyde" | Abra o app do Gyde e tente de novo. |
-| Token inválido | Gere um token novo no Gyde (Configurações → Extensões) e use **Gyde: Conectar**. |
+| "A IA do Gyde ainda não está conectada" | No app, abra **Configurações → Conectar IA** e cole uma chave grátis. |
+| Token inválido | Gere outro no app (**Configurações → Extensões**) e use **Gyde: Conectar**. |
 | O ícone não aparece | Recarregue o VS Code: `Ctrl+Shift+P` → **Reload Window**. |
 
 ---

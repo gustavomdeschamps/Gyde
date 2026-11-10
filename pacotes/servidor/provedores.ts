@@ -5,6 +5,9 @@ import { z } from 'zod';
 import type { Uso } from './uso.ts';
 import type { Registro, RouterInit, Provedor, UsoInformado } from './tipos.ts';
 import { erroGyde, comoErro } from './tipos.ts';
+import { adaptadorFreeLLMAPI, adaptadorOllama, adaptadorOpenAI, tipoDoErro, type Adaptador, type CorpoChat, type ProvedorExtraLido } from './ia/adaptadores.ts';
+import type { Desempenho } from './ia/desempenho.ts';
+import { PROVEDORES_GRATIS, urlDe } from './ia/provedores-gratis.ts';
 
 const SEGUNDO = 1000;
 
@@ -32,9 +35,33 @@ const UsoFreeLLMAPI = z.object({
   byKey: z.array(z.object({ enabled: z.boolean(), platform: z.string(), requests: z.number(), tokens: z.number(), requestCap: z.number().nullable(), tokenCap: z.number().nullable() })).optional(),
 });
 
-export interface OpcoesProvedores { routerUrl: string; routerKey: string; ollamaUrl: string; ollamaModelo: string; modo: string; uso?: Uso }
-export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl, ollamaModelo, modo, uso }: OpcoesProvedores) {
+// Chamada que o modelo tentou fazer como "ferramenta nativa" -> ação da Forja. Só ferramentas da Forja passam (nomes que alguns
+// modelos abreviam são aceitos); ferramentas que vêm de fábrica no modelo, como container.exec, continuam sendo falha.
+const FERRAMENTAS_FORJA = new Set(['listar', 'ler', 'buscar', 'escrever', 'editar', 'apagar', 'executar', 'desfazer']);
+const APELIDOS_FERRAMENTA: Record<string, string> = { lista: 'listar', list: 'listar', read: 'ler', search: 'buscar', write: 'escrever', edit: 'editar', delete: 'apagar', run: 'executar', exec: 'executar' };
+export function acaoDaChamadaRecusada(tentativa: unknown): string | null {
+  let o: { name?: unknown; arguments?: unknown };
+  try { o = JSON.parse(String(tentativa ?? '')) as typeof o; } catch { return null; }
+  const nome = String(o?.name ?? '').toLowerCase();
+  const ferramenta = FERRAMENTAS_FORJA.has(nome) ? nome : APELIDOS_FERRAMENTA[nome];
+  if (!ferramenta) return null;
+  let args = o.arguments;
+  if (typeof args === 'string') { try { args = JSON.parse(args); } catch { return null; } }
+  if (!args || typeof args !== 'object' || Array.isArray(args)) return null;
+  return JSON.stringify({ pensamento: '', acoes: [{ ferramenta, args }] });
+}
+
+export interface OpcoesProvedores { routerUrl: string; routerKey: string; ollamaUrl: string; ollamaModelo: string; modo: string; uso?: Uso; desempenho?: Desempenho; extras?: ProvedorExtraLido[] }
+export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl, ollamaModelo, modo, uso, desempenho, extras = [] }: OpcoesProvedores) {
   let routerKey = chaveInicial; // pode mudar sem reiniciar (Configurações > IA)
+  const online = adaptadorFreeLLMAPI({ url: routerUrl, chave: () => routerKey });
+  const local = adaptadorOllama({ url: ollamaUrl, modelo: ollamaModelo });
+  // provedores grátis sempre registrados (a chave pode chegar depois, pela tela Conectar IA); modelos-extras.json por cima
+  const externos = new Map<string, Adaptador>([
+    ...PROVEDORES_GRATIS.map((p): [string, Adaptador] => [p.id, adaptadorOpenAI({ id: p.id, url: urlDe(p), chaveEnv: p.chaveEnv, ...(p.naoAceita ? { naoAceita: p.naoAceita } : {}) })]),
+    ...extras.map((e): [string, Adaptador] => [e.id, adaptadorOpenAI(e)]),
+  ]);
+  const temChaveDireta = () => PROVEDORES_GRATIS.some((p) => p.naTela && Boolean(process.env[p.chaveEnv]));
   // modo: 'online' (só FreeLLMAPI), 'offline' (só Ollama) ou 'auto' (FreeLLMAPI; se ele não responder, Ollama)
   const cfg: { modo: ModoIA } = { modo: ehModo(modo) ? modo : 'auto' };
   const saude = { online: false, offline: false, em: 0, modelosLocais: [] as string[] };
@@ -48,7 +75,7 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
       tenta(`${routerUrl}/health`),
       tenta(`${ollamaUrl}/api/tags`),
     ]);
-    saude.online = Boolean(on && routerKey);
+    saude.online = Boolean(on && routerKey) || temChaveDireta();
     const tags = off ? await off.json().catch(() => ({})) as { models?: { name: string }[] } : {};
     saude.modelosLocais = (tags.models || []).map((m) => m.name);
     saude.offline = saude.modelosLocais.includes(ollamaModelo);
@@ -73,11 +100,11 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
   }
 
   // `init.registro` (uso.ts) recebe cada ida ao provedor; chamadas sem dono (títulos, memória) viram registro "interno".
-  async function router(pathname: string, { registro, ...init }: RouterInit = {}): Promise<Response> {
+  async function router(pathname: string, { registro, recuperarAcao = false, ...init }: RouterInit = {}): Promise<Response> {
     const avulso = !registro && uso && /completions|images/.test(pathname) ? uso.iniciar(null, 'interno') : null;
     const reg = registro || avulso;
     try {
-      const res = await chamar(pathname, init, reg);
+      const res = await chamar(pathname, init, reg, recuperarAcao);
       avulso?.fim('ok');
       return res;
     } catch (err) {
@@ -86,49 +113,69 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
     }
   }
 
-  async function chamar(pathname: string, init: RequestInit, reg: Registro | null): Promise<Response> {
+  // Quem atende: modelo "<provedor>:<id>" vai para o provedor extra; o resto, para o FreeLLMAPI ou para o Ollama.
+  function adaptadorDe(provedor: Provedor, modelo: string | undefined): Adaptador {
+    if (provedor === 'offline') return local;
+    const extra = modelo?.includes(':') ? externos.get(modelo.slice(0, modelo.indexOf(':'))) : undefined;
+    return extra ?? online;
+  }
+
+  async function chamar(pathname: string, init: RequestInit, reg: Registro | null, recuperarAcao = false): Promise<Response> {
     const provedor = await ativo();
     const offline = provedor === 'offline';
-    if (!offline && !routerKey) {
-      throw erroGyde('Chave do FreeLLMAPI não configurada. Cole a chave em Configurações > IA e modelos.', { status: 503 });
+    const pedido = typeof init.body === 'string' ? JSON.parse(init.body) as CorpoChat : null;
+    const adaptador = adaptadorDe(provedor, pedido?.model);
+    if (!adaptador.temChave()) {
+      throw erroGyde(adaptador === online ? 'A IA ainda não está conectada. Abra Configurações > Conectar IA e cole uma chave grátis.' : `A chave de ${adaptador.id} não está configurada. Abra Configurações > Conectar IA.`, { status: 503 });
     }
-    let body = init.body;
-    if (typeof body === 'string') {
-      const j = JSON.parse(body) as { model?: string; stream?: boolean; stream_options?: unknown };
-      if (offline) j.model = ollamaModelo; // no modo offline qualquer modelo pedido vira o modelo local
-      if (j.stream) j.stream_options = { include_usage: true };
-      body = JSON.stringify(j);
-    }
-    const base = offline ? `${ollamaUrl}/v1` : routerUrl;
-    const caminho = offline ? pathname.replace(/^\/v1/, '') : pathname;
+    const body = pedido ? JSON.stringify(adaptador.corpo(pedido)) : init.body;
+    const inicio = Date.now();
+    // só o que passa pelo roteador conta para escolher modelos (o Ollama é um modelo só)
+    const observar = (ok: boolean, tipo: ReturnType<typeof tipoDoErro> | null, via: string | null) => {
+      if (offline || !pedido?.model || !/completions/.test(pathname)) return;
+      desempenho?.observar({ modelo: pedido.model, via, ok, tipo, ms: Date.now() - inicio, tamanho: typeof body === 'string' ? body.length : 0 });
+    };
     let res: Response;
     try {
-      res = await fetch(base + caminho, {
+      res = await fetch(adaptador.url(pathname), {
         ...init,
         body: body ?? null,
-        headers: { 'Content-Type': 'application/json', ...(offline ? {} : { Authorization: `Bearer ${routerKey}` }), ...(init.headers as Record<string, string> | undefined) },
+        headers: { 'Content-Type': 'application/json', ...adaptador.cabecalhos(), ...(init.headers as Record<string, string> | undefined) },
       });
     } catch (cause) {
       reg?.chamada({ provedor, ok: false });
-      if (comoErro(cause).name === 'AbortError') throw cause;
+      const nome = comoErro(cause).name;
+      const prazoEstourou = nome === 'TimeoutError' || (init.signal?.aborted && init.signal.reason instanceof Error && init.signal.reason.name !== 'AbortError');
+      if (nome === 'AbortError' && !prazoEstourou) throw cause;
+      observar(false, 'indisponivel', null);
+      if (prazoEstourou) throw erroGyde('O modelo demorou demais para responder.', { status: 504 });
       saude.em = 0; // força nova checagem: pode ter caído a internet ou o programa
       const msg = offline
         ? 'Não consegui falar com o Ollama (o modelo local). Abra o Ollama e tente de novo.'
-        : 'Não consegui falar com o FreeLLMAPI. Ele está aberto na bandeja do Windows?';
+        : adaptador === online ? 'Não consegui falar com o FreeLLMAPI. Ele está aberto na bandeja do Windows?' : `Não consegui falar com o provedor ${adaptador.id}.`;
       throw erroGyde(msg, { status: 502, final: offline });
     }
     registrar(res, provedor);
-    reg?.chamada({ provedor, ok: res.ok, modelo: offline ? ollamaModelo : res.headers.get('x-routed-via') });
+    const via = res.headers.get('x-routed-via');
+    reg?.chamada({ provedor, ok: res.ok, modelo: offline ? ollamaModelo : via });
     if (!res.ok) {
       let detail = '';
-      try { const j = await res.json() as { error?: { message?: string }; message?: string }; detail = j.error?.message || j.message || ''; } catch { /* corpo vazio */ }
+      let erro: { error?: { message?: string; code?: string; failed_generation?: string }; message?: string } = {};
+      try { erro = await res.json() as typeof erro; detail = erro.error?.message || erro.message || ''; } catch { /* corpo vazio */ }
+      const acao = recuperarAcao && res.status === 400 && erro.error?.code === 'tool_use_failed' ? acaoDaChamadaRecusada(erro.error.failed_generation) : null;
+      if (acao) { // o modelo agiu, só que pelo caminho errado: vira a resposta em JSON que a Forja entende
+        observar(true, null, via);
+        return new Response(JSON.stringify({ model: pedido?.model, choices: [{ message: { role: 'assistant', content: acao } }] }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }
+      observar(false, tipoDoErro(res.status), null);
       // 429 do roteador inteiro (acabaram os pedidos do minuto) para tudo; 429 de um modelo só deixa tentar outro
       if (res.status === 429 && ultimo.limite?.restante === 0) {
         throw erroGyde(await mensagemLimite(), { status: 429, limite: 'roteador-minuto' });
       }
-      const texto = offline ? `O modelo local respondeu ${res.status}${detail ? `: ${detail}` : ''}` : `FreeLLMAPI respondeu ${res.status}${detail ? `: ${detail}` : ''}`;
-      throw erroGyde(texto, { status: res.status === 401 ? 401 : 502, final: offline });
+      // nunca 401 para a tela: lá 401 quer dizer "sessão do Gyde expirou" e a página volta para o login
+      throw erroGyde(adaptador.mensagemErro(res.status, detail), { status: 502, final: offline });
     }
+    observar(true, null, via);
     return res;
   }
 
@@ -179,9 +226,11 @@ export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl,
 
   return {
     router, resumo, ativo, tokensDe,
+    cota: () => (ultimo.limite?.renovaEm && new Date(ultimo.limite.renovaEm).getTime() < Date.now() ? null : ultimo.limite),
     definirModo(m: unknown): ModoIA { if (ehModo(m)) { cfg.modo = m; saude.em = 0; } return cfg.modo; },
     definirChave(chave: string) { routerKey = chave; saude.em = 0; },
     temChave: () => Boolean(routerKey),
+    temAlgumaChave: () => Boolean(routerKey) || temChaveDireta(),
   };
 }
 export type Provedores = ReturnType<typeof criarProvedores>;

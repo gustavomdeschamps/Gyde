@@ -15,7 +15,7 @@ const conv = await (await api.pedir('POST', '/api/conversations', {})).json();
 await api.pedir('PATCH', `/api/conversations/${conv.id}`, { title: 'Conversa de exemplo' });
 const proj = criarProjetoForja();
 const sessao = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta: proj.pasta })).json();
-const TELAS = [['chat', '#/'], ['Prática', '#/pratica'], ['exercício', '#/pratica/js-zero/js-saudacao'], ['Skills', '#/skills'], ['Turmas', '#/turmas'], ['Forja', `#/agente/${sessao.id}`]];
+const TELAS = [['chat', '#/'], ['Skills', '#/skills'], ['Forja', `#/agente/${sessao.id}`]];
 
 async function auditar(nav, rotulo, contexto = 'document') {
   await nav.avaliar(`window.axe ? 1 : (eval(${JSON.stringify(AXE)}), 1)`);
@@ -38,7 +38,7 @@ for (const tema of ['light', 'dark']) {
     await nav.ir(`${servidor.base}/?r=${Date.now()}#/`, 2500);
     await nav.avaliar(`document.querySelector('#openSettings').click()`);
     await nav.esperar('false', 600); // a animação de abertura deixa o texto semitransparente por um instante
-    for (const aba of ['geral', 'ia', 'uso', 'pratica', 'dados', 'extensoes']) {
+    for (const aba of ['geral', 'conectar', 'ia', 'uso', 'dados', 'extensoes']) {
       await nav.avaliar(`document.querySelector('[data-aba="${aba}"]').click()`);
       await nav.esperar(`document.querySelector('[data-painel="${aba}"] .skeleton') === null`, 4000);
       await auditar(nav, `Configurações > ${aba} (tema ${tema === 'light' ? 'claro' : 'escuro'})`, `document.querySelector('dialog.config')`);
@@ -71,8 +71,8 @@ for (const tema of ['light', 'dark']) {
     ok('celular: menu lateral começa fechado', await nav.avaliar(`document.querySelector('#sidebar').getBoundingClientRect().right <= 0 || !document.querySelector('.app').classList.contains('sidebar-open')`));
     await nav.avaliar(`document.querySelector('#openSidebar').click()`);
     ok('celular: botão de menu abre a barra lateral', await nav.esperar(`document.querySelector('.app').classList.contains('sidebar-open') && document.querySelector('#sidebar').getBoundingClientRect().left >= 0`, 3000));
-    await nav.avaliar(`document.querySelector('.nav-item[data-nav="pratica"]').click()`);
-    ok('celular: escolher uma seção fecha a barra', await nav.esperar(`!document.querySelector('.app').classList.contains('sidebar-open') && location.hash === '#/pratica'`, 3000));
+    await nav.avaliar(`document.querySelector('.nav-item[data-nav="skills"]').click()`);
+    ok('celular: escolher uma seção fecha a barra', await nav.esperar(`!document.querySelector('.app').classList.contains('sidebar-open') && location.hash === '#/skills'`, 3000));
     await nav.ir(`${servidor.base}/?r=${Date.now()}#/`, 2500);
     ok('celular: campo de mensagem visível e com fonte de 16px (o celular não dá zoom ao tocar)', await nav.avaliar(`(() => { const t = document.querySelector('#input'); const r = t.getBoundingClientRect(); return r.bottom <= innerHeight && r.top >= 0 && parseFloat(getComputedStyle(t).fontSize) >= 16; })()`), await nav.avaliar(`getComputedStyle(document.querySelector('#input')).fontSize`));
     await auditar(nav, 'chat no celular');

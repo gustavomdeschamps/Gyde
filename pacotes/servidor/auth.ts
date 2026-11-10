@@ -157,6 +157,17 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
   function clearCookie(res: Response) {
     res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secureCookie ? '; Secure' : ''}`);
   }
+  // O token das extensões só abre o que elas usam: conversar e o agente do navegador. Tudo o mais (chaves, modo da IA,
+  // Forja, que roda comandos no PC, cópia de segurança, memória...) fica só com quem entrou no app. Rota nova começa fechada.
+  const ROTAS_DO_TOKEN: [string, RegExp][] = [
+    ['GET', /^\/api\/(conversations|models|status)$/],
+    ['POST', /^\/api\/conversations$/],
+    ['GET', /^\/api\/conversations\/[\w-]+$/],
+    ['POST', /^\/api\/conversations\/[\w-]+\/messages$/],
+    ['POST', /^\/api\/agente\/passo$/],
+    ['GET', /^\/images\/[\w.-]+$/],
+  ];
+  const permitidoAoToken = (metodo: string, caminho: string) => ROTAS_DO_TOKEN.some(([m, r]) => m === metodo && r.test(caminho));
   // Tokens de extensão (Authorization: Bearer gyde_...). Guardamos só o hash.
   const tq = {
     user: consulta<LinhaUsuario>(db, 'SELECT u.* FROM api_tokens t JOIN users u ON u.id = t.user_id WHERE t.token_hash = ?'),
@@ -328,6 +339,9 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
   function requireAuth(req: Request, res: Response, next: NextFunction) {
     const user = currentUser(req);
     if (!user || !user.email_verified) return res.status(401).json({ error: 'Faça login para continuar.' });
+    if (req.get('authorization') && !permitidoAoToken(req.method, req.originalUrl.split('?')[0] ?? '')) {
+      return res.status(403).json({ error: 'O token das extensões só serve para conversar. Chaves, configurações, Forja e dados ficam no app do Gyde.' });
+    }
     req.user = user;
     next();
   }

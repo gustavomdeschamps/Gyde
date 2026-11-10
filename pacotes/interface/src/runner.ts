@@ -1,5 +1,5 @@
 // Execução isolada de código (Python via Pyodide e JavaScript) em Web Workers, mais o confete das comemorações.
-// Usado pelo chat (botão Executar e Passo a passo) e pela Prática.
+// Usado pelo chat (botão Executar e Passo a passo).
 
 const RUN_TIMEOUT_MS = 6000;
 export type Linguagem = 'python' | 'javascript';

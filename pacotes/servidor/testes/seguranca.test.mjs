@@ -33,6 +33,22 @@ test('segredos são removidos do texto', () => {
   assert.match(t, /API_KEY=\[segredo removido\]/);
   assert.equal(redigir('const total = soma(a, b);'), 'const total = soma(a, b);');
 });
+test('chaves dos provedores somem: pelo formato (Groq, NVIDIA, Google) e pelo valor carregado do .env (Mistral não tem formato)', () => {
+  const groq = `gsk_${'a1B2'.repeat(10)}`, nvidia = `nvapi-${'Xy9_'.repeat(12)}`, google = `AIza${'Q'.repeat(35)}`;
+  const t = redigir(`erro com ${groq}, ${nvidia} e ${google}`);
+  for (const c of [groq, nvidia, google]) assert.ok(!t.includes(c), c.slice(0, 6));
+  // 32 letras e números, sem prefixo: só o valor carregado denuncia. Montado na hora e repetitivo para nenhum scanner de
+  // segredos (como o do GitHub) confundir com uma chave de verdade.
+  const mistral = 'Mistral0'.repeat(4);
+  assert.ok(redigir(`chave ${mistral}`).includes(mistral), 'sem estar no ambiente, não há como reconhecer');
+  process.env.MISTRAL_API_KEY = mistral;
+  try {
+    assert.equal(redigir(`Erro 401: chave ${mistral} inválida`), 'Erro 401: chave [segredo removido] inválida');
+    assert.ok(!ambienteLimpo().MISTRAL_API_KEY, 'e não passa para os comandos da Forja');
+    for (const nome of ['GROQ_API_KEY', 'NVIDIA_API_KEY', 'GEMINI_API_KEY']) { process.env[nome] = 'x'.repeat(20); assert.equal(ambienteLimpo()[nome], undefined, nome); delete process.env[nome]; }
+  } finally { delete process.env.MISTRAL_API_KEY; }
+});
+
 test('arquivos de segredos são reconhecidos', () => {
   for (const f of ['.env', 'app/.env.local', '.ssh/id_rsa', 'id_ed25519', 'cert.pem', '.npmrc', 'credentials.json', 'secrets.yaml', 'segredos.json', 'config/senhas.txt', 'credenciais.yml', 'chat.db']) assert.ok(ARQUIVO_SECRETO.test(f), f);
   for (const f of ['env.js', 'src/environment.ts', 'README.md', 'keys.js']) assert.ok(!ARQUIVO_SECRETO.test(f), f);

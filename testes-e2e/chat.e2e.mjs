@@ -6,7 +6,8 @@ import { provedorFalso } from './provedor-falso.mjs';
 const { ok, fim } = placar();
 const ia = await provedorFalso();
 const servidor = await subirServidor({ env: { FREELLMAPI_URL: ia.url, FREELLMAPI_KEY: 'freellmapi-teste-falsa-0000' } });
-const conta = await clienteApi(servidor.base).criarConta({ nome: 'Clara Teste' });
+const api = clienteApi(servidor.base);
+const conta = await api.criarConta({ nome: 'Clara Teste' });
 const nav = await abrirNavegador();
 const { avaliar, esperar } = nav;
 const digitar = (texto) => avaliar(`(()=>{ const t = document.querySelector('#input'); t.focus(); t.value = ${JSON.stringify(texto)}; t.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
@@ -19,7 +20,7 @@ try {
   ok('quatro sugestões e botão Enviar desligado', await avaliar(`document.querySelectorAll('#suggestions button').length === 4 && document.querySelector('#sendBtn').disabled`));
   await avaliar(`document.querySelectorAll('#suggestions button')[2].click()`);
   ok('sugestão preenche o campo e liga o Enviar', await esperar(`/lógica de programação/.test(document.querySelector('#input').value) && !document.querySelector('#sendBtn').disabled`, 2000));
-  ok('seletor de modelo com o Gyde 1 e os modelos do provedor', await avaliar(`document.querySelector('#model').value === 'gyde-1' && document.querySelectorAll('#model option').length >= 3`), String(await avaliar(`document.querySelectorAll('#model option').length`)));
+  ok('seletor de modelo só com as opções do Gyde', await avaliar(`document.querySelector('#model').value === 'gyde-1' && [...document.querySelectorAll('#model option')].every((o) => /^gyde-/.test(o.value)) && document.querySelectorAll('#model option').length >= 2`), String(await avaliar(`[...document.querySelectorAll('#model option')].map((o) => o.value).join(',')`)));
 
   await digitar('/');
   ok('digitar "/" abre o menu de skills', await esperar(`document.querySelector('.slash-menu') !== null`, 2000));
@@ -100,6 +101,50 @@ try {
   await nav.esperar('false', 500);
   ok('HTML perigoso na resposta não executa (sem onerror, script ou javascript:)', await avaliar(`window.__xss === undefined && window.__xss2 === undefined && !document.querySelector('.msg.assistant .md [onerror], .msg.assistant .md script, .msg.assistant .md a[href^="javascript"]')`));
   ok('o chat mandou o histórico ao provedor (pergunta e resposta anteriores)', ia.pedidos.some((p) => p.stream && p.mensagens.filter((m) => m.role === 'user').length >= 1));
+  // "Mostrar o erro" num print enviado: destaque na região que o modelo apontou e a explicação
+  const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+  const convPrint = await (await api.pedir('POST', '/api/conversations', {})).json();
+  await (await api.pedir('POST', `/api/conversations/${convPrint.id}/messages`, { mode: 'new', content: 'Por que dá esse erro?', attachments: [{ kind: 'image', name: 'erro.png', dataUrl: PNG }], model: 'gyde-1', kind: 'chat' })).text();
+  await nav.ir(`${servidor.base}/?r=9#/c/${convPrint.id}`, 2500);
+  ok('o print enviado tem o botão "Mostrar o erro"', await esperar(`[...document.querySelectorAll('.anexo-imagem .apontar-btn')].some((b) => /Mostrar o erro/.test(b.textContent))`));
+  await avaliar(`document.querySelector('.anexo-imagem .apontar-btn').click()`);
+  ok('o destaque aparece onde o modelo apontou', await esperar(`(() => { const r = document.querySelector('dialog.apontar[open] .apontar-regiao'); return Boolean(r) && r.style.left === '20%' && r.style.top === '30%' && r.style.width === '40%' && r.style.height === '10%'; })()`, 8000));
+  ok('a explicação e o aviso de estimativa aparecem', await avaliar(`/variável total não existe/.test(document.querySelector('.apontar-texto').textContent) && /estimativa do modelo/.test(document.querySelector('.apontar-nota').textContent)`));
+  await avaliar(`document.querySelector('dialog.apontar .icon-btn[aria-label="Fechar"]').click()`);
+  ok('fechar tira o diálogo', await esperar(`document.querySelector('dialog.apontar') === null`, 3000));
+  ok('o servidor recusa o que não é imagem', (await api.pedir('POST', '/api/apontar', { imagem: 'data:text/html;base64,PGgxPg==' })).status === 400);
+  // inteligência multimodelo: o padrão chama um modelo só; capricho confere com outro e a tela diz isso
+  {
+    const antes = ia.pedidos.length;
+    const conv = await (await api.pedir('POST', '/api/conversations', {})).json();
+    const sse = await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'corrija este bug no meu código python', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
+    ok('modo padrão: pergunta de código usa uma chamada de resposta', ia.pedidos.slice(antes).filter((p) => p.stream).length === 1 && !ia.pedidos.slice(antes).some((p) => /revisor técnico/.test(JSON.stringify(p.mensagens[0]))));
+    ok('modo padrão: a resposta conta a estratégia usada', /"estrategia":"direta"/.test(sse));
+    const pref = await (await api.pedir('PUT', '/api/ia/preferencias', { modo: 'capricho' })).json();
+    ok('preferência de modo salva', pref.modo === 'capricho' && pref.especialistas === false);
+    ok('modo inexistente é recusado', (await api.pedir('PUT', '/api/ia/preferencias', { modo: 'turbo' })).status === 400);
+    const meio = ia.pedidos.length;
+    const sse2 = await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'corrija este outro bug no meu código python', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
+    const novos = ia.pedidos.slice(meio);
+    ok('capricho: um segundo modelo revisa', novos.some((p) => /revisor técnico/.test(JSON.stringify(p.mensagens[0]))) && /"estrategia":"revisada"/.test(sse2) && /"revisada":true/.test(sse2));
+    ok('capricho: a pessoa acompanha o que está acontecendo', /Conferindo com outro modelo/.test(sse2));
+    await nav.ir(`${servidor.base}/?r=10#/c/${conv.id}`, 2000);
+    const dados = await (await api.pedir('GET', '/api/ia/modelos')).json();
+    ok('a lista de modelos vem das medições, sem nota inventada', Array.isArray(dados.modelos) && dados.modelos.every((m) => typeof m.acertos === 'number' && typeof m.respondidas === 'number'));
+    ok('as decisões aparecem por estratégia', dados.estrategias.some((e) => e.estrategia === 'revisada'));
+    await avaliar(`document.querySelector('#openSettings').click()`);
+    await esperar(`document.querySelector('dialog.config[open]') !== null`, 3000);
+    await avaliar(`[...document.querySelectorAll('[role="tab"]')].find((b) => /IA e modelos/.test(b.textContent)).click()`);
+    ok('Configurações mostram "Como responder", já em Capricho', await esperar(`document.querySelector('select[aria-label="Como responder"]')?.value === 'capricho'`, 3000));
+    await avaliar(`(() => { const d = document.querySelector('.ia-detalhes'); d.open = true; d.dispatchEvent(new Event('toggle')); return 1; })()`);
+    ok('"Como o Gyde funciona" abre e avisa que grátis não é ilimitado', await esperar(`/não quer dizer ilimitado/.test(document.querySelector('.ia-detalhes').textContent)`, 3000));
+    await avaliar(`(() => { const s = document.querySelector('select[aria-label="Como responder"]'); s.value = 'rapido'; s.dispatchEvent(new Event('change', { bubbles: true })); return 1; })()`);
+    ok('trocar o modo pela tela salva no servidor', await esperar(`fetch('/api/ia/preferencias', { headers: { 'x-gyde': '1' } }).then((r) => r.json()).then((p) => p.modo === 'rapido')`, 3000));
+    await avaliar(`document.querySelector('dialog.config').close()`);
+    const meio2 = ia.pedidos.length;
+    await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'esse outro bug é importante, corrija meu código python que vai para produção', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
+    ok('rápido: nem pedido importante chama um segundo modelo', !ia.pedidos.slice(meio2).some((p) => /revisor técnico/.test(JSON.stringify(p.mensagens[0]))));
+  }
   ok('sem erro de JavaScript', nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
 } finally { await nav.fechar(); await servidor.parar(); await ia.fechar(); }

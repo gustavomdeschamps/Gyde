@@ -76,6 +76,8 @@
             {/if}
           {/if}
         </div>
+      {:else if e.tipo === 'revisao'}
+        <p class="forja-revisao">{e.problemas ? `Outro modelo leu as mudanças e apontou ${e.problemas === 1 ? '1 ponto para conferir' : `${e.problemas} pontos para conferir`}.` : 'Outro modelo leu as mudanças e não apontou problemas.'}</p>
       {:else}
         <div class="forja-confirmar" class:aprovado={e.resposta === true} class:recusado={e.resposta === false} role="group" aria-label="Confirmação">
           <span class="forja-confirmar-ic">{@html ic.escudo}</span>

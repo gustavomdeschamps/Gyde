@@ -7,15 +7,21 @@ import path from 'node:path';
 import { abrirBanco } from './banco.ts';
 import { aplicarRestauracaoPendente } from './copia.ts';
 import { setupAuth } from './auth.ts';
-import { setupPratica } from './pratica-servidor.ts';
+import { setupApontar } from './apontar.ts';
 import { setupMemoria } from './memoria.ts';
-import { setupTurmas } from './turmas.ts';
 import { setupAgente } from './agente.ts';
+import { criarDesempenho } from './ia/desempenho.ts';
+import { lerExtras } from './ia/adaptadores.ts';
+import { criarCatalogo, lerMedicoes } from './ia/catalogo.ts';
+import { PROVEDORES_GRATIS } from './ia/provedores-gratis.ts';
+import { criarConexoes, setupConexoes } from './ia/conexoes.ts';
+import { criarOrquestrador } from './ia/orquestrador.ts';
+import { setupIA } from './ia/rotas.ts';
 import { setupCodigoAgente } from './codigo-agente.ts';
 import { setupSkills } from './skills-sistema.ts';
 import { setupChat } from './chat.ts';
 import { setupConfiguracao } from './configuracao.ts';
-import { setupPerfil, criarPreferencias, profileSummary } from './perfil.ts';
+import { setupPerfil, criarPreferencias } from './perfil.ts';
 import { criarImagens } from './imagens.ts';
 import { setupDiagnostico, registrarErro } from './diagnostico.ts';
 import { criarProvedores } from './provedores.ts';
@@ -56,8 +62,25 @@ const preferencias = criarPreferencias(db);
 
 // ---------- Provedor de IA (FreeLLMAPI online ou Ollama offline) ----------
 const uso = criarUso(db); // registro de uso do Gyde (uso.ts): um registro por pedido, com o que o provedor informou
-const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: process.env.FREELLMAPI_KEY || '', ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso });
+const desempenho = criarDesempenho(db); // o que cada modelo tem feito neste computador (sem texto de conversa)
+const extras = lerExtras(path.join(DATA_DIR, 'modelos-extras.json')); // provedores adicionais, sem mexer no código
+// GYDE_IA_SO=<provedor>[,<provedor>] (ex.: nvidia,groq): usa só esses provedores grátis, direto, com os modelos já medidos
+// deles. Serve para medir cada provedor, ou uma combinação, sem o FreeLLMAPI.
+const soProvedores = (process.env.GYDE_IA_SO ?? '').split(',').map((id) => PROVEDORES_GRATIS.find((p) => p.id === id.trim())).filter((p) => p !== undefined);
+for (const p of soProvedores) {
+  const medidos = Object.keys(lerMedicoes().modelos).filter((id) => id.startsWith(`${p.id}:`)).map((id) => ({ id: id.slice(p.id.length + 1) }));
+  extras.provedores.push({ id: p.id, url: p.url, chaveEnv: p.chaveEnv, modelos: medidos, ...(p.naoAceita ? { naoAceita: p.naoAceita } : {}) });
+}
+const provedores = criarProvedores({ routerUrl: ROUTER_URL, routerKey: process.env.FREELLMAPI_KEY || '', ollamaUrl: OLLAMA_URL, ollamaModelo: OLLAMA_MODELO, modo: process.env.GYDE_MODO_IA || 'auto', uso, desempenho, extras: extras.provedores });
 const router = provedores.router;
+// Conectar IA: chaves coladas na tela, sem o FreeLLMAPI. Sem chave do FreeLLMAPI, a fila é só desses provedores (sem 'auto').
+const conexoes = criarConexoes({ medicoes: lerMedicoes() });
+const catalogo = criarCatalogo({
+  router, desempenho, offline: async () => await provedores.ativo() === 'offline', aoAtualizar: conexoes.atualizar,
+  extras: () => [...extras.provedores, ...(soProvedores.length ? [] : conexoes.extras())],
+  apenas: () => (soProvedores.length ? soProvedores.map((p) => p.id) : process.env.FREELLMAPI_KEY ? null : conexoes.ids()),
+});
+const orquestrador = criarOrquestrador({ router, provedores, catalogo, desempenho });
 const imagens = criarImagens({ pasta: IMAGES_DIR });
 
 // ---------- API ----------
@@ -101,7 +124,7 @@ app.get('/api/status', asyncRoute(async (_req, res) => {
   const u = await provedores.resumo({ mostrarConta: false });
   let desatualizado = false;
   try { desatualizado = impressaoDoCodigo() !== VERSAO_INICIO; } catch { /* sem como checar */ }
-  responder(res, C.Status, { keyConfigured: provedores.temChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico' });
+  responder(res, C.Status, { keyConfigured: provedores.temAlgumaChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico' });
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).
@@ -109,17 +132,18 @@ app.get('/api/uso', asyncRoute(async (req, res) => {
   const pessoal = process.env.GYDE_MODE !== 'publico';
   responder(res, C.Uso, { ...(await provedores.resumo({ mostrarConta: pessoal })), gyde: uso.resumo(req.user.id, { mostrarInternas: pessoal }) });
 }));
-app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); res.json({ ok: true }); });
+app.delete('/api/uso', (req, res) => { uso.apagarDe(req.user.id); desempenho.apagarDecisoes(req.user.id); res.json({ ok: true }); });
 
 // ---------- Módulos (cada um registra as próprias rotas) ----------
 const skills = setupSkills(app, db, { root: ROOT }); // skills instaláveis (skills-catalogo/*.md + as de cada pessoa)
 const memoria = setupMemoria(app, db, { router, ...preferencias }); // memória entre conversas
-setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
-setupChat(app, db, { router, provedores, uso, imagens, asyncRoute, preferencias, skills, memoria }); // conversas e mensagens
-setupPratica(app, db, { router, profileSummary, asyncRoute, uso }); // exercícios, projetos, revisão, desafio do dia, amigos
-setupTurmas(app, db); // modo turma
+const { gravarNoEnv } = setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl: ROUTER_URL, provedores, imagens, db, pastaDados: DATA_DIR, asyncRoute }); // chaves e cópia de segurança
+setupConexoes(app, { conexoes, gravarNoEnv, asyncRoute, aoMudar: () => provedores.definirChave(process.env.FREELLMAPI_KEY ?? '') }); // Conectar IA
+const { preferenciasIA } = setupIA(app, { preferencias, catalogo, desempenho, avisoExtras: extras.erro, asyncRoute }); // modo de resposta e modelos ligados
+setupChat(app, db, { router, uso, imagens, asyncRoute, preferencias, skills, memoria, orquestrador, preferenciasIA }); // conversas e mensagens
+setupApontar(app, { router, asyncRoute, uso }); // "Mostrar o erro" num print (modelo com visão)
 setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão do Chrome
-setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso }); // Forja: trabalha numa pasta de projeto
+setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso, catalogo, orquestrador, preferenciasIA }); // Forja: trabalha numa pasta de projeto
 setupPerfil(app, db, preferencias); // questionário e preferências
 setupDiagnostico(app, { db, provedores, raiz: BASE, asyncRoute }); // relatório de erro (Configurações > Geral)
 

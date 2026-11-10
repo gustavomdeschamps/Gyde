@@ -1,5 +1,14 @@
 # Novidades
 
+## 2.1.0 (junto com o Gyde 2.1.0)
+- No topo do painel, só as opções do Gyde: **Gyde 1** e **Gyde 1 Pro** (no Pro, um segundo modelo confere a resposta).
+  Embaixo de cada resposta aparece o modelo que respondeu de verdade, como no app.
+- Se a IA do app ainda não estiver conectada, o painel explica em português e mostra o botão **Abrir o Gyde**, em vez
+  de um erro técnico.
+- Tela de conexão e README com o fluxo atual: instalar o app, conectar a IA em **Configurações → Conectar IA**, gerar o
+  token em **Configurações → Extensões** e colar aqui.
+- A versão da extensão passa a seguir a do app.
+
 ## 1.1.2
 - As mensagens de conexão falam só do app do Gyde (o `iniciar.bat` deixou de existir).
 

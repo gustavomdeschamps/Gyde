@@ -1,0 +1,118 @@
+{
+ "em": "2026-11-05T02:23:03.858Z",
+ "repeticoes": 1,
+ "modelos": [
+  "muse-glimmer-30b",
+  "claude-opus-4-5",
+  "gemini-3.5-flash",
+  "dots3-note-preview"
+ ],
+ "tarefas": [
+  {
+   "id": "agente",
+   "categoria": "agente"
+  },
+  {
+   "id": "agente-grande",
+   "categoria": "agente-grande"
+  }
+ ],
+ "resultados": [
+  {
+   "modelo": "claude-opus-4-5",
+   "tarefa": "agente",
+   "categoria": "agente",
+   "ok": true,
+   "motivo": "duas ações certas",
+   "via": "groq/qwen/qwen3.8-27b",
+   "ms": 669,
+   "tokens": 326,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "claude-opus-4-5",
+   "tarefa": "agente-grande",
+   "categoria": "agente-grande",
+   "ok": true,
+   "motivo": "foi direto ao arquivo certo",
+   "via": "nvidia/poolside/laguna-xs-2.1",
+   "ms": 2325,
+   "tokens": 28085,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "muse-glimmer-30b",
+   "tarefa": "agente",
+   "categoria": "agente",
+   "ok": false,
+   "motivo": "ações: listar",
+   "via": "nvidia/meta/muse-glimmer-30b",
+   "ms": 26726,
+   "tokens": 701,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "gemini-3.5-flash",
+   "tarefa": "agente",
+   "categoria": "agente",
+   "ok": false,
+   "motivo": "HTTP 429: All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for",
+   "via": null,
+   "ms": 17,
+   "tokens": null,
+   "erro": true,
+   "limite": true
+  },
+  {
+   "modelo": "dots3-note-preview",
+   "tarefa": "agente",
+   "categoria": "agente",
+   "ok": false,
+   "motivo": "HTTP 429: All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for",
+   "via": null,
+   "ms": 19,
+   "tokens": null,
+   "erro": true,
+   "limite": true
+  },
+  {
+   "modelo": "muse-glimmer-30b",
+   "tarefa": "agente-grande",
+   "categoria": "agente-grande",
+   "ok": true,
+   "motivo": "foi direto ao arquivo certo",
+   "via": "nvidia/meta/muse-glimmer-30b",
+   "ms": 22355,
+   "tokens": 22947,
+   "erro": false,
+   "limite": false
+  },
+  {
+   "modelo": "gemini-3.5-flash",
+   "tarefa": "agente-grande",
+   "categoria": "agente-grande",
+   "ok": false,
+   "motivo": "HTTP 429: All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for",
+   "via": null,
+   "ms": 17,
+   "tokens": null,
+   "erro": true,
+   "limite": true
+  },
+  {
+   "modelo": "dots3-note-preview",
+   "tarefa": "agente-grande",
+   "categoria": "agente-grande",
+   "ok": false,
+   "motivo": "HTTP 429: All models exhausted: 1 route checked (1 rate-limited or on cooldown). Add more API keys or wait for",
+   "via": null,
+   "ms": 17,
+   "tokens": null,
+   "erro": true,
+   "limite": true
+  }
+ ]
+}

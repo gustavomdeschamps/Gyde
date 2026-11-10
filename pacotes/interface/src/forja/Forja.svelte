@@ -9,6 +9,9 @@
   import { ic } from './icones.ts';
   import { aplicar, fecharPendentes, type Item, type Evento } from './estado.ts';
   import Turno from './Turno.svelte';
+  import Cidade from './Cidade.svelte';
+  import AoVivo from './AoVivo.svelte';
+  import { avisarCidade, sinalDoEvento } from './sinais-cidade.ts';
 
   type Recente = { id: string; pasta: string; titulo: string; updated_at: number; disponivel: boolean };
   type AnexoNovo = { nome: string; tipo: 'imagem' | 'arquivo'; dataUrl?: string; texto?: string; tamanho: number };
@@ -32,9 +35,22 @@
   let arvore = $state<{ aberta: boolean; texto: string; erro: string }>({ aberta: false, texto: '', erro: '' });
   let controle: AbortController | null = null;
   let trabalhando = $state(false);
+  // aba aberta: a conversa com a Forja ou a Cidade do código (mapa da pasta)
+  let vista = $state<'conversa' | 'cidade'>('conversa');
   let ocupadoBotao = $state(false);
   let rolagem: HTMLElement | undefined = $state();
   let campo: HTMLTextAreaElement | undefined = $state();
+  // Ao vivo: o projeto ligado ao lado da conversa (AoVivo.svelte); a versão sobe quando a Forja muda arquivos
+  let aoVivoAberto = $state(false);
+  let versaoArquivos = $state(0);
+  let recarga: ReturnType<typeof setTimeout> | null = null;
+  const recarregarPrevia = () => { if (!aoVivoAberto) return; if (recarga) clearTimeout(recarga); recarga = setTimeout(() => { versaoArquivos++; }, 250); };
+  // "Pedir à Forja para consertar": o erro vai para o campo da Forja; a pessoa confere e envia
+  async function pedirConserto(erroTexto: string) {
+    vista = 'conversa'; texto = erroTexto;
+    await tick(); ajustarAltura(); campo?.focus();
+  }
+  const MUDA_ARQUIVO = new Set(['escrever', 'editar', 'apagar', 'desfazer']);
 
   const nomeDaPasta = (p: string) => p.split(/[\\/]/).filter(Boolean).pop() || p;
   const quando = (ms: number) => new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -43,7 +59,7 @@
   const urlAnexo = (arquivo: string) => `/api/codigo/sessoes/${id}/anexos/${arquivo}`;
   const outros = $derived(recentes.filter((r) => r.id !== sessao?.id).slice(0, 6));
 
-  const relogio = setInterval(() => { if (trabalhando) agora = Date.now(); }, 500);
+  const relogio = setInterval(() => { if (trabalhando) agora = Date.now(); }, 1000); // o relógio do turno mostra segundos: 1 vez por segundo basta
   onDestroy(() => clearInterval(relogio));
 
   async function descer() { await tick(); if (rolagem) rolagem.scrollTop = rolagem.scrollHeight; }
@@ -62,7 +78,10 @@
       if (pendente.__forjaPendente) { texto = pendente.__forjaPendente; pendente.__forjaPendente = null; await tick(); enviarTarefa(); }
     } catch (e) { erro = mensagemDe(e); sessao = null; }
   }
-  $effect(() => { void id; carregar(); });
+  $effect(() => { void id; vista = 'conversa'; aoVivoAberto = false; carregar(); });
+
+  function alternarPrevia() { aoVivoAberto = !aoVivoAberto; }
+
 
   // no app de desktop a janela de pasta é a nativa; no navegador, o servidor abre a do Windows
   const escolherPasta = async () => (desktop ? desktop.escolherPasta() : (await enviar<{ pasta: string | null }>('/api/codigo/escolher-pasta', { method: 'POST' })).pasta);
@@ -98,7 +117,7 @@
     if (!confirm('Desfazer a última tarefa da Forja? Os arquivos que ela mudou voltam ao que eram antes (os que você editou depois ficam como estão).')) return;
     try {
       const r = await enviar<{ saida: string; podeDesfazer: boolean }>(`/api/codigo/sessoes/${id}/desfazer`, { method: 'POST' });
-      aplicar(itens, { tipo: 'desfeito', texto: r.saida }); sessao.podeDesfazer = r.podeDesfazer; descer();
+      aplicar(itens, { tipo: 'desfeito', texto: r.saida }); sessao.podeDesfazer = r.podeDesfazer; descer(); recarregarPrevia();
     } catch (e) { toast(mensagemDe(e)); }
   }
 
@@ -158,6 +177,8 @@
           if (!linha.startsWith('data: ')) continue;
           const ev = JSON.parse(linha.slice(6)) as Evento;
           if (ev.tipo === 'fim') { if (sessao) sessao.podeDesfazer = Boolean(ev.podeDesfazer); } else aplicar(itens, ev, true);
+          if (ev.tipo === 'resultado' && ev.ok && MUDA_ARQUIVO.has(String(ev.nome))) recarregarPrevia();
+          { const sinal = sinalDoEvento(ev); if (sinal) avisarCidade(sinal); } // a Cidade (se aberta) acende o prédio
           descer();
         }
       }
@@ -178,6 +199,7 @@
 
 <svelte:window onclick={(e) => { if (!(e.target as Element).closest?.('.forja-proj')) menuAberto = false; }} />
 
+<div class="forja-area" class:com-previa={aoVivoAberto}>
 <div class="forja-chat">
   <header class="forja-topo">
     <div class="forja-proj">
@@ -202,12 +224,20 @@
     {/if}
     {#if sessao}
       <span class="forja-acoes">
+        <button type="button" class="btn small ghost" class:ativo={aoVivoAberto} aria-pressed={aoVivoAberto} title="Liga o projeto (site, servidor ou programa) e mostra ao lado; pede permissão antes de rodar qualquer comando" onclick={alternarPrevia}>{@html ic.aovivo}Ao vivo</button>
         {#if sessao.podeDesfazer}<button type="button" class="btn small ghost" title="Volta os arquivos ao que eram antes da última tarefa da Forja" onclick={desfazer}>{@html ic.desfazer}Desfazer</button>{/if}
         <button type="button" class="icon-btn" title="Arquivos que a Forja pode ver" aria-label="Arquivos do projeto" aria-expanded={arvore.aberta} onclick={alternarArvore}>{@html ic.arquivos}</button>
         <button type="button" class="icon-btn" title="Apagar esta conversa (os arquivos do projeto ficam)" aria-label="Apagar esta conversa" onclick={apagarConversa}>{@html ic.lixo}</button>
       </span>
     {/if}
   </header>
+
+  {#if sessao}
+    <div class="forja-abas" role="tablist" aria-label="Forja">
+      <button type="button" role="tab" id="abaConversa" aria-selected={vista === 'conversa'} aria-controls="painelForja" onclick={() => (vista = 'conversa')}>Conversa</button>
+      <button type="button" role="tab" id="abaCidade" aria-selected={vista === 'cidade'} aria-controls="painelForja" disabled={!sessao.pastaEstado.ok} title={sessao.pastaEstado.ok ? 'A pasta do projeto vista como uma cidade' : 'Reconecte a pasta para ver a cidade'} onclick={() => (vista = 'cidade')}>Cidade</button>
+    </div>
+  {/if}
 
   {#if arvore.aberta}
     <div class="forja-arvore">
@@ -231,7 +261,10 @@
     <p class="forja-aviso">A Forja ainda está trabalhando nesta conversa (em outra aba ou depois de recarregar). Espere ela terminar para mandar outra mensagem.</p>
   {/if}
 
-  <div class="forja-rolagem" bind:this={rolagem}><div class="messages">
+  {#if vista === 'cidade' && id && sessao?.pastaEstado.ok}
+  <div class="forja-rolagem" id="painelForja" role="tabpanel" aria-labelledby="abaCidade"><Cidade {id} segundoPlano={aoVivoAberto} /></div>
+  {:else}
+  <div class="forja-rolagem" bind:this={rolagem} id="painelForja" role={sessao ? 'tabpanel' : undefined} aria-labelledby={sessao ? 'abaConversa' : undefined}><div class="messages">
     {#if !id}
       <div class="ag-vazio"><span class="forja-marca grande">{@html ic.forja}</span>
         <h2>Forja: o Gyde trabalhando no seu projeto</h2>
@@ -287,4 +320,9 @@
       <button type="submit" class="send" class:streaming={trabalhando} aria-label={trabalhando ? 'Parar' : 'Enviar'}>{@html ic.enviar}</button>
     </div>
   </form>
+  {/if}
+</div>
+{#if aoVivoAberto && id}
+  <AoVivo {id} versao={versaoArquivos} onfechar={() => (aoVivoAberto = false)} onpedirForja={pedirConserto} />
+{/if}
 </div>

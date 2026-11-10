@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import type { Express } from 'express';
 import type { Db, Router, Usuario } from './tipos.ts';
 import { consulta } from './tipos.ts';
+import { textoDoConteudo } from './motor.ts';
 import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 
@@ -78,8 +79,8 @@ export function setupMemoria(app: Express, db: Db, { router, getSetting, setSett
           ],
         }),
       });
-      const json = await r.json() as { choices?: { message?: { content?: string } }[] };
-      const text = json.choices?.[0]?.message?.content || '';
+      const json = await r.json() as { choices?: { message?: { content?: unknown } }[] };
+      const text = textoDoConteudo(json.choices?.[0]?.message?.content);
       // Pega o último objeto JSON com "fatos" (alguns modelos escrevem texto antes).
       const match = [...text.matchAll(/\{[^{}]*"fatos"[^{}]*\}/g)].pop();
       if (!match) continue;

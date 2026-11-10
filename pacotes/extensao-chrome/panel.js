@@ -6,7 +6,22 @@ import { createAgent } from './agente.js';
 
 const $ = (s) => document.querySelector(s);
 const MAX_PAGE_CHARS = 30_000;
-const state = { server: '', token: '', convId: null, ctx: [], busy: false };
+const state = { server: '', token: '', convId: null, ctx: [], busy: false, modelo: 'gyde-1' };
+// nome do modelo como o app mostra: sem o prefixo do provedor ("openai/gpt-oss-120b" vira "gpt-oss-120b")
+const nomeModelo = (id) => String(id || '').split('/').pop().replace(/:free$/, '');
+// a IA do app ainda não foi conectada: explica e manda abrir o Conectar IA no app (sem erro técnico)
+const semIA = (msg) => /IA ainda não está conectada|não está configurada/i.test(msg);
+const semIAHtml = () => `<div class="msg-aviso"><b>A IA do Gyde ainda não está conectada.</b><p>No app do Gyde, abra <b>Configurações → Conectar IA</b> e cole uma chave grátis (NVIDIA ou Google). Leva uns 2 minutos.</p><button class="btn" data-abrir-app>Abrir o Gyde</button></div>`;
+// só as opções do Gyde (Gyde 1, Gyde 1 Pro); quem escolhe o modelo de verdade é o roteador do app
+async function carregarModelos() {
+  try {
+    const r = await (await api('/api/models')).json();
+    if (r.brand?.length) $('#modelo').innerHTML = r.brand.map((o) => `<option value="${esc(o.id)}" title="${esc(o.hint || '')}">${esc(o.label)}</option>`).join('');
+  } catch { /* fica com as duas opções do HTML */ }
+  const salvo = (await chrome.storage.local.get('modelo')).modelo;
+  if (salvo && [...$('#modelo').options].some((o) => o.value === salvo)) $('#modelo').value = salvo;
+  state.modelo = $('#modelo').value;
+}
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const md = (t) => DOMPurify.sanitize(marked.parse(t, { gfm: true }));
@@ -76,6 +91,7 @@ async function start() {
   $('#userName').textContent = me.user.name.split(' ')[0];
   $('#setup').hidden = true;
   $('#chat').hidden = false;
+  await carregarModelos();
   await restoreConversation();
   $('#input').focus();
   checkPending();
@@ -93,7 +109,8 @@ async function restoreConversation() {
         const tags = (m.attachments || []).map((a) => `<span class="tag">${esc(a.kind === 'image' ? 'Print da tela' : a.name)}</span>`).join('');
         addMessage('user', `${m.content ? `<div class="bubble">${esc(m.content)}</div>` : ''}${tags ? `<div class="tags">${tags}</div>` : ''}`);
       } else {
-        addMessage('assistant', `<div class="md">${md(m.content)}</div>`);
+        const quem = m.model && !/^gyde-/.test(m.model) ? `<div class="meta" title="Modelo que respondeu">${esc(nomeModelo(m.model))}</div>` : '';
+        addMessage('assistant', `<div class="md">${md(m.content)}</div>${quem}`);
       }
     }
   } catch {
@@ -237,7 +254,7 @@ async function send() {
     }
     const res = await api(`/api/conversations/${state.convId}/messages`, {
       method: 'POST',
-      body: JSON.stringify({ content: content || 'Me ajude com isto.', attachments, mode: 'new' }),
+      body: JSON.stringify({ content: content || 'Me ajude com isto.', attachments, mode: 'new', model: state.modelo }),
     });
     const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
     let buffer = '';
@@ -260,13 +277,16 @@ async function send() {
           $('#messages').scrollTop = $('#messages').scrollHeight;
         } else if (ev.type === 'done') {
           out.innerHTML = md(ev.message.content);
+          const quem = nomeModelo(ev.consumo?.modelo || ev.message.model);
+          if (quem) out.insertAdjacentHTML('afterend', `<div class="meta" title="Modelo que respondeu">${esc(quem)}</div>`);
         } else if (ev.type === 'error') {
           throw new Error(ev.error);
         }
       }
     }
   } catch (e) {
-    out.innerHTML = `<div class="msg-error">${esc(e.message)}</div>`;
+    out.innerHTML = semIA(e.message) ? semIAHtml() : `<div class="msg-error">${esc(e.message)}</div>`;
+    out.querySelector('[data-abrir-app]')?.addEventListener('click', () => chrome.tabs.create({ url: `${state.server}/` }));
     if (e.auth) showSetup(e.message);
   }
   state.busy = false;
@@ -320,3 +340,5 @@ chrome.storage.session.onChanged.addListener((changes) => { if (changes.pending?
     showSetup(e.message);
   }
 })();
+
+$('#modelo').onchange = async (e) => { state.modelo = e.target.value; await chrome.storage.local.set({ modelo: state.modelo }); };

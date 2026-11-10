@@ -1,5 +1,5 @@
 // Contabilização de uso do Gyde: UMA linha por pedido do usuário (uma mensagem do chat, uma tarefa da Forja,
-// uma dica da Prática), mesmo que por dentro o Gyde tenha chamado o provedor várias vezes (troca de modelo,
+// uma revisão de código), mesmo que por dentro o Gyde tenha chamado o provedor várias vezes (troca de modelo,
 // rodadas da Forja). As chamadas ficam em `chamadas`, para não contar o mesmo pedido duas vezes.
 // Tokens só entram quando o provedor informa (campo usage); senão ficam NULL ("não informado"), nunca estimados.
 // Isto é o registro do Gyde neste computador, não o saldo oficial de nenhum provedor.

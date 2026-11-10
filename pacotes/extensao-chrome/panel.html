@@ -10,6 +10,9 @@
   <header class="bar">
     <img src="icons/icon32.png" alt="" width="24" height="24">
     <b>Gyde</b>
+    <select id="modelo" class="modelo" aria-label="Modelo" title="O Gyde escolhe o modelo certo para cada pedido">
+      <option value="gyde-1">Gyde 1</option><option value="gyde-1-pro">Gyde 1 Pro</option>
+    </select>
     <span class="spacer"></span>
     <button class="icon" id="newChat" title="Nova conversa" aria-label="Nova conversa">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
@@ -22,7 +25,8 @@
   <!-- Configuração (primeiro uso) -->
   <section class="setup" id="setup" hidden>
     <h1>Conectar ao Gyde</h1>
-    <p>No Gyde, abra <b>Configurações → Extensões</b>, clique em <b>Gerar token</b> e cole aqui.</p>
+    <p>Com o app do Gyde aberto no computador, abra <b>Configurações → Extensões</b>, clique em <b>Gerar token</b> e cole aqui.
+      A IA é a do app: se ainda não conectou, faça isso antes em <b>Configurações → Conectar IA</b>.</p>
     <label>Endereço do Gyde<input id="server" value="http://127.0.0.1:3210" spellcheck="false"></label>
     <label>Token<input id="token" type="password" placeholder="gyde_..." spellcheck="false" autocomplete="off"></label>
     <p class="error" id="setupError" hidden></p>

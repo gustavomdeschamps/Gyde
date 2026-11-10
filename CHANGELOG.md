@@ -1,7 +1,51 @@
 # Novidades do Gyde
 
-As extensões têm o próprio histórico: [VS Code](pacotes/extensao-vscode/CHANGELOG.md). A extensão do Chrome segue a
-versão do `manifest.json`.
+As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
+[pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
+
+## 2.1.0
+
+### Novidades
+- **Conectar IA sem programa extra:** em **Configurações > Conectar IA**, você cola uma chave grátis da **NVIDIA** ou do
+  **Google** e o Gyde testa na hora (uma chamada de verdade) antes de salvar. O **Groq** é opcional: deixa o chat mais
+  rápido e serve de reserva. A chave nunca volta para a tela depois de salva. O FreeLLMAPI continua em **Avançado**, para
+  quem já usa. A tela avisa que a chave precisa ser criada por alguém com 18 anos ou mais, a regra de privacidade do
+  plano grátis do Google e que o teste grátis da NVIDIA pode mudar.
+- **Gyde 1 e Gyde 1 Pro:** a lista do chat mostra só as opções do Gyde. Quem escolhe o modelo de verdade é o roteador, que
+  usa a lista de modelos ao vivo de cada provedor e as medições. Embaixo de cada resposta aparece o modelo que respondeu.
+- **Inteligência multimodelo:** o Gyde entende o tipo de pedido e escolhe o modelo que foi melhor naquela tarefa nas
+  avaliações, trocando sozinho se ele falhar ou estiver no limite. Em **Configurações > IA e modelos**: Rápido,
+  Equilibrado (o padrão) e Capricho. Provedor novo entra por um arquivo ([docs/inteligencia.md](docs/inteligencia.md)).
+- **Ao vivo para qualquer projeto:** o Gyde descobre como ligar o projeto (React, Vue, Vite, Next, Nuxt, Astro, Angular,
+  site de HTML, Python, Java, C#, Go, Rust), mostra o comando exato e só roda depois do seu clique. Projetos web abrem ao
+  lado da conversa (só em 127.0.0.1, numa porta livre); pasta de build pronta é servida com a raiz certa; programas de
+  console mostram a saída ao vivo. Erros vêm explicados em português, com **Pedir à Forja para consertar**. Fechar o
+  painel ou o Gyde encerra tudo o que o Ao vivo ligou, e um fechamento forçado é limpo na abertura seguinte.
+- **Cidade do código:** a pasta conectada à Forja vira uma cidade em 3D (pasta = bairro, arquivo = prédio, altura =
+  tamanho, cor = quantas vezes mudou no git, faróis nos mais alterados), com lista em texto como alternativa acessível.
+  Quando a Forja lê, edita, cria ou apaga um arquivo, o prédio acende na hora. Roda em placa de vídeo integrada (desenha
+  direto na tela); extras como o bloom só ligam sozinhos depois de uma checagem de segurança. **Copiar diagnóstico** junta
+  placa de vídeo, checagens e tempos de quadro, sem dados pessoais.
+- **Forja:** outro modelo lê as mudanças antes de terminar. Quem mexe nos arquivos é sempre um modelo só.
+- **Passo a passo com a memória desenhada:** pilha de chamadas, listas, dicionários e objetos em caixas, com setas.
+- **Mostrar o erro:** num print enviado no chat, um modelo com visão destaca a região do problema e explica.
+- **Extensões 2.1.0** (VS Code e Chrome): só Gyde 1 e Gyde 1 Pro, o modelo que respondeu embaixo da resposta, e um aviso
+  em português quando a IA do app ainda não está conectada. O token das extensões só serve para conversar.
+- Página do Gyde em `docs/index.html`, com os números das medições de 09/11/2026.
+
+### Removido
+- Prática e tudo o que dependia dela: trilhas, exercícios, projetos guiados, plano de estudos, XP, desafio do dia, amigos
+  e Turmas. O questionário de nível continua (Configurações > Geral) e adapta as respostas do chat. O progresso antigo não
+  é apagado do banco, só deixa de aparecer.
+- A prévia antiga do Ao vivo (só arquivos prontos, num endereço do próprio Gyde), substituída pelo Ao vivo novo.
+- O vídeo tutorial de instalação, que mostrava o fluxo antigo com o FreeLLMAPI. O passo a passo com as telas atuais está
+  no [COMO-INSTALAR.md](COMO-INSTALAR.md).
+
+### Correções
+- Uma chave do FreeLLMAPI errada fazia a tela voltar para o login. Agora aparece um aviso claro.
+- Título de conversa não fica mais como "Nova conversa" quando um modelo está no limite.
+- Conversas longas e imagens antigas não travam mais os modelos grátis: cada um recebe só a parte da conversa que importa.
+- Erro 400 do Groq em pedidos da Forja (a ação vinha no lugar errado): agora é entendida.
 
 ## 2.0.1
 

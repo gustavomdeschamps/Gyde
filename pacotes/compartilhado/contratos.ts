@@ -16,7 +16,7 @@ export const Status = z.object({
   pessoal: z.boolean(), // modo pessoal (no PC de alguém) ou público (servidor de uma turma)
 });
 
-export const PAGINAS_INICIAIS = ['chat', 'pratica', 'agente'] as const;
+export const PAGINAS_INICIAIS = ['chat', 'agente'] as const;
 export const Preferencias = z.object({
   about_user: z.string(),
   response_style: z.string(),
@@ -43,91 +43,32 @@ export const Memoria = z.object({
 export const Tokens = z.object({ tokens: z.array(z.object({ id: z.string(), name: z.string(), created_at: z.number(), last_used: z.number().nullable() })) });
 export const TokenNovo = Tokens.extend({ token: z.string().regex(/^gyde_[0-9a-f]{48}$/) });
 
-// ---------- Prática ----------
-export const NivelPlano = z.enum(['basico', 'intermediario', 'avancado']);
-export const Guiado = z.object({ id: z.string(), tecnologia: z.string(), nivel: NivelPlano, topico: z.string(), titulo: z.string(), enunciado: z.string() });
-export const Passo = z.discriminatedUnion('tipo', [
-  z.object({ tipo: z.literal('trilha'), trackId: z.string(), exerciseId: z.string(), titulo: z.string(), tecnologia: z.string().optional() }),
-  z.object({ tipo: z.literal('guiado'), id: z.string(), titulo: z.string(), tecnologia: z.string() }),
-  z.object({ tipo: z.literal('projeto'), id: z.string(), etapaId: z.string(), titulo: z.string(), tecnologia: z.string() }),
-  z.object({ tipo: z.literal('chat'), titulo: z.string() }),
-]);
-export const Foco = z.object({ tecnologia: z.string(), tipo: z.enum(['trilha', 'adaptado', 'guiado']), trilhas: z.array(z.string()), guiados: z.number().int() });
-
-// Toda resposta tem um próximo passo, ou então o plano foi concluído e há um novo desafio.
-export const Plano = z.object({
-  versao: z.literal(2),
-  tipo: z.enum(['trilha', 'adaptada', 'montada', 'inicial']),
-  explicacao: z.string(),
-  nivel: z.string(),
-  tecnologias: z.array(z.string()).min(1),
-  tecnologiasDeduzidas: z.boolean(),
-  temQuiz: z.boolean(),
-  declarado: z.object({
-    experiencia: z.string().nullable(), linguagens: z.array(z.string()), objetivo: z.string().nullable(),
-    estilo: z.string().nullable(), em: z.number().nullable(),
-  }).nullable(),
-  medido: z.object({
-    nivel: z.string().nullable(), acertos: z.number().nullable(), total: z.number().nullable(), reforcar: z.array(z.string()),
-    anteriores: z.array(z.object({ em: z.number().optional(), nivel: z.string().optional(), acertos: z.number().optional(), total: z.number().optional() })),
-  }).nullable(),
-  observado: z.object({ feitos: z.number().int(), tentativasComErro: z.number().int(), travados: z.array(z.string()) }),
-  focos: z.array(Foco),
-  ordem: z.array(z.string()),
-  motivos: z.record(z.string(), z.array(z.string())),
-  recomendada: z.string().nullable(),
-  guiados: z.array(Guiado.extend({ feito: z.boolean() })),
-  projetos: z.array(z.string()),
-  proximo: Passo.nullable(),
-  concluido: z.boolean(),
-  novoDesafio: Passo.nullable(),
-  semTrilha: z.array(z.string()),
-}).refine((p) => p.proximo !== null || (p.concluido && p.novoDesafio !== null), { message: 'plano sem próximo passo e sem novo desafio' });
-
-export const Exercicio = z.object({
-  id: z.string(), title: z.string(), xp: z.number(), fn: z.string(), statement: z.string(), starter: z.string(),
-  tests: z.array(z.object({ args: z.array(z.unknown()), expected: z.unknown() })),
-});
-export const Trilha = z.object({
-  id: z.string(), title: z.string(), lang: z.enum(['python', 'javascript']), color: z.string(), icon: z.string(),
-  description: z.string(), projeto: z.boolean().optional(), exercises: z.array(Exercicio),
-});
-// Projeto guiado como o navegador recebe: sem a solução de referência; a explicação da solução só depois de concluir.
-export const ProjetoGuiado = z.object({
-  id: z.string(), tecnologia: z.string(), nome: z.string(), descricao: z.string(), objetivo: z.string(), tecnologias: z.array(z.string()),
-  nivel: NivelPlano, prerequisitos: z.array(z.string()), resultado: z.string(),
-  arquivos: z.array(z.object({ nome: z.string(), conteudo: z.string() })).min(1),
-  etapas: z.array(z.object({
-    id: z.string(), titulo: z.string(), explicacao: z.string(), arquivo: z.string(), tarefas: z.array(z.string()).min(1),
-    criterios: z.array(z.string()).min(1), dica: z.string(), xp: z.number(), feita: z.boolean(),
-  })).min(1),
-  concluido: z.boolean(),
-  explicacaoSolucao: z.string().nullable(),
-  proximosDesafios: z.array(z.string()).min(1),
-}).refine((p) => p.concluido === p.etapas.every((e) => e.feita) && (p.explicacaoSolucao !== null) === p.concluido, { message: 'projeto: conclusão e explicação não batem com as etapas' });
-const Pessoa = z.object({ name: z.string(), email: z.string() });
-export const EstadoPratica = z.object({
-  tracks: z.array(Trilha),
-  progress: z.record(z.string(), z.object({ done: z.boolean(), code: z.string().optional(), fails: z.number().optional() })),
-  xp: z.number(),
-  sequencia: z.object({ dias: z.number().int(), praticouHoje: z.boolean() }),
-  desafio: z.object({ exerciseId: z.string(), trackId: z.string().optional(), bonus: z.number(), rewarded: z.boolean() }),
-  revisoes: z.array(z.object({ exerciseId: z.string(), level: z.number().int(), dueAt: z.number(), due: z.boolean() })),
-  reforco: z.array(z.string()),
-  ranking: z.array(z.object({ name: z.string(), voce: z.boolean(), xpSemana: z.number(), sequencia: z.number().int() })),
-  pedidos: z.array(Pessoa),
-  aguardando: z.array(Pessoa),
-  plano: Plano,
-  projetos: z.array(ProjetoGuiado),
-});
-export const EstadoPraticaComGanhos = EstadoPratica.extend({ ganhos: z.array(z.object({ motivo: z.string(), xp: z.number() })) });
-export const ConferenciaEtapa = EstadoPraticaComGanhos.extend({ conferencia: z.object({ ok: z.boolean(), criterios: z.array(z.object({ descricao: z.string(), ok: z.boolean() })) }) });
-
+// ---------- Chat: "Mostrar o erro" ----------
+// "Mostrar o erro" num print: região em porcentagem da imagem (estimada pelo modelo) e explicação curta
+export const Apontamento = z.object({
+  achou: z.boolean(), explicacao: z.string().min(1), modelo: z.string(),
+  regiao: z.object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100), largura: z.number().positive().max(100), altura: z.number().positive().max(100) }).nullable(),
+}).refine((a) => a.achou === (a.regiao !== null), { message: 'apontamento: região só quando achou' });
+export type TApontamento = z.infer<typeof Apontamento>;
 // ---------- Forja ----------
+// prévia ao vivo: url só quando o projeto tem um index.html; senão o motivo
+// Ao vivo da Forja (pacotes/servidor/ao-vivo.ts): o plano (formas de ligar o projeto) e o estado do que está ligado
+export const OpcaoAoVivo = z.object({
+  id: z.string(), rotulo: z.string(), detalhe: z.string(), tipo: z.enum(['web', 'estatico', 'console']), pasta: z.string(),
+  comando: z.string().nullable(), instalar: z.string().nullable(), ferramenta: z.string().nullable(), env: z.record(z.string(), z.string()).optional(),
+});
+export const PlanoAoVivo = z.object({ opcoes: z.array(OpcaoAoVivo), recomendada: z.string().nullable(), motivo: z.string().nullable() });
+export const EstadoAoVivo = z.object({
+  fase: z.enum(['parado', 'instalando', 'iniciando', 'pronto', 'rodando', 'terminou', 'falhou']), opcao: z.string().nullable(), comando: z.string().nullable(),
+  url: z.string().nullable(), porta: z.number().int().nullable(), tipo: z.enum(['web', 'estatico', 'console']).nullable(), saida: z.array(z.string()),
+  mensagem: z.string().nullable(), erroParaForja: z.string().nullable(), desde: z.number().nullable(),
+  total: z.number().int().min(0), primeira: z.number().int().min(0),
+}).refine((e) => e.fase !== 'pronto' || Boolean(e.url), { message: 'Ao vivo pronto sem endereço' });
+export const AoVivo = z.object({ plano: PlanoAoVivo, estado: EstadoAoVivo });
 export const EstadoPasta = z.object({ ok: z.boolean(), motivo: z.string().nullable(), texto: z.string().nullable(), temporario: z.boolean().optional() })
   .refine((e) => e.ok || Boolean(e.texto), { message: 'pasta indisponível sem explicação' });
 export const Projeto = z.object({ tecnologias: z.array(z.string()), testes: z.string().nullable(), arquivos: z.number().int(), git: z.boolean() });
-export const TIPOS_EVENTO = ['tarefa', 'pensando', 'ferramenta', 'resultado', 'confirmar', 'confirmacao', 'resposta', 'erro', 'desfeito', 'reconectado'] as const;
+export const TIPOS_EVENTO = ['tarefa', 'pensando', 'ferramenta', 'resultado', 'confirmar', 'confirmacao', 'revisao', 'resposta', 'erro', 'desfeito', 'reconectado'] as const;
 export const EventoForja = z.object({ tipo: z.enum(TIPOS_EVENTO), em: z.number() }).passthrough();
 export const ListaSessoes = z.object({
   sessoes: z.array(z.object({ id: z.string(), pasta: z.string(), titulo: z.string(), updated_at: z.number(), disponivel: z.boolean() })),
@@ -138,6 +79,12 @@ export const SessaoForja = z.object({
   existe: z.boolean(), pastaEstado: EstadoPasta, projeto: Projeto.nullable(), podeDesfazer: z.boolean(), trabalhando: z.boolean(),
   eventos: z.array(EventoForja),
 }).refine((s) => s.existe === s.pastaEstado.ok, { message: '"existe" e "pastaEstado.ok" discordam' });
+// Cidade do código (pacotes/servidor/cidade.ts): só nomes e números dos arquivos, nunca o conteúdo
+export const Predio = z.object({ caminho: z.string(), linhas: z.number().int().min(0), bytes: z.number().int().min(0), binario: z.boolean(), mudancas: z.number().int().min(0), ultima: z.number().nullable() });
+export const Cidade = z.object({
+  pasta: z.string(), arquivos: z.array(Predio), total: z.number().int(), cortados: z.number().int(), incompleta: z.boolean(),
+  git: z.object({ ativo: z.boolean(), commits: z.number().int() }), limite: z.number().int(),
+});
 export const Reconexao = z.object({ ok: z.literal(true), pasta: z.string(), pastaEstado: EstadoPasta });
 
 // ---------- Questionário de boas-vindas ----------
@@ -169,27 +116,6 @@ export const ItemLoja = SkillBase.extend({
 });
 export const Loja = z.object({ loja: z.array(ItemLoja) });
 
-// ---------- Turmas ----------
-export const ListaTurmas = z.object({
-  ensino: z.array(z.object({ id: z.string(), name: z.string(), code: z.string(), alunos: z.number().int(), tarefas: z.number().int() })),
-  participo: z.array(z.object({ id: z.string(), name: z.string(), professor: z.string(), tarefas: z.number().int(), feitas: z.number().int() })),
-});
-// tarefa aponta para um exercício da Prática; se ele sair do catálogo, a trilha fica vazia e o título vira o id
-export const TarefaTurma = z.object({
-  id: z.string(), exerciseId: z.string(), trackId: z.string().optional(), title: z.string(), track: z.string().optional(),
-  lang: z.string().optional(), prazo: z.string().nullable(),
-});
-export const TurmaProfessor = z.object({
-  id: z.string(), name: z.string(), code: z.string(), professor: z.literal(true), tarefas: z.array(TarefaTurma),
-  alunos: z.array(z.object({ id: z.string(), name: z.string(), email: z.string(), xp: z.number(), ultimoDia: z.string().nullable(), feitas: z.array(z.boolean()) })),
-}).refine((t) => t.alunos.every((a) => a.feitas.length === t.tarefas.length), 'cada aluno tem uma marca por tarefa');
-export const TurmaAluno = z.object({
-  id: z.string(), name: z.string(), professor: z.literal(false), professorNome: z.string().optional(),
-  tarefas: z.array(TarefaTurma.extend({ feita: z.boolean() })),
-});
-export const Turma = z.union([TurmaProfessor, TurmaAluno]);
-export const IdCriado = z.object({ id: z.string() });
-
 // ---------- Relatório de erro ----------
 export const Diagnostico = z.object({
   gyde: z.string(), node: z.string(), sistema: z.string(), modo: z.enum(['pessoal', 'publico']), desktop: z.boolean(), esquemaBanco: z.number().int(),
@@ -205,6 +131,29 @@ const Totais = z.object({
   pedidos: z.number().int(), concluidos: z.number().int(), falhas: z.number().int(), cancelados: z.number().int(), limite: z.number().int(),
   chamadas: z.number().int(), chamadasFalhas: z.number().int(), tokensEntrada: z.number().int(), tokensSaida: z.number().int(), semTokens: z.number().int(),
 });
+// ---------- Inteligência multimodelo ----------
+export const PreferenciasIA = z.object({ modo: z.enum(['rapido', 'equilibrado', 'capricho']), especialistas: z.boolean(), desligados: z.array(z.string()) });
+export const Conexoes = z.object({
+  avisoIdade: z.string(),
+  provedores: z.array(z.object({
+    id: z.string(), nome: z.string(), artigo: z.string(), de: z.string(), papel: z.enum(['inicial', 'opcional']), descricao: z.string(), avisos: z.array(z.string()),
+    linkChave: z.string(), prefixo: z.string(), conectado: z.boolean(),
+  })),
+  freellmapi: z.boolean(),
+});
+export const ResultadoTesteChave = z.object({ ok: z.boolean(), mensagem: z.string(), conexoes: Conexoes });
+export const ModelosIA = z.object({
+  medidoEm: z.string().nullable(), aviso: z.string().nullable(),
+  modelos: z.array(z.object({
+    id: z.string(), contexto: z.number().nullable(), visao: z.boolean().nullable(), ferramentas: z.boolean().nullable(), via: z.array(z.string()),
+    acertos: z.number(), respondidas: z.number(), limites: z.number(),
+    categorias: z.record(z.string(), z.object({ acertos: z.number(), respondidas: z.number() })),
+    observado: z.object({ chamadas: z.number(), falhas: z.number(), limites: z.number(), taxaOk: z.number(), ms: z.number().nullable() }).nullable(),
+    descansando: z.boolean(),
+  })),
+  estrategias: z.array(z.object({ estrategia: z.string(), pedidos: z.number(), chamadas: z.number(), ms: z.number(), mudou: z.number() })),
+});
+
 export const Uso = z.object({
   modo: z.enum(['online', 'offline', 'auto']),
   ativo: z.enum(['online', 'offline']),
@@ -230,19 +179,20 @@ export const Uso = z.object({
 
 export type TRestauracaoPreparada = z.infer<typeof RestauracaoPreparada>;
 export type TPreferencias = z.infer<typeof Preferencias>;
-export type TPlano = z.infer<typeof Plano>;
-export type TPasso = z.infer<typeof Passo>;
-export type TEstadoPratica = z.infer<typeof EstadoPratica>;
-export type TProjetoGuiado = z.infer<typeof ProjetoGuiado>;
 export type TSessaoForja = z.infer<typeof SessaoForja>;
+export type TOpcaoAoVivo = z.infer<typeof OpcaoAoVivo>;
+export type TEstadoAoVivo = z.infer<typeof EstadoAoVivo>;
+export type TPlanoAoVivo = z.infer<typeof PlanoAoVivo>;
+export type TCidade = z.infer<typeof Cidade>;
+export type TPredio = z.infer<typeof Predio>;
 export type TUso = z.infer<typeof Uso>;
 export type TMemoria = z.infer<typeof Memoria>;
 export type TMensagem = z.infer<typeof Mensagem>;
 export type TResumoConversa = z.infer<typeof ResumoConversa>;
+export type TPreferenciasIA = z.infer<typeof PreferenciasIA>;
+export type TModelosIA = z.infer<typeof ModelosIA>;
+export type TConexoes = z.infer<typeof Conexoes>;
 export type TTokens = z.infer<typeof Tokens>;
-export type TListaTurmas = z.infer<typeof ListaTurmas>;
-export type TTurmaProfessor = z.infer<typeof TurmaProfessor>;
-export type TTurmaAluno = z.infer<typeof TurmaAluno>;
 export type TSkill = z.infer<typeof Skill>;
 export type TItemLoja = z.infer<typeof ItemLoja>;
 export type TPergunta = z.infer<typeof Pergunta>;

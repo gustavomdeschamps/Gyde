@@ -136,3 +136,9 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .agent-ask input { margin: 0; accent-color: var(--accent); }
 .agent-card.warn { border-color: color-mix(in srgb, var(--danger) 55%, var(--border)); }
 .agent-card.warn small { color: var(--danger); }
+
+/* escolha do modelo (só as opções do Gyde), o modelo que respondeu e o aviso de IA não conectada */
+.modelo { font: inherit; font-size: 12px; padding: 2px 4px; border-radius: 6px; border: 1px solid var(--border, #d0d7e2); background: transparent; color: inherit; }
+.meta { margin-top: 4px; font-size: 11.5px; opacity: .65; }
+.msg-aviso { padding: 10px 12px; border-radius: 10px; background: rgba(234, 179, 8, .14); }
+.msg-aviso p { margin: 6px 0 8px; }

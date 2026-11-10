@@ -84,10 +84,11 @@ function caminhoNavegador() {
 }
 
 // navegador sem janela, controlado pelo protocolo de depuração (CDP)
-export async function abrirNavegador({ largura = 1280, altura = 860, movel = false } = {}) {
+// webgl: liga o WebGL por software (SwiftShader), para testar e fotografar a Cidade 3D sem placa de vídeo
+export async function abrirNavegador({ largura = 1280, altura = 860, movel = false, webgl = false } = {}) {
   const perfil = mkdtempSync(path.join(tmpdir(), 'gyde-e2e-nav-'));
   const porta = await portaLivre();
-  const proc = spawn(caminhoNavegador(), ['--headless=new', `--remote-debugging-port=${porta}`, `--user-data-dir=${perfil}`, '--no-first-run', '--no-default-browser-check', '--disable-gpu', ...(process.platform === 'linux' ? ['--no-sandbox'] : []), 'about:blank'], { stdio: 'ignore' });
+  const proc = spawn(caminhoNavegador(), ['--headless=new', `--remote-debugging-port=${porta}`, `--user-data-dir=${perfil}`, '--no-first-run', '--no-default-browser-check', ...(webgl ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : ['--disable-gpu']), ...(process.platform === 'linux' ? ['--no-sandbox'] : []), 'about:blank'], { stdio: 'ignore' });
   let alvos;
   for (let i = 0; i < 80 && !alvos; i++) { try { alvos = await (await fetch(`http://127.0.0.1:${porta}/json`)).json(); } catch { await espera(250); } }
   const ws = new WebSocket(alvos.find((x) => x.type === 'page').webSocketDebuggerUrl);

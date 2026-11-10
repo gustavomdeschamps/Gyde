@@ -1,6 +1,6 @@
 // Gyde para VS Code: chat na barra lateral + comandos para explicar, revisar e entender erros.
 const vscode = require('vscode');
-const { createClient } = require('./cliente.js');
+const { createClient, nomeModelo } = require('./cliente.js');
 
 const TOKEN_KEY = 'gyde.token';
 const MAX_CODE = 60_000;
@@ -108,6 +108,8 @@ class ChatView {
     view.onDidDispose(() => { this.view = null; });
   }
 
+  get modelo() { return this.context.globalState.get('gyde.modelo') || 'gyde-1'; }
+
   async onMessage(m) {
     if (m.type === 'ready') {
       const client = await this.client();
@@ -115,6 +117,7 @@ class ChatView {
       try {
         const user = await client.me();
         this.post({ type: 'state', connected: true, userName: user.name.split(' ')[0] });
+        this.post({ type: 'modelos', opcoes: await client.modelos(), escolhido: this.modelo });
         await this.restore(client);
       } catch (e) {
         this.post({ type: 'state', connected: false, error: e.message });
@@ -122,6 +125,8 @@ class ChatView {
       if (this.queue) { const q = this.queue; this.queue = null; this.ask(q.text, q.ctx); }
     } else if (m.type === 'send') {
       this.ask(m.text, null);
+    } else if (m.type === 'modelo' && /^gyde-[\w-]+$/.test(m.id)) {
+      this.context.globalState.update('gyde.modelo', m.id);
     } else if (m.type === 'connect') {
       this.askToken();
     } else if (m.type === 'new') {
@@ -141,6 +146,8 @@ class ChatView {
     } else if (m.type === 'openWeb') {
       const server = vscode.workspace.getConfiguration('gyde').get('servidor');
       vscode.env.openExternal(vscode.Uri.parse(`${server}/#/c/${this.convId || ''}`));
+    } else if (m.type === 'abrirApp') {
+      vscode.env.openExternal(vscode.Uri.parse(`${vscode.workspace.getConfiguration('gyde').get('servidor')}/`));
     }
   }
 
@@ -148,7 +155,7 @@ class ChatView {
     if (!this.convId) return;
     try {
       const conv = await client.conversation(this.convId);
-      this.post({ type: 'history', title: conv.title, messages: conv.messages.map((x) => ({ role: x.role, content: x.content, tags: (x.attachments || []).map((a) => a.name) })) });
+      this.post({ type: 'history', title: conv.title, messages: conv.messages.map((x) => ({ role: x.role, content: x.content, tags: (x.attachments || []).map((a) => a.name), modelo: x.role === 'assistant' && x.model && !/^gyde-/.test(x.model) ? nomeModelo(x.model) : '' })) });
     } catch {
       this.convId = null; // apagada no site
     }
@@ -191,16 +198,17 @@ class ChatView {
     this.post({ type: 'user', text, tags: ctx ? [ctx.label] : [] });
     try {
       if (!this.convId) this.convId = await client.newConversation();
-      const answer = await client.send(this.convId, text, ctx ? [ctx.attachment] : [], {
+      const resposta = await client.send(this.convId, text, ctx ? [ctx.attachment] : [], {
         signal: this.abort.signal,
+        modelo: this.modelo,
         onDelta: (t) => this.post({ type: 'delta', text: t }),
         onSkills: (skills) => this.post({ type: 'skills', skills: skills.map((s) => `${s.simbolo} ${s.nome}`) }),
       });
-      this.post({ type: 'done', text: answer });
+      this.post({ type: 'done', text: resposta.text, modelo: resposta.modelo });
     } catch (e) {
       if (e.name === 'AbortError') this.post({ type: 'done', stopped: true });
       else {
-        this.post({ type: 'error', message: e.message });
+        this.post({ type: 'error', message: e.message, semIA: Boolean(e.semIA) });
         if (e.auth) this.post({ type: 'state', connected: false, error: e.message });
       }
     }

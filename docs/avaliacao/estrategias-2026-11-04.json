@@ -1,0 +1,3959 @@
+{
+ "em": "2026-11-05T16:56:29.730Z",
+ "repeticoes": 2,
+ "estrategias": [
+  "legado",
+  "direta",
+  "revisada",
+  "comparada",
+  "especialistas",
+  "auto",
+  "capricho"
+ ],
+ "resultados": [
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "ms": 386,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": false,
+   "motivo": "longa demais (74 palavras)",
+   "chamadas": 1,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "ms": 601,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Oi! Tudo bem? Entendo perfeitamente, estudar programação exige muita concentração e pode ser exaustivo.\n\nNão se preocupe, o cansaço faz parte do processo. Se quiser, podemos dar uma pausa ou fazer algo bem leve, como:\n\n• Revisar um conceito simples que você já viu.\n• Conversar sobre como a tecnologia funciona no dia a dia (sem código).\n• Ou apenas desabafar sobre o que está te deixando cansado.\n\nO que você prefere fazer agora?"
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": false,
+   "motivo": "longa demais (88 palavras)",
+   "chamadas": 1,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "ms": 609,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Oi! Tudo bem por aqui. Entendo perfeitamente, estudar programação exige muita concentração e pode ser exaustivo, especialmente no início.\n\nLembre-se de que aprender a programar é como aprender um novo idioma: leva tempo, prática e, claro, descanso. Não se pressione para aprender tudo de uma vez.\n\nSe quiser, podemos fazer uma pausa ou trocar de assunto. Se preferir continuar, posso sugerir algo leve, como uma curiosidade sobre como os computadores funcionam, ou um exercício bem simples para manter o ritmo sem estressar.\n\nO que você prefere fazer agora?"
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "ms": 368,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1341,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "ms": 1483,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 918,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1029,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1461,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1789,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1373,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "mistral/codestral-latest"
+   ],
+   "ms": 1065,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1071,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 700,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "mistral/codestral-latest"
+   ],
+   "ms": 1069,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1090,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1147,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1191,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1675,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 3202,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  // Verifica se corpo é um objeto válido\n  if (corpo === null || typeof corpo !== 'object' || Array.isArray(corpo)) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const erros = [];\n\n  // Validação do email\n  const email = corpo.email;\n  if (typeof email !== 'string') {\n    erros.push('email');\n  } else {\n    const partes = email.split('@');\n    if (partes.length !== 2 || partes[0].length === 0 || partes[1].length === 0) {\n      erros.push('email');\n    }\n  }\n\n  // Validação da senha\n  const senha = corpo.senha;\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação da idade (opcional)\n  const idade = corpo.idade;\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  // Retorna resultado\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros: erros };\n}\n```"
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2734,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (typeof corpo !== 'object' || corpo === null) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const email = corpo.email;\n  if (typeof email !== 'string' || !email.includes('@')) {\n    erros.push('email');\n  } else {\n    const partes = email.split('@');\n    if (partes.length !== 2 || partes[0].length === 0 || partes[1].length === 0) {\n      erros.push('email');\n    }\n  }\n\n  const senha = corpo.senha;\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  if ('idade' in corpo) {\n    const idade = corpo.idade;\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros: erros };\n}\n```"
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 16295,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 15974,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 17947,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 637,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": false,
+   "motivo": "começou comentando",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2097,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Claro! Aqui está o e-mail:\n\n---\n\n**Assunto:** Solicitação de prorrogação para trabalho de banco de dados\n\nPrezada Professora Marta,\n\nEscrevo para solicitar mais dois dias de prazo para o trabalho de banco de dados. Fiquei doente nos últimos dias e não consegui avançar no projeto como planejei.\n\nPeço desculpas pelo incômodo e agradeço desde já pela compreensão.\n\nAtenciosamente,  \nLucas\n\n---"
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "servico=pagamentos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2078,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Vou analisar o log para responder suas perguntas.\n\nVou procurar por linhas com `servico=pagamentos` e `status=500`, e também encontrar o maior valor de `ms`.\n\nPercorrendo todo o log, não encontrei nenhuma linha com `servico=pagamentos` e `status=500`.\n\nAgora vou procurar o maior valor de `ms`:\n- O maior valor encontrado é `ms=936` em duas ocorrências:\n  - `10:11:16 servico=login status=200 ms=936`\n  - `10:11:16 servico=login status=200 ms=936`\n\nAmbas estão no serviço `login`.\n\nerros=0; maior=936; servico=login"
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 850,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "servico=pagamentos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 9681,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Vou analisar o log para responder suas perguntas. Vou procurar por:\n1. Linhas com `servico=pagamentos` e `status=500`\n2. O maior valor de `ms` e em qual serviço aconteceu\n\nAnalisando linha por linha:\n\n**Procurando por pagamentos com status=500:**\n- `10:09:00 servico=pagamentos status=200 ms=720` → status=200\n- `10:11:56 servico=pagamentos status=200 ms=104` → status=200\n\nNão encontrei nenhuma linha com `servico=pagamentos` e `status=500`.\n\n**Procurando o maior valor de ms:**\n- Encontrei `10:59:44 servico=login status=201 ms=64` → ms=64\n- Outras linhas mostram valores como 920, 932, 936, 908, 892, 888, 880, 868, 856, 852, 848, 844, 840, 837, 832, 828, 820, 816, 812, 808, 804, 800, 796, 792, 788, 784, 780, 776, 772, 768, 764, 760, 756, 752, 748, 744, 740, 736, 732, 728, 724, 720, 716, 712, 708, 704, 700, 696, 692, 688, 684, 680, 676, 672, 668, 664, 660, 656, 652, 648, 644, 640, 636, 632, 628, 624, 620, 616, 612, 608, 604, 600, 596, 592, 588, 584, 580, 576, 572, 568, 564, 560, 556, 552, 548, 544, 540, 536, 532, 528, 524, 520, 516, 512, 508, 504, 500, 496, 492, 488, 484, 480, 476, 472, 468, 464, 460, 456, 452, 448, 444, 440, 436, 432, 428, 424, 420, 416, 412, 408, 404, 400, 396, 392, 388, 384, 380, 376, 372, 368, 364, 360, 356, 352, 348, 344, 340, 336, 332, 328, 324, 320, 316, 312, 308, 304, 300, 296, 292, 288, 284, 280, 276, 272, 268, 264, 260, 256, 252, 248, 244, 240, 236, 232, 228, 224, 220, 216, 212, 208, 204, 200, 196, 192, 188, 184, 180, 176, 172, 168, 164, 160, 156, 152, 1"
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 981,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1114,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1140,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 724,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 489,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1441,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "mistral/codestral-latest"
+   ],
+   "ms": 1589,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1938,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "legado",
+   "usada": "legado",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/qwen/qwen3.8-27b"
+   ],
+   "ms": 997,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 619,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 581,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1998,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/meta/muse-glimmer-30b"
+   ],
+   "ms": 23527,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/meta/muse-glimmer-30b"
+   ],
+   "ms": 24063,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1879,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1154,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1288,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1888,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 1094,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2312,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 795,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 823,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 857,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4729,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 858,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1583,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1737,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 2131,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 2200,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  // corpo deve ser um objeto não nulo\n  if (!corpo || typeof corpo !== 'object' || Array.isArray(corpo)) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  // validação de email\n  const email = corpo.email;\n  const emailValido = typeof email === 'string' && /^[^@]+@[^@]+$/.test(email);\n  if (!emailValido) erros.push('email');\n\n  // validação de senha\n  const senha = corpo.senha;\n  const senhaValida = typeof senha === 'string' && senha.length >= 8;\n  if (!senhaValida) erros.push('senha');\n\n  // validação de idade (opcional)\n  if ('idade' in corpo) {\n    const idade = corpo.idade;\n    const idadeValida = Number.isInteger(idade) && idade >= 13 && idade <= 120;\n    if (!idadeValida) erros.push('idade');\n  }\n\n  return erros.length === 0\n    ? { status: 201, erros: [] }\n    : { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2859,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "3/8 passos errados",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2132,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction criarLimitador(max, janelaMs) {\n  const mapa = new Map();\n\n  return function permitir(chave, agora) {\n    if (!mapa.has(chave)) {\n      mapa.set(chave, []);\n    }\n\n    const timestamps = mapa.get(chave);\n    const limite = agora - janelaMs;\n\n    // Remove timestamps fora da janela\n    while (timestamps.length > 0 && timestamps[0] < limite) {\n      timestamps.shift();\n    }\n\n    if (timestamps.length < max) {\n      timestamps.push(agora);\n      return true;\n    }\n\n    return false;\n  };\n}\n```"
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 958,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 13916,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": false,
+   "motivo": "começou comentando",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 11203,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Aqui está o e-mail pronto para envio:\n\n---\n\nAssunto: Pedido de prorrogação de prazo\n\nPrezada Professora Marta,\n\nEscrevo para solicizar mais dois dias de prazo para o trabalho de banco de dados. Fiquei doente nos últimos dias e não consegui avançar no trabalho quanto planejava.\n\nPeço a gentileza de considerar meu pedido. Fico no aguardo.\n\nAtenciosamente,\nLucas\n\n---"
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": false,
+   "motivo": "começou comentando",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 10919,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Aqui está o e-mail pronto para envio:\n\n---\n\nAssunto: Pedido de prorrogação para trabalho de Banco de Dados\n\nProfª Marta,\n\nEspero que esteja bem. Preciso pedir mais dois dias de prazo para entregar o trabalho de Banco de Dados, pois fiquei doente nos últimos dias e não consegui avançar no trabalho assim como gostaria.\n\nPeço desculpas pelo transtorno e agradeço desde já pela compreensão.\n\nAtenciosamente,\nLucas\n\n---"
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 844,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 601,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 745,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 857,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 983,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 668,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 7983,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 691,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1270,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1520,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2067,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "direta",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1778,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 2650,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/meta/muse-glimmer-30b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 27791,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 13411,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/meta/muse-glimmer-30b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 35264,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 3933,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 3844,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2489,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 123956,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 128709,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1911,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 126924,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1898,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 3396,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 5182,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1845,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 8737,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 5913,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 12422,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 53327,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (corpo === null || typeof corpo !== 'object') {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  // Validação do email\n  if (typeof email !== 'string' || !/^[^@]+@[^@]+$/.test(email)) {\n    erros.push('email');\n  }\n\n  // Validação da senha\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação da idade (opcional)\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 51197,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 3657,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 6,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 65468,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (corpo === null || typeof corpo !== 'object' || Array.isArray(corpo)) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  // Validação do email\n  if (typeof email !== 'string') {\n    erros.push('email');\n  } else {\n    const partes = email.split('@');\n    if (partes.length !== 2 || !partes[0] || !partes[1]) {\n      erros.push('email');\n    }\n  }\n\n  // Validação da senha\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação da idade\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 49556465,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 49545349,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 49544352,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 4425,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "erros=36 (certo: 0)",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 5781,
+   "revisada": true,
+   "mudou": true,
+   "erro": false,
+   "texto": "Erros=36; maior=936; servico=login"
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 7393,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 3264,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 2151,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 1127,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 3094,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 5127,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 6,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 5689,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 6198,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 4362,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 19194,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "revisada",
+   "usada": "revisada",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 16844,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1072,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "cohere/command-a-03-2025"
+   ],
+   "ms": 3650,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 17059,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 6181,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/meta/muse-glimmer-30b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 68985,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 2239,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 1844,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 5819,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 6065,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1561,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1468,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1213,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1119,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1240,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1165,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2373,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2051,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "7/7 casos",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 5916,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4712,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1873,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 2564,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/meta/muse-glimmer-30b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 146381,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1033,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": false,
+   "motivo": "deixou lacuna entre colchetes",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2133,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Prezada Professora Marta,\n\nGostaria de solicitar mais dois dias de prazo para a entrega do trabalho de banco de dados. Fiquei doente nos últimos dias e não consegui avançar no projeto como planeitei. Peço a compreensão e, caso possa, uma extensão até [nova data].\n\nAgradeço desde já.\n\nAtenciosamente,\nLucas"
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2458,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 618,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 8207,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1282,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2579,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2040,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 663,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4122,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4487,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 1811,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": false,
+   "motivo": "primeira linha: As duas respostas apresentam divergência",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 4186,
+   "revisada": true,
+   "mudou": true,
+   "erro": false,
+   "texto": "As duas respostas apresentam divergências: HEX em maiúsculas vs minúsculas, e a função usa fórmula matemática vs `sum` com generator.\n\nChecando a lógica:\n- Pares de 1 a 20: 2+4+6+8+10+12+14+16+18+20 = 110 ✓\n- 110 em hexadecimal é 6E (maiúscula) ✓\n- A fórmula `pares * (pares + 1)` está correta: para n=20, pares=10, e 10×11=110 ✓\n\nA resposta que escolhi prioriza a fórmula matemática eficiente e o hexadecimal com letra maiúscula, que é o padrão comum.\n\nSOMA=110; HEX=6E\n\n```python\ndef soma_pares(n):\n  \"\"\"Retorna a soma dos números pares de 1 a n (inclusive).\"\"\"\n  pares = n // 2\n  return pares * (pares + 1)\n```"
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2840,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2250,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "comparada",
+   "usada": "comparada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 124717,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (corpo === null || typeof corpo !== 'object') {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  // Validação do email\n  if (typeof email !== 'string') {\n    erros.push('email');\n  } else {\n    const partes = email.split('@');\n    if (partes.length !== 2 || !partes[0] || !partes[1]) {\n      erros.push('email');\n    }\n  }\n\n  // Validação da senha\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação da idade\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 38217,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 3613,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 3475,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 3658,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 14298,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 75075,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 19124,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 120090,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 39774,
+   "revisada": true,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (typeof corpo !== 'object' || corpo === null) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  // Validação do email\n  if (typeof email !== 'string' || !email.includes('@')) {\n    erros.push('email');\n  } else {\n    const partes = email.split('@');\n    if (partes.length !== 2 || partes[0].length === 0 || partes[1].length === 0) {\n      erros.push('email');\n    }\n  }\n\n  // Validação da senha\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação da idade\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 33910,
+   "revisada": true,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (typeof corpo !== 'object' || corpo === null) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  // Validação do email\n  if (typeof email !== 'string' || !email.includes('@')) {\n    erros.push('email');\n  } else {\n    const partes = email.split('@');\n    if (partes.length !== 2 || partes[0].length === 0 || partes[1].length === 0) {\n      erros.push('email');\n    }\n  }\n\n  // Validação da senha\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação da idade\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "3/8 passos errados",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 22138,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction criarLimitador(max, janelaMs) {\n  const dados = new Map();\n  \n  return function permitir(chave, agora) {\n    if (max <= 0) return false;\n    \n    if (!dados.has(chave)) {\n      dados.set(chave, []);\n    }\n    \n    const timestamps = dados.get(chave);\n    \n    // Remove timestamps expirados (fora da janela)\n    const limite = agora - janelaMs;\n    while (timestamps.length > 0 && timestamps[0] < limite) {\n      timestamps.shift();\n    }\n    \n    // Verifica se ainda pode aceitar\n    if (timestamps.length >= max) {\n      return false;\n    }\n    \n    // Registra o pedido permitido\n    timestamps.push(agora);\n    return true;\n  }\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1453,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2838,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 791,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "especialistas",
+   "usada": "especialistas",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 13029,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 580,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1545,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 973,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1466,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1409,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1539,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1129,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1260,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1101,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 703,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1130,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1407,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 601,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1954,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1933,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 5675,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  // Verifica se corpo é um objeto válido\n  if (corpo === null || typeof corpo !== 'object' || Array.isArray(corpo)) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  // Validação do email\n  const email = corpo.email;\n  if (typeof email !== 'string') {\n    erros.push('email');\n  } else {\n    const partes = email.split('@');\n    if (partes.length !== 2 || !partes[0] || !partes[1]) {\n      erros.push('email');\n    }\n  }\n\n  // Validação da senha\n  const senha = corpo.senha;\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação da idade\n  const idade = corpo.idade;\n  if (idade !== undefined) {\n    if (typeof idade !== 'number' || !Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  return erros.length === 0\n    ? { status: 201, erros: [] }\n    : { status: 400, erros: erros };\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2906,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 5620,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  // Verifica se corpo é um objeto válido\n  if (typeof corpo !== 'object' || corpo === null) {\n    return { status: 400, erros: ['email', 'idade'] };\n  }\n\n  // Validação do email\n  const email = corpo.email;\n  const temArroba = typeof email === 'string' && email.includes('@');\n  const partes = typeof email === 'string' ? email.split('@') : [];\n  const emailValido = temArroba && \n                      partes.length === 2 && \n                      partes[0].length > 0 && \n                      partes[1].length > 0;\n  if (!emailValido) {\n    erros.push('email');\n  }\n\n  // Validação da senha\n  const senha = corpo.senha;\n  const senhaValida = typeof senha === 'string' && senha.length >= 8;\n  if (!senhaValida) {\n    erros.push('senha');\n  }\n\n  // Validação da idade (se presente)\n  if ('idade' in corpo) {\n    const idade = corpo.idade;\n    const idadeValida = Number.isInteger(idade) && idade >= 13 && idade <= 120;\n    if (!idadeValida) {\n      erros.push('idade');\n    }\n  }\n\n  // Retorna resultado\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros: erros };\n}\n```"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2518,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 1535,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 950,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1614,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 755,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": false,
+   "motivo": "deixou lacuna entre colchetes",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4761,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Assunto: Solicitação de prazo extra para trabalho de Banco de Dados\n\nProfessora Marta,\n\nEscrevo para solicitar mais dois dias de prazo para o trabalho de Banco de Dados, pois fiquei doente nos últimos dias e não consegui avançar no projeto conforme o planejado. Peço a gentileza de estender o prazo até [data específica, se souber ou deixe em aberto].\n\nAgradeço desde já pela compreensão.\n\nAtenciosamente,\nLucas"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "servico=pagamentos",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4573,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Não há nenhuma linha com `servico=pagamentos` e `status=500` no log fornecido. \nO maior valor de `ms` é **936** na linha `10:05:58 servico=login status=200 ms=936`. \n\nerros=0; maior=936; servico=login"
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 680,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-120b"
+   ],
+   "ms": 776,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 896,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 717,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 521,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 5690,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 3768,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 6495,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 2446,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "auto",
+   "usada": "direta",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 3524,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1462,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "objetiva",
+   "categoria": "objetiva",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 729,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-20b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 13382,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conta",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 6314,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/meta/muse-glimmer-30b"
+   ],
+   "ms": 43459,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "conversa",
+   "categoria": "conversa",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/meta/muse-glimmer-30b"
+   ],
+   "ms": 55826,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "comparada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "groq/openai/gpt-oss-120b",
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 5794,
+   "revisada": true,
+   "mudou": true,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "comparada",
+   "tarefa": "raciocinio-ordem",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 3858,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": false,
+   "motivo": "resposta: 25",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4651,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "Vamos resolver usando o princípio da inclusão-exclusão.\n\n**Múltiplos de 6 de 1 a 100:**\n$\\lfloor 100/6 \\rfloor = 16$ valores\n\n**Múltiplos de 10 de 1 a 100:**\n$\\lfloor 100/10 \\rfloor = 10$ valores\n\n**Múltiplos de 60 (lcm(6,10)) de 1 a 100:**\n$\\lfloor 100/60 \\rfloor = 1$ valor\n\n**Aplicando inclusão-exclusão:**\n$16 + 10 - 1 = 25$\n\nRESPOSTA: 25"
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 5232,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "codigo-js",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "6/6 casos",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 1900,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "comparada",
+   "tarefa": "raciocinio-conjuntos",
+   "categoria": "raciocinio",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 2,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 7730,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 4455,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4424,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "codigo-python",
+   "categoria": "codigo",
+   "ok": true,
+   "motivo": "testes passaram",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 4927,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "sql",
+   "categoria": "sql",
+   "ok": true,
+   "motivo": "linhas certas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4072,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 3397,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "frontend",
+   "categoria": "frontend",
+   "ok": true,
+   "motivo": "4/4 casos",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 3214,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 63244,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "backend-limite",
+   "categoria": "backend",
+   "ok": true,
+   "motivo": "janela certa",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 3948,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 4118,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "escrita-acrostico",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 8236,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 3516,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "escrita-pronta",
+   "categoria": "escrita",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1853,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 133261,
+   "revisada": false,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (corpo === null || typeof corpo !== 'object') {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  // Validação do email\n  if (typeof email !== 'string') {\n    erros.push('email');\n  } else {\n    const partes = email.split('@');\n    if (partes.length !== 2 || !partes[0] || !partes[1]) {\n      erros.push('email');\n    }\n  }\n\n  // Validação da senha\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  // Validação da idade\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "backend-validar",
+   "categoria": "backend",
+   "ok": false,
+   "motivo": "1/7 casos errados",
+   "chamadas": 5,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 135188,
+   "revisada": true,
+   "mudou": false,
+   "erro": false,
+   "texto": "```js\nfunction validarCadastro(corpo) {\n  const erros = [];\n\n  if (typeof corpo !== 'object' || corpo === null) {\n    return { status: 400, erros: ['email', 'senha', 'idade'] };\n  }\n\n  const { email, senha, idade } = corpo;\n\n  if (typeof email !== 'string' || !/^[^@]+@[^@]+$/.test(email)) {\n    erros.push('email');\n  }\n\n  if (typeof senha !== 'string' || senha.length < 8) {\n    erros.push('senha');\n  }\n\n  if (idade !== undefined) {\n    if (!Number.isInteger(idade) || idade < 13 || idade > 120) {\n      erros.push('idade');\n    }\n  }\n\n  if (erros.length === 0) {\n    return { status: 201, erros: [] };\n  }\n\n  return { status: 400, erros };\n}\n```"
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 18298,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1"
+   ],
+   "ms": 1106,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "analise-log",
+   "categoria": "analise",
+   "ok": false,
+   "motivo": "erros=50 (certo: 0)",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "mistral/mistral-code-latest"
+   ],
+   "ms": 3172,
+   "revisada": true,
+   "mudou": true,
+   "erro": false,
+   "texto": "Erros=50; maior=936; servico=login"
+  },
+  {
+   "pedida": "capricho",
+   "usada": "direta",
+   "tarefa": "analise-sem-resposta",
+   "categoria": "analise",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 1,
+   "modelos": [
+    "groq/openai/gpt-oss-20b"
+   ],
+   "ms": 574,
+   "revisada": false,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 7516,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 13888,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "instrucoes",
+   "categoria": "instrucoes",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 4,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 27413,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "contexto",
+   "categoria": "contexto",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 15129,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 7865,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 16850,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "tutor",
+   "categoria": "tutor",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 15136,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  },
+  {
+   "pedida": "capricho",
+   "usada": "revisada",
+   "tarefa": "etapas",
+   "categoria": "etapas",
+   "ok": true,
+   "motivo": "todas as regras cumpridas",
+   "chamadas": 3,
+   "modelos": [
+    "nvidia/poolside/laguna-xs-2.1",
+    "nvidia/nvidia/nemotron-3-ultra-550b-a55b"
+   ],
+   "ms": 43806,
+   "revisada": true,
+   "mudou": false,
+   "erro": false
+  }
+ ]
+}

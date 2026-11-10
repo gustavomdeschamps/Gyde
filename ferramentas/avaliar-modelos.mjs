@@ -2,146 +2,92 @@
 // Limite do provedor (413/429/sem resposta) é contado à parte: não é erro do modelo, é indisponibilidade naquele minuto.
 // Não usa números de fora: cada resultado vem de uma resposta conferida aqui (código executado contra testes,
 // formato JSON conferido, cor da imagem conferida). Amostra pequena: serve para comparar, não para ranking geral.
-//   node ferramentas/avaliar-modelos.mjs [--modelos a,b,c] [--repeticoes 2] [--saida arquivo.json]
+//   node ferramentas/avaliar-modelos.mjs [--modelos a,b,c] [--tarefas id,categoria] [--repeticoes 2] [--juntos 4] [--saida arquivo.json]
+// As tarefas estão em avaliacao-tarefas.mjs. Depois: node ferramentas/gerar-medicoes.mjs (grava o que o orquestrador usa).
 // Lê FREELLMAPI_URL e FREELLMAPI_KEY do .env da raiz (a chave nunca é mostrada nem gravada).
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
-import { deflateSync } from 'node:zlib';
-import { tmpdir } from 'node:os';
-import vm from 'node:vm';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { TAREFAS } from './avaliacao-tarefas.mjs';
+import { PROVEDORES_GRATIS } from '../pacotes/servidor/ia/provedores-gratis.ts';
+import { redigir as redigirChaves } from '../pacotes/servidor/seguranca.ts';
+const redigir = (t) => redigirChaves(t).replace(/org_[A-Za-z0-9]{10,}/g, 'org_[oculto]'); // sem chaves e sem o ID da conta no provedor
 
 const RAIZ = path.join(import.meta.dirname, '..');
 const arg = (nome, padrao) => { const i = process.argv.indexOf(`--${nome}`); return i > 0 ? process.argv[i + 1] : padrao; };
 const env = Object.fromEntries(readFileSync(path.join(RAIZ, '.env'), 'utf8').split(/\r?\n/).filter((l) => /^\w+=/.test(l)).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1).trim()]));
-const BASE = (env.FREELLMAPI_URL || 'http://127.0.0.1:31415').replace(/\/v1\/?$/, '');
-const CHAVE = env.FREELLMAPI_KEY;
-if (!CHAVE) { console.error('FREELLMAPI_KEY não está no .env.'); process.exit(1); }
-const MODELOS = arg('modelos', 'claude-sonnet-4-5,claude-opus-4-5,qwen3.8-27b,gpt-oss-120b,codestral,mistral-code,gemini-3.8-flash,nemotron-3-super-120b,auto').split(',');
+// --provedor groq|google|nvidia|mistral: direto no provedor, sem o FreeLLMAPI. Os modelos ficam gravados como "<provedor>:<modelo>".
+const PROVEDOR = arg('provedor', null) ? PROVEDORES_GRATIS.find((p) => p.id === arg('provedor', '')) : null;
+if (arg('provedor', null) && !PROVEDOR) { console.error(`Provedor desconhecido. Use: ${PROVEDORES_GRATIS.map((p) => p.id).join(', ')}`); process.exit(1); }
+for (const [k, v] of Object.entries(env)) if (/(KEY|TOKEN)$/.test(k)) process.env[k] = v; // só para o filtro de segredos esconder o valor exato
+const BASE = PROVEDOR ? PROVEDOR.url : `${(env.FREELLMAPI_URL || 'http://127.0.0.1:31415').replace(/\/v1\/?$/, '')}/v1`;
+const CHAVE = PROVEDOR ? env[PROVEDOR.chaveEnv] : env.FREELLMAPI_KEY;
+if (!CHAVE) { console.error(`${PROVEDOR ? PROVEDOR.chaveEnv : 'FREELLMAPI_KEY'} não está no .env.`); process.exit(1); }
+if (process.argv.includes('--listar')) { // os modelos que a chave enxerga, só os nomes
+  const r = await fetch(`${BASE}/models`, { headers: { Authorization: `Bearer ${CHAVE}` }, signal: AbortSignal.timeout(20_000) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { console.error(redigir(`HTTP ${r.status}: ${JSON.stringify(j).slice(0, 300)}`)); process.exit(1); }
+  console.log((j.data ?? []).map((m) => m.id).sort().join('\n'));
+  process.exit(0);
+}
+const MODELOS = arg('modelos', 'auto,qwen3.8-27b,gpt-oss-120b,codestral,mistral-code,gemini-3.8-flash,gemini-3.5-flash,gemini-2.5-flash,gemini-flash-lite,claude-sonnet-4-5,claude-opus-4-5,claude-haiku-4-5,nemotron-3-ultra-550b,nemotron-3-super-120b,glm-4.7-flash,command-a-reasoning,command-a,north-mini-code,gemma-4-31b,dots3-note-preview,poolside-laguna-xs-2.1,muse-glimmer-30b,gpt-oss-20b,fusion').split(',');
+const SO_TAREFAS = arg('tarefas', null)?.split(',');
+const LISTA = SO_TAREFAS ? TAREFAS.filter((t) => SO_TAREFAS.includes(t.id) || SO_TAREFAS.includes(t.categoria)) : TAREFAS;
 const REPETICOES = Number(arg('repeticoes', '1'));
-const PAUSA = Number(arg('pausa', '4000')); // entre chamadas: os provedores grátis limitam tokens por minuto
+const PAUSA = Number(arg('pausa', '12000')); // entre chamadas do mesmo modelo: os provedores grátis limitam tokens por minuto
+const JUNTOS = Number(arg('juntos', '6')); // modelos avaliados ao mesmo tempo (cada um em sequência)
+const ESPERA_LIMITE = Number(arg('espera-limite', '60000'));
+const SAIDA = arg('saida', null);
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// ---------- imagem de teste: PNG 32x32 vermelho com um quadrado azul no canto ----------
-function png(largura, altura, pixel) {
-  const crc = (b) => { let c = ~0; for (const x of b) { c ^= x; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1)); } return ~c >>> 0; };
-  const bloco = (tipo, dados) => { const t = Buffer.from(tipo); const len = Buffer.alloc(4); len.writeUInt32BE(dados.length); const c = Buffer.alloc(4); c.writeUInt32BE(crc(Buffer.concat([t, dados]))); return Buffer.concat([len, t, dados, c]); };
-  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(largura, 0); ihdr.writeUInt32BE(altura, 4); ihdr[8] = 8; ihdr[9] = 2;
-  const linhas = [];
-  for (let y = 0; y < altura; y++) { linhas.push(0); for (let x = 0; x < largura; x++) linhas.push(...pixel(x, y)); }
-  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), bloco('IHDR', ihdr), bloco('IDAT', deflateSync(Buffer.from(linhas))), bloco('IEND', Buffer.alloc(0))]);
-}
-const IMAGEM = `data:image/png;base64,${png(64, 64, (x, y) => (x < 16 && y < 16 ? [20, 60, 220] : [220, 30, 30])).toString('base64')}`;
-
-const blocoDeCodigo = (texto, linguagem) => {
-  const blocos = [...texto.matchAll(/```(\w*)\n([\s\S]*?)```/g)];
-  const certo = blocos.find((b) => b[1].toLowerCase().startsWith(linguagem)) ?? blocos[0];
-  return certo ? certo[2] : texto;
-};
-
-// ---------- tarefas ----------
-const TAREFAS = [
-  {
-    id: 'codigo-js', tipo: 'gerar código', mensagens: [{ role: 'user', content: 'Escreva uma função JavaScript `segundoMaior(lista)` que devolve o segundo maior valor DISTINTO de uma lista de números, ou null se não existir. Responda só com o código num bloco ```js.' }],
-    corrigir(texto) {
-      const codigo = blocoDeCodigo(texto, 'js');
-      const casos = [[[3, 1, 4, 1, 5], 4], [[7, 7, 7], null], [[], null], [[-2, -5, -1], -2], [[10, 9], 9], [[2, 2, 1], 1]];
-      try {
-        const ctx = vm.createContext({});
-        vm.runInContext(`${codigo}\n;globalThis.__f = typeof segundoMaior === 'function' ? segundoMaior : null;`, ctx, { timeout: 1000 });
-        if (!ctx.__f) return { ok: false, motivo: 'não definiu segundoMaior' };
-        const falhas = casos.filter(([e, s]) => { try { return vm.runInContext(`__f(${JSON.stringify(e)})`, ctx, { timeout: 1000 }) !== s; } catch { return true; } });
-        return { ok: !falhas.length, motivo: falhas.length ? `${falhas.length}/${casos.length} casos errados` : `${casos.length}/${casos.length} casos` };
-      } catch (e) { return { ok: false, motivo: `não rodou: ${e.message.slice(0, 80)}` }; }
-    },
-  },
-  {
-    id: 'corrigir-python', tipo: 'corrigir bug', mensagens: [{ role: 'user', content: 'Este código Python tem dois bugs: dá erro com lista vazia e a média sai errada. Corrija e responda só com o código corrigido num bloco ```python.\n\n```python\ndef media(notas):\n    total = 0\n    for i in range(1, len(notas)):\n        total += notas[i]\n    return total / len(notas)\n```' }],
-    corrigir(texto) {
-      const pasta = mkdtempSync(path.join(tmpdir(), 'gyde-aval-'));
-      try {
-        const arquivo = path.join(pasta, 't.py');
-        writeFileSync(arquivo, `${blocoDeCodigo(texto, 'py')}\n\nassert media([7, 8, 9]) == 8\nassert media([10]) == 10\nassert media([5, 6]) == 5.5\nassert media([]) in (0, 0.0, None)\nprint("ok")\n`);
-        const r = spawnSync('python', [arquivo], { encoding: 'utf8', timeout: 10_000 });
-        return { ok: r.status === 0 && /ok/.test(r.stdout), motivo: r.status === 0 ? 'testes passaram' : (r.stderr.trim().split('\n').pop() || 'falhou').slice(0, 100) };
-      } finally { rmSync(pasta, { recursive: true, force: true }); }
-    },
-  },
-  {
-    id: 'tutor', tipo: 'explicar sem dar a resposta', mensagens: [
-      { role: 'system', content: 'Você é o Gyde, tutor de programação para iniciantes brasileiros. Responda em português do Brasil, sem emojis.' },
-      { role: 'user', content: 'Sou iniciante. Meu código Python dá "IndexError: list index out of range":\n\n```python\nl = [1, 2, 3]\nfor i in range(len(l) + 1):\n    print(l[i])\n```\n\nExplique o que está errado, mas NÃO me dê o código corrigido: quero tentar sozinho.' },
-    ],
-    corrigir(texto) {
-      const portugues = (texto.match(/\b(você|não|que|lista|índice|posição|porque|para)\b/gi) || []).length >= 4;
-      const explica = /índice|indice|posição|posicao|len\(l\)|range/i.test(texto);
-      const entregou = /for\s+\w+\s+in\s+range\s*\(\s*len\s*\(\s*l\s*\)\s*\)\s*:|for\s+\w+\s+in\s+l\s*:/.test(texto);
-      const motivo = [!portugues && 'não está em português', !explica && 'não explica o índice', entregou && 'entregou o código corrigido'].filter(Boolean).join(', ');
-      return { ok: portugues && explica && !entregou, motivo: motivo || 'explicou sem entregar' };
-    },
-  },
-  {
-    id: 'json-forja', tipo: 'seguir o formato do agente', mensagens: [
-      { role: 'system', content: 'Você é um agente de código. Ferramentas: listar {"caminho": ".", "profundidade": 2}, ler {"caminho": "..."}, editar {"caminho": "...", "procurar": "...", "substituir": "..."}, executar {"comando": "..."}.\nRESPONDA SEMPRE com UM objeto JSON e nada mais: {"pensamento": "...", "acoes": [{"ferramenta": "...", "args": {...}}]} para agir, ou {"pensamento": "...", "resposta": "..."} para responder ao usuário.' },
-      { role: 'user', content: 'PASTA DO PROJETO: C:\\projeto\nNOVA MENSAGEM DO USUÁRIO: rode os testes do projeto (npm test) e leia o package.json ao mesmo tempo.' },
-    ],
-    corrigir(texto) {
-      const inicio = texto.indexOf('{'), fim = texto.lastIndexOf('}');
-      let o; try { o = JSON.parse(texto.slice(inicio, fim + 1)); } catch { return { ok: false, motivo: 'não é JSON' }; }
-      const acoes = Array.isArray(o.acoes) ? o.acoes : [];
-      const nomes = acoes.map((a) => a.ferramenta);
-      const ok = nomes.includes('executar') && nomes.includes('ler') && acoes.some((a) => /npm\s+test/.test(a.args?.comando || '')) && acoes.some((a) => /package\.json/.test(a.args?.caminho || ''));
-      return { ok, motivo: ok ? 'duas ações certas no mesmo passo' : `ações: ${nomes.join(', ') || 'nenhuma'}` };
-    },
-  },
-  {
-    id: 'visao', tipo: 'ler imagem', mensagens: [{ role: 'user', content: [{ type: 'text', text: 'Qual é a cor que ocupa quase toda a imagem e qual a cor do quadrado pequeno no canto? Responda no formato: fundo=<cor>; quadrado=<cor>, em português.' }, { type: 'image_url', image_url: { url: IMAGEM } }] }],
-    corrigir(texto) {
-      const fundo = /fundo\s*=\s*vermelh/i.test(texto), quadrado = /quadrado\s*=\s*azul/i.test(texto);
-      return { ok: fundo && quadrado, motivo: fundo && quadrado ? 'viu as duas cores' : `resposta: ${texto.slice(0, 60).replace(/\s+/g, ' ')}` };
-    },
-  },
-];
-
-async function chamar(modelo, mensagens) {
+async function chamar(modelo, tarefa) {
   const inicio = Date.now();
-  for (let tentativa = 0; tentativa < 3; tentativa++) {
-    let r;
-    try {
-      r = await fetch(`${BASE}/v1/chat/completions`, {
-        method: 'POST', signal: AbortSignal.timeout(120_000),
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${CHAVE}` },
-        body: JSON.stringify({ model: modelo, messages: mensagens, max_tokens: 1200, temperature: 0.2 }),
-      });
-    } catch (e) { return { erro: `sem resposta: ${e.message}`, ms: Date.now() - inicio }; }
-    if (r.status === 429) { await espera(20_000); continue; } // limite do minuto: espera e tenta de novo
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) return { erro: `HTTP ${r.status}: ${(j.error?.message || '').slice(0, 100)}`, ms: Date.now() - inicio };
-    return { texto: j.choices?.[0]?.message?.content || '', via: r.headers.get('x-routed-via') || modelo, tokens: j.usage?.total_tokens ?? null, ms: Date.now() - inicio };
-  }
-  return { erro: 'limite (429) três vezes seguidas', ms: Date.now() - inicio };
+  let r;
+  try {
+    r = await fetch(`${BASE}/chat/completions`, {
+      method: 'POST', signal: AbortSignal.timeout(90_000),
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${CHAVE}` },
+      body: JSON.stringify({ model: modelo, messages: tarefa.mensagens, max_tokens: 1000, temperature: 0.2, ...tarefa.extra }),
+    });
+  } catch (e) { return { erro: redigir(`sem resposta: ${e.message}`), limite: false, ms: Date.now() - inicio }; }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) return { erro: redigir(`HTTP ${r.status}: ${String(j.error?.message || j.message || j.detail || '').slice(0, 100)}`), limite: [413, 429].includes(r.status), ms: Date.now() - inicio };
+  const conteudo = j.choices?.[0]?.message?.content;
+  const texto = Array.isArray(conteudo) ? conteudo.filter((p) => p?.type === 'text').map((p) => p.text ?? '').join('') : String(conteudo || '');
+  return { bruto: j, texto, via: r.headers.get('x-routed-via') || (PROVEDOR ? `${PROVEDOR.id}/${j.model || modelo}` : modelo), tokens: j.usage?.total_tokens ?? null, ms: Date.now() - inicio };
 }
 
 const resultados = [];
-for (const modelo of MODELOS) {
-  for (const t of TAREFAS) {
+const gravar = () => { if (SAIDA) writeFileSync(SAIDA, JSON.stringify({ em: new Date().toISOString(), repeticoes: REPETICOES, modelos: MODELOS, tarefas: LISTA.map(({ id, categoria }) => ({ id, categoria })), resultados }, null, 1)); };
+
+async function avaliarModelo(modelo) {
+  let limitesSeguidos = 0;
+  for (const t of LISTA) {
     for (let n = 0; n < REPETICOES; n++) {
-      const r = await chamar(modelo, t.mensagens);
+      // sempre no limite nesta rodada: não insiste (é indisponibilidade, e continuar só gastaria a cota dos outros modelos)
+      if (limitesSeguidos >= 4) { resultados.push({ modelo: PROVEDOR ? `${PROVEDOR.id}:${modelo}` : modelo, tarefa: t.id, categoria: t.categoria, ok: false, motivo: 'pulado: sempre no limite nesta rodada', via: null, ms: 0, tokens: null, erro: true, limite: true }); continue; }
+      let r = await chamar(modelo, t);
+      if (r.limite) { await espera(ESPERA_LIMITE); r = await chamar(modelo, t); } // a cota do minuto volta: tenta mais uma vez
+      limitesSeguidos = r.limite ? limitesSeguidos + 1 : 0;
       await espera(PAUSA);
-      const nota = r.erro ? { ok: false, motivo: r.erro } : r.texto.trim() ? t.corrigir(r.texto) : { ok: false, motivo: 'resposta vazia' };
-      resultados.push({ modelo, tarefa: t.id, ok: nota.ok, motivo: nota.motivo, via: r.via ?? null, ms: r.ms, tokens: r.tokens ?? null, erro: Boolean(r.erro) });
-      console.log(`${nota.ok ? 'OK   ' : 'FALHA'} ${modelo.padEnd(22)} ${t.id.padEnd(16)} ${String(r.ms).padStart(6)} ms  via ${String(r.via ?? '-').padEnd(28)} ${nota.motivo}`);
+      let nota;
+      try {
+        nota = r.erro ? { ok: false, motivo: r.erro } : t.corrigirBruto ? t.corrigirBruto(r.bruto) : r.texto.trim() ? t.corrigir(r.texto) : { ok: false, motivo: 'resposta vazia' };
+      } catch (e) { nota = { ok: false, motivo: `correção falhou: ${e.message.slice(0, 60)}` }; }
+      resultados.push({ modelo: PROVEDOR ? `${PROVEDOR.id}:${modelo}` : modelo, tarefa: t.id, categoria: t.categoria, ok: nota.ok, motivo: nota.motivo, via: r.via ?? null, ms: r.ms, tokens: r.tokens ?? null, erro: Boolean(r.erro), limite: Boolean(r.limite) });
+      gravar();
+      console.log(`${nota.ok ? 'OK   ' : 'FALHA'} ${modelo.padEnd(24)} ${t.id.padEnd(22)} ${String(r.ms).padStart(6)} ms  via ${String(r.via ?? '-').padEnd(26)} ${nota.motivo}`);
     }
   }
 }
+// alguns modelos ao mesmo tempo: em sequência, a rodada inteira levaria horas
+const fila = [...MODELOS];
+await Promise.all(Array.from({ length: JUNTOS }, async () => { while (fila.length) await avaliarModelo(fila.shift()); }));
+gravar();
 
-console.log('\nResumo por modelo (acertos / tentativas, tempo mediano):');
+console.log('\nResumo por modelo (acertos / respondidas, tempo mediano):');
 const mediana = (xs) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : 0; };
 for (const modelo of MODELOS) {
-  const rs = resultados.filter((r) => r.modelo === modelo);
+  const rs = resultados.filter((r) => r.modelo === (PROVEDOR ? `${PROVEDOR.id}:${modelo}` : modelo));
   const respondidas = rs.filter((r) => !r.erro);
-  const porTarefa = TAREFAS.map((t) => { const x = respondidas.filter((r) => r.tarefa === t.id); return `${t.id} ${x.filter((r) => r.ok).length}/${x.length}`; }).join('  ');
-  console.log(`${modelo.padEnd(22)} acertou ${respondidas.filter((r) => r.ok).length}/${respondidas.length} respondidas (${rs.length - respondidas.length} sem resposta/limite)  ${mediana(respondidas.map((r) => r.ms))} ms  | ${porTarefa}`);
+  console.log(`${modelo.padEnd(24)} ${respondidas.filter((r) => r.ok).length}/${respondidas.length} (${rs.filter((r) => r.limite).length} no limite, ${rs.filter((r) => r.erro && !r.limite).length} com erro)  ${mediana(respondidas.map((r) => r.ms))} ms`);
 }
-const saida = arg('saida', null);
-if (saida) writeFileSync(saida, JSON.stringify({ em: new Date().toISOString(), repeticoes: REPETICOES, modelos: MODELOS, tarefas: TAREFAS.map(({ id, tipo }) => ({ id, tipo })), resultados }, null, 2));

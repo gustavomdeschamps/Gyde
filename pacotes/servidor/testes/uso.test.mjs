@@ -8,7 +8,7 @@ import { migrar } from '../banco.ts';
 import { criarProvedores } from '../provedores.ts';
 import { completar } from '../motor.ts';
 
-// provedor falso: /health ok; o modelo "cheio" dá 429 só dele; "sem-uso" responde sem tokens; "estoura" acaba o minuto
+// provedor falso: /health ok; "chave-errada" dá 401; o modelo "cheio" dá 429 só dele; "sem-uso" responde sem tokens; "estoura" acaba o minuto
 function provedorFalso() {
   const srv = http.createServer((req, res) => {
     if (req.url === '/health') return res.end('ok');
@@ -17,6 +17,7 @@ function provedorFalso() {
     req.on('end', () => {
       const { model } = JSON.parse(corpo || '{}');
       const cab = { 'Content-Type': 'application/json', 'x-ratelimit-limit': '120', 'x-ratelimit-remaining': model === 'estoura' ? '0' : '50', 'x-ratelimit-reset': '1900000000', 'x-routed-via': `falso/${model}` };
+      if (model === 'chave-errada') { res.writeHead(401, cab); return res.end(JSON.stringify({ error: { message: 'invalid key' } })); }
       if (model === 'cheio' || model === 'estoura') { res.writeHead(429, cab); return res.end(JSON.stringify({ error: { message: 'rate limited' } })); }
       res.writeHead(200, cab);
       const resposta = { choices: [{ message: { content: 'oi' } }] };
@@ -99,5 +100,15 @@ test('chamadas sem dono (títulos, memória) viram registro interno, fora da con
   await p.router('/v1/chat/completions', { method: 'POST', body: JSON.stringify({ model: 'bom', messages: [] }) });
   await p.router('/health'); // não é chamada de IA: não conta
   assert.equal(uso.resumo('u1', { mostrarInternas: true }).internasHoje, 1);
+  srv.close();
+});
+
+test('chave recusada pelo FreeLLMAPI não vira 401 (na tela, 401 é sessão expirada e recarrega a página)', async () => {
+  const { srv, p } = await montar();
+  await assert.rejects(p.router('/v1/chat/completions', { method: 'POST', body: JSON.stringify({ model: 'chave-errada' }) }), (e) => {
+    assert.equal(e.status, 502);
+    assert.match(e.message, /recusou a chave/);
+    return true;
+  });
   srv.close();
 });
