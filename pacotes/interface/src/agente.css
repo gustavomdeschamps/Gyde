@@ -303,3 +303,45 @@
 }
 /* celular: as etiquetas de tecnologia escondem o nome do projeto (a regra da linha 64 perdia para a .forja-tecs declarada depois) */
 @media (max-width: 700px) { .forja-tecs { display: none; } }
+
+/* ---------- Ao vivo: liga o projeto ---------- */
+.forja-previa.ao-vivo { min-height: 0; }
+.forja-previa-topo .btn { flex: none; }
+.forja-previa-ponto.carregando { background: var(--accent); animation: ao-vivo-pulso 1s ease-in-out infinite; }
+.forja-previa-ponto.erro { background: var(--danger); }
+@keyframes ao-vivo-pulso { 50% { opacity: .35; } }
+.ao-vivo-escolha { padding: 16px 16px 20px; overflow-y: auto; display: grid; gap: 10px; align-content: start; }
+.ao-vivo-campo { display: grid; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--text-faint); }
+.ao-vivo-campo select { font: inherit; font-size: 14px; font-weight: 400; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 9px; padding: 7px 10px; }
+.ao-vivo-detalhe { margin: 0; font-size: 13.5px; color: var(--text-soft); line-height: 1.5; }
+.ao-vivo-tipo { display: inline-block; margin-left: 4px; padding: 1px 8px; border-radius: 99px; background: var(--bg-soft); font-size: 12px; color: var(--text-faint); }
+.ao-vivo-rotulo { margin: 4px 0 0; font-size: 12.5px; color: var(--text-faint); }
+.ao-vivo-cmd { margin: 0; padding: 9px 12px; border-radius: 9px; background: var(--code-bg); border: 1px solid var(--border); font: 13px/1.5 var(--mono); color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.ao-vivo-cmd span { color: var(--text-faint); }
+.ao-vivo-cmd small { font-family: var(--font); color: var(--text-faint); }
+.ao-vivo-nota { margin: 0; font-size: 12.5px; color: var(--text-faint); line-height: 1.45; }
+.ao-vivo-botoes { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ao-vivo-outro { border-top: 1px solid var(--border); padding-top: 10px; font-size: 13px; color: var(--text-soft); }
+.ao-vivo-outro summary { cursor: pointer; font-weight: 600; }
+.ao-vivo-outro form { display: flex; gap: 8px; margin: 8px 0 6px; }
+.ao-vivo-outro input { flex: 1; min-width: 0; font: 13px var(--mono); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 9px; padding: 7px 10px; }
+.ao-vivo-outro small { color: var(--text-faint); }
+.ao-vivo-progresso { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0; padding: 10px 12px; font-size: 13px; color: var(--text-soft); border-bottom: 1px solid var(--border); }
+.ao-vivo-progresso code { font: 12px var(--mono); color: var(--text-faint); overflow-wrap: anywhere; }
+.ao-vivo-giro { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--border-strong); border-top-color: var(--accent); animation: ao-vivo-gira .8s linear infinite; flex: none; }
+@keyframes ao-vivo-gira { to { transform: rotate(360deg); } }
+.ao-vivo-aviso { margin: 10px 12px 0; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 13.5px; line-height: 1.5; color: var(--text); display: grid; gap: 8px; }
+.ao-vivo-aviso p { margin: 0; }
+.ao-vivo-aviso.falhou { background: var(--danger-soft); }
+.ao-vivo-erro { margin: 10px 12px 0; padding: 8px 12px; border-radius: 9px; background: var(--danger-soft); color: var(--danger); font-size: 13px; }
+.ao-vivo-barra { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.ao-vivo-abas { display: flex; gap: 2px; }
+.ao-vivo-abas button { appearance: none; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--text-soft); padding: 7px 10px 8px; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.ao-vivo-abas button[aria-selected="true"] { color: var(--accent-text); border-bottom-color: var(--accent); }
+.ao-vivo-abas button:disabled { opacity: .45; cursor: not-allowed; }
+.ao-vivo-barra .ao-vivo-botoes { padding-bottom: 6px; }
+.ao-vivo-saida { flex: 1; min-height: 120px; overflow: auto; background: #0b1020; color: #d5dcf0; }
+.ao-vivo-saida pre { margin: 0; padding: 10px 12px; font: 12px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.ao-vivo-saida p { margin: 12px; font-size: 13px; color: #8f9ab8; }
+.ao-vivo-copiar { margin: 6px 12px; align-self: flex-start; }
+@media (prefers-reduced-motion: reduce) { .forja-previa-ponto.carregando, .ao-vivo-giro { animation: none; } }

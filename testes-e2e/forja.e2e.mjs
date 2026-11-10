@@ -61,27 +61,38 @@ try {
     && ia.pedidos.slice(antesDaPreguica).filter((p) => /Você ainda não mudou nada/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1
     && /a\s*\+\s*b/.test(proj.ler('soma.js')));
 
-  // prévia ao vivo: sem index.html explica; com index.html mostra o site isolado e recarrega quando a Forja edita
+  // Ao vivo: sem nada rodável explica; com um site, liga um servidor estático de verdade (raiz certa, porta própria),
+  // recarrega quando a Forja edita, e para tudo ao fechar. Erro do projeto vira pedido pronto para a Forja.
   const botaoAoVivo = `[...document.querySelectorAll('.forja-acoes .btn')].find((b) => /Ao vivo/.test(b.textContent))`;
   await avaliar(`${botaoAoVivo}.click()`);
-  ok('Ao vivo sem index.html explica o motivo', await esperar(`/não achei nenhuma página index[.]html/.test(document.querySelector('.forja-previa-info')?.textContent || '')`, 5000));
+  ok('Ao vivo sem nada rodável explica o motivo', await esperar(`/Não achei nada para ligar/.test(document.querySelector('.ao-vivo')?.textContent || '')`, 5000));
   await avaliar(`${botaoAoVivo}.click()`);
-  writeFileSync(path.join(proj.pasta, 'index.html'), '<!doctype html><html><head><link rel="stylesheet" href="estilo.css"></head><body><h1>Olá, mundo</h1></body></html>');
+  writeFileSync(path.join(proj.pasta, 'index.html'), '<!doctype html><html><head><link rel="stylesheet" href="/estilo.css"></head><body><h1>Olá, mundo</h1></body></html>');
   writeFileSync(path.join(proj.pasta, 'estilo.css'), 'h1 { color: blue; }');
   await avaliar(`${botaoAoVivo}.click()`);
-  ok('Ao vivo abre o site do projeto ao lado, isolado (sandbox sem allow-same-origin)', await esperar(`(() => { const f = document.querySelector('.forja-previa iframe'); return Boolean(f) && /^\\/previa\\/[0-9a-f]{48}\\/index\\.html/.test(f.getAttribute('src')) && !/allow-same-origin/.test(f.getAttribute('sandbox')); })()`, 5000));
-  const src = await avaliar(`document.querySelector('.forja-previa iframe').getAttribute('src')`);
-  const base = `${servidor.base}${src.replace(/index\.html.*$/, '')}`;
-  const pagina = await fetch(`${base}index.html`);
-  ok('o servidor entrega a página com CSP sandbox, sem cache', /Olá, mundo/.test(await pagina.text()) && /sandbox allow-scripts/.test(pagina.headers.get('content-security-policy') || '') && pagina.headers.get('cache-control') === 'no-store');
-  ok('arquivos de apoio (CSS) também carregam', /color: blue/.test(await (await fetch(`${base}estilo.css`)).text()));
-  ok('a prévia não entrega .env nem sai da pasta', (await fetch(`${base}.env`)).status === 404 && (await fetch(`${base}..%2F..%2Fsegredo.txt`)).status === 404);
-  ok('chave inventada não abre nada', (await fetch(`${servidor.base}/previa/${'0'.repeat(48)}/index.html`)).status === 404);
-  const versaoAntes = await avaliar(`document.querySelector('.forja-previa iframe').getAttribute('src')`);
+  ok('com um site, o painel mostra o que vai fazer antes de ligar', await esperar(`/Site de HTML/.test(document.querySelector('.ao-vivo select')?.selectedOptions[0]?.textContent || '') && [...document.querySelectorAll('.ao-vivo button')].some((b) => b.textContent === 'Abrir o site')`, 5000));
+  await avaliar(`[...document.querySelectorAll('.ao-vivo button')].find((b) => b.textContent === 'Abrir o site').click()`);
+  ok('o site abre num endereço próprio (localhost:porta), separado do Gyde', await esperar(`/^http:[/][/]localhost:[0-9]+[/]$/.test(document.querySelector('.ao-vivo iframe')?.getAttribute('src') || '')`, 8000), await avaliar(`document.querySelector('.ao-vivo iframe')?.getAttribute('src') ?? document.querySelector('.ao-vivo')?.textContent.slice(0, 200)`));
+  const src = await avaliar(`document.querySelector('.ao-vivo iframe').getAttribute('src')`);
+  const base = src.replace('localhost', '127.0.0.1');
+  ok('a página e o CSS com caminho "/" carregam (raiz certa)', /Olá, mundo/.test(await (await fetch(base)).text()) && /color: blue/.test(await (await fetch(`${base}estilo.css`)).text()));
+  ok('o Ao vivo não entrega .env nem sai da pasta', (await fetch(`${base}.env`)).status === 404 && (await fetch(`${base}..%2F..%2Fsegredo.txt`)).status !== 200);
+  ok('"Abrir no navegador" aponta para o mesmo endereço', await avaliar(`document.querySelector('.ao-vivo a[target="_blank"]')?.getAttribute('href') === ${JSON.stringify(src)}`));
+  await avaliar(`document.querySelector('.ao-vivo iframe').__marca = 1; 1`);
   await pedir('PREVIA troque o título');
-  ok('quando a Forja edita um arquivo, a prévia recarrega sozinha', await esperar(`document.querySelector('.forja-previa iframe')?.getAttribute('src') !== ${JSON.stringify(versaoAntes)}`, 30_000) && /Olá, Gyde/.test(await (await fetch(`${base}index.html`)).text()));
-  await avaliar(`document.querySelector('.forja-previa button[aria-label="Fechar a prévia"]').click()`);
-  ok('fechar a prévia volta a conversa para a tela inteira', await esperar(`document.querySelector('.forja-previa') === null`, 3000));
+  ok('quando a Forja edita um arquivo, a página recarrega sozinha', await esperar(`document.querySelector('.ao-vivo iframe') && !document.querySelector('.ao-vivo iframe').__marca`, 30_000) && /Olá, Gyde/.test(await (await fetch(base)).text()));
+  await avaliar(`document.querySelector('.ao-vivo button[aria-label="Fechar o Ao vivo e parar o projeto"]').click()`);
+  ok('fechar o painel volta a conversa para a tela inteira', await esperar(`document.querySelector('.ao-vivo') === null`, 3000));
+  ok('fechar o painel para o servidor (nada fica rodando)', await (async () => { for (let i = 0; i < 20; i++) { try { await fetch(base); } catch { return true; } await new Promise((r) => setTimeout(r, 250)); } return false; })());
+  // erro do projeto: explicação em português e "Pedir à Forja para consertar" com o erro já no campo
+  await avaliar(`${botaoAoVivo}.click()`);
+  await esperar(`document.querySelector('.ao-vivo-outro') !== null`, 5000);
+  await avaliar(`(()=>{ const d = document.querySelector('.ao-vivo-outro'); d.open = true; const i = d.querySelector('input'); i.value = 'node -e "chamaQueNaoExiste()"'; i.dispatchEvent(new Event('input', { bubbles: true })); d.querySelector('form').requestSubmit(); return 1; })()`);
+  ok('erro no projeto: o painel explica e oferece a Forja', await esperar(`/erro no código/.test(document.querySelector('.ao-vivo-aviso')?.textContent || '') && [...document.querySelectorAll('.ao-vivo button')].some((b) => /Pedir à Forja/.test(b.textContent))`, 20_000), await avaliar(`document.querySelector('.ao-vivo')?.textContent.slice(0, 300)`));
+  await avaliar(`[...document.querySelectorAll('.ao-vivo button')].find((b) => /Pedir à Forja/.test(b.textContent)).click()`);
+  ok('o erro vai para o campo da Forja (a pessoa confere e envia)', await esperar(`/ReferenceError/.test(document.querySelector('#agenteView textarea')?.value || '') && /Comando: node -e/.test(document.querySelector('#agenteView textarea')?.value || '')`, 3000));
+  await avaliar(`(()=>{ const t = document.querySelector('#agenteView textarea'); t.value = ''; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('.ao-vivo button[aria-label="Fechar o Ao vivo e parar o projeto"]').click(); return 1; })()`);
+  await esperar(`document.querySelector('.ao-vivo') === null`, 3000);
 
   await pedir('REVISAR-ERRO crie a nota');
   ok('outro modelo lê as mudanças e a tela mostra o que ele apontou', await esperar(`/apontou 1 ponto/.test([...document.querySelectorAll('.forja-revisao')].pop()?.textContent || '')`, 30_000));

@@ -211,5 +211,19 @@ else {
     procurarAtualizacao();
   });
   app.on('window-all-closed', () => app.quit());
-  app.on('before-quit', () => { saindo = true; registrar('fechando'); servidor?.kill(); });
+  // Antes de fechar, pede ao servidor para encerrar o que o "Ao vivo" ligou (servidores dos projetos) e espera a
+  // confirmação (no máximo 1,5 s). Matar o servidor direto deixaria esses processos rodando escondidos no Windows.
+  let aoVivoEncerrado = false;
+  app.on('before-quit', (e) => {
+    if (servidor && !aoVivoEncerrado) {
+      e.preventDefault();
+      const s = servidor;
+      const seguir = () => { if (aoVivoEncerrado) return; aoVivoEncerrado = true; app.quit(); };
+      s.once('message', (m) => { if (m === 'ao-vivo-encerrado') seguir(); });
+      try { s.postMessage('encerrar-ao-vivo'); } catch { seguir(); }
+      setTimeout(seguir, 1500);
+      return;
+    }
+    saindo = true; registrar('fechando'); servidor?.kill();
+  });
 }

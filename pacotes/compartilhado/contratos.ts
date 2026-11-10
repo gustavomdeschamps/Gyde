@@ -52,7 +52,18 @@ export const Apontamento = z.object({
 export type TApontamento = z.infer<typeof Apontamento>;
 // ---------- Forja ----------
 // prévia ao vivo: url só quando o projeto tem um index.html; senão o motivo
-export const PreviaForja = z.object({ url: z.string().nullable(), entrada: z.string().nullable(), motivo: z.string().nullable() }).refine((p) => (p.url === null) !== (p.motivo === null), { message: 'prévia: ou url ou motivo' });
+// Ao vivo da Forja (pacotes/servidor/ao-vivo.ts): o plano (formas de ligar o projeto) e o estado do que está ligado
+export const OpcaoAoVivo = z.object({
+  id: z.string(), rotulo: z.string(), detalhe: z.string(), tipo: z.enum(['web', 'estatico', 'console']), pasta: z.string(),
+  comando: z.string().nullable(), instalar: z.string().nullable(), ferramenta: z.string().nullable(), env: z.record(z.string(), z.string()).optional(),
+});
+export const PlanoAoVivo = z.object({ opcoes: z.array(OpcaoAoVivo), recomendada: z.string().nullable(), motivo: z.string().nullable() });
+export const EstadoAoVivo = z.object({
+  fase: z.enum(['parado', 'instalando', 'iniciando', 'pronto', 'rodando', 'terminou', 'falhou']), opcao: z.string().nullable(), comando: z.string().nullable(),
+  url: z.string().nullable(), porta: z.number().int().nullable(), tipo: z.enum(['web', 'estatico', 'console']).nullable(), saida: z.array(z.string()),
+  mensagem: z.string().nullable(), erroParaForja: z.string().nullable(), desde: z.number().nullable(),
+}).refine((e) => e.fase !== 'pronto' || Boolean(e.url), { message: 'Ao vivo pronto sem endereço' });
+export const AoVivo = z.object({ plano: PlanoAoVivo, estado: EstadoAoVivo });
 export const EstadoPasta = z.object({ ok: z.boolean(), motivo: z.string().nullable(), texto: z.string().nullable(), temporario: z.boolean().optional() })
   .refine((e) => e.ok || Boolean(e.texto), { message: 'pasta indisponível sem explicação' });
 export const Projeto = z.object({ tecnologias: z.array(z.string()), testes: z.string().nullable(), arquivos: z.number().int(), git: z.boolean() });
@@ -168,6 +179,9 @@ export const Uso = z.object({
 export type TRestauracaoPreparada = z.infer<typeof RestauracaoPreparada>;
 export type TPreferencias = z.infer<typeof Preferencias>;
 export type TSessaoForja = z.infer<typeof SessaoForja>;
+export type TOpcaoAoVivo = z.infer<typeof OpcaoAoVivo>;
+export type TEstadoAoVivo = z.infer<typeof EstadoAoVivo>;
+export type TPlanoAoVivo = z.infer<typeof PlanoAoVivo>;
 export type TCidade = z.infer<typeof Cidade>;
 export type TPredio = z.infer<typeof Predio>;
 export type TUso = z.infer<typeof Uso>;

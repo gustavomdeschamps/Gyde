@@ -2,7 +2,7 @@
 // O modelo lê, procura, edita arquivos e roda comandos até terminar, mostrando cada ação real.
 // Só funciona no modo pessoal (o Gyde rodando no seu computador) e só dentro da pasta escolhida.
 // As proteções ficam em seguranca.js e valem mesmo que o modelo tente outra coisa.
-import { randomUUID, randomBytes, createHash } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, rmSync, realpathSync, accessSync, constants as FS } from 'node:fs';
 import path from 'node:path';
@@ -20,7 +20,7 @@ import type { Uso } from './uso.ts';
 import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 import { mapaDaCidade, LIMITE_PREDIOS } from './cidade.ts';
-import { acharEntradaPrevia } from './previa.ts';
+import { criarAoVivo } from './ao-vivo.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).
 export interface ArgsFerramenta { caminho?: unknown; profundidade?: unknown; inicio?: unknown; fim?: unknown; texto?: unknown; conteudo?: unknown; procurar?: unknown; substituir?: unknown; comando?: unknown }
@@ -503,41 +503,47 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.sendFile(arq);
   });
-  // ---------- prévia ao vivo do projeto (sites estáticos) ----------
-  // A página do projeto roda com um endereço próprio (/previa/<chave aleatória>/...), só de leitura, preso à pasta e
-  // isolado em sandbox: o JavaScript do projeto fica numa origem opaca e não alcança os cookies nem a API do Gyde.
-  // A chave vale 2 horas e só para a pasta daquela conversa.
-  const previas = new Map<string, { pasta: string; expira: number }>();
-  app.post('/api/codigo/sessoes/:id/previa', bloqueado, (req, res) => {
+  // ---------- Ao vivo: liga o projeto (servidor de desenvolvimento, site pronto ou programa de console) ----------
+  // Nada roda sem a pessoa clicar vendo o comando exato (o painel mostra; o clique é a autorização). Comandos que a
+  // Forja bloqueia continuam bloqueados. O projeto roda só em 127.0.0.1, sem as chaves do Gyde (ao-vivo.ts).
+  const aoVivo = criarAoVivo();
+  const comPasta = (req: Request, res: Response) => {
+    const s = q.uma.get(String(req.params.id), req.user.id);
+    if (!s) { res.status(404).json({ error: 'Sessão não encontrada.' }); return null; }
+    const e = estadoPasta(s.pasta);
+    if (!e.ok) { res.status(400).json({ error: e.texto, pastaEstado: e }); return null; }
+    return { s, pasta: realpathSync.native(s.pasta) };
+  };
+  app.get('/api/codigo/sessoes/:id/ao-vivo', bloqueado, (req, res) => {
+    const c = comPasta(req, res); if (!c) return;
+    responder(res, C.AoVivo, { plano: aoVivo.planejar(c.pasta), estado: aoVivo.estado(c.s.id) });
+  });
+  app.get('/api/codigo/sessoes/:id/ao-vivo/estado', bloqueado, (req, res) => {
     const s = q.uma.get(String(req.params.id), req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
-    { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
-    const pasta = realpathSync.native(s.pasta);
-    // acha a página que abre como site pronto; se nenhuma serve, o motivo diz o limite e o que fazer (previa.ts)
-    const achado = acharEntradaPrevia(pasta);
-    if (!achado.entrada) return responder(res, C.PreviaForja, { url: null, entrada: null, motivo: achado.motivo });
-    const entrada = achado.entrada;
-    for (const [k, v] of previas) if (v.expira < Date.now()) previas.delete(k);
-    const chave = randomBytes(24).toString('hex');
-    previas.set(chave, { pasta, expira: Date.now() + 2 * 3_600_000 });
-    responder(res, C.PreviaForja, { url: `/previa/${chave}/${entrada}`, entrada, motivo: null });
+    responder(res, C.EstadoAoVivo, aoVivo.estado(s.id));
   });
-  const TIPOS: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.txt': 'text/plain; charset=utf-8' };
-  app.get('/previa/:chave/*caminho', (req, res) => {
-    const previa = previas.get(String(req.params.chave));
-    if (!pessoal || !previa || previa.expira < Date.now()) return res.status(404).type('text/plain').send('Prévia expirada. Abra de novo pela Forja.');
-    const partes = (req.params as unknown as { caminho?: string[] }).caminho ?? [];
-    let alvo: string;
-    try { alvo = caminhoSeguro(previa.pasta, partes.join('/') || 'index.html'); } catch { return res.status(404).type('text/plain').send('Arquivo fora do projeto.'); }
-    if (existsSync(alvo) && statSync(alvo).isDirectory()) alvo = path.join(alvo, 'index.html');
-    const tipo = TIPOS[path.extname(alvo).toLowerCase()];
-    if (!tipo || !existsSync(alvo)) return res.status(404).type('text/plain').send('Arquivo não encontrado.');
-    res.setHeader('Content-Security-Policy', 'sandbox allow-scripts allow-forms allow-modals allow-popups');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Type', tipo);
-    res.send(readFileSync(alvo));
-  });
+  app.post('/api/codigo/sessoes/:id/ao-vivo/iniciar', bloqueado, asyncRoute(async (req, res) => {
+    const c = comPasta(req, res); if (!c) return;
+    const corpo = (req.body ?? {}) as { opcao?: unknown; instalar?: unknown; comando?: unknown };
+    try {
+      responder(res, C.EstadoAoVivo, await aoVivo.iniciar(c.s.id, c.pasta, typeof corpo.opcao === 'string' ? corpo.opcao : null, { instalar: corpo.instalar === true, comandoProprio: typeof corpo.comando === 'string' ? corpo.comando : '' }));
+    } catch (err) {
+      const e = err as Error & { status?: number };
+      res.status(e.status ?? 500).json({ error: e.message });
+    }
+  }));
+  app.post('/api/codigo/sessoes/:id/ao-vivo/parar', bloqueado, asyncRoute(async (req, res) => {
+    const s = q.uma.get(String(req.params.id), req.user.id);
+    if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
+    responder(res, C.EstadoAoVivo, await aoVivo.parar(s.id));
+  }));
+  // fechar o Gyde encerra tudo que o Ao vivo ligou: no app de desktop o processo principal avisa antes de fechar o
+  // servidor; fora dele, os sinais de saída fazem o mesmo
+  const paiDesktop = (process as unknown as { parentPort?: { on(ev: 'message', f: (e: { data: unknown }) => void): void; postMessage(m: unknown): void } }).parentPort;
+  paiDesktop?.on('message', (ev) => { if (ev.data === 'encerrar-ao-vivo') { aoVivo.encerrarTudo(); paiDesktop.postMessage('ao-vivo-encerrado'); } });
+  process.once('exit', () => aoVivo.encerrarTudo());
+  for (const sinal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) process.once(sinal, () => { aoVivo.encerrarTudo(); process.exit(0); });
 
   app.delete('/api/codigo/sessoes/:id', bloqueado, (req, res) => {
     const s = q.uma.get(String(req.params.id), req.user.id);
