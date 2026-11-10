@@ -141,3 +141,24 @@ test('sem notícia do painel, o que estava ligado é parado sozinho', async () =
     await assert.rejects(fetch(`http://127.0.0.1:${e.porta}/`));
   } finally { curto.fechar(); }
 });
+
+test('fechamento forçado: na abertura seguinte, os processos órfãos do Ao vivo são encerrados (e só eles)', async (t) => {
+  if (process.platform !== 'win32') return t.skip('conferência por linha de comando feita para o Windows');
+  const { encerrarOrfaos } = await import('../ao-vivo.ts');
+  const p = projeto({ 'LEIA.txt': '' });
+  const arq = path.join(p, 'pids.json');
+  const antigo = criarAoVivo({ arquivoPids: arq });
+  await antigo.iniciar('orfao', p, null, { comandoProprio: 'node -e "setInterval(() => {}, 1000)"' });
+  await espera(1500);
+  const anotados = JSON.parse((await import('node:fs')).readFileSync(arq, 'utf8'));
+  assert.equal(anotados.length, 1, 'o processo ligado ficou anotado');
+  // um número de processo reaproveitado por outro programa (linha de comando diferente) não pode ser encerrado
+  (await import('node:fs')).writeFileSync(arq, JSON.stringify([...anotados, { pid: process.pid, comando: 'comando-que-nao-e-deste-processo' }]));
+  // o Gyde "morreu" sem parar nada (não chama parar nem fechar): a abertura seguinte limpa
+  assert.equal(await encerrarOrfaos(arq), 1);
+  await espera(800);
+  const vivo = spawnSync('tasklist', ['/fi', `PID eq ${anotados[0].pid}`], { encoding: 'utf8' }).stdout;
+  assert.doesNotMatch(vivo, new RegExp(`\b${anotados[0].pid}\b`), 'o órfão foi encerrado');
+  assert.equal(JSON.parse((await import('node:fs')).readFileSync(arq, 'utf8')).length, 0);
+  antigo.fechar();
+});

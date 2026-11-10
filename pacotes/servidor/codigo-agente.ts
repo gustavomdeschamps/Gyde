@@ -20,7 +20,7 @@ import type { Uso } from './uso.ts';
 import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 import { mapaDaCidade, LIMITE_PREDIOS } from './cidade.ts';
-import { criarAoVivo } from './ao-vivo.ts';
+import { criarAoVivo, encerrarOrfaos } from './ao-vivo.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).
 export interface ArgsFerramenta { caminho?: unknown; profundidade?: unknown; inicio?: unknown; fim?: unknown; texto?: unknown; conteudo?: unknown; procurar?: unknown; substituir?: unknown; comando?: unknown }
@@ -506,7 +506,10 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
   // ---------- Ao vivo: liga o projeto (servidor de desenvolvimento, site pronto ou programa de console) ----------
   // Nada roda sem a pessoa clicar vendo o comando exato (o painel mostra; o clique é a autorização). Comandos que a
   // Forja bloqueia continuam bloqueados. O projeto roda só em 127.0.0.1, sem as chaves do Gyde (ao-vivo.ts).
-  const aoVivo = criarAoVivo();
+  const arquivoPids = path.join(dataDir, 'ao-vivo-processos.json');
+  // fechamento forçado da vez anterior: encerra servidores de projeto que ficaram órfãos (sem travar a abertura)
+  void encerrarOrfaos(arquivoPids).then((n) => { if (n) console.log(`  Ao vivo: ${n} processo(s) de projeto que tinham ficado rodando foram encerrados.`); });
+  const aoVivo = criarAoVivo({ arquivoPids });
   const comPasta = (req: Request, res: Response) => {
     const s = q.uma.get(String(req.params.id), req.user.id);
     if (!s) { res.status(404).json({ error: 'Sessão não encontrada.' }); return null; }
@@ -521,7 +524,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
   app.get('/api/codigo/sessoes/:id/ao-vivo/estado', bloqueado, (req, res) => {
     const s = q.uma.get(String(req.params.id), req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
-    responder(res, C.EstadoAoVivo, aoVivo.estado(s.id));
+    responder(res, C.EstadoAoVivo, aoVivo.estado(s.id, Number(req.query.desde ?? -1) || -1));
   });
   app.post('/api/codigo/sessoes/:id/ao-vivo/iniciar', bloqueado, asyncRoute(async (req, res) => {
     const c = comPasta(req, res); if (!c) return;

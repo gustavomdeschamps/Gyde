@@ -9,7 +9,8 @@
   import type { Cidade3D } from './cidade3d.ts';
   import { ouvirCidade, type SinalCidade } from './sinais-cidade.ts';
 
-  let { id }: { id: string } = $props();
+  // segundoPlano: o Ao vivo está aberto ao lado; a cena 3D só desenha quando algo muda (poupa a placa de vídeo)
+  let { id, segundoPlano = false }: { id: string; segundoPlano?: boolean } = $props();
 
   let cidade = $state<TCidade | null>(null);
   let erro = $state('');
@@ -73,6 +74,7 @@
     }).catch((e: unknown) => { erro3d = String((e as Error)?.message ?? e).slice(0, 300); if (!cancelado) estado3d = 'falhou'; });
     return () => { cancelado = true; cena?.destruir(); cena = null; dica = null; aviso3d = null; };
   });
+  $effect(() => { const p = segundoPlano; if (estado3d === 'pronto') cena?.pausar(p); });
   // a Forja mexeu num arquivo: o prédio acende na cidade e o HUD diz o quê
   $effect(() => ouvirCidade((sinal) => {
     if (!cena) return;

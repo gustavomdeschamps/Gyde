@@ -59,7 +59,7 @@
   const urlAnexo = (arquivo: string) => `/api/codigo/sessoes/${id}/anexos/${arquivo}`;
   const outros = $derived(recentes.filter((r) => r.id !== sessao?.id).slice(0, 6));
 
-  const relogio = setInterval(() => { if (trabalhando) agora = Date.now(); }, 500);
+  const relogio = setInterval(() => { if (trabalhando) agora = Date.now(); }, 1000); // o relógio do turno mostra segundos: 1 vez por segundo basta
   onDestroy(() => clearInterval(relogio));
 
   async function descer() { await tick(); if (rolagem) rolagem.scrollTop = rolagem.scrollHeight; }
@@ -262,7 +262,7 @@
   {/if}
 
   {#if vista === 'cidade' && id && sessao?.pastaEstado.ok}
-  <div class="forja-rolagem" id="painelForja" role="tabpanel" aria-labelledby="abaCidade"><Cidade {id} /></div>
+  <div class="forja-rolagem" id="painelForja" role="tabpanel" aria-labelledby="abaCidade"><Cidade {id} segundoPlano={aoVivoAberto} /></div>
   {:else}
   <div class="forja-rolagem" bind:this={rolagem} id="painelForja" role={sessao ? 'tabpanel' : undefined} aria-labelledby={sessao ? 'abaConversa' : undefined}><div class="messages">
     {#if !id}

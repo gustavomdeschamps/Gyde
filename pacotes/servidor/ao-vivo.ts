@@ -10,7 +10,7 @@
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import { createServer, request, type Server } from 'node:http';
 import { createServer as criarRede } from 'node:net';
-import { existsSync, readdirSync, readFileSync, statSync, createReadStream, realpathSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync, createReadStream, realpathSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { ARQUIVO_SECRETO, ambienteLimpo, classificarComando, redigir } from './seguranca.ts';
 import { problemaDaPagina } from './previa.ts';
@@ -29,6 +29,8 @@ export type FaseAoVivo = 'parado' | 'instalando' | 'iniciando' | 'pronto' | 'rod
 export interface EstadoAoVivo {
   fase: FaseAoVivo; opcao: string | null; comando: string | null; url: string | null; porta: number | null;
   tipo: TipoOpcao | null; saida: string[]; mensagem: string | null; erroParaForja: string | null; desde: number | null;
+  total: number; // linhas de saída desde o começo (o painel pede só as novas)
+  primeira: number; // número da primeira linha de "saida" nesta resposta
 }
 
 const PULAR = new Set(['node_modules', '.git', 'dist', 'build', 'out', '.next', '.nuxt', '.svelte-kit', 'coverage', '__pycache__', '.venv', 'venv', 'target', 'obj', 'bin', '.cache', 'vendor']);
@@ -218,12 +220,13 @@ export function explicarErro(saida: string, codigo: number | null, opcao: Pick<O
 interface Execucao {
   estado: EstadoAoVivo; opcaoInfo: OpcaoAoVivo | null; pastaProjeto: string;
   proc: ChildProcess | null; estatico: Server | null; contato: number; geracao: number;
+  pendente: string; lote: ReturnType<typeof setTimeout> | null; // saída ainda não processada (vai em lotes de 120 ms)
 }
 const portaLivre = () => new Promise<number>((ok, falha) => { const s = criarRede(); s.on('error', falha); s.listen(0, '127.0.0.1', () => { const p = (s.address() as { port: number }).port; s.close(() => ok(p)); }); });
 // eslint-disable-next-line no-control-regex -- tira as cores do terminal (ESC[...m) e outros códigos
 const semAnsi = (t: string) => t.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, '').replace(/\r(?!\n)/g, '\n');
 const URL_LOCAL = /https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)(?::(\d{2,5}))?/i;
-const vazio = (): EstadoAoVivo => ({ fase: 'parado', opcao: null, comando: null, url: null, porta: null, tipo: null, saida: [], mensagem: null, erroParaForja: null, desde: null });
+const vazio = (): EstadoAoVivo => ({ fase: 'parado', opcao: null, comando: null, url: null, porta: null, tipo: null, saida: [], mensagem: null, erroParaForja: null, desde: null, total: 0, primeira: 0 });
 const TIPOS: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.avif': 'image/avif', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.otf': 'font/otf', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.webm': 'video/webm', '.txt': 'text/plain; charset=utf-8', '.wasm': 'application/wasm', '.map': 'application/json; charset=utf-8', '.xml': 'application/xml; charset=utf-8' };
 
 // servidor estático de verdade: raiz = pasta do site; "/assets/x" funciona; página de app (SPA) cai no index.html
@@ -249,6 +252,16 @@ const responde = (porta: number) => new Promise<boolean>((ok) => {
   r.on('error', () => ok(false)); r.on('timeout', () => { r.destroy(); ok(false); }); r.end();
 });
 
+// Parar de verdade: espera o taskkill e a saída do processo (no máximo 5 s), para "Parar" só responder com ele morto.
+function matarEsperando(p: ChildProcess | null): Promise<void> {
+  if (!p?.pid || p.exitCode !== null) return Promise.resolve();
+  return new Promise((ok) => {
+    const fim = setTimeout(ok, 5000);
+    p.once('exit', () => { clearTimeout(fim); ok(); });
+    if (process.platform === 'win32') spawn('taskkill', ['/pid', String(p.pid), '/t', '/f'], { windowsHide: true }).on('error', () => {});
+    else { try { process.kill(-p.pid!, 'SIGTERM'); } catch { p.kill('SIGTERM'); } }
+  });
+}
 function matarArvore(p: ChildProcess | null, sync = false) {
   if (!p?.pid || p.exitCode !== null) return;
   if (process.platform === 'win32') {
@@ -257,20 +270,56 @@ function matarArvore(p: ChildProcess | null, sync = false) {
   } else { try { process.kill(-p.pid, 'SIGTERM'); } catch { p.kill('SIGTERM'); } }
 }
 
-export function criarAoVivo({ contatoMaximo = 45_000 }: { contatoMaximo?: number } = {}) {
+// Processos ligados pelo Ao vivo ficam anotados num arquivo (número do processo e comando). Se o Gyde for fechado à força,
+// na próxima abertura ele encerra os que ainda estiverem rodando, conferindo antes que a linha de comando bate
+// (para não matar outro programa que tenha ganhado o mesmo número de processo).
+type Anotado = { pid: number; comando: string };
+const lerAnotados = (arq: string): Anotado[] => { try { const v = JSON.parse(readFileSync(arq, 'utf8')) as unknown; return Array.isArray(v) ? v.filter((x): x is Anotado => typeof x?.pid === 'number' && typeof x?.comando === 'string') : []; } catch { return []; } };
+export async function encerrarOrfaos(arq: string): Promise<number> {
+  const anotados = lerAnotados(arq);
+  if (!anotados.length) return 0;
+  let encerrados = 0;
+  for (const a of anotados) {
+    if (process.platform !== 'win32') { try { process.kill(-a.pid, 'SIGTERM'); encerrados++; } catch { /* já tinha saído */ } continue; }
+    const linha = await new Promise<string>((ok) => {
+      const p = spawn('powershell', ['-NoProfile', '-Command', `(Get-CimInstance Win32_Process -Filter "ProcessId=${a.pid}").CommandLine`], { windowsHide: true });
+      let out = ''; p.stdout.on('data', (d: Buffer) => { out += d.toString(); }); p.on('close', () => ok(out.trim())); p.on('error', () => ok(''));
+    });
+    if (linha && linha.includes(a.comando)) { spawnSync('taskkill', ['/pid', String(a.pid), '/t', '/f'], { windowsHide: true }); encerrados++; }
+  }
+  try { writeFileSync(arq, '[]'); } catch { /* sem como gravar */ }
+  return encerrados;
+}
+
+export function criarAoVivo({ contatoMaximo = 45_000, arquivoPids = '' }: { contatoMaximo?: number; arquivoPids?: string } = {}) {
   const execucoes = new Map<string, Execucao>();
+  const anotar_ = (lista: Anotado[]) => { if (arquivoPids) { try { writeFileSync(arquivoPids, JSON.stringify(lista)); } catch { /* sem como gravar */ } } };
+  const anotarPid = (pid: number | undefined, comando: string) => { if (pid && arquivoPids) anotar_([...lerAnotados(arquivoPids).filter((a) => a.pid !== pid), { pid, comando }]); };
+  const esquecerPid = (pid: number | undefined) => { if (pid && arquivoPids) anotar_(lerAnotados(arquivoPids).filter((a) => a.pid !== pid)); };
   const pegar = (sessao: string, pasta: string) => {
     let e = execucoes.get(sessao);
-    if (!e) { e = { estado: vazio(), opcaoInfo: null, pastaProjeto: pasta, proc: null, estatico: null, contato: Date.now(), geracao: 0 }; execucoes.set(sessao, e); }
+    if (!e) { e = { estado: vazio(), opcaoInfo: null, pastaProjeto: pasta, proc: null, estatico: null, contato: Date.now(), geracao: 0, pendente: '', lote: null }; execucoes.set(sessao, e); }
     e.pastaProjeto = pasta;
     return e;
   };
-  const anotar = (e: Execucao, texto: string) => {
+  // A saída do projeto chega aos pedaços (às vezes milhares de linhas por segundo): junta em lotes de 120 ms e só então
+  // tira cores e segredos e separa as linhas. Assim um servidor tagarela não ocupa o Gyde a cada pedacinho.
+  const processar = (e: Execucao) => {
+    if (e.lote) { clearTimeout(e.lote); e.lote = null; }
+    if (!e.pendente) return;
+    const texto = e.pendente; e.pendente = '';
     const linhas = redigir(semAnsi(texto)).split(/\r?\n/).filter((l, i, a) => l.trim() || i < a.length - 1);
     e.estado.saida.push(...linhas.map((l) => l.slice(0, 2000)));
+    e.estado.total += linhas.length;
     if (e.estado.saida.length > 600) e.estado.saida.splice(0, e.estado.saida.length - 600);
   };
+  const anotar = (e: Execucao, texto: string, agora = false) => {
+    e.pendente += texto;
+    if (e.pendente.length > 256_000) e.pendente = e.pendente.slice(-256_000);
+    if (agora) processar(e); else e.lote ??= setTimeout(() => processar(e), 120);
+  };
   const falhar = (e: Execucao, codigo: number | null) => {
+    processar(e);
     const texto = e.estado.saida.join('\n');
     e.estado.fase = 'falhou';
     e.estado.mensagem = explicarErro(texto, codigo, e.opcaoInfo);
@@ -283,11 +332,13 @@ export function criarAoVivo({ contatoMaximo = 45_000 }: { contatoMaximo?: number
 
   // roda um comando (instalação ou o projeto); devolve o processo
   function rodar(e: Execucao, comando: string, cwd: string, env: Record<string, string>) {
-    anotar(e, `> ${comando}\n`);
+    anotar(e, `> ${comando}\n`, true);
     const p = spawn(process.platform === 'win32' ? 'cmd.exe' : 'sh', process.platform === 'win32' ? ['/d', '/s', '/c', `"${comando}"`] : ['-c', comando],
       { cwd, windowsHide: true, windowsVerbatimArguments: true, detached: process.platform !== 'win32', env: ambienteLimpo({ FORCE_COLOR: '0', NO_COLOR: '1', ...env }) });
     p.stdout?.on('data', (d: Buffer) => anotar(e, d.toString()));
     p.stderr?.on('data', (d: Buffer) => anotar(e, d.toString()));
+    anotarPid(p.pid, comando);
+    p.on('close', () => esquecerPid(p.pid));
     e.proc = p;
     return p;
   }
@@ -296,7 +347,8 @@ export function criarAoVivo({ contatoMaximo = 45_000 }: { contatoMaximo?: number
     const e = execucoes.get(sessao);
     if (!e) return vazio();
     e.geracao++;
-    matarArvore(e.proc); e.proc = null;
+    const proc = e.proc; e.proc = null;
+    await matarEsperando(proc);
     if (e.estatico) { e.estatico.close(); e.estatico.closeAllConnections?.(); e.estatico = null; }
     if (e.estado.fase !== 'parado') { anotar(e, '(parado)\n'); e.estado.fase = 'parado'; e.estado.url = null; e.estado.mensagem = null; e.estado.erroParaForja = null; }
     return e.estado;
@@ -319,7 +371,8 @@ export function criarAoVivo({ contatoMaximo = 45_000 }: { contatoMaximo?: number
     if (cwd !== pasta && !cwd.startsWith(pasta + path.sep)) throw Object.assign(new Error('Pasta fora do projeto.'), { status: 400 });
     e.opcaoInfo = opcao;
     e.contato = Date.now();
-    e.estado = { ...vazio(), opcao: opcao.id, tipo: opcao.tipo, desde: Date.now(), fase: 'iniciando' };
+    e.pendente = '';
+    e.estado = { ...vazio(), opcao: opcao.id, tipo: opcao.tipo, desde: Date.now(), fase: 'iniciando', total: e.estado.total, primeira: e.estado.total };
     const porta = await portaLivre();
     const trocar = (t: string) => t.replaceAll('{porta}', String(porta));
 
@@ -394,13 +447,22 @@ export function criarAoVivo({ contatoMaximo = 45_000 }: { contatoMaximo?: number
 
   // fechar o Gyde: encerra tudo na hora (síncrono, para dar tempo antes de o processo sair)
   function encerrarTudo() {
-    for (const e of execucoes.values()) { e.geracao++; matarArvore(e.proc, true); e.proc = null; e.estatico?.close(); e.estatico = null; }
+    for (const e of execucoes.values()) { e.geracao++; matarArvore(e.proc, true); esquecerPid(e.proc?.pid); e.proc = null; e.estatico?.close(); e.estatico = null; }
   }
 
   return {
     planejar: planejarAoVivo,
     iniciar, parar, encerrarTudo,
-    estado(sessao: string) { const e = execucoes.get(sessao); if (e) e.contato = Date.now(); return e?.estado ?? vazio(); },
+    // desde: o painel já tem as linhas até este número; volta só as novas (ou todas, se ele ficou para trás)
+    estado(sessao: string, desde = -1) {
+      const e = execucoes.get(sessao);
+      if (!e) return vazio();
+      e.contato = Date.now();
+      processar(e);
+      const base = e.estado.total - e.estado.saida.length; // número da primeira linha guardada
+      const de = desde >= base ? desde : base;
+      return { ...e.estado, saida: e.estado.saida.slice(de - base), primeira: de };
+    },
     ativos: () => [...execucoes.values()].filter((e) => e.proc || e.estatico).length,
     fechar() { clearInterval(vigia); encerrarTudo(); },
   };

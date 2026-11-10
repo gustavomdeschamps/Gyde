@@ -20,6 +20,11 @@
   let recarga = $state(0);
   let agora = $state(Date.now());
   let caixaSaida: HTMLElement | undefined = $state();
+  // saída: só as linhas novas chegam a cada consulta e entram no fim da lista (antes, as 600 linhas eram redesenhadas
+  // a cada segundo). Cada linha tem o seu número, então o Svelte só cria os elementos novos.
+  let linhas = $state.raw<{ n: number; t: string }[]>([]);
+  let proxima = 0;
+  const MAX_LINHAS = 600;
   let copiado = $state(false);
 
   const opcao = $derived(plano?.opcoes.find((o) => o.id === escolhida) ?? null);
@@ -32,7 +37,7 @@
     erro = '';
     try {
       const r = await pedir(`/api/codigo/sessoes/${id}/ao-vivo`, C.AoVivo);
-      plano = r.plano; estado = r.estado;
+      plano = r.plano; receber(r.estado);
       escolhida = r.estado.opcao ?? r.plano.recomendada ?? r.plano.opcoes[0]?.id ?? '';
       if (!r.plano.opcoes.length) mostrarOutro = true;
     } catch (e) { erro = mensagemDe(e); }
@@ -42,30 +47,50 @@
   async function iniciar(instalar: boolean, comando = '') {
     enviando = true; erro = '';
     try {
-      estado = C.EstadoAoVivo.parse(await enviar(`/api/codigo/sessoes/${id}/ao-vivo/iniciar`, corpo({ opcao: escolhida, instalar, comando })));
-      aba = estado.url ? 'pagina' : 'saida';
+      receber(C.EstadoAoVivo.parse(await enviar(`/api/codigo/sessoes/${id}/ao-vivo/iniciar`, corpo({ opcao: escolhida, instalar, comando }))));
+      aba = estado?.url ? 'pagina' : 'saida';
     } catch (e) { erro = mensagemDe(e); }
     enviando = false;
   }
   async function parar() {
-    try { estado = C.EstadoAoVivo.parse(await enviar(`/api/codigo/sessoes/${id}/ao-vivo/parar`, { method: 'POST' })); } catch (e) { erro = mensagemDe(e); }
+    try { receber(C.EstadoAoVivo.parse(await enviar(`/api/codigo/sessoes/${id}/ao-vivo/parar`, { method: 'POST' }))); } catch (e) { erro = mensagemDe(e); }
   }
   const reiniciar = () => iniciar(false, estado?.opcao === 'proprio' ? outro : '');
 
-  // acompanha o estado (e avisa o servidor que o painel continua aberto: sem notícia dele, o projeto é parado)
+  // junta o que chegou: linhas novas no fim; o resto do estado só é trocado se mudou (evita redesenhar o painel à toa)
+  let chaveEstado = '';
   let ultimaFase = '';
-  const relogio = setInterval(async () => {
-    agora = Date.now();
-    if (!estado) return;
-    try {
-      const novo = await pedir(`/api/codigo/sessoes/${id}/ao-vivo/estado`, C.EstadoAoVivo);
+  function receber(novo: TEstadoAoVivo) {
+    if (novo.saida.length || novo.primeira !== proxima) {
+      const vindas = novo.saida.map((t, i) => ({ n: novo.primeira + i, t }));
+      const juntas = novo.primeira === proxima ? [...linhas, ...vindas] : vindas; // pulou ou recomeçou: troca tudo
+      linhas = juntas.length > MAX_LINHAS ? juntas.slice(-MAX_LINHAS) : juntas;
+      proxima = novo.primeira + novo.saida.length;
+    }
+    const chave = JSON.stringify({ ...novo, saida: null, primeira: null, total: null });
+    if (chave !== chaveEstado) {
+      chaveEstado = chave;
       if (novo.fase === 'pronto' && ultimaFase !== 'pronto') aba = 'pagina';
       if (novo.fase === 'falhou' && ultimaFase !== 'falhou') aba = 'saida';
       ultimaFase = novo.fase;
-      estado = novo;
-    } catch { /* uma falha de rede passageira não muda nada */ }
-  }, 1000);
-  onDestroy(() => { clearInterval(relogio); if (ligado) void enviar(`/api/codigo/sessoes/${id}/ao-vivo/parar`, { method: 'POST' }).catch(() => {}); });
+      estado = { ...novo, saida: [] };
+    }
+  }
+  // acompanha o estado (e avisa o servidor que o painel continua aberto: sem notícia dele, o projeto é parado).
+  // 1 vez por segundo enquanto algo acontece; a cada 2 s quando está parado ou pronto.
+  let vivo = true;
+  let espera: ReturnType<typeof setTimeout> | undefined;
+  async function acompanhar() {
+    if (!vivo) return;
+    if (estado) {
+      try { receber(await pedir(`/api/codigo/sessoes/${id}/ao-vivo/estado?desde=${proxima}`, C.EstadoAoVivo)); } catch { /* uma falha de rede passageira não muda nada */ }
+    }
+    const ativo = estado && ['instalando', 'iniciando', 'rodando'].includes(estado.fase);
+    espera = setTimeout(acompanhar, ativo ? 1000 : 2000);
+  }
+  espera = setTimeout(acompanhar, 1000);
+  const relogio = setInterval(() => { if (estado?.fase === 'instalando' || estado?.fase === 'iniciando') agora = Date.now(); }, 1000);
+  onDestroy(() => { vivo = false; clearTimeout(espera); clearInterval(relogio); if (ligado) void enviar(`/api/codigo/sessoes/${id}/ao-vivo/parar`, { method: 'POST' }).catch(() => {}); });
 
   // a Forja mudou arquivos: o site pronto recarrega (servidores de desenvolvimento já se atualizam sozinhos)
   let versaoVista: number | null = null;
@@ -75,10 +100,10 @@
     versaoVista = v;
   });
   // a saída rola sozinha para o fim
-  $effect(() => { void estado?.saida.length; void aba; tick().then(() => { if (caixaSaida) caixaSaida.scrollTop = caixaSaida.scrollHeight; }); });
+  $effect(() => { void linhas; void aba; tick().then(() => { if (caixaSaida) caixaSaida.scrollTop = caixaSaida.scrollHeight; }); });
 
   async function copiarSaida() {
-    try { await navigator.clipboard.writeText((estado?.saida ?? []).join('\n')); copiado = true; setTimeout(() => { copiado = false; }, 2000); } catch { /* sem área de transferência */ }
+    try { await navigator.clipboard.writeText(linhas.map((l) => l.t).join('\n')); copiado = true; setTimeout(() => { copiado = false; }, 2000); } catch { /* sem área de transferência */ }
   }
   const descricao = (o: TOpcaoAoVivo) => (o.tipo === 'estatico' ? 'site pronto' : o.tipo === 'web' ? 'servidor de desenvolvimento' : 'programa (mostra a saída)');
 </script>
@@ -157,7 +182,7 @@
     <div class="ao-vivo-barra">
       <div class="ao-vivo-abas" role="tablist" aria-label="Ao vivo">
         <button type="button" role="tab" aria-selected={aba === 'pagina'} disabled={!estado.url} onclick={() => (aba = 'pagina')}>Página</button>
-        <button type="button" role="tab" aria-selected={aba === 'saida'} onclick={() => (aba = 'saida')}>Saída{estado.saida.length ? ` (${estado.saida.length})` : ''}</button>
+        <button type="button" role="tab" aria-selected={aba === 'saida'} onclick={() => (aba = 'saida')}>Saída{linhas.length ? ` (${linhas.length})` : ''}</button>
       </div>
       <span class="ao-vivo-botoes">
         {#if ligado}<button type="button" class="btn small ghost" onclick={parar}>Parar</button>{/if}
@@ -169,9 +194,9 @@
       <p class="forja-previa-nota">A página roda em {estado.url.replace(/\/$/, '')}, separada do Gyde: ela não acessa a sua conta.</p>
     {:else}
       <div class="ao-vivo-saida" bind:this={caixaSaida} role="log" aria-live="off" aria-label="Saída do projeto">
-        {#if estado.saida.length}<pre>{estado.saida.join('\n')}</pre>{:else}<p>Esperando a saída do comando…</p>{/if}
+        {#if linhas.length}<pre>{#each linhas as l (l.n)}<span>{l.t}{'\n'}</span>{/each}</pre>{:else}<p>Esperando a saída do comando…</p>{/if}
       </div>
-      {#if estado.saida.length}<button type="button" class="btn small ghost ao-vivo-copiar" onclick={copiarSaida}>{copiado ? 'Saída copiada' : 'Copiar a saída'}</button>{/if}
+      {#if linhas.length}<button type="button" class="btn small ghost ao-vivo-copiar" onclick={copiarSaida}>{copiado ? 'Saída copiada' : 'Copiar a saída'}</button>{/if}
     {/if}
   {/if}
 </aside>

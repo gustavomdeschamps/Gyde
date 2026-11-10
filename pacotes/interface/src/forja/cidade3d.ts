@@ -25,6 +25,7 @@ export interface Cidade3D {
   focar(caminho: string): void; // leva a câmera até o prédio
   filtrar(termo: string): number; // escurece o que não combina; devolve quantos combinam
   reagir(sinal: SinalCidade): boolean; // a Forja mexeu num arquivo; devolve se o prédio existe (ou foi criado)
+  pausar(sim: boolean): void; // em segundo plano (ex.: Ao vivo aberto ao lado): só desenha quando algo muda
   diagnostico(): string; // texto para copiar (placa, formatos, checagens, extras, erros; nada pessoal)
 }
 interface Opcoes {
@@ -366,7 +367,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   const maisAlto = planta.quadras.map(() => 0);
   for (const b of planta.predios) maisAlto[b.quadra] = Math.max(maisAlto[b.quadra]!, b.h);
   const rotulos = planta.quadras.map((q, i) => ({ q, i, peso: q.lista.length + (q.nome === '' ? 1000 : 0), el: document.createElement('span'), w: 0, h: 0,
-    ponto: new THREE.Vector3(q.x + q.largura / 2, CHAO + maisAlto[i]! + 0.9, q.z + q.fundo / 2), apagado: false, acende: atrasoQuadra(i) + 1.1 }))
+    ponto: new THREE.Vector3(q.x + q.largura / 2, CHAO + maisAlto[i]! + 0.9, q.z + q.fundo / 2), apagado: false, acende: atrasoQuadra(i) + 1.1, tr: '', vis: false, apg: false }))
     .sort((a, b) => b.peso - a.peso).slice(0, 80);
   for (const r of rotulos) {
     const nome = r.q.nome === '' ? 'raiz do projeto' : r.q.nome.slice(r.q.nome.lastIndexOf('/') + 1);
@@ -391,9 +392,10 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       const dentro = subida.value >= r.acende && vet.z < 1 && ret[0] > 4 && ret[2] < w - 4 && ret[1] > (w < 640 ? 100 : 52) && y < h - 8; // aceso e fora do HUD
       const livre = dentro && ocupados.length < maximo && !ocupados.some((o) => o[0] < ret[2] && ret[0] < o[2] && o[1] < ret[3] && ret[1] < o[3]);
       if (livre) ocupados.push(ret);
-      r.el.style.transform = `translate(${Math.round(x - r.w / 2)}px, ${Math.round(y - r.h)}px)`;
-      r.el.classList.toggle('visivel', livre);
-      r.el.classList.toggle('apagado', r.apagado);
+      // só mexe no DOM quando muda (escrever estilo de 80 rótulos a cada quadro custava CPU à toa)
+      if (livre) { const tr = `translate(${Math.round(x - r.w / 2)}px, ${Math.round(y - r.h)}px)`; if (tr !== r.tr) { r.el.style.transform = tr; r.tr = tr; } }
+      if (livre !== r.vis) { r.el.classList.toggle('visivel', livre); r.vis = livre; }
+      if (r.apagado !== r.apg) { r.el.classList.toggle('apagado', r.apagado); r.apg = r.apagado; }
     }
   }
 
@@ -425,6 +427,8 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   const placa = String(infoPlaca ? gl.getParameter(infoPlaca.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)).slice(0, 120);
   // O bloom desenha antes numa imagem fora da tela, em ponto flutuante. Placas que não aceitam esse formato (ou o
   // antisserrilhado nele) devolvem um quadro vazio. Por isso ele é só um extra, ligado depois de passar na checagem.
+  // placa integrada (divide a memória com o processador): menos pixels e animação de fundo a 30 quadros por segundo
+  const integrada = /Intel|UHD|Iris|HD Graphics|Radeon\(TM\) (Graphics|Vega)|AMD Radeon Graphics|Mali|Adreno|PowerVR|Apple|SwiftShader|llvmpipe|Basic Render/i.test(placa);
   const bufferFloat = renderer.extensions.has('EXT_color_buffer_float') || renderer.extensions.has('EXT_color_buffer_half_float');
   const amostras = bufferFloat ? Math.min(4, renderer.capabilities.maxSamples) : 0;
   const errosGl: string[] = [];
@@ -451,9 +455,10 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   // estrelas (é o modo seguro, usado também se a checagem da base falhar). Extras = bloom de verdade e mais nitidez.
   const estado = { alivio: 0, extras: false, extrasMotivo: 'ainda não testados', fps: 0 };
   const placasSemExtras = (() => { try { return JSON.parse(localStorage.getItem(CHAVE_EXTRAS) ?? '[]') as string[]; } catch { return []; } })();
-  const podeExtras = () => bufferFloat && !celular && !placasSemExtras.includes(placa);
+  const podeExtras = () => bufferFloat && !celular && !integrada && !placasSemExtras.includes(placa);
   function aplicar() {
-    const teto = estado.extras ? 1.75 : estado.alivio === 0 ? (celular ? 1.25 : 1.5) : 1;
+    // placa integrada (referência: Intel UHD 620) e celular: densidade 1 (com 1,5 eram 2,25 vezes mais pixels por quadro)
+    const teto = estado.extras ? 1.75 : estado.alivio === 0 && !integrada && !celular ? 1.5 : 1;
     const dpr = Math.min(devicePixelRatio, teto);
     renderer.setPixelRatio(dpr);
     composer?.setPixelRatio(dpr);
@@ -542,7 +547,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       caixa.dataset.verificacao = 'ok';
       if (alvo === 'extras') { estado.extrasMotivo = 'ligados (passaram na checagem)'; caixa.dataset.extras = 'ligados'; }
       console.info('[Gyde · Cidade 3D] quadro conferido: prédios aparecendo', diag);
-      if (alvo === 'base' && forcarExtras && podeExtras() && !estado.extras) ligarExtras();
+      if (alvo === 'base' && forcarExtras && bufferFloat && !estado.extras) ligarExtras(); // teste: força mesmo em placa integrada
       return;
     }
     console.warn('[Gyde · Cidade 3D] os prédios não apareceram neste quadro', diag, errosGl.slice(0, 3));
@@ -602,11 +607,25 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   let voo: { de: THREE.Vector3; para: THREE.Vector3; alvoDe: THREE.Vector3; alvoPara: THREE.Vector3; inicio: number } | null = null;
   const medidor = { quadros: 0, inicio: 0, testouExtras: false };
   const esfera = new THREE.Spherical(), esferaFinal = new THREE.Spherical(), esferaInicio = new THREE.Spherical();
+  // Ritmo: a animação de fundo (órbita lenta, pulsos, tráfego) roda a 30 quadros por segundo em placa integrada e a 60
+  // nas outras; mexer na cena, a abertura e os voos de câmera vão na velocidade da tela. Em segundo plano (Ao vivo
+  // aberto ao lado, janela sem foco) a cidade só desenha quando algo muda, ou por alguns segundos depois de a Forja agir.
+  const fpsFundo = integrada ? 30 : 60;
+  let pausada = false, semFoco = !document.hasFocus(), animarAte = 0, ultimoQuadro = 0;
+  const intervalos: number[] = [], custos: number[] = []; // tempos de quadro (diagnóstico)
+  const aoFoco = () => { semFoco = false; desenhar(); };
+  const aoDesfoco = () => { semFoco = true; };
+  window.addEventListener('focus', aoFoco);
+  window.addEventListener('blur', aoDesfoco);
   function desenhar() { if (!quadro && visivelNaTela && !document.hidden) quadro = requestAnimationFrame(passo); }
   function passo() {
     quadro = 0;
     const agora = relogio();
-    let continuar = !menosMovimento; // pulsos, tráfego e órbita lenta pedem desenho contínuo
+    const movimento = interagindo || entrada.ativa || Boolean(voo) || Boolean(acompanhar) || !entrada.pronta || verificacao.em >= 0;
+    const fundoParado = (pausada || semFoco) && agora > animarAte;
+    // só fundo: respeita o ritmo (pula o quadro sem desenhar se ainda é cedo)
+    if (!movimento && !fundoParado && !menosMovimento && ultimoQuadro && performance.now() - ultimoQuadro < 1000 / fpsFundo - 2) { desenhar(); return; }
+    let continuar = !menosMovimento && !fundoParado; // pulsos, tráfego e órbita lenta pedem desenho contínuo
     if (!entrada.pronta && enquadrada) { entrada.pronta = quadrosDesenhados > 0; entrada.inicio = agora; }
     if (!menosMovimento) {
       tempo.value = agora;
@@ -636,9 +655,13 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       if (agora > acompanhar.ate) acompanhar = null;
     }
     // órbita lenta quando ninguém mexe há alguns segundos (pausa ao interagir)
-    controles.autoRotate = !menosMovimento && !interagindo && !entrada.ativa && !voo && agora - ultimoMexer > 6;
+    controles.autoRotate = !menosMovimento && !interagindo && !entrada.ativa && !voo && !fundoParado && agora - ultimoMexer > 6;
     if (controles.update()) continuar = true;
+    const t0 = performance.now();
     renderizar();
+    const t1 = performance.now();
+    if (ultimoQuadro) { intervalos.push(t1 - ultimoQuadro); custos.push(t1 - t0); if (intervalos.length > 240) { intervalos.shift(); custos.shift(); } }
+    ultimoQuadro = t1;
     quadrosDesenhados++;
     posicionarRotulos();
     // confere depois que a abertura terminou (prédios de pé) e a câmera parou de voar
@@ -650,7 +673,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       else { caixa.dataset.verificacao = 'sem-conferir'; historico.push('não deu para conferir (poucos prédios à vista)'); }
     } else if (verificacao.em >= 0) continuar = true;
     // mede o FPS depois da abertura: alivia se sofrer; liga extras se sobrar (só uma tentativa por abertura)
-    if (!menosMovimento && !entrada.ativa && caixa.dataset.verificacao === 'ok' && verificacao.em < 0) {
+    if (!menosMovimento && !entrada.ativa && !fundoParado && caixa.dataset.verificacao === 'ok' && verificacao.em < 0) {
       medidor.quadros++;
       if (medidor.quadros === 1) medidor.inicio = agora;
       else if (agora - medidor.inicio > 3) {
@@ -658,12 +681,12 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
         estado.fps = Math.round(fps);
         medidor.quadros = 0;
         if (estado.extras && fps < 45) desligarExtras(`desligados: o FPS caiu para ${Math.round(fps)}`, false);
-        else if (!estado.extras && fps < 28 && estado.alivio < 2) { estado.alivio++; aplicar(); }
+        else if (!estado.extras && fps < Math.min(28, fpsFundo * 0.8) && estado.alivio < 2) { estado.alivio++; aplicar(); }
         else if (!estado.extras && !medidor.testouExtras && estado.alivio === 0 && fps >= 55 && podeExtras()) { medidor.testouExtras = true; ligarExtras(); }
         else if (!estado.extras && !podeExtras() && estado.extrasMotivo === 'ainda não testados') estado.extrasMotivo = !bufferFloat ? 'desligados: a placa não aceita imagem em ponto flutuante' : celular ? 'desligados: celular' : 'desligados: já falharam nesta placa';
       }
     }
-    if (continuar) desenhar();
+    if (continuar) desenhar(); else ultimoQuadro = 0; // parou: o próximo intervalo não conta a pausa
   }
   controles.addEventListener('change', desenhar);
   controles.addEventListener('start', () => { interagindo = true; entrada.ativa = false; voo = null; });
@@ -736,6 +759,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     destruir() {
       cancelAnimationFrame(quadro);
       observador.disconnect(); naTela.disconnect(); document.removeEventListener('visibilitychange', aoMudarAba);
+      window.removeEventListener('focus', aoFoco); window.removeEventListener('blur', aoDesfoco);
       renderer.domElement.removeEventListener('webglcontextlost', aoPerderContexto);
       controles.dispose();
       for (const d of descartar) d.dispose();
@@ -790,17 +814,22 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       if (tipo === 'apagar') { indice.delete(c); if (selecionado === i) api.selecionar(null); }
       const b = planta.predios[i]!;
       if (!menosMovimento) acompanhar = { alvo: new THREE.Vector3(b.x, CHAO + b.h * 0.4, b.z), ate: relogio() + 2.5 };
+      animarAte = relogio() + 5; // o pulso aparece mesmo com a cidade em segundo plano
       desenhar();
       return true;
     },
+    pausar(sim) { pausada = sim; desenhar(); },
     diagnostico() {
       const tela = renderer.getDrawingBufferSize(new THREE.Vector2());
+      const ord = (v: number[]) => [...v].sort((a, b) => a - b);
+      const pct = (v: number[], k: number) => (v.length ? ord(v)[Math.min(v.length - 1, Math.floor(v.length * k))]!.toFixed(1) : '-');
       return [
         'Gyde · Cidade 3D · diagnóstico',
         `Placa de vídeo: ${placa}`,
         `WebGL: ${renderer.capabilities.isWebGL2 ? '2' : '1'} · imagem em ponto flutuante: ${bufferFloat ? 'aceita' : 'não aceita'} · antisserrilhado fora da tela: ${amostras} amostras (máx. ${renderer.capabilities.maxSamples}) · textura máx.: ${renderer.capabilities.maxTextureSize}`,
         `Desenho: ${estado.extras ? 'com extras (bloom, imagem fora da tela)' : 'direto na tela'} · alívio: ${['nenhum', 'menos nitidez', 'modo seguro'][estado.alivio]} · extras: ${estado.extrasMotivo} · FPS medido: ${estado.fps || 'ainda não'}`,
-        `Tela: ${tela.x}×${tela.y} px · densidade ${renderer.getPixelRatio()} · celular: ${celular ? 'sim' : 'não'} · menos movimento: ${menosMovimento ? 'sim' : 'não'}`,
+        `Tela: ${tela.x}×${tela.y} px · densidade ${renderer.getPixelRatio()} · placa integrada: ${integrada ? 'sim' : 'não'} · celular: ${celular ? 'sim' : 'não'} · menos movimento: ${menosMovimento ? 'sim' : 'não'}`,
+        `Quadros: ritmo de fundo ${fpsFundo} por segundo${pausada || semFoco ? ' (pausado: em segundo plano)' : ''} · intervalo entre quadros mediana ${pct(intervalos, 0.5)} ms, pior 5% ${pct(intervalos, 0.95)} ms · tempo de CPU para desenhar mediana ${pct(custos, 0.5)} ms, pior 5% ${pct(custos, 0.95)} ms (últimos ${intervalos.length} quadros)`,
         `Prédios: ${predios.count} · bairros: ${nq} · faróis: ${quentes.length}`,
         `Checagens: ${historico.length ? historico.join(' | ') : 'ainda não feita'}`,
         `Erros: ${errosGl.length ? errosGl.slice(0, 5).join(' | ') : 'nenhum'}`,

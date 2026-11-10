@@ -62,6 +62,7 @@ export const EstadoAoVivo = z.object({
   fase: z.enum(['parado', 'instalando', 'iniciando', 'pronto', 'rodando', 'terminou', 'falhou']), opcao: z.string().nullable(), comando: z.string().nullable(),
   url: z.string().nullable(), porta: z.number().int().nullable(), tipo: z.enum(['web', 'estatico', 'console']).nullable(), saida: z.array(z.string()),
   mensagem: z.string().nullable(), erroParaForja: z.string().nullable(), desde: z.number().nullable(),
+  total: z.number().int().min(0), primeira: z.number().int().min(0),
 }).refine((e) => e.fase !== 'pronto' || Boolean(e.url), { message: 'Ao vivo pronto sem endereço' });
 export const AoVivo = z.object({ plano: PlanoAoVivo, estado: EstadoAoVivo });
 export const EstadoPasta = z.object({ ok: z.boolean(), motivo: z.string().nullable(), texto: z.string().nullable(), temporario: z.boolean().optional() })
