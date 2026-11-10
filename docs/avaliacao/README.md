@@ -7,6 +7,17 @@ geral. Os modelos grátis e o roteamento do FreeLLMAPI mudam de um dia para o ou
 **Nada aqui compara o Gyde com ChatGPT, Claude, Gemini ou Grok.** Isso exigiria testes independentes e comparáveis, que não
 foram feitos. Como a inteligência funciona: [inteligencia.md](../inteligencia.md).
 
+## Provedores diretos (09/11/2026)
+
+Medições com as chaves grátis ligadas direto (NVIDIA, Google, Groq e Mistral), sem o FreeLLMAPI. São a base de
+`pacotes/servidor/ia/medicoes.json`, que o roteador usa para escolher o modelo de cada pedido.
+
+| Arquivos | O que mede |
+|---|---|
+| `provedor-*.json` | as 17 categorias acima, um provedor por vez (`provedor-google-sozinho` sem cair em outro) |
+| `forja-*.json` | a Forja com as tarefas de `ferramentas/avaliar-forja.mjs` (`forja-groq-corrigido`: depois do conserto do erro 400 do Groq) |
+| `chat-*.json` | o chat (tempo e acertos), inclusive a dupla NVIDIA + Groq |
+
 ## Modelos em 17 categorias (04/11/2026)
 
 `ferramentas/avaliar-modelos.mjs`, com as tarefas de `ferramentas/avaliacao-tarefas.mjs`. A correção é automática: código roda

@@ -192,7 +192,6 @@ export type TResumoConversa = z.infer<typeof ResumoConversa>;
 export type TPreferenciasIA = z.infer<typeof PreferenciasIA>;
 export type TModelosIA = z.infer<typeof ModelosIA>;
 export type TConexoes = z.infer<typeof Conexoes>;
-export type TResultadoTesteChave = z.infer<typeof ResultadoTesteChave>;
 export type TTokens = z.infer<typeof Tokens>;
 export type TSkill = z.infer<typeof Skill>;
 export type TItemLoja = z.infer<typeof ItemLoja>;
