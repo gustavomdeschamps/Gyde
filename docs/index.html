@@ -79,16 +79,16 @@
 <body>
   <header class="topo"><div class="largura">
     <a class="marca" href="#"><img src="imagens/logo.svg" alt="">Gyde</a>
-    <nav aria-label="Seções"><a href="#funcoes">O que ele faz</a><a href="#video">Instalar</a><a href="#numeros">Números</a><a href="https://github.com/gustavomdeschamps/Gyde">GitHub</a></nav>
+    <nav aria-label="Seções"><a href="#funcoes">O que ele faz</a><a href="#instalar">Instalar</a><a href="#numeros">Números</a><a href="https://github.com/gustavomdeschamps/Gyde">GitHub</a></nav>
   </div></header>
 
   <main>
     <div class="abertura"><div class="largura">
       <h1>O tutor de programação que <em>ensina</em> em vez de só entregar a resposta.</h1>
-      <p>Em português, de graça e no seu computador. Ele explica o erro antes de corrigir, se adapta ao seu nível e tem um agente que trabalha no seu projeto e mostra tudo o que mudou.</p>
+      <p>Em português, de graça e no seu computador. Ele explica o erro antes de corrigir, se adapta ao seu nível e tem um agente que trabalha no seu projeto, liga o projeto ao vivo e mostra tudo o que mudou.</p>
       <div class="acoes">
         <a class="botao principal" href="https://github.com/gustavomdeschamps/Gyde/releases/latest">Baixar para Windows</a>
-        <a class="botao secundario" href="#video">Ver como instalar</a>
+        <a class="botao secundario" href="#instalar">Ver como instalar</a>
       </div>
       <p class="detalhe">Windows 10 ou 11 · não precisa ser administrador · código aberto (licença MIT)</p>
       <div class="vitrine"><img src="imagens/chat.jpg" alt="Chat do Gyde explicando um erro de Python"></div>
@@ -106,32 +106,35 @@
       </article>
 
       <article class="funcao">
-        <div class="texto"><h3>Um agente no seu projeto, ao vivo</h3>
-          <p>A Forja lê, edita e testa os arquivos do seu projeto. Com o Ao vivo, o site aparece ao lado da conversa e atualiza sozinho a cada mudança. Apagar arquivos ou instalar pacotes sempre pede a sua confirmação, e o Desfazer volta tudo.</p></div>
-        <figure><img src="imagens/forja-ao-vivo.jpg" alt="Forja com o site do projeto ao lado da conversa" loading="lazy"></figure>
+        <div class="texto"><h3>Um agente no seu projeto</h3>
+          <p>A Forja lê, edita e testa os arquivos do seu projeto e, no fim, mostra o que mudou e quais comandos rodou. Apagar arquivos ou instalar pacotes sempre pede a sua confirmação, e o Desfazer volta tudo.</p></div>
+        <figure><img src="imagens/forja.jpg" alt="Forja corrigindo um erro e rodando os testes" loading="lazy"></figure>
       </article>
 
       <article class="funcao">
-        <div class="texto"><h3>Uma inteligência, vários modelos</h3>
-          <p>O Gyde lê o pedido, escolhe o modelo que foi melhor naquele tipo de tarefa nos testes e troca sozinho se ele falhar. Mesmas instruções, mesma memória, mesma voz. No modo Capricho, um segundo modelo confere a resposta.</p></div>
-        <figure><img src="imagens/inteligencia.jpg" alt="Configurações do Gyde mostrando os acertos medidos de cada modelo" loading="lazy"></figure>
+        <div class="texto"><h3>Ao vivo: o seu projeto ligado ao lado</h3>
+          <p>O Gyde descobre como ligar o projeto (React, Vue, Vite, Next, site de HTML, Python e outros), pede a sua permissão mostrando o comando exato e abre a página ao lado da conversa. Projetos que não são sites mostram a saída ao vivo.</p></div>
+        <figure><img src="imagens/ao-vivo.jpg" alt="Painel Ao vivo mostrando a página do projeto ao lado da Forja" loading="lazy"></figure>
       </article>
 
       <article class="funcao">
-        <div class="texto"><h3>Mostre o print, ele aponta o erro</h3>
-          <p>Mande um print da tela e o Gyde destaca onde está o problema, com uma explicação curta. A posição é uma estimativa do modelo de IA, e a tela diz isso.</p></div>
-        <figure><img src="imagens/mostrar-erro.jpg" alt="O Gyde destacando o aviso de erro num print" loading="lazy"></figure>
+        <div class="texto"><h3>A Cidade do código</h3>
+          <p>A pasta do projeto vira uma cidade em 3D: cada pasta é um bairro, cada arquivo um prédio; quanto maior o arquivo, mais alto; quanto mais mudou no git, mais quente. Quando a Forja lê ou edita um arquivo, o prédio acende na hora.</p></div>
+        <figure><img src="imagens/cidade.jpg" alt="Cidade do código em 3D, com os arquivos mais alterados em vermelho" loading="lazy"></figure>
+      </article>
+
+      <article class="funcao">
+        <div class="texto"><h3>IA grátis, conectada em 2 minutos</h3>
+          <p>Você cria uma chave grátis na NVIDIA ou no Google, cola no Gyde e ele testa na hora. O Gyde escolhe o modelo certo para cada pedido e troca sozinho se um falhar; embaixo de cada resposta aparece o modelo que respondeu.</p></div>
+        <figure><img src="imagens/conectar-ia.jpg" alt="Tela Conectar IA com os cartões da NVIDIA e do Google" loading="lazy"></figure>
       </article>
     </div></section>
 
-    <section class="video" id="video"><div class="largura">
+    <section class="video" id="instalar"><div class="largura">
       <span class="rotulo">Instalar</span>
-      <h2>Do download à primeira conversa, em 5 minutos</h2>
-      <p class="intro">Instalador comum, sem terminal. Para a IA, o Gyde usa o FreeLLMAPI, um programa grátis que junta vários serviços de IA. O passo a passo escrito está no <a href="https://github.com/gustavomdeschamps/Gyde/blob/main/COMO-INSTALAR.md">guia de instalação</a>.</p>
-      <video controls preload="metadata" poster="tutorial/capa.jpg">
-        <source src="tutorial/instalar-o-gyde.mp4" type="video/mp4">
-        <track kind="subtitles" srclang="pt-BR" label="Português" src="tutorial/instalar-o-gyde.vtt" default>
-      </video>
+      <h2>Do download à primeira conversa</h2>
+      <p class="intro">Instalador comum, sem terminal e sem ser administrador. Depois de instalar, crie a sua conta (ela fica só no seu computador) e conecte a IA em <b>Configurações → Conectar IA</b> com uma chave grátis da NVIDIA ou do Google. O passo a passo, com as telas, está no <a href="https://github.com/gustavomdeschamps/Gyde/blob/main/COMO-INSTALAR.md">guia de instalação</a>.</p>
+      <div class="vitrine"><img src="imagens/inicio-sem-ia.jpg" alt="Primeira tela do Gyde com o aviso para conectar a IA" loading="lazy"></div>
     </div></section>
 
     <section id="numeros"><div class="largura">
@@ -142,7 +145,7 @@
         <div class="numero"><b>…</b><span>carregando os resultados</span></div>
       </div>
       <table class="tabela" id="numeros-tabela" hidden>
-        <thead><tr><th>Modelo</th><th>Acertos nas tarefas do Gyde</th><th>Tempo mediano</th></tr></thead>
+        <thead><tr><th>Modelo (provedor)</th><th>Acertos nas tarefas do Gyde</th><th>Tempo mediano</th></tr></thead>
         <tbody></tbody>
       </table>
       <p class="aviso">Amostras pequenas (2 a 3 tentativas por caso): servem para comparar, não como garantia. Os modelos grátis mudam de um dia para o outro. Detalhes em <a href="https://github.com/gustavomdeschamps/Gyde/blob/main/docs/avaliacao/README.md">docs/avaliacao</a>.</p>
@@ -159,26 +162,32 @@
     (async () => {
       const cartoes = document.getElementById('numeros-cartoes');
       try {
-        const [modelos, forja] = await Promise.all(['avaliacao/modelos-2026-11-04.json', 'avaliacao/forja-multimodelo-2026-11-04.json'].map((u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u); return r.json(); })));
+        // medições de 09/11/2026 com os provedores ligados direto (NVIDIA, Google e Groq), a configuração atual do Gyde
+        const arquivos = ['avaliacao/provedor-nvidia-2026-11-09.json', 'avaliacao/provedor-google-2026-11-09.json', 'avaliacao/provedor-groq-2026-11-09.json', 'avaliacao/forja-nvidia-groq-2026-11-09.json'];
+        const lidos = await Promise.all(arquivos.map((u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u); return r.json(); })));
+        const modelos = { resultados: lidos.slice(0, 3).flatMap((j) => j.resultados) };
+        const forja = lidos[3];
         const porModelo = {};
         for (const r of modelos.resultados) {
           if (r.erro) continue; // limite do provedor naquele minuto: não conta como erro do modelo
           const m = (porModelo[r.modelo] ??= { ok: 0, n: 0, ms: [] });
           m.n++; if (r.ok) m.ok++; m.ms.push(r.ms);
         }
+        // "nvidia:poolside/laguna-xs-2.1" vira "laguna-xs-2.1 (NVIDIA)"
+        const nome = (id) => { const [prov, mod] = id.includes(':') ? id.split(/:(.*)/) : ['', id]; return `${mod.split('/').pop()}${prov ? ` (${{ nvidia: 'NVIDIA', google: 'Google', groq: 'Groq' }[prov] ?? prov})` : ''}`; };
         const mediana = (xs) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
-        const linhas = Object.entries(porModelo).filter(([nome, m]) => m.n >= 15 && !['fusion', 'auto'].includes(nome)).sort((a, b) => b[1].ok / b[1].n - a[1].ok / a[1].n || mediana(a[1].ms) - mediana(b[1].ms));
+        const linhas = Object.entries(porModelo).filter(([, m]) => m.n >= 15).sort((a, b) => b[1].ok / b[1].n - a[1].ok / a[1].n || mediana(a[1].ms) - mediana(b[1].ms));
         const forjaOk = forja.resultados.filter((r) => r.ok).length;
         const melhor = linhas[0];
         cartoes.innerHTML = '';
         const cartao = (grande, texto) => { const d = document.createElement('div'); d.className = 'numero'; d.innerHTML = '<b></b><span></span>'; d.firstChild.textContent = grande; d.lastChild.textContent = texto; cartoes.append(d); };
-        cartao(`${forjaOk} de ${forja.resultados.length}`, 'cenários completos da Forja com IA real: corrigir bug sem mexer no teste, preservar o que você não salvou, mudar API e tela juntas');
-        cartao(`${melhor[1].ok} de ${melhor[1].n}`, `tarefas certas do melhor modelo no chat (${melhor[0]}), com código rodando contra testes`);
+        cartao(`${forjaOk} de ${forja.resultados.length}`, 'cenários completos da Forja com IA real (NVIDIA + Groq): corrigir bug sem mexer no teste, preservar o que você não salvou, mudar API e tela juntas');
+        cartao(`${melhor[1].ok} de ${melhor[1].n}`, `tarefas certas do melhor modelo no chat (${nome(melhor[0])}), com código rodando contra testes`);
         cartao(`${(mediana(melhor[1].ms) / 1000).toFixed(1).replace('.', ',')} s`, 'tempo mediano de resposta desse modelo');
         const corpo = document.querySelector('#numeros-tabela tbody');
-        for (const [nome, m] of linhas) {
+        for (const [chave, m] of linhas) {
           const tr = document.createElement('tr');
-          for (const [texto, cls] of [[nome, ''], [`${m.ok} de ${m.n}`, 'n'], [`${(mediana(m.ms) / 1000).toFixed(1).replace('.', ',')} s`, 'n']]) { const td = document.createElement('td'); td.textContent = texto; if (cls) td.className = cls; tr.append(td); }
+          for (const [texto, cls] of [[nome(chave), ''], [`${m.ok} de ${m.n}`, 'n'], [`${(mediana(m.ms) / 1000).toFixed(1).replace('.', ',')} s`, 'n']]) { const td = document.createElement('td'); td.textContent = texto; if (cls) td.className = cls; tr.append(td); }
           corpo.append(tr);
         }
         document.getElementById('numeros-tabela').hidden = false;

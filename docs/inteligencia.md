@@ -79,7 +79,9 @@ corrige é o modelo que está trabalhando, então nunca há dois modelos mexendo
 
 ## Adicionar um modelo ou provedor
 
-**Modelo do FreeLLMAPI:** meça e gere o arquivo que o orquestrador lê. Nada de código muda.
+**Modelo novo de um provedor que o Gyde já conhece** (NVIDIA, Google, Groq, Mistral ou o FreeLLMAPI em Avançado): meça e
+gere o arquivo que o orquestrador lê. Nada de código muda. Para medir direto num provedor, use `--provedor nvidia` (ou
+`google`, `groq`, `mistral`).
 
 ```bash
 node ferramentas/avaliar-modelos.mjs --modelos novo-modelo --saida docs/avaliacao/modelos-novo.json

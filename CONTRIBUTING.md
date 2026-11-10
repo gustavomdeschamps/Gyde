@@ -25,7 +25,7 @@ O Gyde abre em http://127.0.0.1:3210. Para o app de desktop: `npm run desktop`.
 | `pacotes/desktop` | Electron |
 | `pacotes/extensao-vscode`, `pacotes/extensao-chrome` | Extensões |
 | `testes-e2e` | Testes de navegador e o teste do instalador |
-| `ferramentas` | Scripts de quem cuida do projeto: e-mail do modo público, trocar senha pelo código, extensão do VS Code, avaliações com IA de verdade, imagem do instalador e capturas do tutorial |
+| `ferramentas` | Scripts de quem cuida do projeto: e-mail do modo público, trocar senha pelo código, extensão do VS Code, avaliações com IA de verdade, imagem do instalador |
 
 ## Testes
 
@@ -43,15 +43,15 @@ confere atalhos, registro e dados; no fim não fica nada instalado):
 npm run teste:instalacao
 ```
 
-Avaliações com a IA de verdade (usam o FreeLLMAPI e a chave do `.env`, que nunca é mostrada; demoram minutos e gastam
-cota grátis):
+Avaliações com a IA de verdade (usam as chaves do `.env`, que nunca são mostradas; demoram minutos e gastam cota
+grátis):
 
 ```bash
-node ferramentas/avaliar-modelos.mjs --repeticoes 2      # modelos em tarefas do Gyde, com correção automática
-node ferramentas/avaliar-forja.mjs                       # a Forja em projetos pequenos, conferidos no disco
+node ferramentas/avaliar-modelos.mjs --provedor nvidia --repeticoes 2   # modelos em tarefas do Gyde, com correção automática
+node ferramentas/avaliar-forja.mjs --provedor nvidia,groq               # a Forja em projetos pequenos, conferidos no disco
 ```
 
-Os testes de navegador sobem um servidor próprio numa pasta temporária e usam um FreeLLMAPI falso: não precisam de
+Os testes de navegador sobem um servidor próprio numa pasta temporária e usam um provedor de IA falso: não precisam de
 chave nem de internet. O CI do GitHub roda tudo isso em
 Windows, Linux e macOS.
 

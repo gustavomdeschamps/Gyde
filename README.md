@@ -5,8 +5,8 @@
 <h3 align="center">O tutor de programação com IA que ensina em vez de só entregar a resposta.</h3>
 
 <p align="center">
-  Chat que explica o erro antes de corrigir · agente que programa sozinho no seu projeto ·
-  app de desktop e extensões para VS Code e Chrome. Em português, de graça, rodando no seu computador.
+  Chat que explica o erro antes de corrigir · agente que programa sozinho no seu projeto · o projeto ligado ao vivo e
+  visto como uma cidade em 3D · app de desktop e extensões para VS Code e Chrome. Em português, de graça, rodando no seu computador.
 </p>
 
 <p align="center">
@@ -21,7 +21,7 @@
   <a href="COMO-INSTALAR.md"><b>Instalar (passo a passo)</b></a> ·
   <a href="#o-que-o-gyde-faz">O que ele faz</a> ·
   <a href="#forja-o-agente-de-c%C3%B3digo">Forja</a> ·
-  <a href="#uso-cotas-e-limites">Uso e limites</a> ·
+  <a href="#conectar-a-ia">Conectar a IA</a> ·
   <a href="#configura%C3%A7%C3%A3o-env">Configuração</a> ·
   <a href="#testes">Testes</a> ·
   <a href="#perguntas-frequentes">Dúvidas</a>
@@ -36,8 +36,8 @@ O **Gyde** foi feito para o contrário: ele **mostra onde está o erro, explica 
 no nível de quem está aprendendo. E quando você já sabe o que quer, a **Forja** (o agente de código do Gyde)
 abre o seu projeto e faz o trabalho sozinha, como um desenvolvedor: escreve, testa, corrige e documenta.
 
-Tudo roda **no seu computador**, com os modelos de IA **grátis** do [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi).
-Suas conversas e seu progresso ficam só com você.
+O app roda **no seu computador** e usa os modelos de IA **grátis** da NVIDIA ou do Google, com uma chave que você
+cria em 2 minutos. Suas conversas ficam só com você; só a pergunta vai para o serviço de IA que responde.
 
 ## O que o Gyde faz
 
@@ -45,7 +45,7 @@ Suas conversas e seu progresso ficam só com você.
 Cole um erro ou um código. O Gyde aponta a linha, explica a causa e mostra a correção. Os blocos de Python e
 JavaScript têm o botão **Executar**, que roda o código ali mesmo.
 
-<p align="center"><img src="docs/imagens/chat.jpg" alt="Chat do Gyde explicando um erro de Python" width="88%"></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/chat-escuro.jpg"><img src="docs/imagens/chat.jpg" alt="Chat do Gyde explicando um erro de Python" width="88%"></picture></p>
 
 ### Passo a passo
 O botão **Passo a passo** roda o código linha por linha e mostra o valor de cada variável a cada passo.
@@ -76,7 +76,7 @@ e documenta. Você não precisa saber comandos de terminal.
   As imagens vão para um modelo que enxerga.
 - **Arquivos do projeto:** o botão de pasta no topo mostra tudo o que a Forja pode ver.
 
-<p align="center"><img src="docs/imagens/forja.jpg" alt="Forja corrigindo um projeto e rodando os testes" width="88%"></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/forja-escuro.jpg"><img src="docs/imagens/forja.jpg" alt="Forja corrigindo um projeto e rodando os testes" width="88%"></picture></p>
 
 **Segurança da Forja** (no código, não só nas instruções da IA):
 - só mexe dentro da pasta escolhida, nem por `..`, caminho absoluto ou atalho que aponte para fora;
@@ -88,15 +88,37 @@ e documenta. Você não precisa saber comandos de terminal.
 - botão **Parar** a qualquer momento (também encerra os comandos em andamento);
 - a cópia dos arquivos usada pelo **Desfazer** fica só no banco local e nunca vai para a IA.
 
+### Ao vivo: o seu projeto ligado
+O botão **Ao vivo**, no topo da Forja, liga o projeto da pasta conectada e mostra ao lado da conversa:
+- o Gyde descobre como ligar o projeto (React, Vue, Vite, Next, Nuxt, Astro, Angular, site de HTML, Python, Java, C#,
+  Go, Rust) e mostra o **comando exato**; nada roda antes do seu clique;
+- projetos web abrem dentro do Gyde, só no próprio computador (127.0.0.1) e numa porta livre; uma pasta de build
+  pronta é servida com a raiz certa; programas de console mostram a saída ao vivo;
+- erros vêm explicados em português, com o botão **Pedir à Forja para consertar**;
+- o projeto **não recebe as chaves do Gyde**, e comandos perigosos são bloqueados;
+- fechar o painel ou o Gyde encerra tudo o que o Ao vivo ligou; se o Gyde for fechado à força, o que sobrou é
+  encerrado na próxima abertura.
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/ao-vivo-escuro.jpg"><img src="docs/imagens/ao-vivo.jpg" alt="Painel Ao vivo mostrando a página do projeto ao lado da Forja" width="88%"></picture></p>
+
+### Cidade do código
+Na Forja, a aba **Cidade** mostra a pasta conectada como uma cidade em 3D: cada pasta é um bairro, cada arquivo um
+prédio. Quanto maior o arquivo, mais alto o prédio; quanto mais ele mudou no git, mais quente a cor; os mais alterados
+ganham um farol. Quando a Forja lê, edita, cria ou apaga um arquivo, o prédio acende na hora. Clique num prédio para ver
+o arquivo. Prefere texto? O botão **Lista** mostra o mesmo em forma acessível.
+
+Roda em placa de vídeo integrada (desenha direto na tela). Os extras, como o brilho (bloom), só ligam sozinhos em placa
+dedicada e depois de uma checagem de segurança. O botão **Copiar diagnóstico** junta a placa de vídeo, as checagens e
+os tempos de quadro, sem dados pessoais, para relatar um problema.
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/cidade.jpg"><img src="docs/imagens/cidade-claro.jpg" alt="Cidade do código em 3D, com os arquivos mais alterados em vermelho" width="88%"></picture></p>
+
 ### Configurações
 No menu lateral, **Configurações** reúne tudo em seções: **Geral** (tema automático, claro ou escuro; página inicial;
-refazer o questionário; vídeo de abertura; restaurar padrões; copiar um relatório de erro), **IA e modelos** (chave do FreeLLMAPI, geração de
-imagens, estado real da conexão, modo online, offline ou automático, como o Gyde deve responder, memória), **Uso e
-limites**, **Privacidade e dados** (o
-que fica no PC, o que vai para a IA, cópia de segurança para baixar e restaurar, apagar conversas e registros) e
-**Extensões** (tokens). Cada opção salva na hora.
-
-<p align="center"><img src="docs/imagens/dados.jpg" alt="Configurações, aba Privacidade e dados, com a cópia de segurança" width="88%"></p>
+refazer o questionário; vídeo de abertura; restaurar padrões; copiar um relatório de erro), **Conectar IA** (as chaves
+grátis), **IA e modelos** (geração de imagens, modo online, offline ou automático, como o Gyde deve responder, memória),
+**Uso e limites**, **Privacidade e dados** (o que fica no PC, o que vai para a IA, cópia de segurança para baixar e
+restaurar, apagar conversas e registros) e **Extensões** (tokens). Cada opção salva na hora.
 
 ### E mais
 - **Skills:** habilidades instaláveis, como plugins (`/revisar`, `/git`, `/sql`...). Dá para criar as suas e publicar na loja de skills.
@@ -111,7 +133,8 @@ que fica no PC, o que vai para a IA, cópia de segurança para baixar e restaura
 
 ### VS Code
 O Gyde dentro do editor: chat na barra lateral e, com o botão direito, **Explicar com o Gyde**,
-**Revisar com o Gyde** e **Explicar o erro desta linha**. A resposta tem o botão **Inserir no editor**.
+**Revisar com o Gyde** e **Explicar o erro desta linha**. A resposta tem o botão **Inserir no editor**. No topo,
+**Gyde 1** ou **Gyde 1 Pro**; embaixo de cada resposta, o modelo que respondeu.
 Veja [pacotes/extensao-vscode](pacotes/extensao-vscode/README.md).
 
 <p align="center"><img src="docs/imagens/vscode.jpg" alt="Extensão do Gyde no VS Code" width="88%"></p>
@@ -121,26 +144,32 @@ Painel lateral que lê a página, a seleção ou um print, e um **modo agente**:
 na aba, com uma seta que clica e digita (e para antes de compras, exclusões e senhas).
 Veja [pacotes/extensao-chrome](pacotes/extensao-chrome/LEIA-ME.md).
 
+<p align="center"><img src="docs/imagens/chrome.jpg" alt="Gyde no Chrome explicando um trecho de código selecionado" width="88%"></p>
+
+As duas usam o app do Gyde aberto e a IA conectada nele, com um token que só serve para conversar: com ele, as
+extensões não leem nem mudam as suas chaves, as configurações ou os seus dados.
+
 ## Como funciona
 
 ```mermaid
 flowchart LR
-    V["Você"] --> N["App de desktop ou navegador<br/>(chat, Forja)"]
+    V["Você"] --> N["App de desktop ou navegador<br/>(chat, Forja, Cidade, Ao vivo)"]
     VS["VS Code / Chrome"] --> G
     N --> G["Gyde<br/>(no seu computador)"]
-    G --> F["FreeLLMAPI<br/>(no seu computador)"]
-    F --> M["Modelos grátis<br/>Google, Groq, Mistral..."]
+    G --> P["Modelos grátis<br/>NVIDIA, Google, Groq"]
+    G -. opcional .-> O["Ollama<br/>(modelo no seu PC)"]
     G --> D[("Seus dados<br/>só no seu PC")]
 ```
 
-O Gyde lê cada pedido e escolhe o modelo que foi melhor naquele tipo de tarefa nas [avaliações](docs/avaliacao/README.md),
-trocando sozinho se ele falhar ou estiver no limite. Conversa, explicação, SQL e análise podem ir para modelos diferentes, mas quem
-responde é sempre o Gyde: mesmas instruções, mesma memória, mesma voz. Em **Configurações > IA e modelos** dá para escolher
-entre Rápido, Equilibrado (o padrão) e Capricho, em que um segundo modelo confere código e raciocínio. Cada resposta mostra, embaixo,
-o **modelo que respondeu de verdade** e os tokens usados. Como isso funciona e como adicionar modelos:
-[docs/inteligencia.md](docs/inteligencia.md).
+No chat, você escolhe entre duas opções:
+- **Gyde 1:** escolhe sozinho um modelo grátis para cada pedido e troca se um falhar.
+- **Gyde 1 Pro:** um segundo modelo confere a resposta. Mais lento e usa mais da sua cota grátis.
 
-<p align="center"><img src="docs/imagens/inteligencia.jpg" alt="Configurações: como o Gyde funciona, com os acertos medidos de cada modelo" width="88%"></p>
+Por trás, o Gyde lê cada pedido e escolhe o modelo que foi melhor naquele tipo de tarefa nas
+[avaliações](docs/avaliacao/README.md), usando a lista de modelos ao vivo de cada provedor, e troca sozinho se ele
+falhar ou estiver no limite. Quem responde é sempre o Gyde: mesmas instruções, mesma memória, mesma voz. Embaixo de
+cada resposta aparece o **modelo que respondeu de verdade**. Como isso funciona e como adicionar modelos:
+[docs/inteligencia.md](docs/inteligencia.md).
 
 **Por dentro:** tudo em TypeScript estrito. O servidor é Node.js com Express e o SQLite que já vem no Node, com o
 esquema do banco em migrações numeradas (cópia do banco antes de cada atualização). A interface é Svelte 5 com Vite.
@@ -149,85 +178,78 @@ não espera sem avisar. O app de desktop é Electron: sobe o servidor num proces
 
 ## Avaliação da IA
 
-A escolha dos modelos e os padrões do Gyde vêm de chamadas reais, corrigidas automaticamente (código rodando contra testes, SQL
-num banco de verdade, arquivos conferidos no disco), em 17 categorias. Resumo e dados brutos em
-[docs/avaliacao](docs/avaliacao/README.md). Nas mesmas 19 tarefas, um modelo com o núcleo novo acertou 71 de 76, contra 64 de 76 do
-fluxo antigo. Revisão e comparação entre modelos acertaram 70 e 71, gastando cerca de 3 vezes mais cota: como não mostraram ganho
-nessas tarefas, um modelo só é o padrão. Na Forja, 12 de 12 cenários. Amostras pequenas: servem para comparar, não como garantia, e
-não há comparação com outros produtos.
+A escolha dos modelos vem de chamadas reais, corrigidas automaticamente (código rodando contra testes, SQL num banco de
+verdade, arquivos conferidos no disco), em 17 categorias. Nas medições de 09/11/2026, com as chaves grátis ligadas
+direto, o melhor modelo no chat acertou 44 de 48 tarefas, e a Forja (NVIDIA + Groq) completou 7 de 8 cenários. Resumo
+e dados brutos em [docs/avaliacao](docs/avaliacao/README.md). Amostras pequenas: servem para comparar, não como
+garantia, e não há comparação com outros produtos.
 
-## Uso, cotas e limites
+## Conectar a IA
 
-Em **Configurações > Uso e limites** (ou clicando no indicador do rodapé do chat), cada conceito aparece separado:
+Em **Configurações > Conectar IA**, cole uma chave grátis da **NVIDIA** ou do **Google** (uma basta). O Gyde testa a
+chave na hora, com uma chamada de verdade, antes de salvar, e ela nunca volta para a tela. O passo a passo para criar a
+chave está no [COMO-INSTALAR.md](COMO-INSTALAR.md#4-conectar-a-ia-2-minutos).
 
-| O quê | O que é | De onde vem |
-|---|---|---|
-| **Uso do Gyde** | Pedidos seus (mensagem do chat, tarefa da Forja), hoje e nos últimos 7 dias, separados em concluídos, com falha, cancelados e barrados por limite | Registro do próprio Gyde, no banco local (`uso.ts`) |
-| **Chamadas** | Quantas vezes o Gyde falou com o provedor. Trocas de modelo, revisões e rodadas da Forja geram várias chamadas num pedido, e o pedido conta uma vez só | Registro do Gyde |
-| **Tokens** | Entrada e saída do modelo | Campo `usage` da resposta do provedor. Se ele não manda, aparece "não informado", nunca estimado |
-| **Cota do provedor** | Pedidos por minuto livres e a hora em que renova; consumo do mês na conta do FreeLLMAPI | Cabeçalhos `x-ratelimit-*` e a rota `/v1/usage` do FreeLLMAPI |
-| **Créditos e saldo** | Não existe no FreeLLMAPI | Aparece "Saldo não disponibilizado pelo provedor" |
-| **Planos do Gyde** | Não existem: o Gyde não tem assinatura nem cobrança | — |
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/conectar-ia-escuro.jpg"><img src="docs/imagens/conectar-ia.jpg" alt="Tela Conectar IA com os cartões da NVIDIA e do Google" width="88%"></picture></p>
 
-Provedores diferentes (FreeLLMAPI e modelo local) aparecem separados, porque as cotas não se somam.
+- A chave precisa ser criada por alguém com **18 anos ou mais** (regra dessas empresas).
+- No plano grátis do Google, o que você envia pode ser usado para melhorar os produtos dele: não mande dados pessoais.
+- O teste grátis da NVIDIA pode mudar as regras e os limites.
+- **Groq** é opcional: deixa o chat mais rápido e serve de reserva.
+- Quem já usa o **[FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi)** continua podendo usar, em **Conectar IA > Avançado**.
 
-<p align="center"><img src="docs/imagens/uso.jpg" alt="Configurações, aba Uso e limites" width="88%"></p>
-
-**Quando o limite acaba**, a mensagem diz qual limite foi (os pedidos por minuto do FreeLLMAPI), quando ele renova
-(se o FreeLLMAPI informou) e o que funciona enquanto isso (o modelo local, se estiver instalado). No modo automático,
-se o FreeLLMAPI parar de responder, o Gyde usa o modelo local e **avisa** na resposta, sem troca silenciosa.
-
-O FreeLLMAPI não informa a cota diária de cada serviço grátis que ele usa por trás (Google, Groq...), então o Gyde
-também não mostra isso.
+**Limites:** cada serviço grátis tem o próprio limite e pode mudar sem aviso. Quando um modelo chega ao limite, o Gyde
+troca de modelo sozinho. Em **Configurações > Uso e limites** aparecem os seus pedidos, as chamadas aos provedores e os
+tokens (só quando o provedor informa, nunca estimados). O Gyde não tem planos, assinatura nem cobrança.
 
 ## IA offline (sem internet)
 
 O Gyde pode usar um modelo que roda no seu computador pelo [Ollama](https://ollama.com), sem mandar nada para fora.
 
 1. Instale o Ollama e baixe um modelo pequeno (o download é seu, de uns 2 GB): `ollama pull qwen2.5:3b`
-2. Em **Configurações > IA e modelos**, escolha **Só offline**, ou deixe em **Automático** (usa o offline se o FreeLLMAPI cair).
+2. Em **Configurações > IA e modelos**, escolha **Só offline**, ou deixe em **Automático** (usa o offline se os modelos online falharem).
 
 | Funciona sem internet | Funciona offline depois de instalar o Ollama e baixar um modelo | Precisa de internet |
 |---|---|---|
-| App, contas, histórico, rodar código e passo a passo, skills, memória salva | Chat, Forja e títulos de conversa (com o modelo local) | Modelos online (FreeLLMAPI), gerar imagens (Cloudflare), extensão do Chrome no modo agente |
+| App, contas, histórico, rodar código e passo a passo, skills, memória salva | Chat, Forja e títulos de conversa (com o modelo local) | Modelos online (NVIDIA, Google, Groq), gerar imagens (Cloudflare), extensão do Chrome no modo agente |
 
 Modelos locais pequenos são bem mais simples e lentos que os online, principalmente em tarefas grandes de programação.
 Num computador com 8 GB de RAM e sem placa de vídeo, use modelos de até 3 bilhões de parâmetros.
 
 ## Instalar
 
-**Siga o [COMO-INSTALAR.md](COMO-INSTALAR.md)**: o passo a passo completo, feito para quem nunca instalou nada
-parecido. Prefere ver? O **[vídeo passo a passo](docs/tutorial/instalar-o-gyde.mp4)** (4 min 23 s, com
-narração e [legendas](docs/tutorial/instalar-o-gyde.vtt)) mostra o instalador e o app de verdade, do download à
-primeira conversa.
+**Siga o [COMO-INSTALAR.md](COMO-INSTALAR.md)**: o passo a passo completo, com as telas, feito para quem nunca
+instalou nada parecido.
 
 Resumo:
 
-1. Na página **Releases** deste repositório, baixe o **`Gyde-Setup-<versão>.exe`**.
+1. Na página **[Releases](https://github.com/gustavomdeschamps/Gyde/releases/latest)**, baixe o **`Gyde-Setup-<versão>.exe`**.
 2. Abra e siga as telas: **Apenas para mim** → **Próximo** → **Instalar** → **Concluir**. Não precisa ser
    administrador, nem instalar Node.js ou outra coisa antes.
 3. O Gyde abre numa janela própria. Crie a conta (fica só no seu computador) e responda o questionário.
-4. Instale o [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi/releases/latest), coloque uma chave grátis
-   (ex.: Google AI Studio) e cole a chave dele em **Configurações > IA e modelos**.
+4. Em **Configurações > Conectar IA**, cole uma chave grátis da NVIDIA ou do Google.
 
 O instalador não tem assinatura digital paga, então o Windows pode mostrar o aviso do SmartScreen (**Mais
 informações** > **Executar assim mesmo**, se você baixou daqui). Os dados e o `.env` ficam em `%APPDATA%\Gyde`;
 atualizar mantém tudo, e desinstalar pergunta antes de apagar os seus dados.
 
-> Cada pessoa tem o próprio Gyde: a conta, as conversas e o progresso ficam no computador de quem instalou,
-> e cada um usa as próprias chaves grátis de IA.
+> Cada pessoa tem o próprio Gyde: a conta e as conversas ficam no computador de quem instalou, e cada um usa as
+> próprias chaves grátis de IA.
 
 ## Configuração (.env)
 
-A chave do FreeLLMAPI é colada em **Configurações > IA e modelos**. Se quiser editar à mão, o `.env` fica em
+As chaves são coladas em **Configurações > Conectar IA**. Se quiser editar à mão, o `.env` fica em
 `%APPDATA%\Gyde` no app de desktop (ou na pasta principal, rodando pelo código) e **nunca vai para o GitHub**. Exemplo (sem chaves de verdade):
 
 ```ini
-# obrigatório para os modelos online
-FREELLMAPI_URL=http://127.0.0.1:31415
-FREELLMAPI_KEY=cole-aqui-a-chave-do-freellmapi
+# modelos online: uma chave já basta
+NVIDIA_API_KEY=cole-aqui-a-chave-da-nvidia
+GEMINI_API_KEY=cole-aqui-a-chave-do-google
+GROQ_API_KEY=                  # opcional: mais rápido e reserva
 
 # opcionais
+FREELLMAPI_URL=                # Avançado: quem já usa o FreeLLMAPI
+FREELLMAPI_KEY=
 PORT=3210                      # porta do Gyde
 GYDE_MODO_IA=auto              # auto | online | offline
 OLLAMA_URL=http://127.0.0.1:11434
@@ -242,7 +264,7 @@ Pelo código (para quem desenvolve): `npm install`, `npm run build` e `npm start
 ### Atualizar o Gyde
 
 O app procura versões novas no GitHub ao abrir e **pergunta** antes de baixar; também dá para instalar o instalador
-novo por cima. Contas, conversas e progresso não são tocados. Quando uma versão nova muda o banco, o Gyde guarda uma
+novo por cima. Contas, conversas e chaves não são tocadas. Quando uma versão nova muda o banco, o Gyde guarda uma
 cópia dele antes em `copias-banco` (as 5 mais recentes). Pelo código: `git pull`, `npm install`, `npm run build` e
 reinicie o servidor (se ele continuar aberto, a tela avisa que está rodando a versão anterior).
 
@@ -263,11 +285,13 @@ npm run e2e       # testes de navegador
 - **migrações:** banco novo, banco antigo com dados, versão mais nova recusada, migração com falha desfeita, cópia;
 - **troca de senha do app de desktop:** só com o segredo do app e só no modo pessoal (sobe um servidor temporário);
 - **Forja:** o estado das tarefas na tela (eventos, duração, pendências);
+- **Ao vivo e Cidade:** como cada tipo de projeto é ligado, comandos bloqueados, processos encerrados, o mapa da pasta e a planta da cidade;
+- **extensões:** o que o token pode e não pode fazer, Gyde 1 / Gyde 1 Pro e o aviso de IA não conectada;
 - **cópia de segurança, limite de logins e a lógica da interface** (eventos da resposta, valores do Python, cliente da API).
 
 `npm run e2e` roda as suítes de `testes-e2e` num Chrome ou Edge sem janela, cada uma com um servidor próprio e um
-FreeLLMAPI falso (sem chave e sem cota): chat, Forja, Skills, entrada, modo público, cópia de
-segurança, imagens, relatório de erro, app de desktop e uma auditoria de acessibilidade (WCAG 2.1 AA, temas claro e
+provedor de IA falso (sem chave e sem cota): chat, Forja, Cidade, Ao vivo, Conectar IA, Skills, entrada, modo
+público, cópia de segurança, imagens, relatório de erro, app de desktop e uma auditoria de acessibilidade (WCAG 2.1 AA, temas claro e
 escuro, e celular). O CI do GitHub roda tudo isso em Windows, Linux e macOS.
 
 `npm run extensoes` gera o `.vsix` do VS Code e o `.zip` da Chrome Web Store.
@@ -278,9 +302,10 @@ escuro, e celular). O CI do GitHub roda tudo isso em Windows, Linux e macOS.
   de modelo quando a resposta vem vazia ou inválida, mas não dá para garantir o mesmo comportamento sempre.
 - O modelo local (Ollama) é bem mais simples e lento que os online, principalmente na Forja.
 - O **Desfazer** da Forja guarda as 10 últimas tarefas de cada conversa e não copia arquivos maiores que 2 MB.
-- Exercícios guiados não têm correção automática (contam com a solução entregue, e o Gyde corrige no chat). Os
-  projetos guiados conferem a estrutura do código por critérios objetivos, mas não executam o programa: um código que
-  passa nos critérios ainda pode ter um erro de lógica.
+- O **Ao vivo** precisa que o programa do projeto (Node.js, Python, Java...) esteja instalado no computador; ele não
+  instala linguagens sozinho. Foi testado à mão com React/Vite, HTML, Python e pastas sem nada para ligar.
+- A **Cidade** mostra até 1500 arquivos por projeto. Em placa de vídeo muito antiga ela pode ficar lenta: a **Lista**
+  mostra o mesmo em texto.
 - Os modelos grátis variam de um dia para o outro. A ordem dos modelos foi escolhida por uma avaliação pequena
   (veja "Avaliação da IA"), que serve para comparar, não como garantia.
 - A Forja só funciona no modo pessoal (rodando no seu PC), e só roda comandos no Windows: a proteção contra comandos
@@ -299,18 +324,19 @@ projeto). Achou uma falha de segurança? Siga o [SECURITY.md](SECURITY.md). O qu
 ## Perguntas frequentes
 
 **É grátis mesmo?**
-Sim. O Gyde é grátis e usa os limites grátis dos serviços de IA (Google, Groq, Mistral e outros) pelo FreeLLMAPI.
+Sim. O Gyde é grátis e usa os planos grátis dos serviços de IA (NVIDIA, Google e, se quiser, Groq), com chaves que
+você mesmo cria.
 
 **Precisa de internet?**
 Para os modelos online, sim. Sem internet, dá para usar um modelo local pelo Ollama (veja "IA offline").
 
 **Meus dados vão para algum lugar?**
-Sua conta, conversas e progresso ficam na pasta `data` do seu computador (no app de desktop, em `%APPDATA%\Gyde`).
+Sua conta e suas conversas ficam na pasta `data` do seu computador (no app de desktop, em `%APPDATA%\Gyde`).
 As mensagens vão só para o serviço de IA que responde.
 
 **E quando o limite grátis acabar?**
-O FreeLLMAPI troca de serviço quando um deles esgota. Se acabar o limite por minuto do próprio FreeLLMAPI, o Gyde
-diz quando renova e, se você tiver o Ollama, oferece o modelo local. Veja em **Configurações > Uso e limites**.
+O Gyde troca de modelo sozinho quando um chega ao limite. Ter duas chaves (por exemplo NVIDIA e Groq) ajuda. Se
+todos estiverem no limite, espere um pouco ou use o modelo local pelo Ollama (veja "IA offline").
 
 **Funciona no Mac ou no Linux?**
 Foi feito no Windows. Os testes automáticos rodam também em Linux e macOS no CI do GitHub, e o app de desktop tem
@@ -322,14 +348,14 @@ rodando comandos é só do Windows.
 | Pasta ou arquivo | Para que serve |
 |---|---|
 | `COMO-INSTALAR.md` | Passo a passo de instalação |
-| `ferramentas/` | Para quem cuida do projeto: e-mail (modo público), trocar senha pelo código, extensão do VS Code, avaliações da IA, imagem do instalador e o tutorial em vídeo |
-| `pacotes/servidor/` | Servidor: `server.ts` monta os módulos: chat (`chat.ts`), Forja (`codigo-agente.ts`), inteligência multimodelo (`ia/`), configurações locais e cópia de segurança (`configuracao.ts`, `copia.ts`), perfil (`perfil.ts`), banco e migrações (`banco.ts`, `migracoes.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
-| `pacotes/interface/` | Interface em Svelte 5 + Vite: chat, Forja, Skills, Configurações e entrada (`src/`) |
+| `ferramentas/` | Para quem cuida do projeto: e-mail (modo público), trocar senha pelo código, extensão do VS Code, avaliações da IA e imagem do instalador |
+| `pacotes/servidor/` | Servidor: `server.ts` monta os módulos: chat (`chat.ts`), Forja (`codigo-agente.ts`), Ao vivo (`ao-vivo.ts`), Cidade (`cidade.ts`), inteligência multimodelo (`ia/`), configurações locais e cópia de segurança (`configuracao.ts`, `copia.ts`), perfil (`perfil.ts`), banco e migrações (`banco.ts`, `migracoes.ts`), provedores online/offline (`provedores.ts`), uso (`uso.ts`), proteções (`seguranca.ts`), skills (`skills-catalogo/`) e testes (`testes/`) |
+| `pacotes/interface/` | Interface em Svelte 5 + Vite: chat, Forja (com a Cidade em Three.js e o Ao vivo), Skills, Configurações e entrada (`src/`) |
 | `pacotes/compartilhado/` | Contratos (Zod) usados pelo servidor e pela interface |
 | `pacotes/desktop/` | App de desktop (Electron). O instalador é gerado com `npm run dist:win` |
 | `pacotes/extensao-vscode/`, `pacotes/extensao-chrome/` | Extensões para o VS Code e o Chrome |
 | `testes-e2e/` | Testes de navegador (`npm run e2e`) e o teste do instalador (`npm run teste:instalacao`) |
-| `docs/` | A página do Gyde (`index.html`), as imagens desta página, o tutorial em vídeo (`docs/tutorial/`) e as avaliações da IA (`docs/avaliacao/`) e como a inteligência funciona (`docs/inteligencia.md`) |
+| `docs/` | A página do Gyde (`index.html`), as imagens desta página e as avaliações da IA (`docs/avaliacao/`) e como a inteligência funciona (`docs/inteligencia.md`) |
 
 Arquivos criados no seu computador e que **nunca** vão para o GitHub: `.env` (suas chaves) e `data/` (contas e conversas).
 
