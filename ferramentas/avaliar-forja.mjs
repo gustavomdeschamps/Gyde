@@ -1,7 +1,7 @@
 // Avaliação da Forja com IA de verdade (FreeLLMAPI) em projetos pequenos criados aqui, conferidos no disco no fim.
-// Cenários: corrigir um bug sem mexer no teste, preservar uma mudança da pessoa ainda não salva no git, mudar
-// back-end e front-end juntos, e responder uma pergunta sem alterar nada.
-//   node ferramentas/avaliar-forja.mjs [--codigo <raiz de um Gyde>] [--repeticoes 1] [--saida resultado.json]
+// Cenários pequenos: corrigir um bug sem mexer no teste, preservar uma mudança da pessoa ainda não salva no git, mudar
+// back-end e front-end juntos, e responder uma pergunta sem alterar nada. Cenários difíceis em cenarios-forja-dificeis.mjs.
+//   node ferramentas/avaliar-forja.mjs [--codigo <raiz de um Gyde>] [--repeticoes 1] [--grupo pequeno|dificil] [--cenarios a,b] [--saida resultado.json]
 // --codigo permite rodar a mesma avaliação numa versão anterior (ex.: um git worktree), para comparar antes e depois.
 // Confirmações da Forja (instalar, apagar...) são sempre recusadas. A chave vem do .env e nunca é mostrada.
 import { spawn, spawnSync } from 'node:child_process';
@@ -11,6 +11,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { redigir } from '../pacotes/servidor/seguranca.ts';
+import { cenariosDificeis } from './cenarios-forja-dificeis.mjs';
 const limparErro = (t) => redigir(t).replace(/org_[A-Za-z0-9]{10,}/g, 'org_[oculto]'); // sem chaves e sem o ID da conta no provedor
 
 const RAIZ = path.join(import.meta.dirname, '..');
@@ -120,6 +121,11 @@ const CENARIOS = [
   },
 ];
 
+for (const c of CENARIOS) c.grupo ??= 'pequeno';
+CENARIOS.push(...cenariosDificeis({ criarPasta, ler, rodar }));
+const GRUPO = arg('grupo', null), SO_CENARIOS = arg('cenarios', null)?.split(',');
+const ESCOLHIDOS = CENARIOS.filter((c) => (!GRUPO || c.grupo === GRUPO) && (!SO_CENARIOS || SO_CENARIOS.includes(c.id)));
+
 async function executar(sessaoId, texto) {
   const r = await fetch(`${base}/api/codigo/sessoes/${sessaoId}/tarefa`, { method: 'POST', headers: { 'x-gyde': '1', 'Content-Type': 'application/json', Cookie: cookie }, body: JSON.stringify({ texto }), signal: AbortSignal.timeout(15 * 60_000) });
   const eventos = [];
@@ -134,7 +140,8 @@ async function executar(sessaoId, texto) {
       const bloco = resto.slice(0, i); resto = resto.slice(i + 2);
       if (!bloco.startsWith('data: ')) continue;
       const e = JSON.parse(bloco.slice(6)); eventos.push(e);
-      if (e.tipo === 'confirmar') await pedir('POST', `/api/codigo/sessoes/${sessaoId}/confirmar`, { id: e.id, aprovado: false });
+      // instalar, apagar etc.: sempre recusado; o plano de uma tarefa grande: aprovado (como a pessoa faria)
+      if (e.tipo === 'confirmar') await pedir('POST', `/api/codigo/sessoes/${sessaoId}/confirmar`, { id: e.id, aprovado: Array.isArray(e.plano) });
     }
   }
   return eventos;
@@ -142,7 +149,7 @@ async function executar(sessaoId, texto) {
 
 const resultados = [];
 try {
-  for (const c of CENARIOS) {
+  for (const c of ESCOLHIDOS) {
     for (let n = 0; n < REPETICOES; n++) {
       const proj = c.criar();
       const sessao = await (await pedir('POST', '/api/codigo/sessoes', { pasta: proj.pasta })).json();
@@ -151,11 +158,14 @@ try {
       const fim = eventos.find((e) => e.tipo === 'resposta' || e.tipo === 'erro') || {};
       const checagens = c.conferir(proj, eventos);
       const comandos = eventos.filter((e) => e.tipo === 'ferramenta' && e.nome === 'executar').length;
-      const r = { cenario: c.id, ok: fim.tipo === 'resposta' && checagens.every(([, v]) => v), checagens: Object.fromEntries(checagens), terminou: fim.tipo || 'sem fim',
+      const lidos = eventos.filter((e) => e.tipo === 'ferramenta' && e.nome === 'ler').length;
+      const r = { cenario: c.id, grupo: c.grupo, lidos, ok: fim.tipo === 'resposta' && checagens.every(([, v]) => v), checagens: Object.fromEntries(checagens), terminou: fim.tipo || 'sem fim',
         passos: fim.passos ?? null, ms: Date.now() - inicio, arquivos: fim.arquivos ?? [], comandos, modelo: fim.modelo ?? null, erro: fim.tipo === 'erro' ? limparErro(String(fim.texto)).slice(0, 160) : null };
+      if (!r.ok) r.respostaFinal = limparErro(String(fim.texto ?? '')).slice(0, 600); // para entender a falha (sem segredos)
       resultados.push(r);
-      console.log(`${r.ok ? 'OK   ' : 'FALHA'} ${c.id.padEnd(11)} ${String(Math.round(r.ms / 1000)).padStart(4)} s  ${String(r.passos ?? '-').padStart(2)} passos  ${comandos} comando(s)  ${checagens.map(([k, v]) => `${v ? '✓' : '✗'} ${k}`).join(' · ')}${r.erro ? `  [${r.erro}]` : ''}`);
-      rmSync(proj.pasta, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
+      console.log(`${r.ok ? 'OK   ' : 'FALHA'} ${c.id.padEnd(11)} ${String(Math.round(r.ms / 1000)).padStart(4)} s  ${String(r.passos ?? '-').padStart(2)} passos  ${lidos} lido(s)  ${comandos} comando(s)  ${checagens.map(([k, v]) => `${v ? '✓' : '✗'} ${k}`).join(' · ')}${r.erro ? `  [${r.erro}]` : ''}`);
+      if (!r.ok && process.argv.includes('--manter-falhas')) console.log(`      pasta guardada para conferir: ${proj.pasta}`);
+      else rmSync(proj.pasta, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
     }
   }
 } finally {
@@ -164,6 +174,11 @@ try {
   rmSync(dados, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
 }
 const ok = resultados.filter((r) => r.ok).length;
+for (const g of ['pequeno', 'dificil']) {
+  const rs = resultados.filter((r) => r.grupo === g); if (!rs.length) continue;
+  const tempos = rs.map((r) => r.ms).sort((a, b) => a - b);
+  console.log(`${g === 'pequeno' ? 'pequenos' : 'difíceis'}: ${rs.filter((r) => r.ok).length}/${rs.length} completos · tempo mediano ${Math.round(tempos[Math.floor((tempos.length - 1) / 2)] / 1000)} s`);
+}
 console.log(`\n${ok}/${resultados.length} cenários completos (código avaliado: ${path.relative(RAIZ, CODIGO) || 'atual'})`);
 const saida = arg('saida', null);
 if (saida) writeFileSync(saida, JSON.stringify({ em: new Date().toISOString(), codigo: path.relative(RAIZ, CODIGO) || 'atual', repeticoes: REPETICOES, resultados }, null, 2));
