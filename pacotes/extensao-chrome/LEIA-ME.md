@@ -30,6 +30,9 @@ Enquanto ela não está na Chrome Web Store, instale pela pasta:
 O token só serve para conversar e para o modo agente: com ele a extensão não lê nem muda as suas chaves, as
 configurações, a Forja ou os seus dados.
 
+Ao abrir, o painel já avisa (antes da primeira pergunta) se a IA do app ainda não está conectada e se o app está numa
+versão mais antiga que a extensão.
+
 ## Usar
 
 - **Página**, **Seleção** e **Print**: anexam o conteúdo da aba atual à pergunta.
@@ -64,5 +67,6 @@ O agente age dentro do navegador (na aba aberta); ele não controla outros progr
 | "Não consegui falar com o Gyde" | Abra o app do Gyde e tente de novo. |
 | "A IA do Gyde ainda não está conectada" | No app, abra **Configurações → Conectar IA** e cole uma chave grátis. |
 | Token inválido | Gere outro no app (**Configurações → Extensões**) e conecte de novo (botão de engrenagem no painel). |
+| "O app do Gyde está desatualizado" | Instale o app novo por cima ([página Releases](https://github.com/gustavomdeschamps/Gyde/releases/latest)). Suas conversas continuam. |
 
 Para atualizar a extensão depois de uma versão nova: `chrome://extensions` → Gyde → ↻.

@@ -10,7 +10,7 @@ administrador do computador nem saber usar o terminal.
 ## 1. Baixar o instalador
 
 1. Abra a página **[Releases do Gyde](https://github.com/gustavomdeschamps/Gyde/releases/latest)**.
-2. Na parte **Assets** (no fim da versão mais nova), clique em **`Gyde-Setup-2.1.0.exe`** (o número pode ser maior,
+2. Na parte **Assets** (no fim da versão mais nova), clique em **`Gyde-Setup-2.2.0.exe`** (o número pode ser maior,
    se houver uma versão mais nova). O download começa.
 
 ## 2. Instalar
@@ -83,13 +83,16 @@ A **Forja** é o agente de código do Gyde: ela abre a pasta de um projeto e tra
 
 - **Cidade:** na Forja, a aba **Cidade** mostra o projeto como uma cidade em 3D (cada pasta é um bairro, cada arquivo
   um prédio). Quando a Forja mexe num arquivo, o prédio acende. Prefere texto? Clique em **Lista**.
+- **Pedir à Forja pela Cidade:** clique num prédio. O cartão do arquivo tem **Pedir à Forja** e opções rápidas
+  (explicar, simplificar, achar bugs, adicionar testes; nos arquivos que mais mudam, também dividir em partes menores).
+  O pedido aparece escrito no campo da Forja e só vai quando você clicar em **Enviar**.
 - **Ao vivo:** o botão **Ao vivo**, no topo da Forja, liga o seu projeto e mostra ao lado da conversa. O Gyde mostra o
   comando exato e só liga depois do seu clique (**Permitir e iniciar**, ou **Abrir o site** num site pronto). Fechar o
   painel para o projeto.
 
 ![Ao vivo pedindo permissão antes de ligar o projeto](docs/imagens/ao-vivo-permitir.jpg)
 
-![Cidade do código em 3D](docs/imagens/cidade.jpg)
+![Cartão de um arquivo na Cidade, com Pedir à Forja e as opções rápidas](docs/imagens/cidade-forja.jpg)
 
 ## 8. Extensões (opcional)
 
@@ -102,8 +105,11 @@ conectou nele.
    esquerda e em **Colar token**.
 3. **Chrome:** siga o [guia da extensão do Chrome](pacotes/extensao-chrome/LEIA-ME.md) e cole o token no painel.
 
-O token só serve para conversar: com ele, as extensões não leem nem mudam as suas chaves, as configurações ou os seus
-dados.
+No VS Code, o botão direito num arquivo tem **Gyde: Pedir à Forja**: você escolhe o pedido, e ele aparece no app do
+Gyde num cartão. **Abrir na Forja** abre a Forja daquela pasta com o pedido escrito; quem envia é você, no app.
+
+O token só serve para conversar e para deixar um pedido para a Forja: com ele, as extensões não leem nem mudam as suas
+chaves, as configurações ou os seus dados, e não rodam nada no seu projeto.
 
 ---
 
@@ -117,6 +123,7 @@ dados.
 | Respostas lentas ou "limite" | Os serviços grátis têm limite por minuto. Espere um pouco ou conecte uma segunda chave (por exemplo o Groq). O Gyde troca de modelo sozinho quando um está no limite. |
 | A extensão diz "Não consegui falar com o Gyde" | Abra o app do Gyde e tente de novo. |
 | A extensão diz "Token inválido" | Gere outro token em **Configurações > Extensões** e cole de novo. |
+| A extensão diz que o app do Gyde está desatualizado | Baixe o instalador novo na página Releases e instale por cima (passo 1 e 2). Suas conversas continuam. |
 | O Ao vivo diz que falta Node.js, Python ou outro programa | Instale o programa indicado na mensagem e tente de novo. Se o erro for no código do projeto, use **Pedir à Forja para consertar**. |
 | A Cidade 3D não mostra os prédios | O Gyde tenta sozinho um modo mais simples. Se continuar, use **Lista** e clique em **Copiar diagnóstico** para relatar o problema numa [issue](https://github.com/gustavomdeschamps/Gyde/issues). |
 | Esqueci a senha | Na tela de entrada, use **Esqueci minha senha**. |
