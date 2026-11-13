@@ -105,10 +105,10 @@ try {
     await aoVivo.avaliar(`(()=>{ const t = document.querySelector('#agenteView textarea'); t.value = 'CIDADE-AO-VIVO: corrija a soma e crie um arquivo'; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('#agenteView form').requestSubmit(); return 1; })()`);
     await aoVivo.esperar(`document.querySelector('.forja-turno') !== null`, 5000);
     await aoVivo.avaliar(`document.querySelector('#abaCidade').click()`);
-    ok('Forja leu: o HUD mostra e o prédio existe na cidade', await aoVivo.esperar(`(document.querySelector('.cidade-atividade')?.textContent || '').includes('Forja lendo soma.js') && !/fora da cidade/.test(document.querySelector('.cidade-atividade')?.textContent || '')`, 20_000),
-      await aoVivo.avaliar(`document.querySelector('.cidade-atividade')?.textContent ?? 'sem atividade'`));
-    ok('Forja criou um arquivo: o HUD mostra a criação', await aoVivo.esperar(`(document.querySelector('.cidade-atividade')?.textContent || '').includes('Forja criando src/telas/novo.js')`, 20_000),
-      await aoVivo.avaliar(`document.querySelector('.cidade-atividade')?.textContent ?? 'sem atividade'`));
+    // o HUD fica 4,5 s na tela; as últimas atividades ficam registradas na seção (data-atividades), sem depender do tempo
+    const feitas = `(document.querySelector('.cidade')?.dataset.atividades ?? '').split(' | ')`;
+    ok('Forja leu: o HUD mostra e o prédio existe na cidade', await aoVivo.esperar(`${feitas}.includes('lendo soma.js')`, 20_000), await aoVivo.avaliar(`${feitas}.join(' | ')`) || 'sem atividade');
+    ok('Forja criou um arquivo: o HUD mostra a criação', await aoVivo.esperar(`${feitas}.includes('criando src/telas/novo.js')`, 20_000), await aoVivo.avaliar(`${feitas}.join(' | ')`) || 'sem atividade');
     await aoVivo.avaliar(`window.__copiado = null; navigator.clipboard.writeText = async (t) => { window.__copiado = t; }; [...document.querySelectorAll('.cidade-rodape button')].find((b) => /Copiar diagnóstico/.test(b.textContent)).click(); 1`);
     ok('o arquivo novo virou um prédio novo (5 prédios)', await aoVivo.esperar(`(window.__copiado || '').includes('Prédios: 5 ')`, 3000), await aoVivo.avaliar(`(window.__copiado || '').split('\\n').find((l) => l.startsWith('Prédios')) ?? ''`));
     ok('sem erro de JavaScript com a Forja trabalhando', aoVivo.erros.length === 0, aoVivo.erros.slice(0, 3).join(' | '));

@@ -2,6 +2,7 @@
   // Cidade do código: a pasta conectada como cidade (pasta = bairro, arquivo = prédio, altura = tamanho,
   // vermelho = mais alterado no git). Duas formas de ver: a cidade em 3D (o Three.js só é baixado quando ela abre)
   // e a lista em texto, que funciona sem 3D e é a alternativa acessível.
+  import { untrack } from 'svelte';
   import * as C from '$contratos';
   import type { TCidade, TPredio } from '$contratos';
   import { pedir, mensagemDe } from '../api.ts';
@@ -83,18 +84,28 @@
   // Se a cena 3D ainda está carregando (computador lento), o HUD mostra na hora e o prédio acende quando ela ficar pronta.
   let pendentes: { sinal: SinalCidade; em: number }[] = [];
   const semBarra = (c: string) => c.replaceAll('\\', '/').replace(/^(\.\/)+/, '').replace(/\/+$/, '');
-  $effect(() => ouvirCidade((sinal) => {
-    if (modo !== '3d' || !cidade) return;
-    let existe: boolean;
-    if (cena) existe = cena.reagir(sinal);
-    else {
-      pendentes = [...pendentes, { sinal, em: Date.now() }].slice(-20);
-      existe = sinal.tipo === 'criar' || cidade.arquivos.some((a) => semBarra(a.caminho) === semBarra(sinal.caminho));
-    }
+  // Se o mapa da pasta ainda não chegou (git lento), o sinal também espera e aparece quando ele chegar.
+  // As últimas atividades ficam gravadas na seção (data-atividades): o HUD some depois de 4,5 s, mas o registro não.
+  let atividades = $state<string[]>([]);
+  const existeNaCidade = (sinal: SinalCidade) => sinal.tipo === 'criar' || Boolean(cidade?.arquivos.some((a) => semBarra(a.caminho) === semBarra(sinal.caminho)));
+  function mostrarAtividade(sinal: SinalCidade, existe: boolean) {
     atividade = { ...sinal, existe };
+    atividades = [...atividades, `${VERBO[sinal.tipo]} ${sinal.caminho}${existe ? '' : ' (fora da cidade)'}`].slice(-12);
     clearTimeout(tempoAtividade);
     tempoAtividade = setTimeout(() => { atividade = null; }, 4500);
+  }
+  $effect(() => ouvirCidade((sinal) => {
+    if (modo !== '3d') return;
+    if (cena) { mostrarAtividade(sinal, cena.reagir(sinal)); return; }
+    pendentes = [...pendentes, { sinal, em: Date.now() }].slice(-20);
+    if (cidade) mostrarAtividade(sinal, existeNaCidade(sinal));
   }));
+  // o mapa chegou depois de um sinal: mostra o mais recente (o prédio acende quando a cena 3D ficar pronta)
+  $effect(() => {
+    if (!cidade || atividade) return;
+    const ultimo = untrack(() => pendentes.at(-1));
+    if (ultimo && Date.now() - ultimo.em < 15_000) untrack(() => mostrarAtividade(ultimo.sinal, existeNaCidade(ultimo.sinal)));
+  });
   const numero = (n: number) => n.toLocaleString('pt-BR');
   const data = (ms: number | null) => (ms == null ? '' : new Date(ms).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }));
   const tamanhoTexto = (p: TPredio) => (p.binario ? `${Math.max(1, Math.round(p.bytes / 1024))} KB (arquivo binário)` : `${numero(p.linhas)} ${p.linhas === 1 ? 'linha' : 'linhas'}`);
@@ -123,7 +134,7 @@
   const mostrados = $derived(bairros.reduce((n, b) => n + b.arquivos.length, 0));
 </script>
 
-<section class="cidade" aria-labelledby="cidadeTitulo">
+<section class="cidade" aria-labelledby="cidadeTitulo" data-atividades={atividades.join(' | ')}>
   <header class="cidade-topo">
     <div>
       <h2 id="cidadeTitulo">Cidade do código</h2>

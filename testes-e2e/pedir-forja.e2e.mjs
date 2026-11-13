@@ -1,5 +1,6 @@
 // "Pedir à Forja" do VS Code: a extensão (com o token) só guarda um rascunho. O app mostra um cartão; "Abrir na Forja"
 // abre a Forja daquela pasta com o pedido escrito, sem enviar; "Descartar" apaga. Nada roda sem a pessoa.
+import { realpathSync } from 'node:fs';
 import { subirServidor, abrirNavegador, clienteApi, placar, criarProjetoForja } from './ajuda.mjs';
 import { provedorFalso } from './provedor-falso.mjs';
 
@@ -33,7 +34,7 @@ try {
   await avaliar(`document.querySelector('.rascunho-forja [data-a="abrir"]').click()`);
   ok('"Abrir na Forja" abre a Forja daquela pasta com o pedido escrito', await esperar(`location.hash.startsWith('#/agente/') && document.querySelector('#agenteView textarea')?.value === ${JSON.stringify(pedido)}`, 10_000),
     await avaliar(`location.hash + ' · ' + (document.querySelector('#agenteView textarea')?.value ?? 'sem campo')`));
-  ok('a pasta certa ficou conectada', await esperar(`(document.querySelector('.forja-proj-txt small')?.textContent || '').toLowerCase() === ${JSON.stringify(proj.pasta.toLowerCase())}`, 5000),
+  ok('a pasta certa ficou conectada', await esperar(`(document.querySelector('.forja-proj-txt small')?.textContent || '').toLowerCase() === ${JSON.stringify(realpathSync.native(proj.pasta).toLowerCase())}`, 5000),
     await avaliar(`document.querySelector('.forja-proj-txt small')?.textContent ?? ''`));
   ok('o pedido NÃO foi enviado (quem envia é a pessoa)', await avaliar(`document.querySelector('.forja-turno') === null`) && ia.pedidos.length === pedidosAntes);
   ok('o cartão some e o rascunho é apagado', await avaliar(`document.querySelector('.rascunho-forja') === null`) && (await (await api.pedir('GET', '/api/forja/rascunho')).json()).rascunho === null);
