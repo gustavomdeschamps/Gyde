@@ -269,11 +269,19 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     if (!pasta || !existsSync(pasta) || !statSync(pasta).isDirectory()) throw erroGyde('Pasta não encontrada. Escolha a pasta pelo botão "Abrir pasta do projeto".', { status: 400 });
     pasta = realpathSync.native(pasta); // atalho para outra pasta vale pelo destino real
     const raiz = path.parse(pasta).root;
+    // a pasta já vem pelo caminho real (sem atalho); as proibidas também precisam vir assim, senão um nome curto do
+    // Windows (C:\Users\RUNNER~1) ou um atalho do macOS (/var -> /private/var) deixava passar a pasta de dados do Gyde
+    const real = (x: string) => { try { return realpathSync.native(path.resolve(x)); } catch { return path.resolve(x); } };
     const proibidas = [raiz, os.homedir(), process.env.WINDIR, process.env.ProgramFiles, process.env['ProgramFiles(x86)'], process.env.ProgramData, process.env.APPDATA, process.env.LOCALAPPDATA,
       path.join(os.homedir(), 'Desktop'), path.join(os.homedir(), 'Documents'), path.join(os.homedir(), 'Downloads'), path.join(os.homedir(), 'OneDrive')]
-      .filter((x): x is string => Boolean(x)).map((x) => path.resolve(x).toLowerCase());
+      .filter((x): x is string => Boolean(x)).flatMap((x) => [path.resolve(x).toLowerCase(), real(x).toLowerCase()]);
     const baixo = pasta.toLowerCase();
-    if (proibidas.includes(baixo) || baixo.startsWith((process.env.WINDIR || 'C:\\Windows').toLowerCase()) || baixo.startsWith(path.resolve(dataDir).toLowerCase())
+    const comBarra = (x: string) => (x.endsWith(path.sep) ? x : x + path.sep);
+    // nem a pasta de dados do Gyde (banco, .env, registros), nem algo dentro dela, nem uma pasta que a contenha
+    const dados = [path.resolve(dataDir), real(dataDir)].map((x) => x.toLowerCase());
+    const tocaDados = dados.some((d) => baixo === d || baixo.startsWith(comBarra(d)) || d.startsWith(comBarra(baixo)));
+    if (tocaDados) throw erroGyde('Esta pasta guarda (ou fica dentro de) os dados do Gyde: suas conversas, contas e chaves. Escolha a pasta de um projeto.', { status: 400 });
+    if (proibidas.includes(baixo) || baixo.startsWith((process.env.WINDIR || 'C:\\Windows').toLowerCase())
       || /[\\/]\.(ssh|aws|azure|gnupg)([\\/]|$)/i.test(pasta)) {
       throw erroGyde('Escolha a pasta de UM projeto (não o disco inteiro, a pasta do usuário, Documentos, pastas do sistema ou de senhas).', { status: 400 });
     }

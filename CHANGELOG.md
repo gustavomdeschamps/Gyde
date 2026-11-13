@@ -20,6 +20,9 @@ As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do 
 - **Parar no chat:** a resposta parcial às vezes sumia da tela ao clicar em **Parar** (a tela recarregava a conversa antes
   de o servidor gravar o que já tinha chegado). Agora quem encerra é o servidor, que grava e manda o fim pela mesma
   conexão. Era também a causa do teste automático que falhava de vez em quando.
+- **Segurança da Forja:** a regra que impede escolher a pasta de dados do Gyde comparava caminhos de jeitos diferentes; com um
+  nome curto do Windows (ex.: `RUNNER~1`) ou um atalho de pasta, ela deixava passar. Agora compara pelo caminho real e
+  também recusa uma pasta que contenha os dados do Gyde (conversas, contas e chaves).
 - Tela "Abrindo o Gyde": a barra de carregamento não desliza mais sem parar; só muda de brilho (e fica parada com "menos
   movimento" ligado).
 - Página do Gyde: mais espaço dentro da tabela de resultados e prévia com imagem ao compartilhar o link.

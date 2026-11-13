@@ -3,7 +3,7 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir, homedir } from 'node:os';
 import path from 'node:path';
@@ -69,6 +69,7 @@ test('token das extensões conversa, mas não mexe em chaves, configurações, F
   // "Pedir à Forja" do VS Code: o token só GUARDA o pedido. Não cria conversa, não conecta pasta, não roda nada;
   // ler e apagar o rascunho é só do app (cookie)
   const projeto = mkdtempSync(path.join(tmpdir(), 'gyde-token-projeto-'));
+  const dentroDosDados = path.join(pasta, 'um-projeto'); mkdirSync(dentroDosDados, { recursive: true });
   writeFileSync(path.join(projeto, 'soma.js'), 'export const soma = (a, b) => a - b;\n');
   try {
     await cliente.pedirForja(projeto, 'Procure bugs no arquivo soma.js e corrija os que encontrar.');
@@ -78,7 +79,7 @@ test('token das extensões conversa, mas não mexe em chaves, configurações, F
     assert.equal((await (await pedir('GET', '/api/codigo/sessoes', undefined, { Cookie: cookie })).json()).sessoes.length, 0, 'nenhuma conversa da Forja foi criada');
     assert.equal(readFileSync(path.join(projeto, 'soma.js'), 'utf8'), 'export const soma = (a, b) => a - b;\n', 'nada no projeto mudou');
     // mesma regra de pasta da Forja: nada de pasta do usuário, do sistema ou dos dados do Gyde; pedido vazio ou enorme não passa
-    for (const [corpoRuim, motivo] of [[{ pasta: homedir(), pedido: 'x' }, 'pasta do usuário'], [{ pasta: pasta, pedido: 'x' }, 'pasta de dados do Gyde'],
+    for (const [corpoRuim, motivo] of [[{ pasta: homedir(), pedido: 'x' }, 'pasta do usuário'], [{ pasta: pasta, pedido: 'x' }, 'pasta de dados do Gyde'], [{ pasta: dentroDosDados, pedido: 'x' }, 'pasta dentro dos dados do Gyde'], [{ pasta: path.dirname(pasta), pedido: 'x' }, 'pasta que contém os dados do Gyde'],
       [{ pasta: path.join(projeto, 'nao-existe'), pedido: 'x' }, 'pasta inexistente'], [{ pasta: projeto, pedido: '  ' }, 'pedido vazio'], [{ pasta: projeto, pedido: 'x'.repeat(4001) }, 'pedido grande']]) {
       assert.equal((await pedir('POST', '/api/forja/rascunho', corpoRuim, comToken)).status, 400, motivo);
     }
