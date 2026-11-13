@@ -2,7 +2,7 @@
   "name": "gyde",
   "displayName": "Gyde: tutor de programação com IA",
   "description": "Tutor de programação com IA, em português e grátis: explica o código, mostra onde está o erro e por quê, revisa arquivos e conversa no chat da barra lateral.",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "publisher": "gustavomdeschamps",
   "author": {
     "name": "Gustavo Moreira Deschamps"
@@ -93,6 +93,11 @@
         "category": "Gyde"
       },
       {
+        "command": "gyde.pedirForja",
+        "title": "Pedir à Forja (abre no app do Gyde)",
+        "category": "Gyde"
+      },
+      {
         "command": "gyde.configurar",
         "title": "Conectar (colar token)",
         "category": "Gyde"
@@ -117,6 +122,17 @@
         {
           "command": "gyde.explicarErro",
           "group": "gyde@3"
+        },
+        {
+          "command": "gyde.pedirForja",
+          "group": "gyde@4"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "gyde.pedirForja",
+          "when": "!explorerResourceIsFolder",
+          "group": "gyde@1"
         }
       ],
       "view/title": [

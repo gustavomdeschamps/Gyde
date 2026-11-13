@@ -541,9 +541,33 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
     responder(res, C.EstadoAoVivo, await aoVivo.parar(s.id));
   }));
+  const paiDesktop = (process as unknown as { parentPort?: { on(ev: 'message', f: (e: { data: unknown }) => void): void; postMessage(m: unknown): void } }).parentPort;
+  // ---------- "Pedir à Forja" vindo de uma extensão ----------
+  // A extensão (com o token) só GUARDA um rascunho: pasta + pedido. Não cria conversa, não conecta pasta, não roda nada.
+  // O app mostra o rascunho; se a pessoa clicar em "Abrir na Forja", a Forja abre com o pedido escrito e quem envia é ela.
+  // Um rascunho por pessoa, que vence em 15 minutos. Ler e apagar o rascunho é só do app (o token não pode).
+  const rascunhos = new Map<string, { pasta: string; pedido: string; origem: string; em: number }>();
+  const VALIDADE_RASCUNHO = 15 * 60_000;
+  const rascunhoDe = (userId: string) => {
+    const r = rascunhos.get(userId);
+    if (r && Date.now() - r.em > VALIDADE_RASCUNHO) { rascunhos.delete(userId); return null; }
+    return r ?? null;
+  };
+  app.post('/api/forja/rascunho', bloqueado, (req, res) => {
+    const pedido = typeof req.body?.pedido === 'string' ? req.body.pedido.trim() : '';
+    if (!pedido) return res.status(400).json({ error: 'Escreva o que a Forja deve fazer.' });
+    if (pedido.length > 4000) return res.status(400).json({ error: 'Pedido grande demais (máximo 4.000 caracteres).' });
+    const pasta = validarPasta(req.body?.pasta); // mesma regra da Forja: uma pasta de projeto, nunca o disco ou o sistema
+    const origem = req.body?.origem === 'vscode' ? 'VS Code' : 'extensão';
+    rascunhos.set(req.user.id, { pasta, pedido, origem, em: Date.now() });
+    paiDesktop?.postMessage('mostrar-janela'); // no app de desktop, traz a janela para a frente (ela mostra o rascunho)
+    res.json({ ok: true });
+  });
+  app.get('/api/forja/rascunho', bloqueado, (req, res) => responder(res, C.RascunhoForja, { rascunho: rascunhoDe(req.user.id) }));
+  app.delete('/api/forja/rascunho', bloqueado, (req, res) => { rascunhos.delete(req.user.id); res.json({ ok: true }); });
+
   // fechar o Gyde encerra tudo que o Ao vivo ligou: no app de desktop o processo principal avisa antes de fechar o
   // servidor; fora dele, os sinais de saída fazem o mesmo
-  const paiDesktop = (process as unknown as { parentPort?: { on(ev: 'message', f: (e: { data: unknown }) => void): void; postMessage(m: unknown): void } }).parentPort;
   paiDesktop?.on('message', (ev) => { if (ev.data === 'encerrar-ao-vivo') { aoVivo.encerrarTudo(); paiDesktop.postMessage('ao-vivo-encerrado'); } });
   process.once('exit', () => aoVivo.encerrarTudo());
   for (const sinal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) process.once(sinal, () => { aoVivo.encerrarTudo(); process.exit(0); });

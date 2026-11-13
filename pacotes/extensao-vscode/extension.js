@@ -1,6 +1,8 @@
 // Gyde para VS Code: chat na barra lateral + comandos para explicar, revisar e entender erros.
 const vscode = require('vscode');
-const { createClient, nomeModelo } = require('./cliente.js');
+const path = require('path');
+const { createClient, nomeModelo, avaliarStatus, PEDIDOS_FORJA } = require('./cliente.js');
+const VERSAO = require('./package.json').version;
 
 const TOKEN_KEY = 'gyde.token';
 const MAX_CODE = 60_000;
@@ -25,6 +27,7 @@ function activate(context) {
       const ctx = codeContext(false);
       if (ctx) view.ask('/revisar Revise este código: aponte bugs, más práticas e como melhorar, explicando o porquê.', ctx);
     }),
+    vscode.commands.registerCommand('gyde.pedirForja', (uri) => view.pedirForja(uri)),
     vscode.commands.registerCommand('gyde.explicarErro', () => {
       const ctx = errorContext();
       if (ctx) view.ask('Meu código deu este erro. Explique o que significa e como corrigir, passo a passo.', ctx);
@@ -118,6 +121,8 @@ class ChatView {
         const user = await client.me();
         this.post({ type: 'state', connected: true, userName: user.name.split(' ')[0] });
         this.post({ type: 'modelos', opcoes: await client.modelos(), escolhido: this.modelo });
+        const status = await client.status();
+        if (status) this.post({ type: 'avisos', ...avaliarStatus(status, VERSAO), versaoExtensao: VERSAO });
         await this.restore(client);
       } catch (e) {
         this.post({ type: 'state', connected: false, error: e.message });
@@ -176,6 +181,33 @@ class ChatView {
       await this.context.secrets.store(TOKEN_KEY, token.trim());
       this.post({ type: 'state', connected: true, userName: user.name.split(' ')[0] });
       vscode.window.showInformationMessage(`Gyde conectado. Oi, ${user.name.split(' ')[0]}!`);
+    } catch (e) {
+      vscode.window.showErrorMessage(e.message);
+    }
+  }
+
+  // "Pedir à Forja": escolhe um pedido sobre o arquivo, deixa a pessoa editar e guarda no app do Gyde. O app mostra o
+  // pedido; abrir a Forja e enviar é sempre lá, por ela. Daqui não roda nada e nenhum arquivo é enviado.
+  async pedirForja(uri) {
+    const alvo = uri instanceof vscode.Uri ? uri : vscode.window.activeTextEditor?.document.uri;
+    const pastaProjeto = alvo ? vscode.workspace.getWorkspaceFolder(alvo)?.uri.fsPath : vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!pastaProjeto && !alvo) return vscode.window.showWarningMessage('Abra a pasta de um projeto no VS Code primeiro.');
+    if (alvo && alvo.scheme !== 'file') return vscode.window.showWarningMessage('A Forja só trabalha com arquivos salvos no computador.');
+    const pasta = pastaProjeto || path.dirname(alvo.fsPath);
+    const arquivo = alvo ? path.relative(pasta, alvo.fsPath).replaceAll('\\', '/') : '';
+    const client = await this.client();
+    if (!client) { this.post({ type: 'state', connected: false }); return this.askToken(); }
+    let pedido = 'Analise este projeto e sugira melhorias.';
+    if (arquivo) {
+      const escolha = await vscode.window.showQuickPick(PEDIDOS_FORJA.map((p) => ({ label: p.rotulo, description: p.texto(arquivo), p })), { title: `Pedir à Forja: ${arquivo}`, placeHolder: 'O que a Forja deve fazer com este arquivo?' });
+      if (!escolha) return;
+      pedido = escolha.p.texto(arquivo);
+    }
+    const texto = await vscode.window.showInputBox({ title: 'Pedir à Forja', prompt: `Pasta: ${pasta}. O app do Gyde mostra o pedido e você confere antes de enviar.`, value: pedido, ignoreFocusOut: true });
+    if (!texto?.trim()) return;
+    try {
+      await client.pedirForja(pasta, texto.trim());
+      vscode.window.showInformationMessage('Pedido guardado no app do Gyde. Lá, clique em "Abrir na Forja", confira e envie.');
     } catch (e) {
       vscode.window.showErrorMessage(e.message);
     }

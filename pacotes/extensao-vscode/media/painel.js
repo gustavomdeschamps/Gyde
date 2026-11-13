@@ -43,6 +43,7 @@ function renderChat() {
       <select id="modelo" class="modelo" aria-label="Modelo" title="O Gyde escolhe o modelo certo para cada pedido">${opcoesModelo()}</select>
       <span class="status">conectado</span>
       <button class="icon-btn" id="nova" title="Nova conversa" aria-label="Nova conversa">${ic.nova}</button></header>
+    <div id="avisos">${avisosHtml()}</div>
     <div class="messages" id="messages">${hello()}</div>
     <form class="composer" id="composer">
       <div class="caixa">
@@ -63,6 +64,7 @@ function renderChat() {
   document.getElementById('nova').onclick = () => vscode.postMessage({ type: 'cmd', id: 'gyde.novaConversa' });
   document.getElementById('modelo').onchange = (e) => { modeloEscolhido = e.target.value; vscode.postMessage({ type: 'modelo', id: modeloEscolhido }); };
   bindHello();
+  mostrarAvisos();
 }
 
 // só as opções do Gyde (Gyde 1, Gyde 1 Pro); o modelo que respondeu aparece embaixo de cada resposta
@@ -72,6 +74,22 @@ const opcoesModelo = () => modelos.map((o) => `<option value="${esc(o.id)}" titl
 const meta = (modelo) => (modelo ? `<div class="meta" title="Modelo que respondeu">${esc(modelo)}</div>` : '');
 // a IA do app ainda não foi conectada: explica e manda abrir o Conectar IA no app (sem erro técnico)
 const semIAHtml = () => `<div class="aviso"><b>A IA do Gyde ainda não está conectada.</b><p>No app do Gyde, abra <b>Configurações → Conectar IA</b> e cole uma chave grátis (NVIDIA ou Google). Leva uns 2 minutos.</p><button class="btn" data-abrir-app>Abrir o Gyde</button></div>`;
+
+// avisos ao abrir: IA do app não conectada (antes de a pessoa perguntar) e app mais antigo que a extensão
+let avisos = null;
+function avisosHtml() {
+  if (!avisos) return '';
+  let h = '';
+  if (avisos.semIA) h += semIAHtml();
+  if (avisos.appAntigo) h += `<div class="aviso"><b>O app do Gyde está desatualizado.</b><p>${avisos.versaoApp ? `O app está na versão ${esc(avisos.versaoApp)}` : 'O app está numa versão'} e esta extensão é a ${esc(avisos.versaoExtensao)}. Atualize o app do Gyde (instale a versão nova por cima: suas conversas continuam) para tudo funcionar.</p></div>`;
+  return h;
+}
+function mostrarAvisos() {
+  const el = document.getElementById('avisos');
+  if (!el) return;
+  el.innerHTML = avisosHtml();
+  el.querySelectorAll('[data-abrir-app]').forEach((b) => b.addEventListener('click', () => vscode.postMessage({ type: 'abrirApp' })));
+}
 
 function hello() {
   const card = (attr, icone, titulo, sub) => `<button class="card" ${attr}><span class="ic">${icone}</span><span><b>${titulo}</b><small>${sub}</small></span></button>`;
@@ -178,11 +196,15 @@ window.addEventListener('message', ({ data: m }) => {
     out.insertAdjacentHTML('afterend', meta(m.modelo));
     current = null;
     setBusy(false);
+  } else if (m.type === 'avisos') {
+    avisos = m;
+    mostrarAvisos();
   } else if (m.type === 'modelos') {
     modelos = m.opcoes?.length ? m.opcoes : modelos;
     modeloEscolhido = modelos.some((o) => o.id === m.escolhido) ? m.escolhido : modelos[0].id;
     const sel = document.getElementById('modelo');
     if (sel) sel.innerHTML = opcoesModelo();
+    mostrarAvisos();
   } else if (m.type === 'error') {
     if (current) {
       current.querySelector('.md').innerHTML = m.semIA ? semIAHtml() : `<div class="error">${esc(m.message)}</div>`;

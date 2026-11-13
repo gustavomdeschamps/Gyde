@@ -2,7 +2,7 @@
 // config/); aqui só se liga uma coisa na outra.
 import { mount } from 'svelte';
 import * as C from '$contratos';
-import { pedir, enviar as api } from './api.ts';
+import { pedir, enviar as api, corpo } from './api.ts';
 import { toast, copiarTexto } from './util.ts';
 import { renderMarkdown } from './markdown.ts';
 import { tocarAbertura, aberturaJaVista } from './abertura.ts';
@@ -112,6 +112,48 @@ async function conferirStatus() {
   return false;
 }
 
+// ---------- "Pedir à Forja" vindo do VS Code ----------
+// A extensão só deixa um rascunho guardado (pasta + pedido). Aqui ele aparece num cartão: "Abrir na Forja" abre a Forja
+// daquela pasta com o pedido escrito, e quem envia é a pessoa (botão Enviar). "Descartar" apaga o rascunho.
+let rascunhoVisto = 0;
+async function conferirRascunho() {
+  if (!usuario || document.hidden || document.querySelector('.rascunho-forja')) return;
+  let r: C.TRascunhoForja['rascunho'];
+  try { r = (await pedir('/api/forja/rascunho', C.RascunhoForja)).rascunho; } catch { return; }
+  if (!r || r.em === rascunhoVisto || document.querySelector('.rascunho-forja')) return;
+  rascunhoVisto = r.em;
+  const caixa = document.createElement('div');
+  caixa.className = 'rascunho-forja';
+  caixa.setAttribute('role', 'dialog');
+  caixa.setAttribute('aria-labelledby', 'rascunhoTitulo');
+  caixa.innerHTML = `<h2 id="rascunhoTitulo"></h2><p class="rascunho-pasta"></p><pre class="rascunho-pedido"></pre>
+    <p class="rascunho-nota">Nada roda sozinho: a Forja abre com o pedido escrito e você confere antes de enviar.</p>
+    <div class="rascunho-acoes"><button type="button" class="btn ghost" data-a="descartar">Descartar</button><button type="button" class="btn primary" data-a="abrir">Abrir na Forja</button></div>`;
+  caixa.querySelector('h2')!.textContent = `O ${r.origem} pediu à Forja`;
+  caixa.querySelector('.rascunho-pasta')!.textContent = `Pasta: ${r.pasta}`;
+  caixa.querySelector('.rascunho-pedido')!.textContent = r.pedido;
+  const fechar = () => caixa.remove();
+  const rasc = r;
+  caixa.querySelector<HTMLButtonElement>('[data-a="descartar"]')!.onclick = async () => { await api('/api/forja/rascunho', { method: 'DELETE' }).catch(() => {}); fechar(); };
+  caixa.querySelector<HTMLButtonElement>('[data-a="abrir"]')!.onclick = async (e) => {
+    if (forja.ocupado()) { toast('A Forja está trabalhando. Espere ela terminar e clique de novo.'); return; }
+    (e.currentTarget as HTMLButtonElement).disabled = true;
+    try {
+      const mesma = (await pedir('/api/codigo/sessoes', C.ListaSessoes)).sessoes.find((s) => s.pasta.toLowerCase() === rasc.pasta.toLowerCase());
+      const id = mesma?.id ?? (await api<{ id: string }>('/api/codigo/sessoes', corpo({ pasta: rasc.pasta }))).id;
+      (globalThis as { __forjaRascunho?: string | null }).__forjaRascunho = rasc.pedido; // a Forja escreve no campo, sem enviar
+      await api('/api/forja/rascunho', { method: 'DELETE' }).catch(() => {});
+      fechar();
+      if (location.hash === `#/agente/${id}`) await rota(); else location.hash = `#/agente/${id}`;
+    } catch (erro) { toast(erro instanceof Error ? erro.message : String(erro)); (e.currentTarget as HTMLButtonElement | null)?.removeAttribute('disabled'); }
+  };
+  document.body.append(caixa);
+  caixa.querySelector<HTMLButtonElement>('[data-a="abrir"]')!.focus();
+}
+addEventListener('focus', () => { conferirRascunho(); });
+document.addEventListener('visibilitychange', () => { conferirRascunho(); });
+setInterval(() => { conferirRascunho(); }, 4000); // pedido local e leve; só olha com a janela visível
+
 // ex.: chave salva nas Configurações: confere de novo e, se o FreeLLMAPI responder, recarrega a lista de modelos
 addEventListener('gyde:status', () => { conferirStatus().then((ok) => { if (ok) carregarModelos(); }); });
 
@@ -138,6 +180,7 @@ async function iniciar() {
   chat.convId = null; // força a rota a recarregar a conversa atual
   skills.refresh();
   await rota();
+  conferirRascunho();
 }
 
 // o vídeo de abertura toca só na primeira vez; a tela real é montada por trás dele, perto do fim

@@ -60,6 +60,8 @@ async function subirServidor() {
   servidor.stdout?.on('data', guardar);
   servidor.stderr?.on('data', guardar);
   const este = servidor;
+  // "Pedir à Forja" de uma extensão: o servidor pede para mostrar a janela (o rascunho aparece nela; nada roda sozinho)
+  servidor.on('message', (m) => { if (m === 'mostrar-janela' && janela) { if (janela.isMinimized()) janela.restore(); janela.show(); janela.focus(); } });
   servidor.on('exit', (codigo) => {
     if (servidor === este) servidor = null;
     registrar(`servidor fechou (código ${codigo})${saindo ? ' ao sair' : ''}`);

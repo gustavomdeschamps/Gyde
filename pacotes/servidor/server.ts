@@ -119,12 +119,14 @@ const impressaoDoCodigo = () => {
   return h;
 };
 const VERSAO_INICIO = impressaoDoCodigo();
+let VERSAO_APP = 'desconhecida';
+try { VERSAO_APP = (JSON.parse(readFileSync(path.join(BASE, 'package.json'), 'utf8')) as { version?: string }).version ?? VERSAO_APP; } catch { /* sem package.json */ }
 
 app.get('/api/status', asyncRoute(async (_req, res) => {
   const u = await provedores.resumo({ mostrarConta: false });
   let desatualizado = false;
   try { desatualizado = impressaoDoCodigo() !== VERSAO_INICIO; } catch { /* sem como checar */ }
-  responder(res, C.Status, { keyConfigured: provedores.temAlgumaChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico' });
+  responder(res, C.Status, { keyConfigured: provedores.temAlgumaChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico', versao: VERSAO_APP });
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).

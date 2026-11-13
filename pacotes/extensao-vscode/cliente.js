@@ -10,6 +10,31 @@ class GydeError extends Error {
 }
 // nome do modelo como o app mostra: sem o prefixo do provedor ("openai/gpt-oss-120b" vira "gpt-oss-120b")
 const nomeModelo = (id) => String(id || '').split('/').pop().replace(/:free$/, '');
+// "2.1.0" < "2.2.0"? Compara número a número; versão desconhecida (app de antes da 2.2, que não informa) conta como mais antiga.
+function appMaisAntigo(app, extensao) {
+  const partes = (v) => String(v || '').split('.').map((n) => Number.parseInt(n, 10));
+  const a = partes(app), e = partes(extensao);
+  if (a.some(Number.isNaN) || a.length < 2) return true;
+  for (let i = 0; i < Math.max(a.length, e.length); i++) {
+    const x = a[i] ?? 0, y = e[i] ?? 0;
+    if (x !== y) return x < y;
+  }
+  return false;
+}
+// O que o painel precisa saber logo ao abrir: a IA do app está conectada? O app é mais antigo que a extensão?
+function avaliarStatus(status, versaoExtensao) {
+  const iaPronta = Boolean(status?.keyConfigured) || (status?.iaAtiva === 'offline' && Boolean(status?.offlineDisponivel));
+  const versaoApp = typeof status?.versao === 'string' ? status.versao : '';
+  return { semIA: !iaPronta, versaoApp, appAntigo: appMaisAntigo(versaoApp, versaoExtensao) };
+}
+// Pedidos prontos para a Forja sobre um arquivo (os mesmos do cartão da Cidade, no app)
+const PEDIDOS_FORJA = [
+  { id: 'melhorias', rotulo: 'Sugerir melhorias', texto: (f) => `Analise o arquivo ${f} e sugira melhorias.` },
+  { id: 'explicar', rotulo: 'Explicar o arquivo', texto: (f) => `Explique o arquivo ${f}: o que ele faz e como se liga ao resto do projeto.` },
+  { id: 'simplificar', rotulo: 'Simplificar', texto: (f) => `Simplifique o arquivo ${f} sem mudar o que ele faz, e rode os testes.` },
+  { id: 'bugs', rotulo: 'Achar bugs', texto: (f) => `Procure bugs no arquivo ${f} e corrija os que encontrar, explicando cada um.` },
+  { id: 'testes', rotulo: 'Adicionar testes', texto: (f) => `Crie testes para o arquivo ${f} e rode.` },
+];
 const OPCOES_PADRAO = [{ id: 'gyde-1', label: 'Gyde 1', hint: '' }, { id: 'gyde-1-pro', label: 'Gyde 1 Pro', hint: '' }];
 
 function createClient({ server, token }) {
@@ -43,6 +68,14 @@ function createClient({ server, token }) {
     },
     async conversation(id) {
       return (await api(`/api/conversations/${id}`)).json();
+    },
+    // "Pedir à Forja": só deixa o pedido guardado no app. O app mostra; a pessoa abre a Forja e envia (nada roda daqui).
+    async pedirForja(pasta, pedido) {
+      await api('/api/forja/rascunho', { method: 'POST', body: JSON.stringify({ pasta, pedido, origem: 'vscode' }) });
+    },
+    // estado do app (rota liberada ao token): IA conectada e versão. Sem resposta, não avisa nada.
+    async status() {
+      try { return await (await api('/api/status')).json(); } catch { return null; }
     },
     // só as opções do Gyde (Gyde 1, Gyde 1 Pro): quem escolhe o modelo de verdade é o roteador do app
     async modelos() {
@@ -78,4 +111,4 @@ function createClient({ server, token }) {
   };
 }
 
-module.exports = { createClient, GydeError, nomeModelo };
+module.exports = { createClient, GydeError, nomeModelo, appMaisAntigo, avaliarStatus, PEDIDOS_FORJA };

@@ -3,9 +3,9 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync, existsSync, readFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
-import { tmpdir } from 'node:os';
+import { tmpdir, homedir } from 'node:os';
 import path from 'node:path';
 
 const SERVIDOR = path.join(import.meta.dirname, '..', 'server.ts');
@@ -51,6 +51,45 @@ test('token das extensões conversa, mas não mexe em chaves, configurações, F
   assert.deepEqual((await cliente.modelos()).map((o) => o.label), ['Gyde 1', 'Gyde 1 Pro']);
   await assert.rejects(cliente.send(conv.id, 'oi', [], { modelo: 'gyde-1-pro' }), (e) => e.semIA === true && /Conectar IA/.test(e.message));
   assert.equal((await (await pedir('GET', `/api/conversations/${conv.id}`, undefined, comToken)).json()).model, 'gyde-1-pro', 'o modelo escolhido na extensão vai junto');
+
+  // avisos ao abrir o painel: a versão do app e se a IA está conectada (rota /api/status, liberada ao token)
+  const { avaliarStatus, appMaisAntigo } = await import('../../extensao-vscode/cliente.js');
+  const status = await cliente.status();
+  const versaoRaiz = JSON.parse(readFileSync(path.join(import.meta.dirname, '..', '..', '..', 'package.json'), 'utf8')).version;
+  assert.equal(status.versao, versaoRaiz, 'o app informa a própria versão');
+  assert.deepEqual(avaliarStatus(status, versaoRaiz), { semIA: true, versaoApp: versaoRaiz, appAntigo: false });
+  assert.equal(avaliarStatus({ ...status, keyConfigured: true }, versaoRaiz).semIA, false);
+  assert.equal(avaliarStatus({ ...status, iaAtiva: 'offline', offlineDisponivel: true }, versaoRaiz).semIA, false, 'modelo local conta como IA pronta');
+  assert.equal(appMaisAntigo('2.1.0', '2.2.0'), true);
+  assert.equal(appMaisAntigo('2.10.0', '2.9.1'), false);
+  assert.equal(appMaisAntigo('2.2.0', '2.2.0'), false);
+  assert.equal(appMaisAntigo('3.0', '2.9.9'), false);
+  assert.equal(appMaisAntigo(undefined, '2.2.0'), true, 'app de antes da 2.2 não informa a versão: conta como mais antigo');
+
+  // "Pedir à Forja" do VS Code: o token só GUARDA o pedido. Não cria conversa, não conecta pasta, não roda nada;
+  // ler e apagar o rascunho é só do app (cookie)
+  const projeto = mkdtempSync(path.join(tmpdir(), 'gyde-token-projeto-'));
+  writeFileSync(path.join(projeto, 'soma.js'), 'export const soma = (a, b) => a - b;\n');
+  try {
+    await cliente.pedirForja(projeto, 'Procure bugs no arquivo soma.js e corrija os que encontrar.');
+    const visto = await (await pedir('GET', '/api/forja/rascunho', undefined, { Cookie: cookie })).json();
+    assert.equal(visto.rascunho.pedido, 'Procure bugs no arquivo soma.js e corrija os que encontrar.');
+    assert.equal(visto.rascunho.origem, 'VS Code');
+    assert.equal((await (await pedir('GET', '/api/codigo/sessoes', undefined, { Cookie: cookie })).json()).sessoes.length, 0, 'nenhuma conversa da Forja foi criada');
+    assert.equal(readFileSync(path.join(projeto, 'soma.js'), 'utf8'), 'export const soma = (a, b) => a - b;\n', 'nada no projeto mudou');
+    // mesma regra de pasta da Forja: nada de pasta do usuário, do sistema ou dos dados do Gyde; pedido vazio ou enorme não passa
+    for (const [corpoRuim, motivo] of [[{ pasta: homedir(), pedido: 'x' }, 'pasta do usuário'], [{ pasta: pasta, pedido: 'x' }, 'pasta de dados do Gyde'],
+      [{ pasta: path.join(projeto, 'nao-existe'), pedido: 'x' }, 'pasta inexistente'], [{ pasta: projeto, pedido: '  ' }, 'pedido vazio'], [{ pasta: projeto, pedido: 'x'.repeat(4001) }, 'pedido grande']]) {
+      assert.equal((await pedir('POST', '/api/forja/rascunho', corpoRuim, comToken)).status, 400, motivo);
+    }
+    // o token não lê nem apaga o rascunho, e continua sem acesso ao resto da Forja
+    for (const [metodo, rota, corpo] of [['GET', '/api/forja/rascunho'], ['DELETE', '/api/forja/rascunho'], ['POST', '/api/codigo/sessoes', { pasta: projeto }],
+      ['POST', '/api/forja/rascunho/abrir', {}], ['PUT', '/api/forja/rascunho', { pasta: projeto, pedido: 'x' }]]) {
+      assert.equal((await pedir(metodo, rota, corpo, comToken)).status, 403, `${metodo} ${rota} deveria recusar o token`);
+    }
+    assert.equal((await pedir('DELETE', '/api/forja/rascunho', undefined, { Cookie: cookie })).status, 200);
+    assert.equal((await (await pedir('GET', '/api/forja/rascunho', undefined, { Cookie: cookie })).json()).rascunho, null);
+  } finally { rmSync(projeto, { recursive: true, force: true }); }
 
   // o que não é delas fica fechado, mesmo com o token certo
   const fechadas = [

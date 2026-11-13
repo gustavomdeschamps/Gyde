@@ -244,6 +244,15 @@
 .cidade-cartao dl div { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; border-top: 1px solid rgb(160 150 255 / .14); padding-top: 6px; }
 .cidade-cartao dt { color: #a29ddb; }
 .cidade-cartao dd { margin: 0; color: #fff; text-align: right; display: inline-flex; align-items: center; gap: 6px; }
+/* "Pedir à Forja" no cartão do prédio: escreve o pedido no campo da Forja (quem envia é a pessoa) */
+.cidade-cartao-forja { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgb(160 150 255 / .14); display: grid; gap: 8px; }
+.cidade-cartao-forja > .btn { justify-self: start; }
+.cidade-cartao-opcoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.cidade-opcao { padding: 4px 10px; border-radius: 999px; border: 1px solid rgb(160 150 255 / .32); background: rgb(124 92 255 / .12); color: #e4e1ff; font: inherit; font-size: 12px; cursor: pointer; transition: background var(--t1, .12s) var(--ease), border-color var(--t1, .12s) var(--ease); }
+.cidade-opcao:hover { background: rgb(124 92 255 / .26); border-color: rgb(160 150 255 / .6); }
+.cidade-opcao:focus-visible { outline: 2px solid #7fe3ff; outline-offset: 2px; }
+.cidade-opcao.destaque { border-color: rgb(255 170 90 / .55); background: rgb(255 140 60 / .14); color: #ffe2c4; }
+.cidade-cartao-forja small { font-size: 11.5px; color: #a29ddb; }
 .cidade-cartao .cidade-calor { margin: 0; box-shadow: 0 0 8px currentColor; }
 .cidade-cartao-fechar { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 8px; border: 0; background: rgb(255 255 255 / .06); color: #d6d3ff; cursor: pointer; font-size: 13px; }
 .cidade-cartao-fechar:hover { background: rgb(255 255 255 / .14); }
@@ -345,3 +354,10 @@
 .ao-vivo-saida p { margin: 12px; font-size: 13px; color: #8f9ab8; }
 .ao-vivo-copiar { margin: 6px 12px; align-self: flex-start; }
 @media (prefers-reduced-motion: reduce) { .forja-previa-ponto.carregando, .ao-vivo-giro { animation: none; } }
+/* "Pedir à Forja" vindo do VS Code: cartão com o pedido, que só abre a Forja com o texto escrito */
+.rascunho-forja { position: fixed; right: 20px; bottom: 20px; z-index: 60; width: min(420px, calc(100vw - 32px)); padding: 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); color: var(--text); }
+.rascunho-forja h2 { margin: 0 0 6px; font-size: 15px; }
+.rascunho-pasta { margin: 0 0 8px; font: 12px var(--mono); color: var(--text-faint); overflow-wrap: anywhere; }
+.rascunho-pedido { margin: 0; max-height: 160px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: var(--bg-soft); border: 1px solid var(--border); font: 13px/1.5 inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rascunho-nota { margin: 8px 0 12px; font-size: 12.5px; color: var(--text-soft); }
+.rascunho-acoes { display: flex; justify-content: flex-end; gap: 8px; }
