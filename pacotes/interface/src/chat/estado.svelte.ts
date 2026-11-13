@@ -175,7 +175,18 @@ export async function adicionarArquivos(arquivos: File[]) {
 
 // ---------- enviar e receber a resposta em streaming ----------
 export const podeEnviar = () => chat.transmitindo || Boolean(chat.texto.trim()) || chat.pendentes.some((a) => !a.carregando);
-export function parar() { controle?.abort(); }
+// Parar: pede ao servidor para encerrar. Ele grava o que já chegou e manda o fim ("done") pela conexão aberta, e a
+// resposta parcial fica na tela como uma mensagem normal. Antes, a tela cortava a conexão e recarregava a conversa na
+// mesma hora; se a recarga chegasse antes de o servidor gravar, a resposta parcial sumia (e o teste falhava às vezes).
+// Se o servidor não confirmar, corta aqui mesmo (e recarrega, como antes).
+export async function parar() {
+  const c = controle, id = chat.convId;
+  if (!c || !id) { c?.abort(); return; }
+  let parado = false;
+  try { parado = (await pedir(`/api/conversations/${id}/parar`, C.Parada, { method: 'POST' })).parado; } catch { /* servidor sem resposta */ }
+  if (!parado) c.abort();
+  else setTimeout(() => { if (controle === c) c.abort(); }, 5000); // garantia: se o fim não chegar, não fica preso
+}
 
 export async function enviar({ mode = 'new', messageId, content, attachments }: { mode?: Modo; messageId?: string; content?: string; attachments?: Anexo[] } = {}) {
   if (chat.transmitindo) return;
