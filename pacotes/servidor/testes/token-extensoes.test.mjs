@@ -2,27 +2,18 @@
 // Sobe um servidor de verdade numa pasta temporária (sem internet e sem tocar nos dados reais).
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { createServer } from 'node:net';
 import { tmpdir, homedir } from 'node:os';
 import path from 'node:path';
+import { subirServidorDeTeste } from './subir-servidor.mjs';
 
-const SERVIDOR = path.join(import.meta.dirname, '..', 'server.ts');
-const portaLivre = () => new Promise((ok) => { const s = createServer(); s.listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => ok(port)); }); });
 let aberto = null;
 after(async () => { if (!aberto) return; aberto.proc.kill(); if (aberto.proc.exitCode === null) await new Promise((r) => aberto.proc.once('exit', r)); rmSync(aberto.pasta, { recursive: true, force: true }); });
 
 test('token das extensões conversa, mas não mexe em chaves, configurações, Forja nem dados', async () => {
   const pasta = mkdtempSync(path.join(tmpdir(), 'gyde-token-'));
-  const porta = await portaLivre();
-  const proc = spawn(process.execPath, [SERVIDOR], {
-    env: { ...process.env, DATA_DIR: pasta, PORT: String(porta), GYDE_DESKTOP: '1', GYDE_ENV_FILE: path.join(pasta, '.env'), FREELLMAPI_URL: 'http://127.0.0.1:1', OLLAMA_URL: 'http://127.0.0.1:1', FREELLMAPI_KEY: '' },
-    stdio: 'ignore',
-  });
+  const { proc, base } = await subirServidorDeTeste({ DATA_DIR: pasta, GYDE_DESKTOP: '1', GYDE_ENV_FILE: path.join(pasta, '.env'), FREELLMAPI_URL: 'http://127.0.0.1:1', OLLAMA_URL: 'http://127.0.0.1:1', FREELLMAPI_KEY: '' });
   aberto = { proc, pasta };
-  const base = `http://127.0.0.1:${porta}`;
-  for (let i = 0; i < 100; i++) { try { await fetch(`${base}/api/auth/me`); break; } catch { await new Promise((r) => setTimeout(r, 100)); } }
   const pedir = (metodo, rota, corpo, extra = {}) => fetch(base + rota, { method: metodo, headers: { 'Content-Type': 'application/json', 'x-gyde': '1', ...extra }, ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }) });
 
   assert.equal((await pedir('POST', '/api/auth/register', { name: 'Ana', email: 'ana@t.test', password: 'senha12345' })).status, 201);

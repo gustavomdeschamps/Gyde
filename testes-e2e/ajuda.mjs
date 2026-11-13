@@ -26,11 +26,11 @@ export function placar() {
 // servidor do Gyde isolado. `pasta` permite reabrir com os mesmos dados (ex.: depois de restaurar uma cópia).
 export async function subirServidor({ env = {}, pasta } = {}) {
   const dados = pasta ?? mkdtempSync(path.join(tmpdir(), 'gyde-e2e-'));
-  const porta = await portaLivre();
   const saida = [];
   const proc = spawn(process.execPath, [path.join(RAIZ, 'pacotes', 'servidor', 'server.ts')], {
     env: {
-      ...process.env, DATA_DIR: dados, PORT: String(porta), GYDE_CONTRATOS: 'estrito', GYDE_DESKTOP: '1',
+      // PORT=0: o sistema escolhe a porta na hora; a linha "Gyde rodando em ..." diz qual (sem corrida com outro processo)
+      ...process.env, DATA_DIR: dados, PORT: '0', GYDE_CONTRATOS: 'estrito', GYDE_DESKTOP: '1',
       GYDE_ENV_FILE: path.join(dados, '.env'), // nunca lê o .env de verdade
       FREELLMAPI_URL: 'http://127.0.0.1:9', OLLAMA_URL: 'http://127.0.0.1:9', ...env,
     },
@@ -38,10 +38,13 @@ export async function subirServidor({ env = {}, pasta } = {}) {
   });
   proc.stdout.on('data', (d) => saida.push(String(d)));
   proc.stderr.on('data', (d) => saida.push(String(d)));
-  const base = `http://127.0.0.1:${porta}`;
-  for (let i = 0; i < 150; i++) {
-    try { await fetch(`${base}/api/auth/me`); break; } catch { if (proc.exitCode !== null) throw new Error(`O servidor fechou:\n${saida.join('')}`); await espera(100); }
+  let porta = null;
+  for (let i = 0; i < 300 && !porta; i++) {
+    porta = /Gyde rodando em http:\/\/127\.0\.0\.1:(\d+)/.exec(saida.join(''))?.[1] ?? null;
+    if (!porta) { if (proc.exitCode !== null) throw new Error(`O servidor fechou:\n${saida.join('')}`); await espera(100); }
   }
+  if (!porta) throw new Error(`O servidor não abriu em 30 s:\n${saida.join('')}`);
+  const base = `http://127.0.0.1:${porta}`;
   return {
     base, pasta: dados, saida,
     // respostas fora do contrato aparecem no log do servidor (modo estrito)
