@@ -105,14 +105,51 @@ try {
     await aoVivo.avaliar(`(()=>{ const t = document.querySelector('#agenteView textarea'); t.value = 'CIDADE-AO-VIVO: corrija a soma e crie um arquivo'; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('#agenteView form').requestSubmit(); return 1; })()`);
     await aoVivo.esperar(`document.querySelector('.forja-turno') !== null`, 5000);
     await aoVivo.avaliar(`document.querySelector('#abaCidade').click()`);
-    ok('Forja leu: o HUD mostra e o prédio existe na cidade', await aoVivo.esperar(`(document.querySelector('.cidade-atividade')?.textContent || '').includes('Forja lendo soma.js') && !/fora da cidade/.test(document.querySelector('.cidade-atividade')?.textContent || '')`, 20_000),
-      await aoVivo.avaliar(`document.querySelector('.cidade-atividade')?.textContent ?? 'sem atividade'`));
-    ok('Forja criou um arquivo: o HUD mostra a criação', await aoVivo.esperar(`(document.querySelector('.cidade-atividade')?.textContent || '').includes('Forja criando src/telas/novo.js')`, 20_000),
-      await aoVivo.avaliar(`document.querySelector('.cidade-atividade')?.textContent ?? 'sem atividade'`));
+    // o HUD fica 4,5 s na tela; as últimas atividades ficam registradas na seção (data-atividades), sem depender do tempo
+    const feitas = `(document.querySelector('.cidade')?.dataset.atividades ?? '').split(' | ')`;
+    ok('Forja leu: o HUD mostra e o prédio existe na cidade', await aoVivo.esperar(`${feitas}.includes('lendo soma.js')`, 20_000), await aoVivo.avaliar(`${feitas}.join(' | ')`) || 'sem atividade');
+    ok('Forja criou um arquivo: o HUD mostra a criação', await aoVivo.esperar(`${feitas}.includes('criando src/telas/novo.js')`, 20_000), await aoVivo.avaliar(`${feitas}.join(' | ')`) || 'sem atividade');
     await aoVivo.avaliar(`window.__copiado = null; navigator.clipboard.writeText = async (t) => { window.__copiado = t; }; [...document.querySelectorAll('.cidade-rodape button')].find((b) => /Copiar diagnóstico/.test(b.textContent)).click(); 1`);
     ok('o arquivo novo virou um prédio novo (5 prédios)', await aoVivo.esperar(`(window.__copiado || '').includes('Prédios: 5 ')`, 3000), await aoVivo.avaliar(`(window.__copiado || '').split('\\n').find((l) => l.startsWith('Prédios')) ?? ''`));
     ok('sem erro de JavaScript com a Forja trabalhando', aoVivo.erros.length === 0, aoVivo.erros.slice(0, 3).join(' | '));
   } finally { await aoVivo.fechar(); projAoVivo.apagar(); }
+
+  // cartão do prédio: "Pedir à Forja" só escreve o pedido no campo da Forja (não envia); num farol, sugere dividir
+  const projCartao = pastaTemp('cartao');
+  writeFileSync(path.join(projCartao, 'grande.js'), 'x\n'.repeat(60));
+  writeFileSync(path.join(projCartao, 'calmo.js'), 'y\n'.repeat(20));
+  const gitCartao = (...a) => spawnSync('git', ['-c', 'user.name=Teste', '-c', 'user.email=teste@exemplo.invalid', '-c', 'commit.gpgsign=false', ...a], { cwd: projCartao });
+  gitCartao('init', '-q'); gitCartao('add', '.'); gitCartao('commit', '-qm', 'um');
+  for (let i = 0; i < 3; i++) { writeFileSync(path.join(projCartao, 'grande.js'), 'x\n'.repeat(60 + i)); gitCartao('commit', '-qam', `muda ${i}`); } // grande.js: 4 mudanças, vira farol
+  const navCartao = await abrirNavegador({ webgl: true });
+  try {
+    await navCartao.enviar('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] }); // câmera parada: o clique cai no prédio certo
+    await abrirCidade(navCartao, projCartao, { extra: `localStorage.setItem('gyde-teste-cidade-ponto', '1');` });
+    ok('cartão: a cidade abre e confere os prédios', await navCartao.esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok' && typeof document.querySelector('.cidade-3d').__pontoDe === 'function'`, 25_000));
+    const clicarPredio = async (arquivo) => {
+      const p = JSON.parse(await navCartao.avaliar(`JSON.stringify(document.querySelector('.cidade-3d').__pontoDe(${JSON.stringify(arquivo)}))`));
+      await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p.x, y: p.y });
+      await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mousePressed', x: p.x, y: p.y, button: 'left', clickCount: 1 });
+      await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p.x, y: p.y, button: 'left', clickCount: 1 });
+      return navCartao.esperar(`document.querySelector('.cidade-cartao h3')?.textContent === ${JSON.stringify(arquivo)}`, 5000);
+    };
+    const opcoes = `[...document.querySelectorAll('.cidade-cartao-opcoes button')].map((b) => b.textContent).join('|')`;
+    ok('cartão: clicar num prédio abre o cartão com "Pedir à Forja"', await clicarPredio('grande.js') && await navCartao.avaliar(`/Pedir à Forja/.test(document.querySelector('.cidade-cartao-forja .btn')?.textContent || '')`),
+      await navCartao.avaliar(`document.querySelector('.cidade-cartao')?.textContent ?? 'sem cartão'`));
+    ok('cartão: num farol (muito alterado) as opções incluem dividir em partes menores', await navCartao.avaliar(`${opcoes} === 'Explicar|Simplificar|Achar bugs|Adicionar testes|Dividir em partes menores'`), await navCartao.avaliar(opcoes));
+    const pedidosAntes = ia.pedidos.length;
+    await navCartao.avaliar(`[...document.querySelectorAll('.cidade-cartao-opcoes button')].find((b) => b.textContent === 'Achar bugs').click()`);
+    ok('cartão: "Achar bugs" volta para a Conversa com o pedido escrito', await navCartao.esperar(`document.querySelector('#abaConversa')?.getAttribute('aria-selected') === 'true' && document.querySelector('#agenteView textarea')?.value === 'Procure bugs no arquivo grande.js e corrija os que encontrar, explicando cada um.'`, 5000),
+      await navCartao.avaliar(`document.querySelector('#agenteView textarea')?.value ?? 'sem campo'`));
+    ok('cartão: o pedido NÃO é enviado sozinho (quem envia é a pessoa)', await navCartao.avaliar(`document.querySelector('.forja-turno') === null`) && ia.pedidos.length === pedidosAntes);
+    ok('cartão: o campo fica com o foco, pronto para conferir e enviar', await navCartao.avaliar(`document.activeElement === document.querySelector('#agenteView textarea')`));
+    await navCartao.avaliar(`document.querySelector('#abaCidade').click()`);
+    await navCartao.esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok' && typeof document.querySelector('.cidade-3d').__pontoDe === 'function'`, 25_000);
+    ok('cartão: num arquivo calmo não aparece "dividir"', await clicarPredio('calmo.js') && await navCartao.avaliar(`${opcoes} === 'Explicar|Simplificar|Achar bugs|Adicionar testes'`), await navCartao.avaliar(opcoes));
+    await navCartao.avaliar(`document.querySelector('.cidade-cartao-forja .btn').click()`);
+    ok('cartão: "Pedir à Forja" escreve o pedido de melhorias', await navCartao.esperar(`document.querySelector('#agenteView textarea')?.value === 'Analise o arquivo calmo.js e sugira melhorias.'`, 5000));
+    ok('cartão: sem erro de JavaScript', navCartao.erros.length === 0, navCartao.erros.slice(0, 3).join(' | '));
+  } finally { await navCartao.fechar(); rmSync(projCartao, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }); }
 
   // (1) outro projeto qualquer (Python, sem nada do Gyde) vira cidade sozinho; (2) sem git: funciona, sem cores;
   // (3) mais de 1.500 arquivos: avisa quantos ficaram de fora

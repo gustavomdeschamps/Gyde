@@ -1,0 +1,39 @@
+name: Tenho uma ideia
+description: Sugira uma melhoria ou algo novo para o Gyde.
+title: "[Ideia] "
+labels: ["ideia"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Toda ideia é bem-vinda. Explique com as suas palavras; não precisa saber programar. Não coloque dados pessoais: a issue é pública.
+  - type: textarea
+    id: problema
+    attributes:
+      label: Que problema isso resolve?
+      description: O que fica difícil hoje, ou o que você queria fazer e não conseguiu.
+    validations:
+      required: true
+  - type: textarea
+    id: ideia
+    attributes:
+      label: Como você imagina?
+      description: Como seria usar a sua ideia. Pode colar um desenho ou um print.
+    validations:
+      required: true
+  - type: dropdown
+    id: parte
+    attributes:
+      label: Que parte do Gyde?
+      options:
+        - Chat
+        - Forja
+        - Cidade do código
+        - Ao vivo
+        - Extensões (VS Code ou Chrome)
+        - Instalação
+        - Outra
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Outras saídas que você pensou (opcional)

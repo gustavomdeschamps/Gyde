@@ -4,7 +4,6 @@
 // - Forja: roteiro fixo. Tarefa com LONGA roda um comando demorado; SOBRESCREVER testa as travas de escrita e a cobrança
 //   de testes; as outras leem soma.js, corrigem e rodam npm test.
 import http from 'node:http';
-import { portaLivre } from './ajuda.mjs';
 
 const MODELO = 'falso/modelo-de-teste';
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -76,7 +75,6 @@ function forja(mensagens) {
 export async function provedorFalso() {
   const pedidos = [];
   const revisoes = new Set();
-  const porta = await portaLivre();
   const servidor = http.createServer(async (req, res) => {
     const json = (status, corpo) => { res.writeHead(status, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(corpo)); };
     if (req.url === '/health') return json(200, { ok: true });
@@ -127,6 +125,7 @@ export async function provedorFalso() {
     enviar({ model: MODELO, usage, choices: [] });
     res.end('data: [DONE]\n\n');
   });
-  await new Promise((r) => servidor.listen(porta, '127.0.0.1', r));
+  await new Promise((r) => servidor.listen(0, '127.0.0.1', r)); // porta escolhida pelo sistema na hora (sem corrida)
+  const { port: porta } = servidor.address();
   return { url: `http://127.0.0.1:${porta}`, pedidos, fechar: () => new Promise((r) => { servidor.closeAllConnections(); servidor.close(r); }) };
 }

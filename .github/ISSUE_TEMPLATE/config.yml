@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Como instalar
+    url: https://github.com/gustavomdeschamps/Gyde/blob/main/COMO-INSTALAR.md
+    about: Passo a passo do download à primeira conversa, com uma parte "se algo der errado".
+  - name: Falha de segurança
+    url: https://github.com/gustavomdeschamps/Gyde/blob/main/SECURITY.md
+    about: Não abra issue pública para falhas de segurança. Veja como avisar aqui.

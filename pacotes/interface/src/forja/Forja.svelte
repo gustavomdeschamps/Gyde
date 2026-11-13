@@ -22,7 +22,7 @@
   } = $props();
 
   // a mensagem escrita antes de conectar uma pasta sobrevive à troca de tela (é enviada quando o projeto abre)
-  const pendente = (globalThis as { __forjaPendente?: string | null });
+  const pendente = (globalThis as { __forjaPendente?: string | null; __forjaRascunho?: string | null });
 
   let sessao = $state<TSessaoForja | null>(null);
   let erro = $state('');
@@ -45,7 +45,7 @@
   let versaoArquivos = $state(0);
   let recarga: ReturnType<typeof setTimeout> | null = null;
   const recarregarPrevia = () => { if (!aoVivoAberto) return; if (recarga) clearTimeout(recarga); recarga = setTimeout(() => { versaoArquivos++; }, 250); };
-  // "Pedir à Forja para consertar": o erro vai para o campo da Forja; a pessoa confere e envia
+  // "Pedir à Forja" (erro do Ao vivo ou cartão de um prédio da Cidade): o texto vai para o campo da Forja; a pessoa confere e envia
   async function pedirConserto(erroTexto: string) {
     vista = 'conversa'; texto = erroTexto;
     await tick(); ajustarAltura(); campo?.focus();
@@ -76,6 +76,7 @@
       await descer();
       campo?.focus();
       if (pendente.__forjaPendente) { texto = pendente.__forjaPendente; pendente.__forjaPendente = null; await tick(); enviarTarefa(); }
+      else if (pendente.__forjaRascunho) { texto = pendente.__forjaRascunho; pendente.__forjaRascunho = null; await tick(); ajustarAltura(); campo?.focus(); } // pedido do VS Code: só escreve, quem envia é a pessoa
     } catch (e) { erro = mensagemDe(e); sessao = null; }
   }
   $effect(() => { void id; vista = 'conversa'; aoVivoAberto = false; carregar(); });
@@ -262,7 +263,7 @@
   {/if}
 
   {#if vista === 'cidade' && id && sessao?.pastaEstado.ok}
-  <div class="forja-rolagem" id="painelForja" role="tabpanel" aria-labelledby="abaCidade"><Cidade {id} segundoPlano={aoVivoAberto} /></div>
+  <div class="forja-rolagem" id="painelForja" role="tabpanel" aria-labelledby="abaCidade"><Cidade {id} segundoPlano={aoVivoAberto} onpedirForja={pedirConserto} /></div>
   {:else}
   <div class="forja-rolagem" bind:this={rolagem} id="painelForja" role={sessao ? 'tabpanel' : undefined} aria-labelledby={sessao ? 'abaConversa' : undefined}><div class="messages">
     {#if !id}

@@ -14,6 +14,7 @@ export const Status = z.object({
   imagesEnabled: z.boolean(),
   desatualizado: z.boolean(),
   pessoal: z.boolean(), // modo pessoal (no PC de alguém) ou público (servidor de uma turma)
+  versao: z.string(), // versão do app (as extensões avisam quando o app é mais antigo que elas)
 });
 
 export const PAGINAS_INICIAIS = ['chat', 'agente'] as const;
@@ -70,6 +71,15 @@ export const EstadoPasta = z.object({ ok: z.boolean(), motivo: z.string().nullab
 export const Projeto = z.object({ tecnologias: z.array(z.string()), testes: z.string().nullable(), arquivos: z.number().int(), git: z.boolean() });
 export const TIPOS_EVENTO = ['tarefa', 'pensando', 'ferramenta', 'resultado', 'confirmar', 'confirmacao', 'revisao', 'resposta', 'erro', 'desfeito', 'reconectado'] as const;
 export const EventoForja = z.object({ tipo: z.enum(TIPOS_EVENTO), em: z.number() }).passthrough();
+// Pedido para a Forja vindo de uma extensão (ex.: VS Code): só fica guardado. O app mostra e a pessoa decide se abre a
+// Forja com ele escrito; quem envia é sempre ela, no app.
+export const RascunhoForja = z.object({
+  rascunho: z.object({ pasta: z.string(), pedido: z.string(), origem: z.string(), em: z.number() }).nullable(),
+});
+
+// Parar a resposta do chat: o servidor encerra, grava o que já foi escrito e manda o fim pela mesma conexão
+export const Parada = z.object({ parado: z.boolean() });
+
 export const ListaSessoes = z.object({
   sessoes: z.array(z.object({ id: z.string(), pasta: z.string(), titulo: z.string(), updated_at: z.number(), disponivel: z.boolean() })),
   pessoal: z.boolean(),
@@ -197,3 +207,4 @@ export type TSkill = z.infer<typeof Skill>;
 export type TItemLoja = z.infer<typeof ItemLoja>;
 export type TPergunta = z.infer<typeof Pergunta>;
 export type TResultadoQuestionario = z.infer<typeof ResultadoQuestionario>;
+export type TRascunhoForja = z.infer<typeof RascunhoForja>;

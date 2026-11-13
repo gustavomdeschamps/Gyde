@@ -204,6 +204,17 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
    * Envia uma mensagem e devolve a resposta em streaming (Server-Sent Events).
    * body: { content, attachments, model, mode: 'new' | 'regenerate' | 'edit' | 'retry', messageId, kind: 'chat' | 'image' }
    */
+  // Parar: quem corta é o servidor. Ele grava o que já foi escrito e manda o "done" pela conexão que já está aberta, então
+  // a tela recebe a resposta parcial junto com o fim (sem precisar recarregar e sem corrida com a gravação).
+  const respondendo = new Map<string, AbortController>(); // conversa -> resposta em andamento
+  app.post('/api/conversations/:id/parar', (req, res) => {
+    const conv = q.getConv.get(String(req.params.id), req.user.id);
+    if (!conv) return res.status(404).json({ error: 'Conversa não encontrada.' });
+    const c = respondendo.get(conv.id);
+    c?.abort();
+    responder(res, C.Parada, { parado: Boolean(c) });
+  });
+
   app.post('/api/conversations/:id/messages', asyncRoute(async (req, res) => {
     const conv = q.getConv.get(String(req.params.id), req.user.id);
     if (!conv) return res.status(404).json({ error: 'Conversa não encontrada.' });
@@ -248,6 +259,7 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
 
     const controller = new AbortController();
     res.on('close', () => controller.abort());
+    respondendo.set(conv.id, controller);
 
     let answer = '';
     let servedModel = chosenModel;
@@ -297,6 +309,7 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
       if (err.name !== 'AbortError') { failure = err; registrarErro(err, isImage ? 'imagem do chat' : 'resposta do chat'); }
     }
     registro.fim(controller.signal.aborted ? 'cancelado' : answer ? 'ok' : uso.resultadoDe(failure), failure?.message);
+    if (respondendo.get(conv.id) === controller) respondendo.delete(conv.id);
 
     if (answer) {
       const assistant = { id: randomUUID(), role: 'assistant', content: answer, attachments: [], model: servedModel, created_at: now() };

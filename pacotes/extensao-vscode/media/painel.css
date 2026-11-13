@@ -121,3 +121,5 @@ kbd { font-size: .85em; padding: 1px 5px; border-radius: 4px; border: 1px solid 
 .meta { margin-top: 4px; font-size: .78em; color: var(--faint); }
 .aviso { padding: 10px 12px; border-radius: 8px; background: color-mix(in srgb, var(--vscode-editorWarning-foreground, #cca700) 14%, transparent); }
 .aviso p { margin: 6px 0 8px; }
+#avisos { display: grid; gap: 8px; padding: 8px 12px 0; }
+#avisos:empty { display: none; }

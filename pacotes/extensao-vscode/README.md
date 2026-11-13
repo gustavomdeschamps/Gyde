@@ -15,6 +15,7 @@ corrigir**, no nível de quem está aprendendo. Grátis.
 | **Revisar com o Gyde** | Revisa a seleção ou o arquivo inteiro: bugs, nomes, organização e dicas para melhorar. |
 | **Chat na barra lateral** | Pergunte qualquer coisa de programação. As respostas vêm formatadas, com blocos de código. |
 | **Gyde 1 ou Gyde 1 Pro** | No topo do painel. O Gyde escolhe o modelo certo para cada pedido; no Pro, um segundo modelo confere a resposta. Embaixo de cada resposta aparece o modelo que respondeu. |
+| **Pedir à Forja** | Botão direito num arquivo: escolha o pedido (melhorias, explicar, simplificar, achar bugs, testes) e confira o texto. Ele aparece no app do Gyde; lá, **Abrir na Forja** abre a Forja da pasta com o pedido escrito, e quem envia é você. Daqui não roda nada. |
 | **Inserir no editor** | Cada bloco de código da resposta tem **Inserir** (no cursor) e **Copiar**. |
 | **Skills** | Use as suas skills do Gyde no chat, como `/revisar`, `/git` e `/sql`. |
 | **Continua no app** | A conversa fica salva: **abrir no Gyde** mostra a mesma conversa no app completo. |
@@ -37,8 +38,11 @@ A extensão conversa com o **app do Gyde**, grátis, que roda no seu computador 
 
 Pronto. O token fica guardado no cofre de senhas do VS Code. Para sair: comando **Gyde: Desconectar**.
 
-O token só serve para conversar: com ele a extensão não lê nem muda as suas chaves, as configurações, a Forja ou
-os seus dados. Isso tudo fica só no app.
+O token só serve para conversar e para deixar um pedido para a Forja: com ele a extensão não lê nem muda as suas
+chaves, as configurações ou os seus dados, e não roda nada no seu projeto. Isso tudo fica só no app.
+
+Ao abrir, o painel avisa se a IA do app ainda não está conectada e se o app está numa versão mais antiga que a
+extensão.
 
 ## O app completo, de graça
 
@@ -60,6 +64,7 @@ Além do chat, o app do Gyde tem:
 | Explicar com o Gyde | `Ctrl+Alt+G` (com seleção) | Botão direito no editor |
 | Revisar com o Gyde | | Botão direito no editor |
 | Explicar o erro desta linha | | Botão direito no editor |
+| Gyde: Pedir à Forja (abre no app do Gyde) | | Botão direito no editor ou num arquivo do Explorer |
 | Gyde: Nova conversa | | Botão `+` no painel |
 | Gyde: Conectar (colar token) | | Paleta de comandos |
 | Gyde: Desconectar | | Paleta de comandos |
@@ -83,6 +88,7 @@ ou Groq). Sua conta e suas conversas ficam no seu computador.
 | "Não consegui falar com o Gyde" | Abra o app do Gyde e tente de novo. |
 | "A IA do Gyde ainda não está conectada" | No app, abra **Configurações → Conectar IA** e cole uma chave grátis. |
 | Token inválido | Gere outro no app (**Configurações → Extensões**) e use **Gyde: Conectar**. |
+| "O app do Gyde está desatualizado" | Instale o app novo por cima ([página Releases](https://github.com/gustavomdeschamps/Gyde/releases/latest)). Suas conversas continuam. |
 | O ícone não aparece | Recarregue o VS Code: `Ctrl+Shift+P` → **Reload Window**. |
 
 ---

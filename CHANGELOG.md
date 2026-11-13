@@ -3,6 +3,34 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.2.0
+
+### Novidades
+- **"Pedir à Forja" na Cidade:** clique num prédio e o cartão do arquivo mostra **Pedir à Forja** ("Analise o arquivo X e
+  sugira melhorias") e opções rápidas: explicar, simplificar, achar bugs e adicionar testes. Nos faróis (os arquivos que
+  mais mudam) aparece também **dividir em partes menores**. O pedido só é escrito no campo da Forja: quem envia é você.
+- **"Pedir à Forja" no VS Code:** botão direito num arquivo (no editor ou no Explorer), escolha o pedido e confira o texto.
+  A extensão só guarda o pedido no app: ele aparece num cartão, **Abrir na Forja** abre a Forja daquela pasta com o pedido
+  escrito e o envio continua sendo o seu clique. O token ganhou só essa rota, que não roda nada, não conecta pasta
+  sozinha e não deixa ler nem apagar o pedido.
+- **Avisos nas extensões logo ao abrir:** se a IA do app não está conectada, o painel já avisa no primeiro clique (antes da
+  primeira pergunta); se o app está numa versão mais antiga que a extensão, o painel pede para atualizar o app.
+
+### Correções
+- **Parar no chat:** a resposta parcial às vezes sumia da tela ao clicar em **Parar** (a tela recarregava a conversa antes
+  de o servidor gravar o que já tinha chegado). Agora quem encerra é o servidor, que grava e manda o fim pela mesma
+  conexão. Era também a causa do teste automático que falhava de vez em quando.
+- **Segurança da Forja:** a regra que impede escolher a pasta de dados do Gyde comparava caminhos de jeitos diferentes; com um
+  nome curto do Windows (ex.: `RUNNER~1`) ou um atalho de pasta, ela deixava passar. Agora compara pelo caminho real e
+  também recusa uma pasta que contenha os dados do Gyde (conversas, contas e chaves).
+- Tela "Abrindo o Gyde": a barra de carregamento não desliza mais sem parar; só muda de brilho (e fica parada com "menos
+  movimento" ligado).
+- Página do Gyde: mais espaço dentro da tabela de resultados e prévia com imagem ao compartilhar o link.
+
+### Repositório
+- Modelos de issue em português (**Algo deu errado** e **Tenho uma ideia**), descrição e tópicos, e uma imagem de
+  divulgação com a Cidade do código (`docs/imagens/divulgacao.jpg`).
+
 ## 2.1.0
 
 ### Novidades

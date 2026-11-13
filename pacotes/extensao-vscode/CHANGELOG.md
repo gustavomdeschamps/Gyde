@@ -1,5 +1,12 @@
 # Novidades
 
+## 2.2.0 (junto com o Gyde 2.2.0)
+- **Gyde: Pedir à Forja** (botão direito no editor ou num arquivo do Explorer): escolha o pedido (sugerir melhorias,
+  explicar, simplificar, achar bugs, adicionar testes), confira o texto e ele vai para o app do Gyde. Lá, **Abrir na
+  Forja** abre a Forja da pasta com o pedido escrito; quem envia é você, no app. Daqui não roda nada.
+- Ao abrir o painel: aviso se a IA do app ainda não está conectada e se o app está numa versão mais antiga que a
+  extensão.
+
 ## 2.1.0 (junto com o Gyde 2.1.0)
 - No topo do painel, só as opções do Gyde: **Gyde 1** e **Gyde 1 Pro** (no Pro, um segundo modelo confere a resposta).
   Embaixo de cada resposta aparece o modelo que respondeu de verdade, como no app.

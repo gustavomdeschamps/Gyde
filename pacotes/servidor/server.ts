@@ -119,12 +119,14 @@ const impressaoDoCodigo = () => {
   return h;
 };
 const VERSAO_INICIO = impressaoDoCodigo();
+let VERSAO_APP = 'desconhecida';
+try { VERSAO_APP = (JSON.parse(readFileSync(path.join(BASE, 'package.json'), 'utf8')) as { version?: string }).version ?? VERSAO_APP; } catch { /* sem package.json */ }
 
 app.get('/api/status', asyncRoute(async (_req, res) => {
   const u = await provedores.resumo({ mostrarConta: false });
   let desatualizado = false;
   try { desatualizado = impressaoDoCodigo() !== VERSAO_INICIO; } catch { /* sem como checar */ }
-  responder(res, C.Status, { keyConfigured: provedores.temAlgumaChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico' });
+  responder(res, C.Status, { keyConfigured: provedores.temAlgumaChave(), routerOnline: u.online.disponivel, iaAtiva: u.ativo, offlineDisponivel: u.offline.disponivel, imagesEnabled: imagens.ativas(), desatualizado, pessoal: process.env.GYDE_MODE !== 'publico', versao: VERSAO_APP });
 }));
 
 // Consumo e limites de IA: só o que o provedor informa (nada inventado).
@@ -163,8 +165,11 @@ app.use((err: ErroGyde, req: Request, res: Response, _next: NextFunction) => {
   res.status(status).json({ error: err.message || 'Erro interno.' });
 });
 
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`\n  Gyde rodando em http://127.0.0.1:${PORT}`);
+// PORT=0: o sistema escolhe uma porta livre na hora (os testes usam isso, sem corrida entre "achar porta" e "escutar");
+// a linha "Gyde rodando em ..." diz qual foi
+const servidorHttp = app.listen(PORT, '127.0.0.1', () => {
+  const endereco = servidorHttp.address();
+  console.log(`\n  Gyde rodando em http://127.0.0.1:${typeof endereco === 'object' && endereco ? endereco.port : PORT}`);
   console.log(`  FreeLLMAPI: ${ROUTER_URL}  |  chave: ${provedores.temChave() ? 'configurada' : 'FALTANDO (cole em Configurações > IA e modelos)'}`);
   console.log(`  IA: modo ${process.env.GYDE_MODO_IA || 'auto'}  |  offline: Ollama ${OLLAMA_MODELO}\n`);
 });

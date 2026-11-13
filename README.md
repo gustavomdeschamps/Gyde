@@ -107,11 +107,15 @@ prédio. Quanto maior o arquivo, mais alto o prédio; quanto mais ele mudou no g
 ganham um farol. Quando a Forja lê, edita, cria ou apaga um arquivo, o prédio acende na hora. Clique num prédio para ver
 o arquivo. Prefere texto? O botão **Lista** mostra o mesmo em forma acessível.
 
+**Pedir à Forja pela Cidade:** o cartão do prédio tem **Pedir à Forja** ("Analise o arquivo X e sugira melhorias") e
+opções rápidas: explicar, simplificar, achar bugs e adicionar testes. Nos faróis aparece também **dividir em partes
+menores**. O pedido é só escrito no campo da Forja; quem envia é você. A cidade continua reagindo enquanto a Forja trabalha.
+
 Roda em placa de vídeo integrada (desenha direto na tela). Os extras, como o brilho (bloom), só ligam sozinhos em placa
 dedicada e depois de uma checagem de segurança. O botão **Copiar diagnóstico** junta a placa de vídeo, as checagens e
 os tempos de quadro, sem dados pessoais, para relatar um problema.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/cidade.jpg"><img src="docs/imagens/cidade-claro.jpg" alt="Cidade do código em 3D, com os arquivos mais alterados em vermelho" width="88%"></picture></p>
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/cidade-forja.jpg"><img src="docs/imagens/cidade-forja-claro.jpg" alt="Cidade do código em 3D, com o cartão de um arquivo muito alterado e o botão Pedir à Forja" width="88%"></picture></p>
 
 ### Configurações
 No menu lateral, **Configurações** reúne tudo em seções: **Geral** (tema automático, claro ou escuro; página inicial;
@@ -134,7 +138,8 @@ restaurar, apagar conversas e registros) e **Extensões** (tokens). Cada opção
 ### VS Code
 O Gyde dentro do editor: chat na barra lateral e, com o botão direito, **Explicar com o Gyde**,
 **Revisar com o Gyde** e **Explicar o erro desta linha**. A resposta tem o botão **Inserir no editor**. No topo,
-**Gyde 1** ou **Gyde 1 Pro**; embaixo de cada resposta, o modelo que respondeu.
+**Gyde 1** ou **Gyde 1 Pro**; embaixo de cada resposta, o modelo que respondeu. **Gyde: Pedir à Forja** (botão
+direito num arquivo) deixa um pedido no app: ele aparece num cartão e só vira tarefa quando você abre a Forja e envia.
 Veja [pacotes/extensao-vscode](pacotes/extensao-vscode/README.md).
 
 <p align="center"><img src="docs/imagens/vscode.jpg" alt="Extensão do Gyde no VS Code" width="88%"></p>
@@ -146,8 +151,10 @@ Veja [pacotes/extensao-chrome](pacotes/extensao-chrome/LEIA-ME.md).
 
 <p align="center"><img src="docs/imagens/chrome.jpg" alt="Gyde no Chrome explicando um trecho de código selecionado" width="88%"></p>
 
-As duas usam o app do Gyde aberto e a IA conectada nele, com um token que só serve para conversar: com ele, as
-extensões não leem nem mudam as suas chaves, as configurações ou os seus dados.
+As duas usam o app do Gyde aberto e a IA conectada nele. Ao abrir, o painel já avisa se a IA do app não está
+conectada ou se o app está numa versão mais antiga que a extensão. O token só serve para conversar e para deixar um
+pedido para a Forja: com ele, as extensões não leem nem mudam as suas chaves, as configurações ou os seus dados, e não
+rodam nada no seu projeto.
 
 ## Como funciona
 

@@ -15,7 +15,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import type { TPredio } from '$contratos';
-import { calorDe, bairroDe } from './cidade-comum.ts';
+import { calorDe, bairroDe, faroisDe } from './cidade-comum.ts';
 import type { SinalCidade } from './sinais-cidade.ts';
 import * as S from './cidade3d-shaders.ts';
 
@@ -257,8 +257,9 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
 
   // ---------- faróis: os arquivos mais alterados ----------
   // faróis: os 8 arquivos mais alterados (com pelo menos 3 mudanças), não importa o tamanho do projeto
-  const quentes = planta.predios.map((b, i) => ({ b, i, calor: dados[i * 3]! })).filter((x) => x.b.p.mudancas >= 3)
-    .sort((a, b) => b.b.p.mudancas - a.b.p.mudancas).slice(0, 8);
+  const caminhosFarol = faroisDe(planta.predios.map((b) => b.p));
+  const quentes = planta.predios.map((b, i) => ({ b, i, calor: dados[i * 3]! })).filter((x) => caminhosFarol.has(x.b.p.caminho))
+    .sort((a, b) => b.b.p.mudancas - a.b.p.mudancas);
   const apagarFeixes = { value: 0 };
   const geoFeixe = guardar(new THREE.CylinderGeometry(0.85, 0.12, 1, 28, 1, true).translate(0, 0.5, 0));
   const fases = new Float32Array(Math.max(1, quentes.length));
@@ -754,6 +755,15 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   renderer.domElement.addEventListener('pointerup', aoSoltar);
   renderer.domElement.addEventListener('pointermove', aoMover);
   renderer.domElement.addEventListener('pointerleave', aoSair);
+  // só para os testes automáticos: onde um prédio aparece na tela (o teste clica ali, com o clique de verdade)
+  if (teste('gyde-teste-cidade-ponto') === '1') {
+    (caixa as HTMLElement & { __pontoDe?: (c: string) => { x: number; y: number } | null }).__pontoDe = (caminho) => {
+      const i = indice.get(caminho); if (i == null) return null;
+      const b = planta.predios[i]!, r = renderer.domElement.getBoundingClientRect();
+      const v = new THREE.Vector3(b.x, CHAO + b.h * 0.6, b.z).project(camera);
+      return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height };
+    };
+  }
 
   const api: Cidade3D = {
     destruir() {

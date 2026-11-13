@@ -2,15 +2,18 @@
   // Cidade do código: a pasta conectada como cidade (pasta = bairro, arquivo = prédio, altura = tamanho,
   // vermelho = mais alterado no git). Duas formas de ver: a cidade em 3D (o Three.js só é baixado quando ela abre)
   // e a lista em texto, que funciona sem 3D e é a alternativa acessível.
+  import { untrack } from 'svelte';
   import * as C from '$contratos';
   import type { TCidade, TPredio } from '$contratos';
   import { pedir, mensagemDe } from '../api.ts';
-  import { bairroDe, nomeDe, calorDe } from './cidade-comum.ts';
+  import { bairroDe, nomeDe, calorDe, faroisDe } from './cidade-comum.ts';
+  import { PEDIDO_PRINCIPAL, pedidosDoArquivo } from './pedidos.ts';
   import type { Cidade3D } from './cidade3d.ts';
   import { ouvirCidade, type SinalCidade } from './sinais-cidade.ts';
 
   // segundoPlano: o Ao vivo está aberto ao lado; a cena 3D só desenha quando algo muda (poupa a placa de vídeo)
-  let { id, segundoPlano = false }: { id: string; segundoPlano?: boolean } = $props();
+  // onpedirForja: escreve um pedido sobre o arquivo no campo da Forja (não envia: quem envia é a pessoa)
+  let { id, segundoPlano = false, onpedirForja }: { id: string; segundoPlano?: boolean; onpedirForja?: (texto: string) => void } = $props();
 
   let cidade = $state<TCidade | null>(null);
   let erro = $state('');
@@ -81,21 +84,32 @@
   // Se a cena 3D ainda está carregando (computador lento), o HUD mostra na hora e o prédio acende quando ela ficar pronta.
   let pendentes: { sinal: SinalCidade; em: number }[] = [];
   const semBarra = (c: string) => c.replaceAll('\\', '/').replace(/^(\.\/)+/, '').replace(/\/+$/, '');
-  $effect(() => ouvirCidade((sinal) => {
-    if (modo !== '3d' || !cidade) return;
-    let existe: boolean;
-    if (cena) existe = cena.reagir(sinal);
-    else {
-      pendentes = [...pendentes, { sinal, em: Date.now() }].slice(-20);
-      existe = sinal.tipo === 'criar' || cidade.arquivos.some((a) => semBarra(a.caminho) === semBarra(sinal.caminho));
-    }
+  // Se o mapa da pasta ainda não chegou (git lento), o sinal também espera e aparece quando ele chegar.
+  // As últimas atividades ficam gravadas na seção (data-atividades): o HUD some depois de 4,5 s, mas o registro não.
+  let atividades = $state<string[]>([]);
+  const existeNaCidade = (sinal: SinalCidade) => sinal.tipo === 'criar' || Boolean(cidade?.arquivos.some((a) => semBarra(a.caminho) === semBarra(sinal.caminho)));
+  function mostrarAtividade(sinal: SinalCidade, existe: boolean) {
     atividade = { ...sinal, existe };
+    atividades = [...atividades, `${VERBO[sinal.tipo]} ${sinal.caminho}${existe ? '' : ' (fora da cidade)'}`].slice(-12);
     clearTimeout(tempoAtividade);
     tempoAtividade = setTimeout(() => { atividade = null; }, 4500);
+  }
+  $effect(() => ouvirCidade((sinal) => {
+    if (modo !== '3d') return;
+    if (cena) { mostrarAtividade(sinal, cena.reagir(sinal)); return; }
+    pendentes = [...pendentes, { sinal, em: Date.now() }].slice(-20);
+    if (cidade) mostrarAtividade(sinal, existeNaCidade(sinal));
   }));
+  // o mapa chegou depois de um sinal: mostra o mais recente (o prédio acende quando a cena 3D ficar pronta)
+  $effect(() => {
+    if (!cidade || atividade) return;
+    const ultimo = untrack(() => pendentes.at(-1));
+    if (ultimo && Date.now() - ultimo.em < 15_000) untrack(() => mostrarAtividade(ultimo.sinal, existeNaCidade(ultimo.sinal)));
+  });
   const numero = (n: number) => n.toLocaleString('pt-BR');
   const data = (ms: number | null) => (ms == null ? '' : new Date(ms).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }));
   const tamanhoTexto = (p: TPredio) => (p.binario ? `${Math.max(1, Math.round(p.bytes / 1024))} KB (arquivo binário)` : `${numero(p.linhas)} ${p.linhas === 1 ? 'linha' : 'linhas'}`);
+  const farois = $derived(faroisDe(cidade?.arquivos ?? []));
   const maxMudancas = $derived(Math.max(1, ...(cidade?.arquivos.map((a) => a.mudancas) ?? [1])));
   // mesma escala de calor da cidade 3D: 0 = nunca mudou, 1 = o mais alterado
   const calor = (p: TPredio) => calorDe(p.mudancas, maxMudancas);
@@ -120,7 +134,7 @@
   const mostrados = $derived(bairros.reduce((n, b) => n + b.arquivos.length, 0));
 </script>
 
-<section class="cidade" aria-labelledby="cidadeTitulo">
+<section class="cidade" aria-labelledby="cidadeTitulo" data-atividades={atividades.join(' | ')}>
   <header class="cidade-topo">
     <div>
       <h2 id="cidadeTitulo">Cidade do código</h2>
@@ -196,6 +210,18 @@
                 {#if escolhido.ultima}<div><dt>Última mudança</dt><dd>{data(escolhido.ultima)}</dd></div>{/if}
               {/if}
             </dl>
+            {#if onpedirForja}
+              {@const escolhidoAgora = escolhido}
+              <div class="cidade-cartao-forja">
+                <button type="button" class="btn small primary" title={PEDIDO_PRINCIPAL.texto(escolhidoAgora.caminho)} onclick={() => onpedirForja(PEDIDO_PRINCIPAL.texto(escolhidoAgora.caminho))}>{PEDIDO_PRINCIPAL.rotulo}</button>
+                <div class="cidade-cartao-opcoes" role="group" aria-label="Pedidos rápidos para a Forja sobre {nomeDe(escolhidoAgora.caminho)}">
+                  {#each pedidosDoArquivo(farois.has(escolhidoAgora.caminho)) as p (p.id)}
+                    <button type="button" class="cidade-opcao" class:destaque={p.id === 'dividir'} title={p.texto(escolhidoAgora.caminho)} onclick={() => onpedirForja(p.texto(escolhidoAgora.caminho))}>{p.rotulo}</button>
+                  {/each}
+                </div>
+                <small>Abre a conversa com o pedido escrito. Você confere e envia.</small>
+              </div>
+            {/if}
           </article>
         {/if}
       </div>

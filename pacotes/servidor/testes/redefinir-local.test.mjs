@@ -2,28 +2,19 @@
 // Sobe um servidor de verdade numa pasta temporária (sem internet e sem tocar nos dados reais).
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
-import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { subirServidorDeTeste } from './subir-servidor.mjs';
 
-const SERVIDOR = path.join(import.meta.dirname, '..', 'server.ts');
 const SEGREDO = 'segredo-de-teste-0123456789abcdef';
-const portaLivre = () => new Promise((ok) => { const s = createServer(); s.listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => ok(port)); }); });
 const abertos = [];
 after(async () => { for (const { proc, pasta } of abertos) { proc.kill(); if (proc.exitCode === null) await new Promise((r) => proc.once('exit', r)); rmSync(pasta, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); } });
 
 async function subir(env) {
   const pasta = mkdtempSync(path.join(tmpdir(), 'gyde-redef-'));
-  const porta = await portaLivre();
-  const proc = spawn(process.execPath, [SERVIDOR], {
-    env: { ...process.env, DATA_DIR: pasta, PORT: String(porta), GYDE_DESKTOP: '1', GYDE_ENV_FILE: path.join(pasta, '.env'), FREELLMAPI_URL: 'http://127.0.0.1:1', OLLAMA_URL: 'http://127.0.0.1:1', ...env },
-    stdio: 'ignore',
-  });
+  const { proc, base } = await subirServidorDeTeste({ DATA_DIR: pasta, GYDE_DESKTOP: '1', GYDE_ENV_FILE: path.join(pasta, '.env'), FREELLMAPI_URL: 'http://127.0.0.1:1', OLLAMA_URL: 'http://127.0.0.1:1', ...env });
   abertos.push({ proc, pasta });
-  const base = `http://127.0.0.1:${porta}`;
-  for (let i = 0; i < 100; i++) { try { await fetch(`${base}/api/auth/me`); break; } catch { await new Promise((r) => setTimeout(r, 100)); } }
   const pedir = (rota, corpo, extra = {}) => fetch(base + rota, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-gyde': '1', ...extra }, body: JSON.stringify(corpo) });
   return { pedir };
 }

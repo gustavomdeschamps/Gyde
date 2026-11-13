@@ -56,9 +56,19 @@ try {
   await digitar('Escreva uma lista LONGA de linguagens.');
   await avaliar(`document.querySelector('#composer').requestSubmit()`);
   await esperar(`(document.querySelectorAll('.msg.assistant .md')[1]?.textContent.length || 0) > 100`);
+  // conta as recargas da conversa: o Parar não depende mais delas (era a corrida que deixava este teste instável)
+  await avaliar(`(()=>{ const original = window.fetch; window.__recargas = 0; window.fetch = (u, o) => { if (/\\/api\\/conversations\\/[\\w-]+$/.test(String(u)) && !(o && o.method && o.method !== 'GET')) window.__recargas++; return original(u, o); }; window.__semContagem = () => { window.fetch = original; }; return 1; })()`);
   await avaliar(`document.querySelector('#sendBtn').click()`);
   ok('Parar encerra a resposta no meio', await esperar(`!${transmitindo}`, 10_000));
-  ok('o que já tinha chegado fica salvo (e não a resposta inteira)', await esperar(`document.querySelectorAll('.msg.assistant').length === 2`, 10_000) && await avaliar(`!/300\\. Linha/.test(document.querySelectorAll('.msg.assistant .md')[1].textContent)`));
+  ok('o que já tinha chegado fica na tela e salvo (e não a resposta inteira)', await avaliar(`document.querySelectorAll('.msg.assistant').length === 2`) && await avaliar(`!/300\\. Linha/.test(document.querySelectorAll('.msg.assistant .md')[1].textContent)`),
+    await avaliar(`document.querySelectorAll('.msg.assistant').length + ' respostas'`));
+  ok('Parar não precisa recarregar a conversa (o servidor manda o fim)', await avaliar(`window.__recargas === 0`), String(await avaliar(`window.__recargas`)));
+  await avaliar(`window.__semContagem()`);
+  {
+    const salvas = await (await api.pedir('GET', `/api/conversations/${(await avaliar('location.hash')).replace('#/c/', '')}`)).json();
+    const parcial = salvas.messages.filter((m) => m.role === 'assistant')[1]?.content ?? '';
+    ok('no banco fica a resposta parcial (e não a inteira)', parcial.length > 100 && !/300\. Linha/.test(parcial), `${parcial.length} caracteres`);
+  }
 
   // corrida: a recarga depois do Parar chega atrasada, quando a pessoa já abriu uma conversa nova
   await digitar('Outra lista LONGA, por favor.');

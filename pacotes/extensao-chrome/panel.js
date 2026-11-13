@@ -12,6 +12,31 @@ const nomeModelo = (id) => String(id || '').split('/').pop().replace(/:free$/, '
 // a IA do app ainda não foi conectada: explica e manda abrir o Conectar IA no app (sem erro técnico)
 const semIA = (msg) => /IA ainda não está conectada|não está configurada/i.test(msg);
 const semIAHtml = () => `<div class="msg-aviso"><b>A IA do Gyde ainda não está conectada.</b><p>No app do Gyde, abra <b>Configurações → Conectar IA</b> e cole uma chave grátis (NVIDIA ou Google). Leva uns 2 minutos.</p><button class="btn" data-abrir-app>Abrir o Gyde</button></div>`;
+// "2.1.0" < "2.2.0"? Versão desconhecida (app de antes da 2.2, que não informa) conta como mais antiga.
+function appMaisAntigo(app, extensao) {
+  const partes = (v) => String(v || '').split('.').map((n) => Number.parseInt(n, 10));
+  const a = partes(app), e = partes(extensao);
+  if (a.some(Number.isNaN) || a.length < 2) return true;
+  for (let i = 0; i < Math.max(a.length, e.length); i++) {
+    const x = a[i] ?? 0, y = e[i] ?? 0;
+    if (x !== y) return x < y;
+  }
+  return false;
+}
+// Avisos logo ao abrir o painel (antes da primeira pergunta): IA do app não conectada e app mais antigo que a extensão.
+async function mostrarAvisos() {
+  const caixa = $('#avisos');
+  let s = null;
+  try { s = await (await api('/api/status')).json(); } catch { /* sem resposta: não avisa nada */ }
+  if (!s) { caixa.innerHTML = ''; return; }
+  const iaPronta = Boolean(s.keyConfigured) || (s.iaAtiva === 'offline' && Boolean(s.offlineDisponivel));
+  const versaoExt = chrome.runtime.getManifest().version;
+  const versaoApp = typeof s.versao === 'string' ? s.versao : '';
+  let h = iaPronta ? '' : semIAHtml();
+  if (appMaisAntigo(versaoApp, versaoExt)) h += `<div class="msg-aviso"><b>O app do Gyde está desatualizado.</b><p>${versaoApp ? `O app está na versão ${esc(versaoApp)}` : 'O app está numa versão'} e esta extensão é a ${esc(versaoExt)}. Atualize o app do Gyde (instale a versão nova por cima: suas conversas continuam) para tudo funcionar.</p></div>`;
+  caixa.innerHTML = h;
+  caixa.querySelectorAll('[data-abrir-app]').forEach((b) => b.addEventListener('click', () => chrome.tabs.create({ url: `${state.server}/` })));
+}
 // só as opções do Gyde (Gyde 1, Gyde 1 Pro); quem escolhe o modelo de verdade é o roteador do app
 async function carregarModelos() {
   try {
@@ -92,6 +117,7 @@ async function start() {
   $('#setup').hidden = true;
   $('#chat').hidden = false;
   await carregarModelos();
+  await mostrarAvisos();
   await restoreConversation();
   $('#input').focus();
   checkPending();

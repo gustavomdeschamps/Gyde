@@ -165,6 +165,7 @@ export function setupAuth(app: Express, db: Db, { log = console }: { log?: Pick<
     ['GET', /^\/api\/conversations\/[\w-]+$/],
     ['POST', /^\/api\/conversations\/[\w-]+\/messages$/],
     ['POST', /^\/api\/agente\/passo$/],
+    ['POST', /^\/api\/forja\/rascunho$/], // "Pedir à Forja" do VS Code: só guarda o pedido; nada roda sem a pessoa no app
     ['GET', /^\/images\/[\w.-]+$/],
   ];
   const permitidoAoToken = (metodo: string, caminho: string) => ROTAS_DO_TOKEN.some(([m, r]) => m === metodo && r.test(caminho));

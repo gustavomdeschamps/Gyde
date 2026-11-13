@@ -1,0 +1,66 @@
+name: Algo deu errado
+description: Conte um erro do app, da Forja, da Cidade, do Ao vivo ou das extensões.
+title: "[Erro] "
+labels: ["erro"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por avisar! **Não cole chaves de IA, tokens, senhas, e-mails ou outros dados pessoais aqui**: a issue é pública.
+        Falha de segurança? Não abra issue: siga o [SECURITY.md](https://github.com/gustavomdeschamps/Gyde/blob/main/SECURITY.md).
+  - type: dropdown
+    id: onde
+    attributes:
+      label: Onde aconteceu?
+      options:
+        - App do Gyde (chat)
+        - Forja
+        - Cidade do código
+        - Ao vivo
+        - Conectar IA
+        - Instalação ou atualização
+        - Extensão do VS Code
+        - Extensão do Chrome
+        - Outro lugar
+    validations:
+      required: true
+  - type: textarea
+    id: aconteceu
+    attributes:
+      label: O que aconteceu?
+      description: O que você viu na tela. Se apareceu uma mensagem de erro, copie o texto dela.
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como repetir
+      description: Os passos até o erro aparecer.
+      placeholder: |
+        1. Abri a Forja na pasta do meu projeto
+        2. Cliquei em Ao vivo
+        3. ...
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que você esperava?
+  - type: input
+    id: versao
+    attributes:
+      label: Versão do Gyde
+      description: Aparece em Configurações > Geral (ou no nome do instalador, ex.: 2.2.0).
+      placeholder: "2.2.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows
+      placeholder: "Windows 11"
+  - type: textarea
+    id: relatorio
+    attributes:
+      label: Relatório de erro ou diagnóstico (opcional)
+      description: |
+        Em Configurações > Geral, "Copiar relatório de erro". Na Cidade, "Copiar diagnóstico". Eles já saem sem chaves e sem dados pessoais, mas confira antes de colar.
+      render: text

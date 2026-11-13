@@ -11,9 +11,10 @@
     @media (prefers-color-scheme: light) { body { background: #f6f8fc; color: #334155; } }
     .caixa { display: grid; justify-items: center; gap: 18px; }
     .barra { width: 160px; height: 4px; border-radius: 4px; background: rgba(148, 163, 184, .25); overflow: hidden; }
-    .barra::before { content: ''; display: block; width: 40%; height: 100%; border-radius: 4px; background: #3b82f6; animation: ir 1.1s ease-in-out infinite; }
-    @keyframes ir { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
-    @media (prefers-reduced-motion: reduce) { .barra::before { animation: none; width: 100%; } }
+    /* barra parada que só respira (nada desliza nem rola pela tela); com "menos movimento", fica parada */
+    .barra::before { content: ''; display: block; width: 100%; height: 100%; border-radius: 4px; background: #3b82f6; opacity: .45; animation: respirar 1.6s ease-in-out infinite alternate; }
+    @keyframes respirar { to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .barra::before { animation: none; opacity: .8; } }
   </style>
 </head>
 <body>
