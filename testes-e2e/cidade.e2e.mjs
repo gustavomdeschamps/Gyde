@@ -127,9 +127,16 @@ try {
     await navCartao.enviar('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] }); // câmera parada: o clique cai no prédio certo
     await abrirCidade(navCartao, projCartao, { extra: `localStorage.setItem('gyde-teste-cidade-ponto', '1');` });
     ok('cartão: a cidade abre e confere os prédios', await navCartao.esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok' && typeof document.querySelector('.cidade-3d').__pontoDe === 'function'`, 25_000));
+    // o ponto do prédio muda se o palco mudar de tamanho depois do cálculo (aconteceu no macOS do CI): antes de clicar,
+    // confere pela dica do cursor que o mouse está mesmo sobre o prédio, e recalcula o ponto se não estiver
     const clicarPredio = async (arquivo) => {
-      const p = JSON.parse(await navCartao.avaliar(`JSON.stringify(document.querySelector('.cidade-3d').__pontoDe(${JSON.stringify(arquivo)}))`));
-      await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p.x, y: p.y });
+      let p = null;
+      for (let tentativa = 0; tentativa < 4; tentativa++) {
+        p = JSON.parse(await navCartao.avaliar(`JSON.stringify(document.querySelector('.cidade-3d').__pontoDe(${JSON.stringify(arquivo)}))`));
+        await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p.x + 1, y: p.y });
+        await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p.x, y: p.y });
+        if (await navCartao.esperar(`document.querySelector('.cidade-dica b')?.textContent === ${JSON.stringify(arquivo)}`, 1500)) break;
+      }
       await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mousePressed', x: p.x, y: p.y, button: 'left', clickCount: 1 });
       await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p.x, y: p.y, button: 'left', clickCount: 1 });
       return navCartao.esperar(`document.querySelector('.cidade-cartao h3')?.textContent === ${JSON.stringify(arquivo)}`, 5000);
