@@ -161,11 +161,12 @@ try {
       const checagens = c.conferir(proj, eventos);
       const comandos = eventos.filter((e) => e.tipo === 'ferramenta' && e.nome === 'executar').length;
       const lidos = eventos.filter((e) => e.tipo === 'ferramenta' && e.nome === 'ler').length;
-      const r = { cenario: c.id, grupo: c.grupo, lidos, ok: fim.tipo === 'resposta' && checagens.every(([, v]) => v), checagens: Object.fromEntries(checagens), terminou: fim.tipo || 'sem fim',
+      const edicoesFalhas = eventos.filter((e) => e.tipo === 'resultado' && e.nome === 'editar' && !e.ok).length; // trecho não achado etc.
+      const r = { cenario: c.id, grupo: c.grupo, lidos, edicoesFalhas, ok: fim.tipo === 'resposta' && checagens.every(([, v]) => v), checagens: Object.fromEntries(checagens), terminou: fim.tipo || 'sem fim',
         passos: fim.passos ?? null, ms: Date.now() - inicio, arquivos: fim.arquivos ?? [], comandos, modelo: fim.modelo ?? null, erro: fim.tipo === 'erro' ? limparErro(String(fim.texto)).slice(0, 160) : null };
       if (!r.ok) r.respostaFinal = limparErro(String(fim.texto ?? '')).slice(0, 600); // para entender a falha (sem segredos)
       resultados.push(r);
-      console.log(`${r.ok ? 'OK   ' : 'FALHA'} ${c.id.padEnd(11)} ${String(Math.round(r.ms / 1000)).padStart(4)} s  ${String(r.passos ?? '-').padStart(2)} passos  ${lidos} lido(s)  ${comandos} comando(s)  ${checagens.map(([k, v]) => `${v ? '✓' : '✗'} ${k}`).join(' · ')}${r.erro ? `  [${r.erro}]` : ''}`);
+      console.log(`${r.ok ? 'OK   ' : 'FALHA'} ${c.id.padEnd(11)} ${String(Math.round(r.ms / 1000)).padStart(4)} s  ${String(r.passos ?? '-').padStart(2)} passos  ${lidos} lido(s)  ${edicoesFalhas} edição(ões) falha(s)  ${comandos} comando(s)  ${checagens.map(([k, v]) => `${v ? '✓' : '✗'} ${k}`).join(' · ')}${r.erro ? `  [${r.erro}]` : ''}`);
       if (!r.ok && process.argv.includes('--manter-falhas')) console.log(`      pasta guardada para conferir: ${proj.pasta}`);
       else rmSync(proj.pasta, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
     }

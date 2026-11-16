@@ -176,6 +176,49 @@ export function mudancasNaoSalvas(pasta: string): string[] {
 
 // Tarefa grande: pedido longo ou com vários requisitos. Só nela a Forja planeja antes (e a pessoa aprova o plano);
 // nas pequenas, planejar só deixaria mais lento.
+// Texto que só anuncia o próximo passo ("Vou ler os arquivos...", "Desculpe, vou corrigir") não é resposta final: aceitar
+// isso encerrava a tarefa no meio (visto numa medição, com o trabalho ainda por fazer).
+// Edição por trecho com conserto: quando o trecho a procurar não aparece idêntico (espaços ou recuo diferentes, linhas em
+// branco a mais), procura linha a linha ignorando os espaços das pontas. Achando UM lugar só, troca ali e ajusta o recuo do
+// texto novo ao do arquivo. Sem lugar único, devolve as linhas mais parecidas, para o modelo copiar o trecho exato.
+export function consertarTrecho(atual: string, procurar: string, substituir: string): { texto: string } | { dica: string } {
+  const quebra = atual.includes('\r\n') ? '\r\n' : '\n';
+  const linhas = atual.split(/\r?\n/);
+  const alvo = procurar.split(/\r?\n/).map((l) => l.trim());
+  while (alvo.length && !alvo[0]) alvo.shift();
+  while (alvo.length && !alvo.at(-1)) alvo.pop();
+  if (!alvo.length) return { dica: 'O trecho a procurar está vazio.' };
+  const achados: number[] = [];
+  for (let i = 0; i + alvo.length <= linhas.length; i++) {
+    if (alvo.every((l, k) => linhas[i + k]!.trim() === l)) achados.push(i);
+  }
+  if (achados.length === 1) {
+    const i = achados[0]!;
+    const recuoDe = (l: string) => /^\s*/.exec(l)![0];
+    const novas = substituir.replace(/^(\s*\r?\n)+|(\r?\n\s*)+$/g, '').split(/\r?\n/);
+    const primeiraNova = novas.find((l) => l.trim()) ?? '';
+    const deFora = recuoDe(primeiraNova), doArquivo = recuoDe(linhas[i]!);
+    // o modelo errou o recuo: tira o recuo dele e põe o do arquivo, linha por linha (mantendo o recuo relativo)
+    const ajustadas = substituir.trim() ? novas.map((l) => (l.startsWith(deFora) ? doArquivo + l.slice(deFora.length) : l)) : [];
+    return { texto: [...linhas.slice(0, i), ...ajustadas, ...linhas.slice(i + alvo.length)].join(quebra) };
+  }
+  if (achados.length > 1) return { dica: `O trecho aparece ${achados.length} vezes (ignorando espaços); inclua mais linhas em volta para ficar único.` };
+  // nenhum: mostra onde a primeira linha do trecho mais se parece com o arquivo
+  const primeira = alvo[0]!;
+  const palavras = new Set(primeira.split(/\W+/).filter(Boolean));
+  const nota = (l: string) => l.split(/\W+/).filter((p) => palavras.has(p)).length;
+  let melhor = -1, pontos = 0;
+  linhas.forEach((l, i) => { const n = nota(l); if (n > pontos) { pontos = n; melhor = i; } });
+  if (melhor < 0) return { dica: 'O trecho a procurar não foi encontrado (nem ignorando espaços). Leia o arquivo de novo e copie o trecho exato.' };
+  const de = Math.max(0, melhor - 2), ate = Math.min(linhas.length, melhor + alvo.length + 2);
+  return { dica: `O trecho a procurar não foi encontrado (nem ignorando espaços). O mais parecido está nas linhas ${de + 1} a ${ate}:\n${linhas.slice(de, ate).map((l, k) => `${String(de + k + 1).padStart(4)} | ${l}`).join('\n')}\nCopie o trecho exato daqui e tente de novo.` };
+}
+
+export function pareceAnuncio(texto: string): boolean {
+  const t = texto.trim().replace(/^(desculpe|ok|certo|entendi|perfeito|beleza)[,.!:]?\s*/i, '');
+  return t.length < 400 && /^(vou|agora vou|deixe-me|deixa eu|vamos|irei|primeiro,? vou|em seguida,? vou)\b/i.test(t);
+}
+
 export function ehTarefaGrande(tarefa: string): boolean {
   const t = tarefa.trim();
   return t.length >= 250 || (t.match(/[.!?;](\s|$)/g)?.length ?? 0) >= 4;
@@ -386,10 +429,15 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       if (crlf) { proc = proc.replace(/\r?\n/g, '\r\n'); subs = subs.replace(/\r?\n/g, '\r\n'); }
       if (!proc) return { ok: false, saida: 'Informe o trecho a procurar.' };
       const vezes = atual.split(proc).length - 1;
-      if (vezes === 0) return { ok: false, saida: 'O trecho a procurar não foi encontrado (precisa ser idêntico, inclusive espaços). Leia o arquivo de novo e copie o trecho exato.' };
+      let consertado = false;
+      if (vezes === 0) { // não bateu idêntico: tenta ignorando espaços e recuo (consertarTrecho)
+        const c = consertarTrecho(atual, String(procurar ?? ''), String(substituir));
+        if ('dica' in c) return { ok: false, saida: c.dica };
+        writeFileSync(alvo, c.texto); consertado = true;
+      }
       if (vezes > 1) return { ok: false, saida: `O trecho aparece ${vezes} vezes; inclua mais linhas em volta para ficar único.` };
-      writeFileSync(alvo, atual.replace(proc, () => subs));
-      return { ok: true, saida: `Editado: ${caminho}`, resumo: `editou ${caminho}`, mudanca: 'modificado', diff: { caminho, antes: corta(redigir(String(procurar)), 3000), depois: corta(redigir(String(substituir)), 3000) } };
+      if (!consertado) writeFileSync(alvo, atual.replace(proc, () => subs));
+      return { ok: true, saida: consertado ? `Editado: ${caminho} (o trecho não era idêntico; troquei o único lugar que bate ignorando espaços e mantive o recuo do arquivo)` : `Editado: ${caminho}`, resumo: `editou ${caminho}`, mudanca: 'modificado', diff: { caminho, antes: corta(redigir(String(procurar)), 3000), depois: corta(redigir(String(substituir)), 3000) } };
     },
     async apagar(pasta: string, { caminho }: ArgsFerramenta, ctx: Contexto): Promise<ResultadoFerramenta> {
       const alvo = caminhoSeguro(pasta, caminho);
@@ -748,7 +796,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       // texto puro, sem JSON e sem tentar descrever ações, vale como resposta final: muitos modelos grátis terminam assim,
       // e recusar isso fazia a tarefa falhar no último passo com o trabalho já feito no disco. Só depois de alguma ação: no
       // primeiro passo, texto solto costuma ser o modelo anunciando o que vai fazer, e aceitar isso encerrava a tarefa vazia
-      const textoFinal = (t: string) => passos > 0 && t.trim().length > 20 && !t.includes('{') && !t.includes('<tool_call>') && !/"?(acoes|ferramenta)"?\s*:/.test(t);
+      const textoFinal = (t: string) => passos > 0 && t.trim().length > 20 && !t.includes('{') && !t.includes('<tool_call>') && !pareceAnuncio(t) && !/"?(acoes|ferramenta)"?\s*:/.test(t);
       // ação em JSON da Forja ou chamada de ferramenta escrita no texto (<tool_call>...), que alguns modelos usam
       const decisaoDe = (t: string) => normalizar(extrairJson(t)) ?? normalizar(extrairJson(acoesDoTexto(t)));
       let terminou = false;

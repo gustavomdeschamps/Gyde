@@ -27,3 +27,11 @@ test('o plano do modelo é lido com limites', () => {
   assert.equal(longo.etapas.length, 8, 'no máximo 8 etapas');
   assert.deepEqual(lerPlano('```json\n{"etapas": ["  a etapa um  ", "", 3, "etapa dois"]}\n```').etapas, ['a etapa um', 'etapa dois']);
 });
+
+test('texto que só anuncia o próximo passo não encerra a tarefa', async () => {
+  const { pareceAnuncio } = await import('../codigo-agente.ts');
+  for (const t of ['Desculpe, vou ler os arquivos corretamente.', 'Vou corrigir agora o arquivo src/modelo.js.', 'Ok. Agora vou rodar os testes.', 'Deixe-me conferir o teste.', 'Primeiro, vou ler o README.'])
+    assert.equal(pareceAnuncio(t), true, t);
+  for (const t of ['**O que fiz**\nCorrigi a soma em soma.js e os testes passam.', 'Você pode rodar os testes com npm test.', 'Voucher é um campo opcional.', 'Pronto: a categoria agora é obrigatória.'])
+    assert.equal(pareceAnuncio(t), false, t);
+});
