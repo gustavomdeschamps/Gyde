@@ -1,5 +1,9 @@
 # Novidades
 
+## 2.3.0 (junto com o Gyde 2.3.0)
+
+- Sem mudanças na extensão: a versão acompanha o app.
+
 ## 2.2.0 (junto com o Gyde 2.2.0)
 - **Gyde: Pedir à Forja** (botão direito no editor ou num arquivo do Explorer): escolha o pedido (sugerir melhorias,
   explicar, simplificar, achar bugs, adicionar testes), confira o texto e ele vai para o app do Gyde. Lá, **Abrir na
