@@ -53,4 +53,8 @@ test('sinais da Forja para a Cidade: ler na hora; editar, criar e apagar pelo re
   const parar = ouvirCidade((s) => recebidos.push(s));
   avisarCidade({ tipo: 'ler', caminho: 'a' }); parar(); avisarCidade({ tipo: 'ler', caminho: 'b' });
   assert.deepEqual(recebidos.map((s) => s.caminho), ['a'], 'depois de parar de ouvir, nada chega');
+  // quem começa a ouvir depois (a Cidade abriu um instante depois de a Forja ler) recebe os avisos recentes
+  const atrasados = [];
+  const parar2 = ouvirCidade((s) => atrasados.push(s.caminho)); parar2();
+  assert.deepEqual(atrasados, ['a', 'b'], 'os avisos dos últimos 15 s chegam para quem abre a Cidade depois');
 });

@@ -83,6 +83,7 @@
   // a Forja mexeu num arquivo: o prédio acende na cidade e o HUD diz o quê
   // Se a cena 3D ainda está carregando (computador lento), o HUD mostra na hora e o prédio acende quando ela ficar pronta.
   let pendentes: { sinal: SinalCidade; em: number }[] = [];
+  let semMapa: { sinal: SinalCidade; em: number }[] = []; // sinais que chegaram antes do mapa da pasta
   const semBarra = (c: string) => c.replaceAll('\\', '/').replace(/^(\.\/)+/, '').replace(/\/+$/, '');
   // Se o mapa da pasta ainda não chegou (git lento), o sinal também espera e aparece quando ele chegar.
   // As últimas atividades ficam gravadas na seção (data-atividades): o HUD some depois de 4,5 s, mas o registro não.
@@ -99,12 +100,15 @@
     if (cena) { mostrarAtividade(sinal, cena.reagir(sinal)); return; }
     pendentes = [...pendentes, { sinal, em: Date.now() }].slice(-20);
     if (cidade) mostrarAtividade(sinal, existeNaCidade(sinal));
+    else semMapa = [...semMapa, { sinal, em: Date.now() }].slice(-20);
   }));
-  // o mapa chegou depois de um sinal: mostra o mais recente (o prédio acende quando a cena 3D ficar pronta)
+  // o mapa chegou depois dos sinais: registra todos e o HUD mostra o mais recente (o prédio acende quando a cena 3D ficar pronta)
   $effect(() => {
-    if (!cidade || atividade) return;
-    const ultimo = untrack(() => pendentes.at(-1));
-    if (ultimo && Date.now() - ultimo.em < 15_000) untrack(() => mostrarAtividade(ultimo.sinal, existeNaCidade(ultimo.sinal)));
+    if (!cidade) return;
+    untrack(() => {
+      const agora = Date.now();
+      for (const p of semMapa.splice(0)) if (agora - p.em < 15_000) mostrarAtividade(p.sinal, existeNaCidade(p.sinal));
+    });
   });
   const numero = (n: number) => n.toLocaleString('pt-BR');
   const data = (ms: number | null) => (ms == null ? '' : new Date(ms).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }));
