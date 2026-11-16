@@ -746,7 +746,6 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         + (relevantes.length ? `\nARQUIVOS QUE PARECEM TER A VER COM O PEDIDO (pelas palavras do pedido; confira lendo): ${relevantes.map((r) => `${r.caminho} (${r.motivo})`).join('; ')}.` : '')
         + (naoSalvas.length ? `\nMUDANÇAS DO USUÁRIO AINDA NÃO SALVAS NO GIT (preserve): ${naoSalvas.join('; ')}.` : '');
       // contexto enxuto: o conteúdo dos arquivos mais prováveis já vai junto (escolhidos com o mapa da Cidade)
-      let jaLidos: string[] = [];
       if (relevantes.length && tarefa) {
         const mapa = await mapaDaCidade(pastaReal, { limite: 600 }).catch(() => null);
         if (mapa) {
@@ -754,8 +753,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           const escolha = escolherContexto(pastaReal, relevantes.map((r) => r.caminho), predios);
           const blocos = escolha.map((e) => { const r = ferramentas.ler(pastaReal, { caminho: e.caminho, inicio: 1, fim: 250 }); return r.ok ? `--- ${e.caminho} ---\n${r.saida}` : ''; }).filter(Boolean);
           if (blocos.length) {
-            msgs[0]!.content += `\n\nARQUIVOS PROVÁVEIS DO PEDIDO (conteúdo atual, já lido para você; não precisa ler de novo, a não ser que mude ou precise de outro arquivo):\n${blocos.join('\n\n')}`;
-            jaLidos = escolha.map((e) => e.caminho);
+            msgs[0]!.content += `\n\nARQUIVOS PROVÁVEIS DO PEDIDO (conteúdo atual: para editar um trecho, não precisa ler de novo; para substituir o arquivo inteiro, leia antes):\n${blocos.join('\n\n')}`;
           }
         }
       }
@@ -776,7 +774,9 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         return acoes.length ? { ...o, acoes } : null;
       };
       // regras por tarefa, valem mesmo que o modelo tente outra coisa
-      const lidos = new Set<string>(jaLidos); // os do contexto enxuto contam como lidos (podem ser editados)
+      // os do contexto enxuto NÃO contam como lidos: para substituir um arquivo inteiro, a Forja ainda precisa lê-lo (a trava
+      // que protege trabalho da pessoa continua igual). Editar por trecho não depende disso.
+      const lidos = new Set<string>();
       let rodadaDaUltimaMudanca = 0, rodadaDoUltimoComando = 0, cobrouTestes = false, cobrouAcao = false;
       const pedeMudanca = /\b(corrij|corrig|consert|crie|criar|adicion|implement|rode|rodar|mude|mudar|ajust|refator|escrev|remov|atualiz|fa[çc]a)/i.test(tarefa) && !/n[ãa]o (mude|altere|mexa|modifique)/i.test(tarefa);
       const relDe = (c: unknown) => { try { return relativo(pastaReal, caminhoSeguro(pastaReal, c)); } catch { return ''; } };
