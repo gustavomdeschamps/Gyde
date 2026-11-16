@@ -142,7 +142,7 @@ const Totais = z.object({
   chamadas: z.number().int(), chamadasFalhas: z.number().int(), tokensEntrada: z.number().int(), tokensSaida: z.number().int(), semTokens: z.number().int(),
 });
 // ---------- Inteligência multimodelo ----------
-export const PreferenciasIA = z.object({ modo: z.enum(['rapido', 'equilibrado', 'capricho']), especialistas: z.boolean(), desligados: z.array(z.string()) });
+export const PreferenciasIA = z.object({ modo: z.enum(['rapido', 'equilibrado', 'capricho']), especialistas: z.boolean(), planoForja: z.boolean(), desligados: z.array(z.string()) });
 export const Conexoes = z.object({
   avisoIdade: z.string(),
   provedores: z.array(z.object({

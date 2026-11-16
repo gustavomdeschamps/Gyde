@@ -46,6 +46,10 @@
     <div><b>Usar especialistas em projetos grandes</b><small>No modo Capricho, quando você pede um sistema inteiro: um modelo analisa, outro escreve e outro confere. Nos testes do Gyde, não acertou mais que um modelo só e levou bem mais tempo; por isso vem desligado.</small></div>
     <label class="switch"><input type="checkbox" aria-label="Usar especialistas" checked={prefs.especialistas} onchange={(e) => salvar({ especialistas: (e.currentTarget as HTMLInputElement).checked })}><span></span></label>
   </div>
+  <div class="config-linha">
+    <div><b>Mostrar o plano da Forja antes de tarefas grandes</b><small>Num pedido grande, a Forja escreve as etapas e só mexe nos arquivos depois que você aprovar. Nos testes do Gyde, não acertou mais e usou mais rodadas; por isso vem desligado.</small></div>
+    <label class="switch"><input type="checkbox" aria-label="Mostrar o plano da Forja antes de tarefas grandes" checked={prefs.planoForja} onchange={(e) => salvar({ planoForja: (e.currentTarget as HTMLInputElement).checked })}><span></span></label>
+  </div>
   <details class="ia-detalhes" ontoggle={abrir}>
     <summary>Como o Gyde funciona</summary>
     <p class="config-nota">O Gyde lê o seu pedido, escolhe o modelo que foi melhor naquele tipo de tarefa nas avaliações e troca sozinho se ele falhar ou estiver no limite. Todos recebem as mesmas instruções e a mesma memória. Modelos gratuitos têm limites definidos por cada provedor: grátis não quer dizer ilimitado.</p>

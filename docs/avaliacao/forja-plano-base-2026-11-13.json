@@ -1,0 +1,103 @@
+{
+  "em": "2026-11-13T05:43:19.292Z",
+  "codigo": "..\\..\\AppData\\Local\\Temp\\claude\\eed4348469da10b6\\490fc8a2-2c68-4303-ab3b-a12d42261e07\\scratchpad\\base-main",
+  "repeticoes": 4,
+  "resultados": [
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 7,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 5,
+      "ms": 53598,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 6,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 36659,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 5,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 38223,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 6,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 35137,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    }
+  ]
+}

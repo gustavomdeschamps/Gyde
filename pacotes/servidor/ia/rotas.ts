@@ -7,7 +7,8 @@ import { responder } from '../contratos-servidor.ts';
 import type { Catalogo, ModoResposta } from './catalogo.ts';
 import type { Desempenho } from './desempenho.ts';
 
-export interface PreferenciasIA { modo: ModoResposta; especialistas: boolean; desligados: string[] }
+// planoForja: a Forja mostra um plano para você aprovar antes de tarefas grandes (desligado: não melhorou a medição)
+export interface PreferenciasIA { modo: ModoResposta; especialistas: boolean; planoForja: boolean; desligados: string[] }
 const MODOS: ModoResposta[] = ['rapido', 'equilibrado', 'capricho'];
 
 export function setupIA(app: Express, { preferencias, catalogo, desempenho, avisoExtras, asyncRoute }: { preferencias: Preferencias; catalogo: Catalogo; desempenho: Desempenho; avisoExtras: string | null; asyncRoute: AsyncRoute }) {
@@ -16,15 +17,16 @@ export function setupIA(app: Express, { preferencias, catalogo, desempenho, avis
     const modo = getSetting(userId, 'ia_modo', 'equilibrado') as ModoResposta;
     let desligados: string[] = [];
     try { const d = JSON.parse(getSetting(userId, 'ia_desligados', '[]')) as unknown; if (Array.isArray(d)) desligados = d.filter((x): x is string => typeof x === 'string'); } catch { /* fica vazio */ }
-    return { modo: MODOS.includes(modo) ? modo : 'equilibrado', especialistas: getSetting(userId, 'ia_especialistas', '0') === '1', desligados };
+    return { modo: MODOS.includes(modo) ? modo : 'equilibrado', especialistas: getSetting(userId, 'ia_especialistas', '0') === '1', planoForja: getSetting(userId, 'ia_plano_forja', '0') === '1', desligados };
   }
 
   app.get('/api/ia/preferencias', (req, res) => responder(res, C.PreferenciasIA, preferenciasIA(req.user.id)));
   app.put('/api/ia/preferencias', (req, res) => {
-    const { modo, especialistas, desligados } = req.body ?? {};
+    const { modo, especialistas, planoForja, desligados } = req.body ?? {};
     if (modo !== undefined && !MODOS.includes(modo)) return res.status(400).json({ error: 'Modo de resposta inválido.' });
     if (modo) setSetting(req.user.id, 'ia_modo', modo);
     if (typeof especialistas === 'boolean') setSetting(req.user.id, 'ia_especialistas', especialistas ? '1' : '0');
+    if (typeof planoForja === 'boolean') setSetting(req.user.id, 'ia_plano_forja', planoForja ? '1' : '0');
     if (Array.isArray(desligados)) setSetting(req.user.id, 'ia_desligados', JSON.stringify(desligados.filter((x) => typeof x === 'string').slice(0, 100)));
     responder(res, C.PreferenciasIA, preferenciasIA(req.user.id));
   });

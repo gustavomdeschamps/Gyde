@@ -6,7 +6,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { camadasDoProjeto, arquivosRelevantes, mudancasNaoSalvas } from '../codigo-agente.ts';
+import { camadasDoProjeto, arquivosRelevantes, mudancasNaoSalvas, escolherContexto } from '../codigo-agente.ts';
 
 function projeto(arquivos) {
   const pasta = mkdtempSync(path.join(tmpdir(), 'gyde-ctx-'));
@@ -66,4 +66,26 @@ test('mudanças não salvas no git: lista o que a pessoa mudou e o que é novo; 
     assert.ok(m.includes('?? novo.js'), m.join(' | '));
     assert.ok(!m.some((l) => l.includes('notas.md')));
   } finally { apagar(p); }
+});
+
+// contexto enxuto: dos arquivos prováveis, só os pequenos (até 3, pelo mapa da Cidade) e até 2 que eles importam
+test('escolhe os pequenos e os que eles importam; deixa de fora grande e binário', () => {
+  const pasta = mkdtempSync(path.join(tmpdir(), 'gyde-contexto-'));
+  try {
+    const arquivos = {
+      'src/carrinho.js': "const { aplicar } = require('./precos.js');\nimport x from './util/texto';\n",
+      'src/precos.js': 'module.exports = {};\n',
+      'src/util/texto.js': 'export default 1;\n',
+      'src/frete.js': '1\n',
+      'src/enorme.js': 'x\n'.repeat(500),
+      'logo.png': 'b',
+      'src/outro.js': '1\n',
+    };
+    for (const [f, t] of Object.entries(arquivos)) { mkdirSync(path.dirname(path.join(pasta, f)), { recursive: true }); writeFileSync(path.join(pasta, f), t); }
+    const p = (linhas, binario = false) => ({ linhas, mudancas: 0, binario });
+    const predios = new Map([['src/carrinho.js', p(2)], ['src/precos.js', p(1)], ['src/util/texto.js', p(1)], ['src/frete.js', p(1)], ['src/enorme.js', p(500)], ['logo.png', p(1, true)], ['src/outro.js', p(1)]]);
+    const r = escolherContexto(pasta, ['src/enorme.js', 'logo.png', 'src/carrinho.js', 'src/frete.js', 'src/outro.js'], predios).map((e) => e.caminho);
+    assert.deepEqual(r, ['src/carrinho.js', 'src/frete.js', 'src/outro.js', 'src/precos.js', 'src/util/texto.js']);
+    assert.deepEqual(escolherContexto(pasta, ['src/enorme.js'], predios), [], 'nada pequeno: nada vai junto');
+  } finally { rmSync(pasta, { recursive: true, force: true }); }
 });

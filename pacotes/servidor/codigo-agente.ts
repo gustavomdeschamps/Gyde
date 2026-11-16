@@ -7,6 +7,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, rmSync, realpathSync, accessSync, constants as FS } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import { acoesDoTexto } from './provedores.ts';
 import { CADEIAS, completar, extrairJson } from './motor.ts';
 import type { Catalogo } from './ia/catalogo.ts';
 import type { Orquestrador } from './ia/orquestrador.ts';
@@ -28,7 +29,7 @@ export interface ResultadoFerramenta {
   ok: boolean; saida: string; resumo?: string; mudanca?: 'criado' | 'modificado' | 'apagado';
   diff?: Record<string, unknown>; comando?: { comando: string; codigo: number | null }; restaurados?: string[]; mantidos?: string[];
 }
-interface Contexto { sinal?: AbortSignal; confirmar: (p: { acao: string; motivo: string }) => Promise<boolean> }
+interface Contexto { sinal?: AbortSignal; confirmar: (p: { acao: string; motivo: string; plano?: string[] }) => Promise<boolean> }
 type Ferramenta = (pasta: string, args: ArgsFerramenta, ctx: Contexto) => ResultadoFerramenta | Promise<ResultadoFerramenta>;
 // Decisão do modelo em cada rodada: agir (acoes) ou responder (resposta).
 interface Decisao { pensamento?: string; resposta?: unknown; acoes?: { ferramenta: string; args?: unknown }[]; ferramenta?: string; args?: unknown }
@@ -171,6 +172,56 @@ export function mudancasNaoSalvas(pasta: string): string[] {
   const r = spawnSync('git', ['status', '--porcelain', '--untracked-files=normal'], { cwd: pasta, encoding: 'utf8', timeout: 5000, windowsHide: true, env: ambienteLimpo() });
   if (r.status !== 0) return [];
   return r.stdout.split(/\r?\n/).filter(Boolean).slice(0, 30).map((l) => `${l.slice(0, 2).trim() || '?'} ${l.slice(3)}`);
+}
+
+// Tarefa grande: pedido longo ou com vários requisitos. Só nela a Forja planeja antes (e a pessoa aprova o plano);
+// nas pequenas, planejar só deixaria mais lento.
+// Texto que só anuncia o próximo passo ("Vou ler os arquivos...", "Desculpe, vou corrigir") não é resposta final: aceitar
+// isso encerrava a tarefa no meio (visto numa medição, com o trabalho ainda por fazer).
+// Contexto enxuto: dos arquivos que parecem ter a ver com o pedido, escolhe até 3 pequenos (o mapa da Cidade diz quantas
+// linhas cada um tem e quantas vezes mudou no git) e os que eles importam (até 2), e já manda o conteúdo no começo.
+// Assim o modelo não gasta rodadas só lendo. Nada de arquivo grande, binário ou de segredos (arquivosRelevantes já tira).
+export function escolherContexto(pasta: string, candidatos: string[], predios: Map<string, { linhas: number; mudancas: number; binario: boolean }>):
+  { caminho: string; linhas: number }[] {
+  const escolhidos: { caminho: string; linhas: number }[] = [];
+  const cabe = (c: string, max: number) => { const p = predios.get(c); return p && !p.binario && p.linhas > 0 && p.linhas <= max; };
+  const principais = candidatos.filter((c) => cabe(c, 200)).slice(0, 3);
+  for (const c of principais) escolhidos.push({ caminho: c, linhas: predios.get(c)!.linhas });
+  // dependências locais (require('./x') / import ... from './x') dos escolhidos
+  const deps: string[] = [];
+  for (const c of principais) {
+    let txt: string; try { txt = readFileSync(path.join(pasta, c), 'utf8'); } catch { continue; }
+    for (const m of txt.matchAll(/(?:require\(\s*|from\s+|import\s+)['"](\.{1,2}\/[^'"]+)['"]/g)) {
+      const base = path.posix.normalize(path.posix.join(path.posix.dirname(c), m[1]!));
+      const achado = [base, ...['.js', '.ts', '.mjs', '.cjs', '.jsx', '.tsx', '/index.js', '/index.ts'].map((e) => base + e)].find((x) => predios.has(x));
+      if (achado && !deps.includes(achado) && !principais.includes(achado)) deps.push(achado);
+    }
+  }
+  for (const d of deps.filter((x) => cabe(x, 150)).slice(0, 2)) escolhidos.push({ caminho: d, linhas: predios.get(d)!.linhas });
+  return escolhidos;
+}
+
+export function pareceAnuncio(texto: string): boolean {
+  const t = texto.trim().replace(/^(desculpe|ok|certo|entendi|perfeito|beleza)[,.!:]?\s*/i, '');
+  return t.length < 400 && /^(vou|agora vou|deixe-me|deixa eu|vamos|irei|primeiro,? vou|em seguida,? vou)\b/i.test(t);
+}
+
+export function ehTarefaGrande(tarefa: string): boolean {
+  const t = tarefa.trim();
+  return t.length >= 250 || (t.match(/[.!?;](\s|$)/g)?.length ?? 0) >= 4;
+}
+// Plano separado da execução: um modelo só planeja (sem ferramentas e sem mexer em nada); a execução segue o plano aprovado.
+const SISTEMA_PLANO = `Você planeja uma tarefa de programação ANTES de qualquer mudança nos arquivos. Leia o pedido e o contexto do
+projeto e responda SÓ com um objeto JSON: {"etapas": ["...", "..."], "arquivos": ["caminho/relativo", "..."]}.
+- 3 a 6 etapas curtas, em português, cada uma uma ação concreta (ex.: "Validar o campo categoria em src/modelo.js").
+- Cubra todos os requisitos do pedido, cada um numa etapa; a última etapa é atualizar ou criar os testes e rodar.
+- "arquivos": os arquivos que provavelmente vão mudar, usando caminhos que aparecem na estrutura. Não invente arquivos.`;
+export function lerPlano(texto: string): { etapas: string[]; arquivos: string[] } | null {
+  const o = extrairJson(texto) as { etapas?: unknown; arquivos?: unknown } | null;
+  if (!o || !Array.isArray(o.etapas)) return null;
+  const etapas = o.etapas.filter((e): e is string => typeof e === 'string' && e.trim().length > 3).map((e) => e.trim().slice(0, 240)).slice(0, 8);
+  const arquivos = Array.isArray(o.arquivos) ? o.arquivos.filter((a): a is string => typeof a === 'string').map((a) => a.trim()).slice(0, 12) : [];
+  return etapas.length >= 2 ? { etapas, arquivos } : null;
 }
 
 const SYSTEM = `Você é a Forja, o agente de código do Gyde: um desenvolvedor de software experiente conversando com o usuário num chat
@@ -638,14 +689,14 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       if (!res.writableEnded) res.write(`data: ${JSON.stringify({ tipo, ...dados })}\n\n`);
     };
     // pergunta ao usuário e espera a resposta (Parar ou demorar demais contam como "não")
-    const confirmar: Contexto['confirmar'] = ({ acao, motivo }) => new Promise<boolean>((resolve) => {
+    const confirmar: Contexto['confirmar'] = ({ acao, motivo, plano }) => new Promise<boolean>((resolve) => {
       const id = randomUUID();
       const fim = (ok: boolean) => { clearTimeout(t); pendentes.delete(s.id); controle.signal.removeEventListener('abort', nao); registrar('confirmacao', { id, aprovado: ok }); resolve(ok); };
       const nao = () => fim(false);
       const t = setTimeout(nao, ESPERA_CONFIRMACAO);
       controle.signal.addEventListener('abort', nao, { once: true });
       pendentes.set(s.id, { id, resolver: fim });
-      registrar('confirmar', { id, acao: redigir(acao), motivo });
+      registrar('confirmar', { id, acao: redigir(acao), motivo, ...(plano ? { plano: plano.map((e) => redigir(e)) } : {}) });
     });
     rodando.add(s.id);
     const inicio = Date.now();
@@ -694,6 +745,18 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         + (camadas.frontend.length || camadas.backend.length ? `\nCAMADAS: front-end: ${camadas.frontend.join(', ') || 'nenhum arquivo identificado'}; back-end: ${camadas.backend.join(', ') || 'nenhum arquivo identificado'}.` : '')
         + (relevantes.length ? `\nARQUIVOS QUE PARECEM TER A VER COM O PEDIDO (pelas palavras do pedido; confira lendo): ${relevantes.map((r) => `${r.caminho} (${r.motivo})`).join('; ')}.` : '')
         + (naoSalvas.length ? `\nMUDANÇAS DO USUÁRIO AINDA NÃO SALVAS NO GIT (preserve): ${naoSalvas.join('; ')}.` : '');
+      // contexto enxuto: o conteúdo dos arquivos mais prováveis já vai junto (escolhidos com o mapa da Cidade)
+      if (relevantes.length && tarefa) {
+        const mapa = await mapaDaCidade(pastaReal, { limite: 600 }).catch(() => null);
+        if (mapa) {
+          const predios = new Map(mapa.arquivos.map((a) => [a.caminho, a]));
+          const escolha = escolherContexto(pastaReal, relevantes.map((r) => r.caminho), predios);
+          const blocos = escolha.map((e) => { const r = ferramentas.ler(pastaReal, { caminho: e.caminho, inicio: 1, fim: 250 }); return r.ok ? `--- ${e.caminho} ---\n${r.saida}` : ''; }).filter(Boolean);
+          if (blocos.length) {
+            msgs[0]!.content += `\n\nARQUIVOS PROVÁVEIS DO PEDIDO (conteúdo atual: para editar um trecho, não precisa ler de novo; para substituir o arquivo inteiro, leia antes):\n${blocos.join('\n\n')}`;
+          }
+        }
+      }
       // a ordem vem das medições (com projeto grande) e do que está disponível agora; é refeita a cada rodada porque o pedido cresce
       const prefs = preferenciasIA(req.user.id);
       await catalogo.atualizar();
@@ -711,6 +774,8 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         return acoes.length ? { ...o, acoes } : null;
       };
       // regras por tarefa, valem mesmo que o modelo tente outra coisa
+      // os do contexto enxuto NÃO contam como lidos: para substituir um arquivo inteiro, a Forja ainda precisa lê-lo (a trava
+      // que protege trabalho da pessoa continua igual). Editar por trecho não depende disso.
       const lidos = new Set<string>();
       let rodadaDaUltimaMudanca = 0, rodadaDoUltimoComando = 0, cobrouTestes = false, cobrouAcao = false;
       const pedeMudanca = /\b(corrij|corrig|consert|crie|criar|adicion|implement|rode|rodar|mude|mudar|ajust|refator|escrev|remov|atualiz|fa[çc]a)/i.test(tarefa) && !/n[ãa]o (mude|altere|mexa|modifique)/i.test(tarefa);
@@ -727,15 +792,37 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       // texto puro, sem JSON e sem tentar descrever ações, vale como resposta final: muitos modelos grátis terminam assim,
       // e recusar isso fazia a tarefa falhar no último passo com o trabalho já feito no disco. Só depois de alguma ação: no
       // primeiro passo, texto solto costuma ser o modelo anunciando o que vai fazer, e aceitar isso encerrava a tarefa vazia
-      const textoFinal = (t: string) => passos > 0 && t.trim().length > 20 && !t.includes('{') && !/"?(acoes|ferramenta)"?\s*:/.test(t);
+      const textoFinal = (t: string) => passos > 0 && t.trim().length > 20 && !t.includes('{') && !t.includes('<tool_call>') && !pareceAnuncio(t) && !/"?(acoes|ferramenta)"?\s*:/.test(t);
+      // ação em JSON da Forja ou chamada de ferramenta escrita no texto (<tool_call>...), que alguns modelos usam
+      const decisaoDe = (t: string) => normalizar(extrairJson(t)) ?? normalizar(extrairJson(acoesDoTexto(t)));
       let terminou = false;
-      for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted; passo++) {
+      // tarefa grande: planeja antes de mexer, mostra o plano e só segue com a aprovação da pessoa
+      // só com a opção ligada em Configurações > IA e modelos: na medição, o plano não melhorou o resultado e dobrou as rodadas
+      if (prefs.planoForja && pedeMudanca && ehTarefaGrande(tarefa) && !imagens.length) {
+        registrar('pensando', { passo: 0 });
+        const r = await completar(router, {
+          cadeia: cadeiaDaRodada(), messages: [{ role: 'system', content: `${SISTEMA_PLANO}${msgs[0]!.content.slice(SYSTEM.length)}` }, { role: 'user', content: textoInicial }],
+          max_tokens: 1500, temperature: 0.2, signal: controle.signal, registro, tempoLimite: 90_000, valida: (t) => Boolean(lerPlano(t)),
+        }).catch(() => null);
+        const plano = r ? lerPlano(r.texto) : null;
+        if (plano) {
+          const aprovado = await confirmar({ acao: 'Seguir este plano', motivo: 'é uma tarefa grande: confira o plano antes de a Forja mexer nos arquivos', plano: plano.etapas });
+          if (!aprovado) {
+            registrar('resposta', { texto: 'Não segui o plano, porque você não aprovou. Diga o que mudar (uma etapa a mais, a menos ou outra ordem) e eu refaço.', ...totais() });
+            terminou = true;
+          } else {
+            msgs[0]!.content += `\nPLANO APROVADO PELO USUÁRIO (siga nesta ordem; se a leitura do código mostrar que uma etapa precisa mudar, mude e explique na resposta):\n${plano.etapas.map((e, i) => `${i + 1}. ${e}`).join('\n')}${plano.arquivos.length ? `\nArquivos previstos: ${plano.arquivos.join(', ')}.` : ''}`;
+          }
+        }
+        // sem plano (o modelo não conseguiu planejar): segue como numa tarefa normal
+      }
+      for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted && !terminou; passo++) {
         registrar('pensando', { passo });
         const { texto, modelo } = await completar(router, {
           cadeia: cadeiaDaRodada(), messages: msgs, max_tokens: 6000, temperature: 0.2, signal: controle.signal, registro, tempoLimite: 180_000, recuperarAcao: true,
-          valida: (t) => Boolean(normalizar(extrairJson(t)) || textoFinal(t)),
+          valida: (t) => Boolean(decisaoDe(t) || textoFinal(t)),
         });
-        const o = normalizar(extrairJson(texto)) ?? { resposta: texto.trim() };
+        const o = decisaoDe(texto) ?? { resposta: texto.trim() };
         msgs.push({ role: 'assistant', content: JSON.stringify(o) });
         // o pedido manda mudar algo e o modelo quer terminar sem ter feito nada: pede uma vez para fazer o trabalho
         if (o.resposta && pedeMudanca && !cobrouAcao && !mudancas.criados.size && !mudancas.modificados.size && !mudancas.apagados.size && !mudancas.comandos.length) {
