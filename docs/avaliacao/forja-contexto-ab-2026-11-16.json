@@ -1,0 +1,735 @@
+{
+  "em": "2026-11-16T18:52:19.210Z",
+  "como": "A/B intercalado: em cada rodada, a versão nova (contexto enxuto) e a anterior (robustez, commit 912743f) rodam uma depois da outra, NVIDIA + Groq",
+  "novo": [
+    {
+      "cenario": "bug",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 49427,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "preservar",
+      "grupo": "pequeno",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 4,
+      "ms": 116647,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "front-back",
+      "grupo": "pequeno",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 86711,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:minimaxai/minimax-m3.1-flash",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "pergunta",
+      "grupo": "pequeno",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 0,
+      "ms": 83055,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "bug-espalhado",
+      "grupo": "dificil",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "os dois bugs corrigidos de verdade (testes escondidos)": true
+      },
+      "terminou": "resposta",
+      "passos": 4,
+      "ms": 212434,
+      "arquivos": [
+        "src/carrinho.js",
+        "src/precos.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "teste-engana",
+      "grupo": "dificil",
+      "lidos": 6,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "corrigiu a causa em ler.js (testes escondidos)": true,
+        "não remendou formatar.js": true
+      },
+      "terminou": "resposta",
+      "passos": 6,
+      "ms": 631813,
+      "arquivos": [
+        "ler.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:stepfun-ai/step-5-preview",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 13,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 11,
+      "ms": 749895,
+      "arquivos": [
+        "teste.js",
+        "src/modelo.js",
+        "src/repositorio.js",
+        "public/app.js",
+        "src/rotas.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "achar-arquivo",
+      "grupo": "dificil",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "frete de R$ 100 grátis (testes escondidos)": true,
+        "testes passam": true,
+        "não mexeu nos outros arquivos": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 65644,
+      "arquivos": [
+        "src/servicos/frete/calculo.js"
+      ],
+      "comandos": 1,
+      "modelo": "groq:openai/gpt-oss-120b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "bug",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 17871,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "preservar",
+      "grupo": "pequeno",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 12109,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "front-back",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 23246,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "pergunta",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 11845,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "bug-espalhado",
+      "grupo": "dificil",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "os dois bugs corrigidos de verdade (testes escondidos)": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 55131,
+      "arquivos": [
+        "src/carrinho.js",
+        "src/precos.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "teste-engana",
+      "grupo": "dificil",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "corrigiu a causa em ler.js (testes escondidos)": true,
+        "não remendou formatar.js": true
+      },
+      "terminou": "resposta",
+      "passos": 4,
+      "ms": 51815,
+      "arquivos": [
+        "ler.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 4,
+      "ms": 49084,
+      "arquivos": [
+        "src/modelo.js",
+        "src/rotas.js",
+        "public/app.js",
+        "src/repositorio.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "achar-arquivo",
+      "grupo": "dificil",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "frete de R$ 100 grátis (testes escondidos)": true,
+        "testes passam": true,
+        "não mexeu nos outros arquivos": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 17558,
+      "arquivos": [
+        "src/servicos/frete/calculo.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    }
+  ],
+  "anterior": [
+    {
+      "cenario": "bug",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 49198,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "preservar",
+      "grupo": "pequeno",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 8,
+      "ms": 67748,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "front-back",
+      "grupo": "pequeno",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 36499,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "pergunta",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 18848,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "bug-espalhado",
+      "grupo": "dificil",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "os dois bugs corrigidos de verdade (testes escondidos)": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 21878,
+      "arquivos": [
+        "src/carrinho.js",
+        "src/precos.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "teste-engana",
+      "grupo": "dificil",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "corrigiu a causa em ler.js (testes escondidos)": true,
+        "não remendou formatar.js": true
+      },
+      "terminou": "resposta",
+      "passos": 5,
+      "ms": 65058,
+      "arquivos": [
+        "ler.js"
+      ],
+      "comandos": 2,
+      "modelo": "groq:qwen/qwen3.8-27b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 6,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 41851,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "achar-arquivo",
+      "grupo": "dificil",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "frete de R$ 100 grátis (testes escondidos)": true,
+        "testes passam": true,
+        "não mexeu nos outros arquivos": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 14100,
+      "arquivos": [
+        "src/servicos/frete/calculo.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 1
+    },
+    {
+      "cenario": "bug",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 69466,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:stepfun-ai/step-5-preview",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "preservar",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 60046,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "front-back",
+      "grupo": "pequeno",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 21498,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "pergunta",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 12762,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "bug-espalhado",
+      "grupo": "dificil",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "os dois bugs corrigidos de verdade (testes escondidos)": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 25204,
+      "arquivos": [
+        "src/carrinho.js",
+        "src/precos.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "teste-engana",
+      "grupo": "dificil",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "corrigiu a causa em ler.js (testes escondidos)": true,
+        "não remendou formatar.js": true
+      },
+      "terminou": "resposta",
+      "passos": 5,
+      "ms": 75600,
+      "arquivos": [
+        "ler.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 11,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 4,
+      "ms": 49950,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    },
+    {
+      "cenario": "achar-arquivo",
+      "grupo": "dificil",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "frete de R$ 100 grátis (testes escondidos)": true,
+        "testes passam": true,
+        "não mexeu nos outros arquivos": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 52287,
+      "arquivos": [
+        "src/servicos/frete/calculo.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null,
+      "rodada": 2
+    }
+  ]
+}

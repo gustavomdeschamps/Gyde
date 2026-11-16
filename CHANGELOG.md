@@ -3,6 +3,17 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## Ainda não lançado
+
+### Forja
+- A ação escrita no texto pelo modelo (`<tool_call>...`) vira ação, em vez de encerrar a tarefa no meio.
+- Um texto que só anuncia o próximo passo ("Desculpe, vou ler os arquivos") não é mais aceito como resposta final.
+- Contexto enxuto: o conteúdo dos arquivos mais prováveis do pedido (escolhidos com o mapa da Cidade: até 3 pequenos e até
+  2 que eles importam) já vai no começo. Nas medições, a Forja passou a ler cerca de metade dos arquivos.
+- Opção **Mostrar o plano da Forja antes de tarefas grandes** (Configurações > IA e modelos), desligada: a Forja escreve as
+  etapas e espera você aprovar. Na medição, não acertou mais e usou mais rodadas.
+- Avaliação com 4 cenários difíceis e testes escondidos. Os números estão em [docs/avaliacao](docs/avaliacao/README.md).
+
 ## 2.2.0
 
 ### Novidades

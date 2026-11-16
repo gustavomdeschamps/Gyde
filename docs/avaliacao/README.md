@@ -136,7 +136,28 @@ Quatro cenários, 3 tentativas cada, conferidos no disco no fim:
 | Núcleo multimodelo, com revisão independente (04/11/2026) | **12/12** | 17 s | 197 s |
 
 A diferença de um cenário está dentro da variação. O ganho medido não é de qualidade, e a revisão pode alongar uma tarefa.
-Cenários maiores (projetos com muitos arquivos, tarefas longas) não foram medidos.
+
+### Forja mais forte (13 a 16/11/2026)
+
+Quatro cenários difíceis novos (`ferramentas/cenarios-forja-dificeis.mjs`), com testes escondidos que a Forja não vê:
+**bug-espalhado** (dois bugs em arquivos diferentes), **teste-engana** (o erro aparece em `formatar.js`, a causa está em
+`ler.js`), **pedido-grande** (um campo novo do modelo à tela, com testes) e **achar-arquivo** (o bug está em 1 de 44 arquivos).
+Sempre NVIDIA + Groq. Cada mudança só ficou se a medição melhorou, sem deixar as tarefas pequenas mais lentas.
+
+| Mudança | Execuções | Pequenos | Difíceis | Ficou? |
+|---|---|---|---|---|
+| Base (`forja-base-2026-11-13.json`) | 16 | 8/8, mediana 13 s | 6/8, mediana 33 s | — |
+| Plano aprovado antes de tarefa grande (`forja-plano-*.json`, só pedido-grande) | 4 + 4 da base | — | 3/4 contra 4/4 da base; o dobro de rodadas | virou opção desligada |
+| Robustez: `<tool_call>` no texto vira ação; "vou ler..." não encerra (`forja-robustez-*.json`) | 16 | 8/8, mediana 11 s | 8/8, mediana 20 s | sim |
+| Conserto de trecho com espaços e recuo (`forja-conserto-trecho-*.json`) | 16 | 8/8, 12 s | 8/8, 32 s; só 1 edição falhou em 16 | não (sem efeito medível) |
+| Testes depois de cada rodada, desfazendo se quebrar (`forja-rede-testes-*.json`) | 16 | 8/8, 20 s | 8/8, 43 s | não (mais lenta, sem ganho) |
+| Contexto enxuto pelo mapa da Cidade (`forja-contexto-ab-*.json`, A/B intercalado) | 16 + 16 | 8/8, 23 s contra 36 s; lê 1,4 arquivo contra 2,8 | 8/8, 55 s contra 42 s; lê 3,4 contra 4,4 | sim |
+
+**Leia com cuidado.** São amostras pequenas: o mesmo cenário (teste-engana) variou de 0/2 a 4/4 na base. Os tempos
+dependem muito do provedor naquela hora: na primeira rodada do A/B, uma pergunta que nem usa a mudança levou 83 s, e duas
+tarefas passaram de 10 minutos. Por isso o último teste foi intercalado (versão nova e anterior uma depois da outra). O que
+os modelos grátis não conseguiram: com plano, um deles respondeu "Desculpe, vou ler os arquivos" e parou; outro escreveu
+a ação num formato próprio (`<tool_call>`), que a Forja passou a entender.
 
 ## Histórico da Forja (29/10/2026)
 
