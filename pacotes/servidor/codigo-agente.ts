@@ -178,42 +178,6 @@ export function mudancasNaoSalvas(pasta: string): string[] {
 // nas pequenas, planejar só deixaria mais lento.
 // Texto que só anuncia o próximo passo ("Vou ler os arquivos...", "Desculpe, vou corrigir") não é resposta final: aceitar
 // isso encerrava a tarefa no meio (visto numa medição, com o trabalho ainda por fazer).
-// Edição por trecho com conserto: quando o trecho a procurar não aparece idêntico (espaços ou recuo diferentes, linhas em
-// branco a mais), procura linha a linha ignorando os espaços das pontas. Achando UM lugar só, troca ali e ajusta o recuo do
-// texto novo ao do arquivo. Sem lugar único, devolve as linhas mais parecidas, para o modelo copiar o trecho exato.
-export function consertarTrecho(atual: string, procurar: string, substituir: string): { texto: string } | { dica: string } {
-  const quebra = atual.includes('\r\n') ? '\r\n' : '\n';
-  const linhas = atual.split(/\r?\n/);
-  const alvo = procurar.split(/\r?\n/).map((l) => l.trim());
-  while (alvo.length && !alvo[0]) alvo.shift();
-  while (alvo.length && !alvo.at(-1)) alvo.pop();
-  if (!alvo.length) return { dica: 'O trecho a procurar está vazio.' };
-  const achados: number[] = [];
-  for (let i = 0; i + alvo.length <= linhas.length; i++) {
-    if (alvo.every((l, k) => linhas[i + k]!.trim() === l)) achados.push(i);
-  }
-  if (achados.length === 1) {
-    const i = achados[0]!;
-    const recuoDe = (l: string) => /^\s*/.exec(l)![0];
-    const novas = substituir.replace(/^(\s*\r?\n)+|(\r?\n\s*)+$/g, '').split(/\r?\n/);
-    const primeiraNova = novas.find((l) => l.trim()) ?? '';
-    const deFora = recuoDe(primeiraNova), doArquivo = recuoDe(linhas[i]!);
-    // o modelo errou o recuo: tira o recuo dele e põe o do arquivo, linha por linha (mantendo o recuo relativo)
-    const ajustadas = substituir.trim() ? novas.map((l) => (l.startsWith(deFora) ? doArquivo + l.slice(deFora.length) : l)) : [];
-    return { texto: [...linhas.slice(0, i), ...ajustadas, ...linhas.slice(i + alvo.length)].join(quebra) };
-  }
-  if (achados.length > 1) return { dica: `O trecho aparece ${achados.length} vezes (ignorando espaços); inclua mais linhas em volta para ficar único.` };
-  // nenhum: mostra onde a primeira linha do trecho mais se parece com o arquivo
-  const primeira = alvo[0]!;
-  const palavras = new Set(primeira.split(/\W+/).filter(Boolean));
-  const nota = (l: string) => l.split(/\W+/).filter((p) => palavras.has(p)).length;
-  let melhor = -1, pontos = 0;
-  linhas.forEach((l, i) => { const n = nota(l); if (n > pontos) { pontos = n; melhor = i; } });
-  if (melhor < 0) return { dica: 'O trecho a procurar não foi encontrado (nem ignorando espaços). Leia o arquivo de novo e copie o trecho exato.' };
-  const de = Math.max(0, melhor - 2), ate = Math.min(linhas.length, melhor + alvo.length + 2);
-  return { dica: `O trecho a procurar não foi encontrado (nem ignorando espaços). O mais parecido está nas linhas ${de + 1} a ${ate}:\n${linhas.slice(de, ate).map((l, k) => `${String(de + k + 1).padStart(4)} | ${l}`).join('\n')}\nCopie o trecho exato daqui e tente de novo.` };
-}
-
 export function pareceAnuncio(texto: string): boolean {
   const t = texto.trim().replace(/^(desculpe|ok|certo|entendi|perfeito|beleza)[,.!:]?\s*/i, '');
   return t.length < 400 && /^(vou|agora vou|deixe-me|deixa eu|vamos|irei|primeiro,? vou|em seguida,? vou)\b/i.test(t);
@@ -429,15 +393,10 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       if (crlf) { proc = proc.replace(/\r?\n/g, '\r\n'); subs = subs.replace(/\r?\n/g, '\r\n'); }
       if (!proc) return { ok: false, saida: 'Informe o trecho a procurar.' };
       const vezes = atual.split(proc).length - 1;
-      let consertado = false;
-      if (vezes === 0) { // não bateu idêntico: tenta ignorando espaços e recuo (consertarTrecho)
-        const c = consertarTrecho(atual, String(procurar ?? ''), String(substituir));
-        if ('dica' in c) return { ok: false, saida: c.dica };
-        writeFileSync(alvo, c.texto); consertado = true;
-      }
+      if (vezes === 0) return { ok: false, saida: 'O trecho a procurar não foi encontrado (precisa ser idêntico, inclusive espaços). Leia o arquivo de novo e copie o trecho exato.' };
       if (vezes > 1) return { ok: false, saida: `O trecho aparece ${vezes} vezes; inclua mais linhas em volta para ficar único.` };
-      if (!consertado) writeFileSync(alvo, atual.replace(proc, () => subs));
-      return { ok: true, saida: consertado ? `Editado: ${caminho} (o trecho não era idêntico; troquei o único lugar que bate ignorando espaços e mantive o recuo do arquivo)` : `Editado: ${caminho}`, resumo: `editou ${caminho}`, mudanca: 'modificado', diff: { caminho, antes: corta(redigir(String(procurar)), 3000), depois: corta(redigir(String(substituir)), 3000) } };
+      writeFileSync(alvo, atual.replace(proc, () => subs));
+      return { ok: true, saida: `Editado: ${caminho}`, resumo: `editou ${caminho}`, mudanca: 'modificado', diff: { caminho, antes: corta(redigir(String(procurar)), 3000), depois: corta(redigir(String(substituir)), 3000) } };
     },
     async apagar(pasta: string, { caminho }: ArgsFerramenta, ctx: Contexto): Promise<ResultadoFerramenta> {
       const alvo = caminhoSeguro(pasta, caminho);
@@ -782,6 +741,18 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       // regras por tarefa, valem mesmo que o modelo tente outra coisa
       const lidos = new Set<string>();
       let rodadaDaUltimaMudanca = 0, rodadaDoUltimoComando = 0, cobrouTestes = false, cobrouAcao = false;
+      // Testes como rede de segurança: antes de mudar, roda os testes uma vez. Se passavam e uma rodada de mudanças os quebra,
+      // a Forja desfaz aquela rodada e mostra ao modelo a saída (ele tenta de outro jeito). Se já falhavam no começo, não dá
+      // para saber se piorou: nada é desfeito. Só onde a Forja roda comandos (Windows) e com comando de testes conhecido.
+      let testesPassavam = false;
+      // contar=false: a conferência de antes de mudar não conta como trabalho da tarefa (senão a cobrança "você ainda não mudou nada" não vinha)
+      const rodarTestes = async (pensamento: string, contar = true) => {
+        registrar('ferramenta', { nome: 'executar', args: { comando: projeto.testes }, pensamento });
+        const t = await ferramentas.executar(pastaReal, { comando: projeto.testes }, { sinal: controle.signal, confirmar });
+        registrar('resultado', { nome: 'executar', ok: t.ok, resumo: redigir(t.resumo || ''), saida: corta(t.saida, 3000) });
+        if (t.comando && contar) mudancas.comandos.push({ comando: redigir(t.comando.comando), ok: t.comando.codigo === 0, codigo: t.comando.codigo });
+        return t;
+      };
       const pedeMudanca = /\b(corrij|corrig|consert|crie|criar|adicion|implement|rode|rodar|mude|mudar|ajust|refator|escrev|remov|atualiz|fa[çc]a)/i.test(tarefa) && !/n[ãa]o (mude|altere|mexa|modifique)/i.test(tarefa);
       const relDe = (c: unknown) => { try { return relativo(pastaReal, caminhoSeguro(pastaReal, c)); } catch { return ''; } };
       const recusaEscrever = (args: ArgsFerramenta): string | null => {
@@ -820,6 +791,9 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         }
         // sem plano (o modelo não conseguiu planejar): segue como numa tarefa normal
       }
+      if (pedeMudanca && projeto.testes && process.platform === 'win32' && !terminou && !controle.signal.aborted) {
+        testesPassavam = (await rodarTestes('Antes de mudar, confiro como os testes estão', false)).comando?.codigo === 0;
+      }
       for (let passo = 1; passo <= MAX_PASSOS && !controle.signal.aborted && !terminou; passo++) {
         registrar('pensando', { passo });
         const { texto, modelo } = await completar(router, {
@@ -856,12 +830,18 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
         if (o.resposta) { registrar('resposta', { texto: redigir(String(o.resposta)), pensamento: o.pensamento || '', modelo, ...totais() }); terminou = true; break; }
         passos++;
         const resultados: string[] = [];
+        const antesDaRodada = new Map<string, Buffer | null>(); // para desfazer esta rodada se ela quebrar os testes
+        let mudouNaRodada = false, testouDepois: number | null = null;
         for (const [i, a] of (o.acoes ?? []).entries()) {
           if (controle.signal.aborted) break;
           const args: ArgsFerramenta = a.args && typeof a.args === 'object' ? a.args : {};
           registrar('ferramenta', { nome: a.ferramenta, args: { ...args, conteudo: args.conteudo ? `(${String(args.conteudo).split('\n').length} linhas)` : undefined, procurar: undefined, substituir: undefined }, pensamento: i === 0 ? redigir(o.pensamento || '') : '' });
           let r: ResultadoFerramenta;
-          if (['escrever', 'editar', 'apagar'].includes(a.ferramenta) && args.caminho) copiar(args);
+          if (['escrever', 'editar', 'apagar'].includes(a.ferramenta) && args.caminho) {
+            copiar(args);
+            const relAntes = relDe(args.caminho);
+            if (relAntes && !antesDaRodada.has(relAntes)) { const alvoAntes = path.join(pastaReal, relAntes); antesDaRodada.set(relAntes, existsSync(alvoAntes) && statSync(alvoAntes).isFile() ? readFileSync(alvoAntes) : null); }
+          }
           const recusa = a.ferramenta === 'escrever' ? recusaEscrever(args) : null;
           try {
             r = recusa ? { ok: false, saida: recusa } : a.ferramenta === 'desfazer' ? desfazerUltima(s.id, pastaReal) : await ferramentaDe(a.ferramenta)!(pastaReal, args, { sinal: controle.signal, confirmar });
@@ -869,6 +849,8 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           if (r.ok && a.ferramenta === 'ler') lidos.add(relDe(args.caminho));
           if (r.ok && (r.mudanca || r.restaurados?.length)) { rodadaDaUltimaMudanca = passo; lidos.add(relDe(args.caminho)); }
           if (r.comando) rodadaDoUltimoComando = passo;
+          if (r.ok && (r.mudanca || r.restaurados?.length)) { mudouNaRodada = true; testouDepois = null; }
+          if (r.comando && mudouNaRodada && r.comando.comando.trim() === projeto.testes) testouDepois = r.comando.codigo;
           for (const f of r.restaurados || []) mudancas.modificados.add(f);
           const rel = args.caminho ? String(args.caminho).replaceAll('\\', '/').replace(/^\.\//, '') : '';
           if (r.ok && r.diff) diffs.push(`--- ${rel} ---\n${r.diff.antes !== undefined ? `ANTES:\n${String(r.diff.antes)}\nDEPOIS:\n${String(r.diff.depois)}` : String(r.diff.novo ?? '')}`);
@@ -878,6 +860,24 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           if (r.comando) mudancas.comandos.push({ comando: redigir(r.comando.comando), ok: r.comando.codigo === 0, codigo: r.comando.codigo });
           registrar('resultado', { nome: a.ferramenta, ok: r.ok, resumo: redigir(r.resumo || ''), saida: corta(r.saida, 3000), diff: r.diff, ...(rel ? { caminho: rel } : {}), ...(r.mudanca ? { mudanca: r.mudanca } : {}) }); // caminho e mudança: a Cidade acende o prédio
           resultados.push(`RESULTADO ${i + 1} — ${a.ferramenta} ${JSON.stringify(args.caminho || args.comando || args.texto || '')} (${r.ok ? 'ok' : 'falhou'}):\n${r.saida}`);
+        }
+        // a rodada mudou arquivos e os testes passavam no começo: confere (ou usa o teste que o modelo já rodou depois)
+        if (mudouNaRodada && testesPassavam && antesDaRodada.size && !controle.signal.aborted) {
+          let codigo = testouDepois, saidaTeste = '';
+          if (codigo === null) { const t = await rodarTestes('Confiro os testes depois das mudanças desta rodada'); codigo = t.comando?.codigo ?? null; saidaTeste = t.saida; rodadaDoUltimoComando = passo; }
+          if (codigo !== null && codigo !== 0) {
+            const desfeitos: string[] = [];
+            for (const [rel, antes] of antesDaRodada) {
+              const alvoRel = path.join(pastaReal, rel);
+              try {
+                if (antes === null) { if (existsSync(alvoRel)) unlinkSync(alvoRel); } else { mkdirSync(path.dirname(alvoRel), { recursive: true }); writeFileSync(alvoRel, antes); }
+                desfeitos.push(rel);
+              } catch { /* arquivo preso: fica como está */ }
+            }
+            registrar('ferramenta', { nome: 'desfazer', args: {}, pensamento: 'Os testes passavam e quebraram com esta rodada: desfaço as mudanças dela' });
+            registrar('resultado', { nome: 'desfazer', ok: true, resumo: `desfez ${desfeitos.length} arquivo(s): ${desfeitos.join(', ')}`, saida: desfeitos.join('\n') });
+            resultados.push(`AVISO DO GYDE: os testes (${projeto.testes}) passavam antes da tarefa e falharam depois das mudanças desta rodada. Desfiz essas mudanças (${desfeitos.join(', ')}); os arquivos voltaram ao que eram antes da rodada.${saidaTeste ? `\nSaída dos testes:\n${corta(saidaTeste, 3000)}` : ''}\nEntenda o que quebrou (leia de novo o que precisar) e faça de outro jeito.`);
+          }
         }
         msgs.push({ role: 'user', content: resultados.join('\n\n') });
         // mantém a conversa num tamanho seguro: resume resultados antigos e tira as imagens depois do 1º passo
