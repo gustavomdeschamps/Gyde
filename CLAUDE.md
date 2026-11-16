@@ -25,3 +25,13 @@ tocar em dados do usuário. Em commit separado (para dar para voltar), conferido
 
 Fora do repositório, quem apaga é o script `Documentos\Gyde-atualizar\limpar-antigos.ps1`, que mostra a lista e pergunta
 antes; o script de preparar a atualização apaga só as cópias de segurança antigas, pela mesma regra.
+
+**Só por lista explícita de caminhos permitidos (allowlist).** Nenhum script de limpeza, ferramenta (`ferramentas/`),
+teste de navegador (`testes-e2e/`) ou comando seu apaga por padrão solto (`rm -rf`, `Remove-Item -Recurse`, `rmSync`
+recursivo, `git worktree remove --force`) nem uma pasta inteira do projeto:
+- no Node, use `apagarSeguro` de `ferramentas/limpeza-segura.mjs` (lista padrão: pastas `gyde-*` da pasta temporária);
+- no PowerShell, use `Remove-Seguro` de `ferramentas/atualizar/limpeza-segura.ps1`. A cópia oficial do
+  `limpar-antigos.ps1` fica em `ferramentas/atualizar/`; a de `Documentos\Gyde-atualizar` é cópia dela;
+- as duas recusam o que está fora da lista e nunca seguem junction ou atalho. O teste
+  `pacotes/servidor/testes/limpeza-segura.test.mjs` falha se apagarem fora da lista ou atravessarem uma junction;
+- cópia de comparação (git worktree): rode `npm ci` dentro dela em vez de criar junction para o `node_modules`.

@@ -10,6 +10,7 @@ import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { RAIZ, placar, portaLivre, espera } from './ajuda.mjs';
+import { apagarSeguro } from '../ferramentas/limpeza-segura.mjs';
 
 if (process.platform !== 'win32') { console.log('PULADO  o instalador testado aqui é o do Windows'); process.exit(0); }
 const { ok, fim } = placar();
@@ -147,7 +148,8 @@ try {
   const desinstalador = existsSync(PASTA) ? readdirSync(PASTA).find((f) => /^Uninstall.*\.exe$/i.test(f)) : null;
   if (desinstalador && existsSync(EXE)) spawnSync(path.join(PASTA, desinstalador), ['/S'], { stdio: 'ignore' });
   rmSync(MARCADOR, { force: true });
+  // única exceção à lista de limpeza: a pasta de dados que ESTE teste criou (não existia antes dele)
   if (!appdataExistia) rmSync(APPDATA_GYDE, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
-  for (const p of [PASTA, DADOS]) rmSync(p, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
+  for (const p of [PASTA, DADOS]) apagarSeguro(p);
 }
 process.exit(fim());

@@ -4,11 +4,12 @@
 // se falharem, desligam em silêncio. A cidade reage à Forja (o prédio acende; arquivo novo vira prédio novo).
 // Também: outro projeto qualquer vira cidade, pasta sem git funciona sem cores, e pasta grande avisa o que ficou de fora.
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { subirServidor, abrirNavegador, clienteApi, placar, criarProjetoForja } from './ajuda.mjs';
 import { provedorFalso } from './provedor-falso.mjs';
+import { apagarSeguro } from '../ferramentas/limpeza-segura.mjs';
 
 const { ok, fim } = placar();
 const ia = await provedorFalso();
@@ -149,7 +150,7 @@ try {
     await navCartao.avaliar(`document.querySelector('.cidade-cartao-forja .btn').click()`);
     ok('cartão: "Pedir à Forja" escreve o pedido de melhorias', await navCartao.esperar(`document.querySelector('#agenteView textarea')?.value === 'Analise o arquivo calmo.js e sugira melhorias.'`, 5000));
     ok('cartão: sem erro de JavaScript', navCartao.erros.length === 0, navCartao.erros.slice(0, 3).join(' | '));
-  } finally { await navCartao.fechar(); rmSync(projCartao, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }); }
+  } finally { await navCartao.fechar(); apagarSeguro(projCartao); }
 
   // (1) outro projeto qualquer (Python, sem nada do Gyde) vira cidade sozinho; (2) sem git: funciona, sem cores;
   // (3) mais de 1.500 arquivos: avisa quantos ficaram de fora
@@ -178,7 +179,7 @@ try {
     ok('(3) 1.600 arquivos: avisa que 100 ficaram de fora', await nav3.esperar(`/1[.]600 arquivos.*1[.]500.*100 ficaram de fora/.test(document.querySelector('.cidade-aviso')?.textContent || '')`, 20_000), await nav3.avaliar(`document.querySelector('.cidade-aviso')?.textContent`));
     ok('(3) e mostra só 1.500 prédios', await nav3.avaliar(`document.querySelectorAll('.cidade-bairro tbody tr').length === 1500`));
     ok('sem erro de JavaScript nas outras pastas', nav3.erros.length === 0, nav3.erros.slice(0, 3).join(' | '));
-  } finally { await nav3.fechar(); for (const p of [outro, semGit, grande]) rmSync(p, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }); }
+  } finally { await nav3.fechar(); for (const p of [outro, semGit, grande]) apagarSeguro(p); }
 
   const pc = await abrirNavegador({ webgl: true });
   try { await verificar(pc, 'computador', true); } finally { await pc.fechar(); }

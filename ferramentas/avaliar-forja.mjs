@@ -5,13 +5,14 @@
 // --codigo permite rodar a mesma avaliação numa versão anterior (ex.: um git worktree), para comparar antes e depois.
 // Confirmações da Forja (instalar, apagar...) são sempre recusadas. A chave vem do .env e nunca é mostrada.
 import { spawn, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { redigir } from '../pacotes/servidor/seguranca.ts';
 import { cenariosDificeis } from './cenarios-forja-dificeis.mjs';
+import { apagarSeguro } from './limpeza-segura.mjs';
 const limparErro = (t) => redigir(t).replace(/org_[A-Za-z0-9]{10,}/g, 'org_[oculto]'); // sem chaves e sem o ID da conta no provedor
 
 const RAIZ = path.join(import.meta.dirname, '..');
@@ -168,13 +169,13 @@ try {
       resultados.push(r);
       console.log(`${r.ok ? 'OK   ' : 'FALHA'} ${c.id.padEnd(11)} ${String(Math.round(r.ms / 1000)).padStart(4)} s  ${String(r.passos ?? '-').padStart(2)} passos  ${lidos} lido(s)  ${edicoesFalhas} edição(ões) falha(s)  ${comandos} comando(s)  ${checagens.map(([k, v]) => `${v ? '✓' : '✗'} ${k}`).join(' · ')}${r.erro ? `  [${r.erro}]` : ''}`);
       if (!r.ok && process.argv.includes('--manter-falhas')) console.log(`      pasta guardada para conferir: ${proj.pasta}`);
-      else rmSync(proj.pasta, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
+      else apagarSeguro(proj.pasta);
     }
   }
 } finally {
   servidor.kill();
   await espera(500);
-  rmSync(dados, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
+  apagarSeguro(dados);
 }
 const ok = resultados.filter((r) => r.ok).length;
 for (const g of ['pequeno', 'dificil']) {

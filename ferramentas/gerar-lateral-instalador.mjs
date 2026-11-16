@@ -2,10 +2,11 @@
 // Renderiza um HTML no Edge sem janela e converte para BMP pelo System.Drawing do Windows.
 //   node ferramentas/gerar-lateral-instalador.mjs   (grava pacotes/desktop/instalador-lateral.bmp)
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { apagarSeguro } from './limpeza-segura.mjs';
 
 const RAIZ = path.join(import.meta.dirname, '..');
 const DESTINO = path.join(RAIZ, 'pacotes', 'desktop', 'instalador-lateral.bmp');
@@ -47,5 +48,5 @@ const ps = `Add-Type -AssemblyName System.Drawing; $i = [System.Drawing.Image]::
 const r = spawnSync('powershell', ['-NoProfile', '-Command', ps], { encoding: 'utf8' });
 if (r.status !== 0) { console.error(r.stderr); process.exit(1); }
 await espera(500);
-try { rmSync(pasta, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); } catch { /* o Edge pode segurar o perfil por um instante */ }
+try { apagarSeguro(pasta); } catch { /* o Edge pode segurar o perfil por um instante */ }
 console.log('gravado:', path.relative(RAIZ, DESTINO));
