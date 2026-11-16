@@ -72,4 +72,8 @@ Windows, Linux e macOS.
   (`Documentos\Gyde-backups`). Fora do repositório, quem apaga é um script que mostra a lista e pergunta antes
   (`limpar-antigos.ps1`); o script de preparar a atualização já apaga só as cópias antigas, pela mesma regra.
 
+  **Só por lista explícita de caminhos permitidos:** nada de `rm -rf`, `Remove-Item -Recurse` ou `rmSync` recursivo
+  solto. Use `apagarSeguro` (`ferramentas/limpeza-segura.mjs`) ou `Remove-Seguro` (`ferramentas/atualizar/limpeza-segura.ps1`),
+  que recusam o que está fora da lista e nunca seguem atalhos; o teste `limpeza-segura.test.mjs` cobre isso.
+
 Vai mexer na escolha de modelos ou nas instruções da IA? Veja [docs/inteligencia.md](docs/inteligencia.md) e meça antes e depois com `ferramentas/avaliar-estrategias.mjs`.

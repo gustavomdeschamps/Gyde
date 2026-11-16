@@ -1,7 +1,7 @@
 // Tarefas da avaliação da IA do Gyde, uma correção automática para cada: código roda contra testes, SQL roda num banco de
 // verdade, números são conferidos com o valor calculado aqui. O que não dá para corrigir por máquina (a graça de um
 // poema) não é medido: as tarefas de escrita só conferem as regras pedidas e o pronto-para-usar.
-import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdtempSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { deflateSync } from 'node:zlib';
 import { tmpdir } from 'node:os';
@@ -9,6 +9,7 @@ import { DatabaseSync } from 'node:sqlite';
 import vm from 'node:vm';
 import path from 'node:path';
 import { PROMPT_REVISOR } from '../pacotes/servidor/ia/prompts.ts';
+import { apagarSeguro } from './limpeza-segura.mjs';
 
 // ---------- imagem de teste: PNG 64x64 vermelho com um quadrado azul no canto ----------
 function png(largura, altura, pixel) {
@@ -48,7 +49,7 @@ function rodarPython(codigo, testes) {
     writeFileSync(arquivo, `${codigo}\n\n${testes}\nprint("ok")\n`);
     const r = spawnSync('python', [arquivo], { encoding: 'utf8', timeout: 10_000 });
     return { ok: r.status === 0 && /ok/.test(r.stdout), motivo: r.status === 0 ? 'testes passaram' : (r.stderr.trim().split('\n').pop() || 'falhou').slice(0, 100) };
-  } finally { rmSync(pasta, { recursive: true, force: true }); }
+  } finally { apagarSeguro(pasta); }
 }
 const resposta = (texto) => (texto.match(/RESPOSTA:\s*\**\s*([^\n*]+)/i)?.[1] ?? '').trim();
 const palavras = (t) => t.trim().split(/\s+/).filter(Boolean).length;

@@ -2,13 +2,14 @@
 // da página, grava os dados na pasta indicada e fecha o servidor junto. Dados numa pasta temporária.
 // Uso: node testes-e2e/desktop.e2e.mjs [caminho do Gyde.exe empacotado, ex.: dist-desktop/win-unpacked/Gyde.exe]
 import { spawn, execSync } from 'node:child_process';
-import { mkdtempSync, existsSync, rmSync, readFileSync } from 'node:fs';
+import { mkdtempSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { createRequire } from 'node:module';
 import { RAIZ, portaLivre } from './ajuda.mjs';
 import { MIGRACOES } from '../pacotes/servidor/migracoes.ts';
+import { apagarSeguro } from '../ferramentas/limpeza-segura.mjs';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let falhas = 0;
 const ok = (n, c, x = '') => { if (!c) falhas++; console.log(`${c ? 'PASSOU' : 'FALHOU'}  ${n}${x ? `  (${x})` : ''}`); };
@@ -105,6 +106,6 @@ for (let i = 0; i < 20 && !livre; i++) { try { await fetch(`http://127.0.0.1:${p
 ok('fechar o app desliga o servidor', livre, `${((Date.now() - tFecha) / 1000).toFixed(1)} s`);
 if (process.platform === 'win32') { try { execSync(`taskkill /PID ${app.pid} /T /F`, { stdio: 'ignore' }); } catch { /* já fechou */ } } else app.kill('SIGKILL');
 await sleep(800);
-try { rmSync(dados, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 }); } catch { /* arquivo preso */ }
+try { apagarSeguro(dados); } catch { /* arquivo preso */ }
 console.log(falhas ? `${falhas} FALHA(S)` : 'TUDO PASSOU');
 process.exit(falhas ? 1 : 0);

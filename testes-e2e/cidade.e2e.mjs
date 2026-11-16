@@ -4,11 +4,12 @@
 // se falharem, desligam em silêncio. A cidade reage à Forja (o prédio acende; arquivo novo vira prédio novo).
 // Também: outro projeto qualquer vira cidade, pasta sem git funciona sem cores, e pasta grande avisa o que ficou de fora.
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { subirServidor, abrirNavegador, clienteApi, placar, criarProjetoForja } from './ajuda.mjs';
 import { provedorFalso } from './provedor-falso.mjs';
+import { apagarSeguro } from '../ferramentas/limpeza-segura.mjs';
 
 const { ok, fim } = placar();
 const ia = await provedorFalso();
@@ -126,9 +127,16 @@ try {
     await navCartao.enviar('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] }); // câmera parada: o clique cai no prédio certo
     await abrirCidade(navCartao, projCartao, { extra: `localStorage.setItem('gyde-teste-cidade-ponto', '1');` });
     ok('cartão: a cidade abre e confere os prédios', await navCartao.esperar(`document.querySelector('.cidade-3d')?.dataset.verificacao === 'ok' && typeof document.querySelector('.cidade-3d').__pontoDe === 'function'`, 25_000));
+    // o ponto do prédio muda se o palco mudar de tamanho depois do cálculo (aconteceu no macOS do CI): antes de clicar,
+    // confere pela dica do cursor que o mouse está mesmo sobre o prédio, e recalcula o ponto se não estiver
     const clicarPredio = async (arquivo) => {
-      const p = JSON.parse(await navCartao.avaliar(`JSON.stringify(document.querySelector('.cidade-3d').__pontoDe(${JSON.stringify(arquivo)}))`));
-      await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p.x, y: p.y });
+      let p = null;
+      for (let tentativa = 0; tentativa < 4; tentativa++) {
+        p = JSON.parse(await navCartao.avaliar(`JSON.stringify(document.querySelector('.cidade-3d').__pontoDe(${JSON.stringify(arquivo)}))`));
+        await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p.x + 1, y: p.y });
+        await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseMoved', x: p.x, y: p.y });
+        if (await navCartao.esperar(`document.querySelector('.cidade-dica b')?.textContent === ${JSON.stringify(arquivo)}`, 1500)) break;
+      }
       await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mousePressed', x: p.x, y: p.y, button: 'left', clickCount: 1 });
       await navCartao.enviar('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p.x, y: p.y, button: 'left', clickCount: 1 });
       return navCartao.esperar(`document.querySelector('.cidade-cartao h3')?.textContent === ${JSON.stringify(arquivo)}`, 5000);
@@ -149,7 +157,7 @@ try {
     await navCartao.avaliar(`document.querySelector('.cidade-cartao-forja .btn').click()`);
     ok('cartão: "Pedir à Forja" escreve o pedido de melhorias', await navCartao.esperar(`document.querySelector('#agenteView textarea')?.value === 'Analise o arquivo calmo.js e sugira melhorias.'`, 5000));
     ok('cartão: sem erro de JavaScript', navCartao.erros.length === 0, navCartao.erros.slice(0, 3).join(' | '));
-  } finally { await navCartao.fechar(); rmSync(projCartao, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }); }
+  } finally { await navCartao.fechar(); apagarSeguro(projCartao); }
 
   // (1) outro projeto qualquer (Python, sem nada do Gyde) vira cidade sozinho; (2) sem git: funciona, sem cores;
   // (3) mais de 1.500 arquivos: avisa quantos ficaram de fora
@@ -178,7 +186,7 @@ try {
     ok('(3) 1.600 arquivos: avisa que 100 ficaram de fora', await nav3.esperar(`/1[.]600 arquivos.*1[.]500.*100 ficaram de fora/.test(document.querySelector('.cidade-aviso')?.textContent || '')`, 20_000), await nav3.avaliar(`document.querySelector('.cidade-aviso')?.textContent`));
     ok('(3) e mostra só 1.500 prédios', await nav3.avaliar(`document.querySelectorAll('.cidade-bairro tbody tr').length === 1500`));
     ok('sem erro de JavaScript nas outras pastas', nav3.erros.length === 0, nav3.erros.slice(0, 3).join(' | '));
-  } finally { await nav3.fechar(); for (const p of [outro, semGit, grande]) rmSync(p, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 }); }
+  } finally { await nav3.fechar(); for (const p of [outro, semGit, grande]) apagarSeguro(p); }
 
   const pc = await abrirNavegador({ webgl: true });
   try { await verificar(pc, 'computador', true); } finally { await pc.fechar(); }

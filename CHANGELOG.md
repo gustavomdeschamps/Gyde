@@ -3,7 +3,7 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
-## Ainda não lançado
+## 2.3.0
 
 ### Forja
 - A ação escrita no texto pelo modelo (`<tool_call>...`) vira ação, em vez de encerrar a tarefa no meio.
@@ -13,6 +13,11 @@ As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do 
 - Opção **Mostrar o plano da Forja antes de tarefas grandes** (Configurações > IA e modelos), desligada: a Forja escreve as
   etapas e espera você aprovar. Na medição, não acertou mais e usou mais rodadas.
 - Avaliação com 4 cenários difíceis e testes escondidos. Os números estão em [docs/avaliacao](docs/avaliacao/README.md).
+
+### Segurança dos scripts de limpeza
+- Os scripts de limpeza só apagam o que está numa lista explícita de caminhos permitidos e nunca seguem atalhos
+  (junction): o destino de um atalho fica intacto. Vale para as ferramentas do repositório e para o `limpar-antigos.ps1`.
+  Um teste novo falha se algum deles apagar fora da lista.
 
 ## 2.2.0
 
