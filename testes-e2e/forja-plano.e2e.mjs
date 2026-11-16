@@ -1,4 +1,4 @@
-// Plano da Forja em tarefa grande: aparece antes de qualquer mudança, com "Seguir o plano" e "Não seguir". Sem a
+// Plano da Forja em tarefa grande (opção de Configurações > IA e modelos, desligada por padrão): aparece antes de qualquer mudança, com "Seguir o plano" e "Não seguir". Sem a
 // aprovação nada roda; aprovado, a Forja segue. Tarefa pequena não mostra plano.
 import { subirServidor, abrirNavegador, clienteApi, placar, criarProjetoForja } from './ajuda.mjs';
 import { provedorFalso } from './provedor-falso.mjs';
@@ -10,6 +10,7 @@ const api = clienteApi(servidor.base);
 const conta = await api.criarConta({ nome: 'Estudante' });
 const proj = criarProjetoForja();
 const sessao = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta: proj.pasta })).json();
+const prefs = async (planoForja) => (await (await api.pedir('PUT', '/api/ia/preferencias', { planoForja })).json()).planoForja;
 const nav = await abrirNavegador();
 const { avaliar, esperar } = nav;
 const pedir = (texto) => avaliar(`(()=>{ const t = document.querySelector('#agenteView textarea'); t.value = ${JSON.stringify(texto)}; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('#agenteView form').requestSubmit(); return 1; })()`);
@@ -19,6 +20,9 @@ try {
   await nav.entrar(servidor.base, conta);
   await nav.ir(`${servidor.base}/?r=1#/agente/${sessao.id}`, 2500);
   await esperar(`document.querySelector('#agenteView textarea') !== null`);
+
+  ok('a opção vem desligada', (await (await api.pedir('GET', '/api/ia/preferencias')).json()).planoForja === false);
+  ok('ligar a opção', await prefs(true) === true);
 
   // recusar: nada roda
   await pedir(GRANDE);
@@ -46,6 +50,11 @@ try {
   await pedir('Corrija a função soma em soma.js e rode npm test.');
   await esperar(`document.querySelector('#agenteView .send').getAttribute('aria-label') !== 'Parar' && document.querySelectorAll('.forja-turno').length === 3`, 60_000);
   ok('tarefa pequena: nenhum plano novo', await avaliar(`document.querySelectorAll('.forja-plano').length`) === planosAntes);
+  // opção desligada: nem a tarefa grande mostra plano
+  await prefs(false);
+  await pedir(GRANDE);
+  await esperar(`document.querySelector('#agenteView .send').getAttribute('aria-label') !== 'Parar' && document.querySelectorAll('.forja-turno').length === 4`, 60_000);
+  ok('opção desligada: tarefa grande sem plano', await avaliar(`document.querySelectorAll('.forja-plano').length`) === planosAntes);
   ok('sem erro de JavaScript', nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
 } finally { await nav.fechar(); await servidor.parar(); await ia.fechar(); proj.apagar(); }

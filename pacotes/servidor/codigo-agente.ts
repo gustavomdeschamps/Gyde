@@ -753,7 +753,8 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       const decisaoDe = (t: string) => normalizar(extrairJson(t)) ?? normalizar(extrairJson(acoesDoTexto(t)));
       let terminou = false;
       // tarefa grande: planeja antes de mexer, mostra o plano e só segue com a aprovação da pessoa
-      if (pedeMudanca && ehTarefaGrande(tarefa) && !imagens.length) {
+      // só com a opção ligada em Configurações > IA e modelos: na medição, o plano não melhorou o resultado e dobrou as rodadas
+      if (prefs.planoForja && pedeMudanca && ehTarefaGrande(tarefa) && !imagens.length) {
         registrar('pensando', { passo: 0 });
         const r = await completar(router, {
           cadeia: cadeiaDaRodada(), messages: [{ role: 'system', content: `${SISTEMA_PLANO}${msgs[0]!.content.slice(SYSTEM.length)}` }, { role: 'user', content: textoInicial }],

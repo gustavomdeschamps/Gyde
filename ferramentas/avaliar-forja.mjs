@@ -44,6 +44,8 @@ const email = `aval-${Date.now()}@t.test`;
 await pedir('POST', '/api/auth/register', { name: 'Avaliação', email, password: 'teste2026x' });
 await pedir('POST', '/api/auth/login', { email, password: 'teste2026x' });
 await pedir('POST', '/api/profile/skip', {});
+// --plano: liga "Mostrar o plano da Forja antes de tarefas grandes" (o plano é aprovado automaticamente, como a pessoa faria)
+if (process.argv.includes('--plano')) await pedir('PUT', '/api/ia/preferencias', { planoForja: true });
 
 // ---------- projetos dos cenários ----------
 function criarPasta(arquivos, { git = false, depoisDoCommit = {} } = {}) {
