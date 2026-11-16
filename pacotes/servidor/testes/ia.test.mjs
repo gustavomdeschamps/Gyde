@@ -16,7 +16,7 @@ import { selecionarHistorico, tamanhoDe, LIMITE_HISTORICO } from '../ia/contexto
 import { criarFiltro, limparResposta } from '../ia/filtro.ts';
 import { lerExtras } from '../ia/adaptadores.ts';
 import { completar, extrairJson } from '../motor.ts';
-import { acaoDaChamadaRecusada } from '../provedores.ts';
+import { acaoDaChamadaRecusada, acoesDoTexto } from '../provedores.ts';
 import { sistemaDoChat, IDENTIDADE, POR_TAREFA } from '../ia/prompts.ts';
 
 const med = (acertos, respondidas, limites = 0, ms = 1000) => ({ acertos, respondidas, limites, ms });
@@ -253,6 +253,19 @@ test('chamada recusada: só ferramentas da Forja (e apelidos comuns) viram açã
   assert.equal(acaoDaChamadaRecusada('{"name":"container.exec","arguments":{"cmd":["bash"]}}'), null);
   assert.equal(acaoDaChamadaRecusada('{"name":"ler","arguments":[1]}'), null);
   assert.equal(acaoDaChamadaRecusada('não é json'), null);
+});
+
+test('chamada de ferramenta escrita no texto (<tool_call>) vira ação da Forja, e não resposta final', () => {
+  // formato GLM, como veio de um modelo grátis numa medição (a Forja encerrava a tarefa no meio)
+  const glm = JSON.parse(acoesDoTexto('Vou ler o arquivo:<tool_call>ler<arg_key>caminho</arg_key><arg_value>src/modelo.js</arg_value></tool_call>'));
+  assert.deepEqual(glm.acoes, [{ ferramenta: 'ler', args: { caminho: 'src/modelo.js' } }]);
+  const varias = JSON.parse(acoesDoTexto('<tool_call>ler<arg_key>caminho</arg_key><arg_value>a.js</arg_value><arg_key>inicio</arg_key><arg_value>10</arg_value></tool_call><tool_call>executar<arg_key>comando</arg_key><arg_value>npm test</arg_value></tool_call>'));
+  assert.deepEqual(varias.acoes, [{ ferramenta: 'ler', args: { caminho: 'a.js', inicio: 10 } }, { ferramenta: 'executar', args: { comando: 'npm test' } }]);
+  // formato Qwen/Hermes, com JSON dentro
+  assert.equal(JSON.parse(acoesDoTexto('<tool_call>{"name": "read", "arguments": {"caminho": "b.js"}}</tool_call>')).acoes[0].ferramenta, 'ler');
+  // ferramenta desconhecida ou texto comum: nada
+  assert.equal(acoesDoTexto('<tool_call>container.exec<arg_key>cmd</arg_key><arg_value>bash</arg_value></tool_call>'), null);
+  assert.equal(acoesDoTexto('**O que fiz** Corrigi o arquivo.'), null);
 });
 
 const REVISOR = /revisor técnico independente/;

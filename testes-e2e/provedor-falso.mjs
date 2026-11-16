@@ -19,6 +19,15 @@ function forja(mensagens) {
       ? { pensamento: 'Vou rodar o comando pedido.', acoes: [{ ferramenta: 'executar', args: { comando: 'node -e "setTimeout(() => {}, 60000)"' } }] }
       : { pensamento: 'Terminei.', resposta: '**O que fiz**\nRodei o comando.' };
   }
+  // PLANO-GRANDE: tarefa grande (a Forja planeja antes); depois do plano aprovado, lê, corrige e responde
+  if (/PLANO-GRANDE/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Sigo o plano: leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] },
+      { pensamento: 'Corrijo.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a - b', substituir: 'a + b' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nSegui o plano e corrigi a soma.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
   // CIDADE-AO-VIVO: lê soma.js, corrige e cria um arquivo novo num bairro que já existe (a Cidade reage a cada passo)
   if (/CIDADE-AO-VIVO/.test(tarefa)) {
     const roteiro = [
@@ -101,6 +110,10 @@ export async function provedorFalso() {
       const achou = /REVISAR-ERRO/.test(pedido) && !revisoes.has('feita');
       if (achou) revisoes.add('feita');
       return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify({ problemas: achou ? [{ gravidade: 'alta', onde: 'soma', erro: 'falta tratar lista vazia', correcao: 'devolva 0' }] : [] }) } }] });
+    }
+    // plano de uma tarefa grande (antes de a Forja mexer em qualquer coisa)
+    if (/^Você planeja uma tarefa/.test(textoDe(mensagens[0]?.content))) {
+      return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: JSON.stringify({ etapas: ['Ler soma.js', 'Corrigir a conta da soma', 'Rodar os testes'], arquivos: ['soma.js'] }) } }] });
     }
     if (/Você é a Forja/.test(textoDe(mensagens[0]?.content))) {
       // CIDADE-AO-VIVO anda devagar, para dar tempo de a Cidade abrir e mostrar cada passo

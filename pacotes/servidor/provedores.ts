@@ -51,6 +51,32 @@ export function acaoDaChamadaRecusada(tentativa: unknown): string | null {
   return JSON.stringify({ pensamento: '', acoes: [{ ferramenta, args }] });
 }
 
+// Alguns modelos escrevem a chamada de ferramenta no próprio texto, em vez do JSON da Forja:
+//   <tool_call>ler<arg_key>caminho</arg_key><arg_value>src/a.js</arg_value></tool_call>   (formato GLM)
+//   <tool_call>{"name": "ler", "arguments": {"caminho": "src/a.js"}}</tool_call>          (formato Qwen/Hermes)
+// Antes, a Forja tratava isso como resposta final e encerrava a tarefa no meio. Devolve as ações no formato da Forja.
+export function acoesDoTexto(texto: unknown): string | null {
+  const acoes: { ferramenta: string; args: Record<string, unknown> }[] = [];
+  for (const m of String(texto ?? '').matchAll(/<tool_call>([\s\S]*?)(?:<\/tool_call>|$)/g)) {
+    const corpo = m[1]!.trim();
+    if (corpo.startsWith('{')) {
+      const a = acaoDaChamadaRecusada(corpo);
+      if (a) acoes.push(...(JSON.parse(a) as { acoes: typeof acoes }).acoes);
+      continue;
+    }
+    const nome = (/^([\w-]+)/.exec(corpo)?.[1] ?? '').toLowerCase();
+    const ferramenta = FERRAMENTAS_FORJA.has(nome) ? nome : APELIDOS_FERRAMENTA[nome];
+    if (!ferramenta) continue;
+    const args: Record<string, unknown> = {};
+    for (const p of corpo.matchAll(/<arg_key>\s*([\w-]+)\s*<\/arg_key>\s*<arg_value>([\s\S]*?)<\/arg_value>/g)) {
+      const v = p[2]!;
+      args[p[1]!] = /^-?\d+$/.test(v.trim()) ? Number(v.trim()) : v;
+    }
+    acoes.push({ ferramenta, args });
+  }
+  return acoes.length ? JSON.stringify({ pensamento: '', acoes: acoes.slice(0, 8) }) : null;
+}
+
 export interface OpcoesProvedores { routerUrl: string; routerKey: string; ollamaUrl: string; ollamaModelo: string; modo: string; uso?: Uso; desempenho?: Desempenho; extras?: ProvedorExtraLido[] }
 export function criarProvedores({ routerUrl, routerKey: chaveInicial, ollamaUrl, ollamaModelo, modo, uso, desempenho, extras = [] }: OpcoesProvedores) {
   let routerKey = chaveInicial; // pode mudar sem reiniciar (Configurações > IA)

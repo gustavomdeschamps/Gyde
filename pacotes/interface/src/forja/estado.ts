@@ -9,7 +9,7 @@ export interface EtapaAcao {
   tipo: 'acao'; nome: string; args: Record<string, unknown>; pensamento: string;
   estado: 'rodando' | 'ok' | 'falhou' | 'interrompido'; resumo?: string; saida?: string; diff?: Diff;
 }
-export interface EtapaConfirmacao { tipo: 'confirmacao'; id: string; acao: string; motivo: string; resposta: boolean | null; aoVivo: boolean }
+export interface EtapaConfirmacao { tipo: 'confirmacao'; id: string; acao: string; motivo: string; resposta: boolean | null; aoVivo: boolean; plano?: string[] }
 export interface EtapaRevisao { tipo: 'revisao'; problemas: number; modelo: string }
 export type Etapa = EtapaAcao | EtapaConfirmacao | EtapaRevisao;
 
@@ -72,7 +72,7 @@ export function aplicar(itens: Item[], ev: Evento, aoVivo = false, agora = Date.
       break;
     }
     case 'confirmar':
-      turno.etapas.push({ tipo: 'confirmacao', id: String(ev.id), acao: String(ev.acao ?? ''), motivo: String(ev.motivo ?? ''), resposta: null, aoVivo });
+      turno.etapas.push({ tipo: 'confirmacao', id: String(ev.id), acao: String(ev.acao ?? ''), motivo: String(ev.motivo ?? ''), resposta: null, aoVivo, ...(Array.isArray(ev.plano) ? { plano: ev.plano.map(String) } : {}) });
       break;
     case 'confirmacao': {
       const c = turno.etapas.find((e): e is EtapaConfirmacao => e.tipo === 'confirmacao' && e.id === ev.id);

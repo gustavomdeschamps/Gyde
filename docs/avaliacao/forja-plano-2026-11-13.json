@@ -1,0 +1,98 @@
+{
+  "em": "2026-11-13T05:40:31.668Z",
+  "codigo": "atual",
+  "repeticoes": 4,
+  "resultados": [
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 2,
+      "ok": false,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": false,
+        "testes cobrem a categoria": false
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 19084,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null,
+      "respostaFinal": "Desculpe, vou ler os arquivos corretamente."
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 9,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 11,
+      "ms": 52483,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 6,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 11,
+      "ms": 53978,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 6,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 8,
+      "ms": 36400,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    }
+  ]
+}

@@ -79,15 +79,20 @@
       {:else if e.tipo === 'revisao'}
         <p class="forja-revisao">{e.problemas ? `Outro modelo leu as mudanças e apontou ${e.problemas === 1 ? '1 ponto para conferir' : `${e.problemas} pontos para conferir`}.` : 'Outro modelo leu as mudanças e não apontou problemas.'}</p>
       {:else}
-        <div class="forja-confirmar" class:aprovado={e.resposta === true} class:recusado={e.resposta === false} role="group" aria-label="Confirmação">
+        <div class="forja-confirmar" class:aprovado={e.resposta === true} class:recusado={e.resposta === false} class:forja-plano={e.plano} role="group" aria-label={e.plano ? 'Plano da Forja' : 'Confirmação'}>
           <span class="forja-confirmar-ic">{@html ic.escudo}</span>
-          <div><b>A Forja quer: {e.acao}</b><small>Precisa da sua autorização porque {e.motivo}.</small></div>
+          {#if e.plano}
+            <div><b>Plano da Forja</b><small>É uma tarefa grande: confira antes de ela mexer nos arquivos.</small>
+              <ol>{#each e.plano as etapa}<li>{etapa}</li>{/each}</ol></div>
+          {:else}
+            <div><b>A Forja quer: {e.acao}</b><small>Precisa da sua autorização porque {e.motivo}.</small></div>
+          {/if}
           <div class="forja-confirmar-botoes">
-            {#if e.resposta === true}<span class="forja-confirmar-estado">✓ Permitido</span>
-            {:else if e.resposta === false}<span class="forja-confirmar-estado">✕ Não permitido</span>
+            {#if e.resposta === true}<span class="forja-confirmar-estado">✓ {e.plano ? 'Plano aprovado' : 'Permitido'}</span>
+            {:else if e.resposta === false}<span class="forja-confirmar-estado">✕ {e.plano ? 'Plano recusado' : 'Não permitido'}</span>
             {:else if e.aoVivo}
-              <button type="button" class="btn small" onclick={() => onconfirmar(e.id, false)}>Não permitir</button>
-              <button type="button" class="btn primary small" onclick={() => onconfirmar(e.id, true)}>Permitir</button>
+              <button type="button" class="btn small" onclick={() => onconfirmar(e.id, false)}>{e.plano ? 'Não seguir' : 'Não permitir'}</button>
+              <button type="button" class="btn primary small" onclick={() => onconfirmar(e.id, true)}>{e.plano ? 'Seguir o plano' : 'Permitir'}</button>
             {:else}<span class="forja-confirmar-estado">sem resposta</span>{/if}
           </div>
         </div>
