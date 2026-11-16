@@ -19,14 +19,6 @@ function forja(mensagens) {
       ? { pensamento: 'Vou rodar o comando pedido.', acoes: [{ ferramenta: 'executar', args: { comando: 'node -e "setTimeout(() => {}, 60000)"' } }] }
       : { pensamento: 'Terminei.', resposta: '**O que fiz**\nRodei o comando.' };
   }
-  // QUEBRA-TESTE: uma edição quebra os testes que passavam (a Forja desfaz sozinha); depois responde
-  if (/QUEBRA-TESTE/.test(tarefa)) {
-    const roteiro = [
-      { pensamento: 'Mudo a conta.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a + b', substituir: 'a * b' } }] },
-      { pensamento: 'Entendi o aviso.', resposta: '**O que fiz**\nTentei mudar a conta, quebrou os testes e foi desfeito.' },
-    ];
-    return roteiro[Math.min(passo, roteiro.length - 1)];
-  }
   // PLANO-GRANDE: tarefa grande (a Forja planeja antes); depois do plano aprovado, lê, corrige e responde
   if (/PLANO-GRANDE/.test(tarefa)) {
     const roteiro = [

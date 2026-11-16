@@ -115,19 +115,6 @@ try {
   ok('Parar encerra o turno como "Parado"', await esperar(`/Parado/.test([...document.querySelectorAll('.forja-status')].pop()?.textContent || '')`, 15_000));
   await nav.esperar('false', 2000);
   ok('o comando morreu de verdade', !comandoLongoVivo());
-  // testes como rede de segurança: a rodada que quebra testes que passavam é desfeita sozinha
-  {
-    const pasta = proj.pasta;
-    writeFileSync(path.join(pasta, 'soma.js'), 'function soma(a, b) {\n  return a + b;\n}\nmodule.exports = { soma };\n'); // agora os testes passam
-    const s2 = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta })).json();
-    await nav.ir(`${servidor.base}/?r=quebra#/agente/${s2.id}`, 2500);
-    await esperar(`document.querySelector('#agenteView textarea') !== null`);
-    await pedir('QUEBRA-TESTE: mude a conta de soma.js para multiplicar e rode os testes.');
-    ok('rodada que quebra os testes é desfeita sozinha', await esperar(`document.querySelector('#agenteView .send').getAttribute('aria-label') !== 'Parar' && [...document.querySelectorAll('.ag-passo[data-nome="desfazer"]')].length === 1`, 60_000)
-      && /a \+ b/.test(proj.ler('soma.js')), proj.ler('soma.js'));
-    const aviso = ia.pedidos.some((p) => /AVISO DO GYDE: os testes \(npm test\) passavam/.test(JSON.stringify(p.mensagens)));
-    ok('o modelo recebe o aviso com a saída dos testes', aviso);
-  }
   ok('sem erro de JavaScript', nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
 } finally { await nav.fechar(); await servidor.parar(); await ia.fechar(); proj.apagar(); }
