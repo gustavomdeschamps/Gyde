@@ -52,9 +52,12 @@ export function notaSkill(s: TSkill, busca: string): number {
   return nota;
 }
 
-/** Texto honesto do teste: % de critérios cumpridos com e sem a skill e o tamanho da amostra. */
+/** Texto honesto da medição por resultado: nota com e sem a skill, amostra e incerteza. */
 export function textoDoTeste(t: TSkill['teste'], curto = false): string {
-  if (!t || t.com == null || t.sem == null) return curto ? 'Ainda não testada' : 'Esta skill ainda não passou pela avaliação com e sem ela.';
-  if (curto) return `Testada: ${t.com}% com ela, ${t.sem}% sem`;
-  return `Na avaliação, a mesma tarefa cumpriu ${t.com}% dos critérios com a skill e ${t.sem}% sem ela (${t.criterios} critérios, ${t.n} ${t.n === 1 ? 'execução' : 'execuções'} de cada lado). Amostra pequena: serve para comparar, não é garantia.`;
+  if (!t) return curto ? 'Sem teste de resultado' : 'Esta skill ainda não tem uma tarefa de resultado (código, consulta ou página conferidos de verdade) para medir se ela ajuda.';
+  if (curto) return t.veredito === 'melhora' ? `Testada: ${t.com}% com ela, ${t.sem}% sem` : `Tendência: ${t.com}% com ela, ${t.sem}% sem`;
+  const certeza = t.veredito === 'melhora'
+    ? 'A melhora se manteve em todo o intervalo de incerteza.'
+    : 'O intervalo de incerteza inclui zero: a amostra ainda é pequena para afirmar que ela ajuda.';
+  return `Numa tarefa separada, conferida rodando o resultado (código, consulta ou página), a nota média foi ${t.com}% com a skill e ${t.sem}% sem (${t.nCom} e ${t.nSem} execuções). Diferença de ${t.diferenca} pontos; intervalo de 90%: de ${t.intervalo90[0]} a ${t.intervalo90[1]}. ${certeza}`;
 }

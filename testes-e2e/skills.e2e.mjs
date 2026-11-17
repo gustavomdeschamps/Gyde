@@ -31,23 +31,23 @@ await send('Page.navigate', { url: `${BASE}/?r=1#/skills` }); await sleep(2500);
 // catálogo e instalar
 await espera(`document.querySelector('#skillsView .tab') !== null`, 15000);
 const total = await aba('Catálogo');
-ok('catálogo carrega com abas e contagens', total >= 50 && await aba('Instaladas') === 0, `${total} skills`);
-ok('página inicial do catálogo: para começar, pacotes e filtros por categoria', await espera(`document.querySelectorAll('.sk-pacote').length >= 5 && document.querySelectorAll('.sk-filtros button').length === 12 && /Para começar/.test(document.querySelector('#skillsView').textContent)`));
-ok('cartões com ícone do conjunto (decorativo), selo de categoria e resultado do teste', await ev(`[...document.querySelectorAll('#skillsView .sk-cartao')].every((c) => c.querySelector('.sk-marca svg.icone[aria-hidden="true"]') && c.querySelector('.sk-selo') && /testada/i.test(c.querySelector('.sk-teste').textContent))`));
+ok('catálogo carrega com abas e contagens', total >= 15 && await aba('Instaladas') === 0, `${total} skills`);
+ok('página inicial do catálogo: para começar, pacotes e filtros por categoria', await espera(`document.querySelectorAll('.sk-pacote').length >= 4 && document.querySelectorAll('.sk-filtros button').length >= 8 && /Para começar/.test(document.querySelector('#skillsView').textContent)`));
+ok('cartões com ícone do conjunto (decorativo), selo de categoria e resultado do teste', await ev(`[...document.querySelectorAll('#skillsView .sk-cartao')].every((c) => c.querySelector('.sk-marca svg.icone[aria-hidden="true"]') && c.querySelector('.sk-selo') && /Testada|Tendência|Sem teste de resultado/.test(c.querySelector('.sk-teste').textContent))`));
 // filtro por categoria
-await clicar('.sk-filtros button', 'Banco de dados');
-ok('filtro por categoria mostra só as dela', await espera(`[...document.querySelectorAll('.sk-secao:last-child .sk-cartao .sk-selo')].every((x) => x.textContent === 'Banco de dados') && document.querySelectorAll('.sk-secao:last-child .sk-cartao').length >= 3`));
+await clicar('.sk-filtros button', 'Dados e planilhas');
+ok('filtro por categoria mostra só as dela', await espera(`[...document.querySelectorAll('.sk-secao:last-child .sk-cartao .sk-selo')].every((x) => x.textContent === 'Dados e planilhas') && document.querySelectorAll('.sk-secao:last-child .sk-cartao').length >= 3`));
 await clicar('.sk-filtros button', 'Todas');
-// "quero fazer um site" chega no pacote certo sem procurar skill por skill
-await preencher('#skQuero', 'quero fazer um site');
-ok('busca por objetivo tira o "quero" repetido e acha o pacote Criar um site', await espera(`document.querySelector('#skQuero').value === 'fazer um site' && /Criar um site/.test(document.querySelector('.sk-pacote h3')?.textContent || '')`));
+// "quero analisar dados" chega no pacote certo sem procurar skill por skill
+await preencher('#skQuero', 'quero analisar dados');
+ok('busca por objetivo tira o "quero" repetido e acha o pacote Analisar dados', await espera(`document.querySelector('#skQuero').value === 'analisar dados' && /Analisar dados/.test(document.querySelector('.sk-pacote h3')?.textContent || '')`));
 await clicar('.sk-pacote .btn.primary', 'Instalar');
-ok('instalar o pacote instala as 4 skills de uma vez', await espera(`document.querySelector('.sk-pacote .btn.installed') !== null`) && await aba('Instaladas') === 4);
+ok('instalar o pacote instala as 3 skills de uma vez', await espera(`document.querySelector('.sk-pacote .btn.installed') !== null`) && await aba('Instaladas') === 3);
 await preencher('#skQuero', 'zzzz');
 ok('busca sem resultado orienta e oferece criar', await espera(`/Nenhuma skill sobre/.test(document.querySelector('#skillsView').textContent)`));
 await preencher('#skQuero', '');
 // volta ao estado do resto do teste: nada instalado
-await ev(`(async()=>{ for (const id of ['front-end','design-visual','acessibilidade-web','publicar-site']) await fetch('/api/skills/' + id + '/install', { method: 'DELETE', headers: ${H} }); return 1; })()`);
+await ev(`(async()=>{ for (const id of ['analise-pandas','graficos-dados','planilhas-formulas']) await fetch('/api/skills/' + id + '/install', { method: 'DELETE', headers: ${H} }); return 1; })()`);
 await send('Page.navigate', { url: `${BASE}/?r=1b#/skills` }); await sleep(2000);
 await espera(`document.querySelector('#skillsView .sk-cartao') !== null`, 15000);
 await ev(`document.querySelector('#skillsView .sk-cartao .btn.primary').click()`);

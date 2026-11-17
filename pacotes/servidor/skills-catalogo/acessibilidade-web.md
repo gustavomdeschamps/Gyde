@@ -12,7 +12,8 @@ gatilhos: acessibilidade, acessível, leitor de tela, wcag, aria, teclado, defic
 2. Use elementos nativos: `<button>` para ações e `<a href>` para navegação.
 3. Dê nome acessível: `<label for>` nos campos, `alt` nas imagens, `aria-label` em botões só com ícone.
 4. Ícone decorativo leva `aria-hidden="true"`.
-5. Mostre o código corrigido e uma tabela "problema | correção".
+5. Contraste de pelo menos 4,5:1 em todo texto, inclusive o dos botões (branco sobre #1d4ed8 dá cerca de 6:1; branco sobre #3b82f6 não passa).
+6. Se entregar a página inteira: `<html lang="pt-BR">`, `<title>` e `<meta name="viewport">`. Mostre o código completo corrigido.
 ## Checklist
 - Nenhum `div` ou `span` com `onclick` no lugar de botão.
 - Foco visível (`:focus-visible`), nunca `outline: none` sem substituto.

@@ -137,46 +137,80 @@ Quatro cenários, 3 tentativas cada, conferidos no disco no fim:
 
 A diferença de um cenário está dentro da variação. O ganho medido não é de qualidade, e a revisão pode alongar uma tarefa.
 
-## Skills: a mesma tarefa com e sem a skill (17/11/2026)
+## Skills e agentes medidos por RESULTADO (17/11/2026)
 
-`ferramentas/avaliar-skills.mjs`, com NVIDIA + Groq. Cada skill tem um pedido do assunto e de 3 a 6 critérios objetivos
-(`ferramentas/cenarios-skills.mjs`): conferências no texto (tem tabela de rotas? usa `LEFT JOIN`? cita `.gitignore`?) e,
-em algumas, o código da resposta roda de verdade (a regex aceita e recusa os exemplos certos, a função do jogo da velha
-acha o vencedor, os testes escritos pegam uma versão com defeito, a refatoração devolve o mesmo resultado). O texto da
-skill que entra no pedido é o mesmo que o chat usa, com o mesmo limite.
+A medição da 2.4.0 conferia sobretudo se a resposta seguia o formato que a própria skill manda (por isso tantos "sem a
+skill" davam 0%). Esta substitui aquela (que continua no histórico do git). `ferramentas/avaliar-resultado.mjs`, com
+NVIDIA + Groq, nos mesmos modelos para os dois lados:
 
-- **56 skills, 2 execuções com e 2 sem cada uma** (3 e 3 nas 4 que precisaram de nova medição). Todas cumpriram mais
-  critérios com a skill. Mediana: 100% com a skill e 50% sem.
-- **Menor ganho:** api-rest, graficos-dados, json-csv e modelagem-banco (12 pontos), senhas-seguras (13: com a skill,
-  38%; o modelo ainda esquece o limite de tentativas e o cookie HttpOnly), layout-css (16).
-- **Não melhoraram na primeira medição e foram reescritas:** banco-no-codigo, componentes-react e jogo-python (o modelo
-  já cumpria tudo sem a skill: elas ganharam o que os modelos costumam esquecer, como conferir as linhas afetadas, o
-  `aria-pressed` e o movimento por `dt`) e testes-automatizados (empatou em 67%; o comando para rodar e a mensagem do
-  erro ficaram explícitos). Depois da reescrita: 100/67, 100/73, 94/56 e 100/33.
-- **Tamanho:** a mediana do texto da skill no pedido foi 1.054 caracteres (máximo 1.320), dentro do limite de 1.500.
-- **Os critérios conferem o que cada skill promete.** Uma resposta boa sem a skill pode ser útil e ainda assim não
-  cumprir o checklist; o número mede se a skill muda a resposta, não se a resposta sem ela é ruim.
+- **Conjunto separado:** 38 tarefas novas (`ferramentas/tarefas-resultado.mjs`), que não foram usadas para escrever
+  nem para testar as skills.
+- **Nota pelo resultado, não pelo formato:** o código da resposta roda com casos escondidos; a consulta SQL roda num banco
+  e o resultado é comparado; o modelo de banco recebe inserções que precisam passar ou falhar; a página passa no axe-core
+  (WCAG A e AA) num navegador e é medida em 375 px; os comandos de git rodam num repositório temporário; o script Python
+  move arquivos de verdade; os tipos do JSDoc são conferidos pelo TypeScript. Nota = fração das conferências que passaram.
+- **Sem depender do formato:** cada conferência dá a mesma nota com o código em bloco, dentro da linha ou solto no texto
+  (`ferramentas/conferir-tarefas-resultado.mjs` prova isso com respostas de referência, e o teste automático também).
+- **5 execuções com e 5 sem** cada skill e cada agente, por tarefa. Incerteza: intervalo de 90% da diferença por
+  reamostragem (bootstrap). "Melhora" quando o intervalo inteiro fica acima de zero; "tendência" quando a diferença é
+  positiva mas o intervalo inclui zero.
 
-Detalhe de cada execução: [skills-2026-11-17.json](skills-2026-11-17.json). O catálogo mostra o resultado de cada skill.
+**Correções feitas durante a medição (todas valem para os dois lados, e a medição foi refeita depois de cada uma):**
+1. A conferência só lia código em bloco (```); respostas certas com o código dentro da linha ou solto tiravam 0.
+2. A página solta no texto (sem bloco) não era encontrada.
+3. As conferências de página rodavam em paralelo na mesma aba do navegador: uma trocava a página no meio da medida da
+   outra. Agora usam a aba uma de cada vez. As medidas de página anteriores a isso foram descartadas.
+4. O limite de 3.000 tokens cortava páginas longas; o chat não tem esse limite, então a medição passou a 8.000.
+5. O Python, rodando pelo teste no Windows, quebrava ao imprimir acentos e setas (no terminal da pessoa não quebra):
+   passou a rodar em UTF-8.
+6. Uma tarefa deixava o ambiente ambíguo (navegador ou servidor) e passou a dizer "servidor, em Node".
 
-## Agentes especializados do chat (17/11/2026)
+**Reescritas antes do resultado final:** depurador e revisão de código (passaram a entregar a função inteira corrigida,
+e não só a linha), node-express (um arquivo só, sem pacote extra), banco-no-codigo (a API certa do node:sqlite, que não
+tem `db.transaction`), regex, json-csv, acessibilidade, formulário, front-end, layout e o agente de segurança.
 
-`ferramentas/avaliar-agentes.mjs`, com NVIDIA + Groq: os mesmos pedidos e critérios das skills do assunto de cada
-agente, com e sem o papel. Nenhum agente faz chamada a mais: ele muda as instruções do modelo que responde.
+### Resultado final
 
-| Agente | Critérios com / sem | Tempo mediano com / sem | Execuções de cada lado |
-|---|---|---|---|
-| Depurador | 67% / 44% | 1,3 s / 2,1 s | 3 |
-| Testador | 92% / 42% | 2,3 s / 2,4 s | 3 |
-| Revisor de segurança | 69% / 52% | 3,3 s / 3,2 s | 9 |
-| Explicador para iniciantes | 75% / 42% | 1,9 s / 2,5 s | 6 |
-| Documentador | 81% / 72% | 3,1 s / 3,5 s | 9 |
-| Designer de interface | 69% / 42% | 7,3 s / 3,3 s | 9 |
-| Planejador | 100% / 0% | 6,3 s / 2,6 s | 3 |
+Melhoraram e ficaram:
 
-Todos ficaram. O Designer e o Planejador deixam a resposta mais longa e cerca de 2 vezes mais lenta; ficaram porque o
-acerto subiu muito. Uma pergunta simples, conversa, texto ou imagem não chama agente nenhum. Detalhe:
-[agentes-2026-11-17.json](agentes-2026-11-17.json).
+| Skill ou agente | Nota com / sem | Diferença (intervalo de 90%) | Execuções com / sem | Veredito | No catálogo |
+|---|---|---|---|---|---|
+| changelog-versoes | 100% / 60% | +40 (20 a 50) | 5 / 5 | melhora | fica |
+| banco-no-codigo | 75% / 50% | +25 (25 a 25) | 5 / 5 | melhora | fica |
+| estatistica-basica | 93% / 73% | +20 (7 a 33) | 5 / 5 | melhora | fica |
+| regex | 78% / 63% | +15 (0 a 30) | 5 / 5 | tendência | fica |
+| acessibilidade-web | 100% / 93% | +7 (3 a 13) | 10 / 10 | melhora | fica |
+
+Não melhoraram (ficaram iguais ou piores) e saíram:
+
+| Skill ou agente | Nota com / sem | Diferença (intervalo de 90%) | Execuções com / sem | Veredito | No catálogo |
+|---|---|---|---|---|---|
+| design-visual | 85% / 85% | 0 (-15 a 15) | 5 / 5 | não melhora | saiu |
+| agente seguranca | 99% / 100% | -1 (-3 a 0) | 20 / 20 | não melhora | saiu |
+| senhas-seguras | 96% / 100% | -4 (-12 a 0) | 5 / 5 | não melhora | saiu |
+| json-csv | 95% / 100% | -5 (-15 a 0) | 5 / 5 | não melhora | saiu |
+| landing-page | 80% / 85% | -5 (-15 a 5) | 5 / 5 | não melhora | saiu |
+| agente designer | 79% / 88% | -9 (-16 a -1) | 20 / 20 | não melhora | saiu |
+| layout-css | 67% / 80% | -13 (-27 a 0) | 5 / 5 | não melhora | saiu |
+
+Também saíram, porque o modelo já acertava 100% das conferências sem elas (5 execuções de cada lado): agente depurador, agente documentador, agente iniciante, agente testador, api-rest, app-celular, conflitos-git, consumir-api, desempenho-codigo, documentador, explicador-erros, formulario-web, front-end, git-sem-medo, github-actions, indices-consultas, injecao-xss, jogo-canvas, ler-codigo, limpar-dados, linha-de-comando, logica-de-jogo, logica-programacao, modelagem-banco, node-express, publicar-site, refatorador, revisao-seguranca, revisor-codigo, scripts-arquivos, segredos-env, sql-na-pratica, tarefas-agendadas, testes-automatizados.
+
+**De onde vêm os números:** as tarefas de página e as das skills reescritas por último vêm da última rodada; as outras, da
+rodada anterior, já com as conferências corrigidas (a única mudança depois dela foi a fila do navegador, que só afeta
+páginas). **Repetição:** changelog-versoes deu +40 nas duas rodadas válidas; estatistica-basica (+20) e regex (+15)
+não mostraram ganho na rodada anterior. Trate esses dois como incertos.
+
+**O que isso quer dizer:** com os modelos grátis de hoje (os primeiros da fila foram nemotron-3-ultra, gpt-oss-120b e
+laguna-xs), as tarefas comuns de programação já saem certas sem skill nem agente. Onde a skill ajudou, foi em detalhe que
+o modelo erra sozinho (o número da versão pelo SemVer, a API do node:sqlite, a mediana com valor extremo, o contraste do
+botão). Amostra pequena: 5 execuções de cada lado, numa tarefa por skill (duas em algumas). "Tendência" não é prova.
+
+**Não medidas por resultado** (sem tarefa com resultado objetivo; continuam no catálogo, marcadas "Sem teste de
+resultado"): análise com pandas e Flask (o Python desta máquina não tem as bibliotecas), jogo em Python, fórmulas de
+planilha, gráficos, componentes React, planejar projeto, depurar com perguntas, commits, README, documentar API,
+entrevista, explicar conceito, exercícios, plano de estudos, design de jogo e o agente Planejador.
+
+Detalhe de cada execução: [resultado-2026-11-17.json](resultado-2026-11-17.json).
 
 ### Forja mais forte (13 a 16/11/2026)
 

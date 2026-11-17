@@ -162,7 +162,7 @@
     <h3><a href="#/skills/{s.id}">{s.nome}</a></h3>
     <p class="sk-desc">{s.descricao}</p>
     <div class="sk-cartao-pe">
-      <span class="sk-teste" class:sem-teste={!s.teste}>{@html svgIcone('flask-conical')}{s.origem === 'minha' ? 'Feita por você' : textoDoTeste(s.teste, true)}</span>
+      <span class="sk-teste" class:sem-teste={s.teste?.veredito !== 'melhora'}>{@html svgIcone('flask-conical')}{s.origem === 'minha' ? 'Feita por você' : textoDoTeste(s.teste, true)}</span>
       {@render botaoInstalar(s)}
     </div>
   </article>
@@ -202,7 +202,7 @@
         {#if s.comando}<div><small>Comando</small><code class="cmd">{s.comando}</code></div>{/if}
         {#if s.gatilhos.length}<div class="wide"><small>Entra sozinha quando a mensagem fala de</small><span class="chips">{#each s.gatilhos as g}<span>{g}</span>{/each}</span></div>{/if}
       </div>
-      {#if !minha}<p class="sk-teste-longo" class:sem-teste={!s.teste}>{@html svgIcone('flask-conical')}<span>{textoDoTeste(s.teste)}</span></p>{/if}
+      {#if !minha}<p class="sk-teste-longo" class:sem-teste={s.teste?.veredito !== 'melhora'}>{@html svgIcone('flask-conical')}<span>{textoDoTeste(s.teste)}</span></p>{/if}
       <div class="detail-actions">
         {@render botaoInstalar(s, true)}
         <a class="btn" href="/api/skills/{encodeURIComponent(s.id)}/export" download>{@html svgIcone('download')}Exportar .md</a>

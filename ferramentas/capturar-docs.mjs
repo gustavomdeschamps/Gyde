@@ -37,7 +37,7 @@ try {
         await nav.ir(`${servidor.base}/?r=${Math.random()}#/skills`, 2500);
         await tema(nav, t);
         await nav.esperar(`document.querySelector('.sk-quero') !== null`, 15_000);
-        await nav.avaliar(`(()=>{ const i = document.querySelector('#skQuero'); i.value = 'fazer um site'; i.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
+        await nav.avaliar(`(()=>{ const i = document.querySelector('#skQuero'); i.value = 'analisar dados'; i.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
         await foto(nav, t === 'light' ? 'skills.jpg' : 'skills-escuro.jpg');
       } finally { await nav.fechar(); }
     }
