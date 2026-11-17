@@ -109,7 +109,10 @@ await preencher('#lojaBusca', '');
 // outra pessoa instala da loja
 await entrarComo(OUTRA);
 await send('Page.navigate', { url: `${BASE}/?r=2#/skills` }); await sleep(2500);
-await clicar('#skillsView .tab', 'Loja'); await sleep(500);
+// a outra pessoa abre a Loja: espera o cartão chegar (no CI lento, meio segundo não bastava)
+await espera(`document.querySelector('#skillsView .tab') !== null`, 15000);
+await clicar('#skillsView .tab', 'Loja');
+await espera(`[...document.querySelectorAll('#skillsView .sk-cartao')].some((c) => /editada/.test(c.textContent) && c.querySelector('.btn.primary'))`, 15000);
 await ev(`[...document.querySelectorAll('#skillsView .sk-cartao')].find((c) => /editada/.test(c.textContent)).querySelector('.btn.primary').click()`);
 ok('"Ver e instalar" abre as instruções antes', await espera(`document.querySelector('dialog.wide-dialog[open] .loja-detail .skill-body') !== null && /responda com exemplos curtos/.test(document.querySelector('.loja-detail .md').textContent)`));
 await clicar('.loja-detail .dialog-actions button', 'Instalar cópia');
