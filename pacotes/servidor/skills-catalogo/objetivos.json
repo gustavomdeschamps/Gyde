@@ -1,45 +1,127 @@
 {
   "categorias": [
-    { "nome": "Sites e design", "icone": "layout-template" },
-    { "nome": "Aplicativos e APIs", "icone": "plug" },
-    { "nome": "Jogos", "icone": "gamepad-2" },
-    { "nome": "Dados e planilhas", "icone": "chart-column" },
-    { "nome": "Banco de dados", "icone": "database" },
-    { "nome": "Testes e qualidade", "icone": "flask-conical" },
-    { "nome": "Segurança", "icone": "shield-check" },
-    { "nome": "Git e publicação", "icone": "git-branch" },
-    { "nome": "Documentação", "icone": "book-open" },
-    { "nome": "Estudar e aprender", "icone": "graduation-cap" },
-    { "nome": "Automação e scripts", "icone": "square-terminal" }
+    {
+      "nome": "Sites e design",
+      "icone": "layout-template"
+    },
+    {
+      "nome": "Aplicativos e APIs",
+      "icone": "plug"
+    },
+    {
+      "nome": "Jogos",
+      "icone": "gamepad-2"
+    },
+    {
+      "nome": "Dados e planilhas",
+      "icone": "chart-column"
+    },
+    {
+      "nome": "Banco de dados",
+      "icone": "database"
+    },
+    {
+      "nome": "Testes e qualidade",
+      "icone": "flask-conical"
+    },
+    {
+      "nome": "Git e publicação",
+      "icone": "git-branch"
+    },
+    {
+      "nome": "Documentação",
+      "icone": "book-open"
+    },
+    {
+      "nome": "Estudar e aprender",
+      "icone": "graduation-cap"
+    },
+    {
+      "nome": "Automação e scripts",
+      "icone": "square-terminal"
+    }
   ],
-  "paraComecar": ["explicar-conceito", "explicador-erros", "debug-socratico", "git-sem-medo", "front-end", "exercicios-praticos"],
+  "paraComecar": [
+    "explicar-conceito",
+    "debug-socratico",
+    "exercicios-praticos",
+    "acessibilidade-web",
+    "regex",
+    "plano-de-estudos"
+  ],
   "pacotes": [
-    { "id": "criar-site", "nome": "Criar um site", "icone": "globe", "descricao": "Do layout ao ar: HTML e CSS, design, acessibilidade e publicação.",
-      "frases": ["fazer um site", "criar um site", "meu site", "site pessoal", "portfólio", "landing page", "página na internet", "site"],
-      "skills": ["front-end", "design-visual", "acessibilidade-web", "publicar-site"] },
-    { "id": "criar-api", "nome": "Criar uma API", "icone": "plug", "descricao": "Rotas bem desenhadas, servidor organizado, banco seguro e documentação.",
-      "frases": ["fazer uma api", "criar uma api", "back-end", "backend", "servidor", "api rest"],
-      "skills": ["api-rest", "node-express", "banco-no-codigo", "documentar-api"] },
-    { "id": "criar-jogo", "nome": "Fazer um jogo", "icone": "gamepad-2", "descricao": "Ideia divertida, regras organizadas e o jogo rodando no navegador.",
-      "frases": ["fazer um jogo", "criar um jogo", "meu jogo", "game", "jogo"],
-      "skills": ["design-de-jogo", "logica-de-jogo", "jogo-canvas"] },
-    { "id": "analisar-dados", "nome": "Analisar dados", "icone": "chart-column", "descricao": "Limpar, calcular e mostrar dados de planilhas e CSV com clareza.",
-      "frases": ["analisar dados", "planilha", "excel", "dados", "csv", "relatório", "gráfico"],
-      "skills": ["limpar-dados", "analise-pandas", "graficos-dados", "planilhas-formulas"] },
-    { "id": "app-seguro", "nome": "App com login seguro", "icone": "shield-check", "descricao": "Senhas, chaves e entradas do usuário tratadas do jeito certo.",
-      "frases": ["login", "cadastro de usuário", "segurança", "app seguro", "senha"],
-      "skills": ["senhas-seguras", "segredos-env", "injecao-xss", "revisao-seguranca"] },
-    { "id": "qualidade", "nome": "Código com qualidade", "icone": "flask-conical", "descricao": "Testes, revisão, refatoração e testes automáticos no GitHub.",
-      "frases": ["melhorar meu código", "qualidade", "testes", "código limpo", "revisar código"],
-      "skills": ["testes-automatizados", "revisor-codigo", "refatorador", "github-actions"] },
-    { "id": "comecar-programar", "nome": "Começar a programar", "icone": "graduation-cap", "descricao": "Lógica, conceitos explicados, exercícios e um plano de estudos.",
-      "frases": ["aprender a programar", "começar a programar", "sou iniciante", "estudar programação", "quero aprender"],
-      "skills": ["logica-programacao", "explicar-conceito", "exercicios-praticos", "plano-de-estudos"] },
-    { "id": "publicar-projeto", "nome": "Publicar meu projeto", "icone": "rocket", "descricao": "Git organizado, README, versões e o projeto no ar.",
-      "frases": ["publicar", "colocar no ar", "github", "deploy", "subir o projeto"],
-      "skills": ["git-sem-medo", "commits-claros", "readme-projeto", "publicar-site"] },
-    { "id": "automatizar", "nome": "Automatizar tarefas", "icone": "workflow", "descricao": "Scripts que organizam arquivos, convertem dados e rodam sozinhos.",
-      "frases": ["automatizar", "script", "tarefa repetitiva", "robô", "organizar arquivos"],
-      "skills": ["scripts-arquivos", "json-csv", "tarefas-agendadas", "linha-de-comando"] }
+    {
+      "id": "criar-api",
+      "nome": "Criar uma API",
+      "icone": "plug",
+      "descricao": "Rotas bem desenhadas, servidor organizado, banco seguro e documentação.",
+      "frases": [
+        "fazer uma api",
+        "criar uma api",
+        "back-end",
+        "backend",
+        "servidor",
+        "api rest"
+      ],
+      "skills": [
+        "banco-no-codigo",
+        "documentar-api"
+      ]
+    },
+    {
+      "id": "analisar-dados",
+      "nome": "Analisar dados",
+      "icone": "chart-column",
+      "descricao": "Limpar, calcular e mostrar dados de planilhas e CSV com clareza.",
+      "frases": [
+        "analisar dados",
+        "planilha",
+        "excel",
+        "dados",
+        "csv",
+        "relatório",
+        "gráfico"
+      ],
+      "skills": [
+        "analise-pandas",
+        "graficos-dados",
+        "planilhas-formulas"
+      ]
+    },
+    {
+      "id": "comecar-programar",
+      "nome": "Começar a programar",
+      "icone": "graduation-cap",
+      "descricao": "Lógica, conceitos explicados, exercícios e um plano de estudos.",
+      "frases": [
+        "aprender a programar",
+        "começar a programar",
+        "sou iniciante",
+        "estudar programação",
+        "quero aprender"
+      ],
+      "skills": [
+        "explicar-conceito",
+        "exercicios-praticos",
+        "plano-de-estudos"
+      ]
+    },
+    {
+      "id": "publicar-projeto",
+      "nome": "Publicar meu projeto",
+      "icone": "rocket",
+      "descricao": "Git organizado, README, versões e o projeto no ar.",
+      "frases": [
+        "publicar",
+        "colocar no ar",
+        "github",
+        "deploy",
+        "subir o projeto"
+      ],
+      "skills": [
+        "commits-claros",
+        "readme-projeto"
+      ]
+    }
   ]
 }

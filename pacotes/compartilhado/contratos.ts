@@ -116,8 +116,12 @@ export const Skill = SkillBase.extend({
   id: z.string(), origem: z.enum(['catalogo', 'minha']), instalada: z.boolean(),
   publicada: z.string().nullable().optional(), // id na loja, se a pessoa publicou esta skill
   loja: z.string().nullable().optional(), // id na loja de onde esta cópia veio
-  // resultado da avaliação (mesma tarefa com e sem a skill): % dos critérios cumpridos e execuções de cada lado
-  teste: z.object({ com: z.number().nullable(), sem: z.number().nullable(), n: z.number().int(), criterios: z.number().int(), melhorou: z.boolean() }).nullable().optional(),
+  // medição por resultado (tarefa separada, conferida rodando o código, a consulta ou a página): nota média com e sem a
+  // skill, execuções de cada lado, diferença com intervalo de 90% e o veredito (melhora, tendência, não melhora)
+  teste: z.object({
+    com: z.number(), sem: z.number(), nCom: z.number().int(), nSem: z.number().int(), diferenca: z.number(),
+    intervalo90: z.tuple([z.number(), z.number()]), veredito: z.string(),
+  }).nullable().optional(),
 });
 export const ListaSkills = z.object({ skills: z.array(Skill) });
 export const SkillSalva = ListaSkills.extend({ id: z.string() });

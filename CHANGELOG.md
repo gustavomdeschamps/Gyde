@@ -3,6 +3,28 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.4.1
+
+### Medição por resultado: só fica o que ajuda de verdade
+- A medição da 2.4.0 conferia sobretudo se a resposta seguia o formato da própria skill. A nova usa 38 tarefas separadas
+  (não usadas para escrever as skills) e confere o resultado: o código roda com testes escondidos, a consulta SQL devolve
+  o certo, a página passa no axe-core, os comandos de git funcionam num repositório de teste. 5 execuções com e 5 sem
+  cada skill e cada agente, com intervalo de incerteza.
+- **Das 40 skills medidas, 5 melhoraram o resultado e ficaram:** changelog-versoes (+40 pontos), banco-no-codigo (+25),
+  estatistica-basica (+20, não repetido numa rodada anterior), regex (+15, tendência) e acessibilidade-web (+7).
+- **35 saíram:** 30 porque o modelo já acertava 100% sem elas, 5 porque ficaram iguais ou piores (algumas depois de
+  reescritas). Elas continuam no histórico do git (versão 2.4.0).
+- **Agentes:** Depurador, Testador, Revisor de segurança, Explicador para iniciantes, Documentador e Designer não
+  melhoraram o resultado e saíram. Fica o Planejador, que não tem como ser medido por resultado.
+- As 16 skills sem tarefa de resultado possível continuam, marcadas "Sem teste de resultado". Pacotes com menos de 2
+  skills e categorias vazias saíram.
+- O cartão de cada skill mostra a nota com e sem ela, as execuções e o intervalo; "tendência" quando ainda é incerto.
+- Os números e as 6 correções feitas na própria medição estão em [docs/avaliacao](docs/avaliacao/README.md).
+
+### Design
+- Os pontos da Forja pensando sobem e descem em onda em vez de piscar (e ficam parados com menos movimento); o destaque
+  de "Mostrar o erro" e os detalhes da Cidade trocaram o brilho colorido por contornos e sombras neutras.
+
 ## 2.4.0
 
 ### Skills que fazem diferença

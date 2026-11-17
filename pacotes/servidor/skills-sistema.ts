@@ -126,7 +126,7 @@ export function lerCatalogo(root: string): Map<string, SkillListada> {
 
 export interface Pacote { id: string; nome: string; icone: string; descricao: string; frases: string[]; skills: string[] }
 export interface Objetivos { categorias: { nome: string; icone: string }[]; paraComecar: string[]; pacotes: Pacote[] }
-export interface AvaliacaoSkill { com: number | null; sem: number | null; n: number; criterios: number; melhorou: boolean }
+export interface AvaliacaoSkill { com: number; sem: number; nCom: number; nSem: number; diferenca: number; intervalo90: [number, number]; veredito: string }
 const lerJson = <T>(p: string, padrao: T): T => { try { return existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) as T : padrao; } catch { return padrao; } };
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

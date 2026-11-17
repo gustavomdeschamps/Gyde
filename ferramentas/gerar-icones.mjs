@@ -32,6 +32,8 @@ export const ICONES_UI = [
   'bug', 'flask-conical', 'search-code', 'file-pen-line', 'palette', 'map-pin', 'notebook-pen',
   // extensões
   'file-check', 'dumbbell', 'text-cursor', 'scan', 'mouse-pointer-2', 'circle-stop',
+  // escolha de ícone ao criar uma skill (EditorSkill.svelte)
+  'puzzle', 'database', 'globe', 'smartphone', 'gamepad-2', 'chart-column', 'sheet', 'key-round', 'git-branch', 'rocket', 'square-terminal', 'workflow',
 ];
 
 const ALIASES = { history: 'rotate-ccw-clock' }; // nome antigo → arquivo do Lucide

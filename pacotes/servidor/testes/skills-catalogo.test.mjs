@@ -13,10 +13,12 @@ const catalogo = lerCatalogo(RAIZ_SERVIDOR);
 const objetivos = JSON.parse(readFileSync(path.join(RAIZ_SERVIDOR, 'skills-catalogo', 'objetivos.json'), 'utf8'));
 const EMOJI = /\p{Extended_Pictographic}/u;
 
-test('catálogo: pelo menos 50 skills, todas no formato, com ícone do conjunto e categoria das 11', () => {
-  assert.ok(catalogo.size >= 50, `só ${catalogo.size} skills`);
+test('catálogo: todas no formato, com ícone do conjunto e categoria da lista; só fica skill que melhorou o resultado ou ainda não tem como ser medida', () => {
+  assert.ok(catalogo.size >= 15, `só ${catalogo.size} skills`);
   const categorias = new Set(objetivos.categorias.map((c) => c.nome));
-  assert.equal(categorias.size, 11);
+  // medição por resultado: nenhuma skill do catálogo pode ter ficado igual ou pior com ela
+  const avaliacao = JSON.parse(readFileSync(path.join(RAIZ_SERVIDOR, 'skills-catalogo', 'avaliacao.json'), 'utf8')).skills;
+  for (const [id, a] of Object.entries(avaliacao)) { assert.ok(catalogo.has(id), `avaliação de skill que não existe: ${id}`); assert.ok(a.diferenca > 0, `${id} não melhorou o resultado e não deveria estar no catálogo`); }
   const icones = new Set(NOMES_ICONES);
   const comandos = new Set();
   for (const s of catalogo.values()) {
@@ -30,7 +32,8 @@ test('catálogo: pelo menos 50 skills, todas no formato, com ícone do conjunto 
     assert.ok(!EMOJI.test(s.corpo + s.nome + s.descricao), `${s.id}: emoji`);
     assert.ok(s.gatilhos.length >= 3, `${s.id}: poucos gatilhos`);
   }
-  for (const c of categorias) assert.ok([...catalogo.values()].filter((s) => s.categoria === c).length >= 3, `categoria ${c} com menos de 3 skills`);
+  for (const c of categorias) assert.ok([...catalogo.values()].some((s) => s.categoria === c), `categoria ${c} sem nenhuma skill`);
+  for (const p of objetivos.pacotes) assert.ok(p.skills.length >= 2, `pacote ${p.id} com menos de 2 skills`);
   for (const p of objetivos.pacotes) for (const id of p.skills) assert.ok(catalogo.has(id), `pacote ${p.id}: skill ${id} não existe`);
   for (const id of objetivos.paraComecar) assert.ok(catalogo.has(id), `para começar: ${id}`);
 });
@@ -52,13 +55,13 @@ test('trecho: passos e checklist sempre; exemplo e erros só se couberem; erros 
 test('escolha: comando primeiro, no máximo 2 skills, soma dentro do limite; sem instalada que sirva, sugere do catálogo', () => {
   const todas = [...catalogo.values()];
   const inst = todas.map((s) => ({ ...s, instalada: true }));
-  const porComando = escolherSkills(inst, '/sql me ajuda com essa consulta de html e css');
-  assert.deepEqual(porComando.map((s) => s.id), ['sql-na-pratica']);
-  const muitas = escolherSkills(inst, 'site html css responsivo layout flexbox grid página acessibilidade formulário');
+  const porComando = escolherSkills(inst, '/regex me ajuda com esse leitor de tela e acessibilidade');
+  assert.deepEqual(porComando.map((s) => s.id), ['regex']);
+  const muitas = escolherSkills(inst, 'acessibilidade leitor de tela wcag aria média mediana desvio padrão changelog versão semver');
   assert.ok(muitas.length <= 2);
   assert.ok(muitas.reduce((n, s) => n + s.trecho.texto.length, 0) <= LIMITE_TOTAL);
   assert.deepEqual(escolherSkills(inst, 'oi, tudo bem?'), [], 'conversa: nenhuma skill');
-  assert.equal(sugerirSkill(todas, 'como faço um select com join no postgres?')?.id, 'sql-na-pratica');
+  assert.equal(sugerirSkill(todas, 'qual a próxima versão pelo semver depois de corrigir um bug?')?.id, 'changelog-versoes');
   assert.equal(sugerirSkill(todas, 'bom dia'), null);
 });
 

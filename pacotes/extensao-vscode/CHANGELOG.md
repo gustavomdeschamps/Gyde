@@ -1,5 +1,9 @@
 # Novidades
 
+## 2.4.1 (junto com o Gyde 2.4.1)
+
+- Sem mudanças na extensão: a versão acompanha o app.
+
 ## 2.4.0 (junto com o Gyde 2.4.0)
 
 - Ícones do conjunto do Gyde (Lucide) no painel, sem emoji nem caractere solto.

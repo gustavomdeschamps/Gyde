@@ -125,7 +125,7 @@ try {
   // skills e agentes na resposta: "Usando a skill X" quando uma instalada entra (só as partes do limite), o agente
   // quando o pedido precisa, e a sugestão de uma skill do catálogo quando nenhuma instalada serve
   {
-    await api.pedir('POST', '/api/skills/sql-na-pratica/install');
+    await api.pedir('POST', '/api/skills/banco-no-codigo/install');
     const perguntar = async (texto, r) => {
       await nav.ir(`${servidor.base}/?r=${r}#/`, 2000);
       await digitar(texto);
@@ -133,12 +133,12 @@ try {
       return esperar(`!${transmitindo} && document.querySelector('.msg.assistant .md') !== null`, 15_000);
     };
     const antes = ia.pedidos.length;
-    await perguntar('/sql como listo os clientes que nunca compraram?', 'sk1');
-    ok('skill instalada aparece como "Usando a skill"', await esperar(`/Usando a skill SQL na prática/.test(document.querySelector('.msg.assistant .skill-chips')?.textContent || '')`, 3000));
+    await perguntar('/banco como salvo um pedido e baixo o estoque no node:sqlite?', 'sk1');
+    ok('skill instalada aparece como "Usando a skill"', await esperar(`/Usando a skill Banco de dados no código/.test(document.querySelector('.msg.assistant .skill-chips')?.textContent || '')`, 3000));
     const sistema = ia.pedidos.slice(antes).map((p) => JSON.stringify(p.mensagens[0] ?? '')).find((t) => /Skill ativa/.test(t)) ?? '';
-    ok('no pedido entram os passos e o checklist da skill, dentro do limite', /Skill ativa: SQL na prática/.test(sistema) && /## Passos/.test(sistema) && /## Checklist/.test(sistema));
-    await perguntar('Deu erro: TypeError: Cannot read properties of undefined no meu código', 'ag1');
-    ok('pedido de erro mostra o agente Depurador trabalhando', await esperar(`/Agente Depurador/.test(document.querySelector('.msg.assistant .skill-chips')?.textContent || '')`, 3000));
+    ok('no pedido entram os passos e o checklist da skill, dentro do limite', /Skill ativa: Banco de dados no código/.test(sistema) && /## Passos/.test(sistema) && /## Checklist/.test(sistema));
+    await perguntar('Quero criar um app de receitas. Por onde começo?', 'ag1');
+    ok('pedido de projeto novo mostra o agente Planejador trabalhando', await esperar(`/Agente Planejador/.test(document.querySelector('.msg.assistant .skill-chips')?.textContent || '')`, 3000));
     await perguntar('Preciso de uma expressão regular para validar o formato do CEP', 'sg1');
     ok('sem skill instalada do assunto, sugere uma do catálogo com link', await esperar(`/A skill Regex fácil ajudaria/.test(document.querySelector('.msg.assistant .sugestao-chip')?.textContent || '') && document.querySelector('.msg.assistant .sugestao-chip').getAttribute('href') === '#/skills/regex'`, 3000));
     await perguntar('Quanto é 3 + 4?', 'nd1');
