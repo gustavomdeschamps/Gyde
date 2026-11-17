@@ -26,10 +26,12 @@
 .ag-diff .menos { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
 .ag-diff .mais { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }
 .ag-pensando { color: var(--text-faint); font-size: 13px; display: flex; align-items: center; gap: 4px; padding-left: 4px; }
-.ag-pensando i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: ag-pulsa 1s ease-in-out infinite; }
+.ag-pensando i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: ag-onda 1s ease-in-out infinite; }
 .ag-pensando i:nth-child(2) { animation-delay: .15s; }
 .ag-pensando i:nth-child(3) { animation-delay: .3s; }
-@keyframes ag-pulsa { 50% { opacity: .3; transform: scale(.7); } }
+/* onda (como o "digitando..."), ligada ao trabalho real da Forja: some quando ela termina */
+@keyframes ag-onda { 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .ag-pensando i { animation: none; } }
 
 /* ===== Forja como chat ===== */
 .forja-chat { display: flex; flex-direction: column; height: 100%; }
@@ -239,8 +241,8 @@
 .cidade-qualidade:focus-visible, .cidade-cartao-fechar:focus-visible { outline: 2px solid #7fe3ff; outline-offset: 2px; }
 .cidade-legenda-3d { position: absolute; left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 8px 12px; font-size: 12px; color: #c9c6f5; pointer-events: none; z-index: 2; max-width: calc(100% - 24px); }
 .cidade-leg-item { display: inline-flex; align-items: center; gap: 7px; }
-.cidade-leg-predio { width: 7px; height: 14px; border-radius: 2px; background: linear-gradient(180deg, #7fe3ff 0 18%, #231a52 18% 30%, #ffd27a 30% 42%, #0a0f24 42%); box-shadow: 0 0 6px #7c5cff; }
-.cidade-escala i { width: 58px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #7c5cff, #ff8a1f 65%, #ff2a3d); box-shadow: 0 0 8px rgb(255 60 60 / .45); }
+.cidade-leg-predio { width: 7px; height: 14px; border-radius: 2px; background: linear-gradient(180deg, #7fe3ff 0 18%, #231a52 18% 30%, #ffd27a 30% 42%, #0a0f24 42%); outline: 1px solid rgb(124 92 255 / .55); }
+.cidade-escala i { width: 58px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #7c5cff, #ff8a1f 65%, #ff2a3d); }
 .cidade-leg-farol { width: 12px; height: 14px; background: linear-gradient(0deg, #ff2a3d, transparent); clip-path: polygon(40% 100%, 60% 100%, 100% 0, 0 0); }
 .cidade-cartao { position: absolute; right: 12px; bottom: 12px; width: min(300px, calc(100% - 24px)); padding: 14px 16px 12px; z-index: 3; animation: cartao-entra var(--t3) var(--ease); }
 .cidade-cartao h3 { margin: 2px 26px 10px 0; font: 650 16px/1.3 var(--mono); color: #fff; overflow-wrap: anywhere; }
@@ -258,7 +260,7 @@
 .cidade-opcao:focus-visible { outline: 2px solid #7fe3ff; outline-offset: 2px; }
 .cidade-opcao.destaque { border-color: rgb(255 170 90 / .55); background: rgb(255 140 60 / .14); color: #ffe2c4; }
 .cidade-cartao-forja small { font-size: 11.5px; color: #a29ddb; }
-.cidade-cartao .cidade-calor { margin: 0; box-shadow: 0 0 8px currentColor; }
+.cidade-cartao .cidade-calor { margin: 0; outline: 2px solid color-mix(in srgb, currentColor 35%, transparent); outline-offset: 1px; }
 .cidade-cartao-fechar { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 8px; border: 0; background: rgb(255 255 255 / .06); color: #d6d3ff; cursor: pointer; font-size: 13px; }
 .cidade-cartao-fechar:hover { background: rgb(255 255 255 / .14); }
 .cidade-aviso3d { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); width: max-content; max-width: min(460px, calc(100% - 24px)); z-index: 3;
@@ -270,7 +272,7 @@
   display: flex; align-items: center; gap: 8px; padding: 7px 12px; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: cartao-entra var(--t3) var(--ease); }
 .cidade-atividade code { font: 12px var(--mono); color: #fff; overflow: hidden; text-overflow: ellipsis; }
 .cidade-atividade small { color: #a29ddb; }
-.cidade-atividade i { width: 8px; height: 8px; border-radius: 50%; flex: none; background: #38e8ff; box-shadow: 0 0 10px currentColor; color: #38e8ff; }
+.cidade-atividade i { width: 8px; height: 8px; border-radius: 50%; flex: none; background: #38e8ff; outline: 2px solid rgb(56 232 255 / .3); outline-offset: 1px; color: #38e8ff; }
 .cidade-atividade.tipo-editar i, .cidade-atividade.tipo-criar i { background: #8dff5a; color: #8dff5a; }
 .cidade-atividade.tipo-apagar i { background: #ff3d7f; color: #ff3d7f; }
 @media (max-width: 720px) { .cidade-atividade { bottom: 72px; } }
@@ -278,7 +280,7 @@
 /* nomes dos bairros flutuando sobre a cidade */
 .cidade-rotulos { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 2; }
 .cidade-rotulo { position: absolute; left: 0; top: 0; display: grid; justify-items: center; padding: 2px 6px; white-space: nowrap;
-  font: 11px/1.25 var(--mono); color: #eeeaff; text-shadow: 0 0 10px rgb(124 92 255 / .9), 0 1px 2px rgb(0 0 0 / .9);
+  font: 11px/1.25 var(--mono); color: #eeeaff; text-shadow: 0 1px 2px rgb(0 0 0 / .9), 0 0 6px rgb(0 0 0 / .7);
   border-bottom: 1px solid rgb(139 108 255 / .55); opacity: 0; transition: opacity .35s; will-change: transform; }
 .cidade-rotulo small { font-size: 9.5px; color: #8f8ac9; }
 .cidade-rotulo b { font-weight: 600; letter-spacing: .01em; }
