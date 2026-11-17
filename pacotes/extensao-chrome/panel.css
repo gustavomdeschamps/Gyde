@@ -144,3 +144,8 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .msg-aviso p { margin: 6px 0 8px; }
 .avisos { display: grid; gap: 8px; padding: 8px 12px 0; }
 .avisos:empty { display: none; }
+
+/* ícones dentro de texto pequeno (gerados em icones.js) */
+.agent-done .icone, #ctxChips button .icone { width: 13px; height: 13px; vertical-align: -2px; margin-right: 4px; }
+#ctxChips button .icone { margin: 0; }
+.skill-chip .icone { width: 13px; height: 13px; margin-right: 4px; vertical-align: -2px; }

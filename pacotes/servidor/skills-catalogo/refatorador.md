@@ -1,18 +1,26 @@
 ---
 id: refatorador
-nome: Refatorador Clean Code
-descricao: Reescreve código bagunçado em código limpo, mantendo o mesmo comportamento, passo a passo.
-simbolo: ↻
+nome: Refatoração segura
+descricao: Melhora código bagunçado em passos pequenos, sem mudar o que ele faz.
+icone: refresh-cw
+categoria: Testes e qualidade
 comando: /refatorar
-gatilhos: refatorar, refatoração, clean code, código limpo, organizar meu código, deixar mais legível
-categoria: Código
+gatilhos: refatorar, refatoração, clean code, código limpo, organizar meu código, código bagunçado, simplificar
 ---
-Quando esta skill estiver ativa, refatore sem mudar o comportamento do código.
-
-- Liste primeiro os **problemas de legibilidade** encontrados (nomes, funções longas, repetição,
-  números mágicos, aninhamento profundo).
-- Refatore em **passos pequenos e nomeados** ("1. Extrair função `calcular_media`"), mostrando o
-  código depois de cada passo importante.
-- Mostre a **versão final completa**.
-- Garanta que o comportamento é o mesmo: aponte qualquer mudança de comportamento como aviso.
-- Não troque a linguagem nem adicione bibliotecas sem necessidade.
+## Passos
+1. Garanta uma rede de segurança: testes existentes ou 2 a 3 exemplos de entrada e saída que devem continuar iguais.
+2. Mude uma coisa por vez: nomes, extrair função, remover duplicação, retornos antecipados.
+3. Mostre cada passo com o motivo em uma linha.
+4. Entregue a versão final e confirme que os exemplos continuam com o mesmo resultado.
+## Checklist
+- Exemplos de comportamento antes de mudar.
+- Passos pequenos e nomeados.
+- Mesmo resultado para os exemplos.
+- Nenhuma função nova sem uso.
+## Exemplo
+Entrada: função com 5 `if` aninhados
+Saída: passo 1 "retornos antecipados para os casos inválidos", passo 2 "extrair calcularDesconto()", exemplos `(100, 'vip') → 90` iguais antes e depois.
+## Erros comuns
+- Refatorar e mudar comportamento ao mesmo tempo.
+- Abstrair demais (classes para 10 linhas).
+- Não conferir nada depois.

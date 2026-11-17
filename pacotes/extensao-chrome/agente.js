@@ -2,6 +2,7 @@
 // até cada botão ou campo, clica e digita letra por letra. Ele só para quando a ação não tem
 // volta (comprar, enviar, excluir), quando falta informação, ou em campos de senha, cartão e
 // documentos, que nunca preenche. Quem preferir pode ligar "pedir permissão a cada passo".
+import { icone } from './icones.js';
 
 // ---------- Funções injetadas na página (precisam ser autossuficientes) ----------
 function snapshotPage() {
@@ -161,7 +162,7 @@ export function createAgent({ api, addMessage, esc, md, ensurePageAccess, active
       run.cancelConfirm = () => resolve('parar');
       card.querySelectorAll('[data-r]').forEach((b) => {
         b.onclick = () => {
-          card.querySelector('.agent-actions').innerHTML = `<span class="agent-done">${{ sim: '✓ Feito', pular: '→ Não feito', parar: '■ Parado' }[b.dataset.r]}</span>`;
+          card.querySelector('.agent-actions').innerHTML = `<span class="agent-done">${{ sim: `${icone('check')}Feito`, pular: `${icone('skip-forward')}Não feito`, parar: `${icone('circle-stop')}Parado` }[b.dataset.r]}</span>`;
           resolve(b.dataset.r);
         };
       });

@@ -123,3 +123,8 @@ kbd { font-size: .85em; padding: 1px 5px; border-radius: 4px; border: 1px solid 
 .aviso p { margin: 6px 0 8px; }
 #avisos { display: grid; gap: 8px; padding: 8px 12px 0; }
 #avisos:empty { display: none; }
+
+/* ícones do conjunto do Gyde (Lucide, gerados em icones.js) */
+.icone { width: 16px; height: 16px; flex: none; }
+.send .icone { width: 18px; height: 18px; }
+.skills span .icone { width: 13px; height: 13px; margin-right: 4px; vertical-align: -2px; }

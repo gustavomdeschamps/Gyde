@@ -137,6 +137,47 @@ Quatro cenários, 3 tentativas cada, conferidos no disco no fim:
 
 A diferença de um cenário está dentro da variação. O ganho medido não é de qualidade, e a revisão pode alongar uma tarefa.
 
+## Skills: a mesma tarefa com e sem a skill (17/11/2026)
+
+`ferramentas/avaliar-skills.mjs`, com NVIDIA + Groq. Cada skill tem um pedido do assunto e de 3 a 6 critérios objetivos
+(`ferramentas/cenarios-skills.mjs`): conferências no texto (tem tabela de rotas? usa `LEFT JOIN`? cita `.gitignore`?) e,
+em algumas, o código da resposta roda de verdade (a regex aceita e recusa os exemplos certos, a função do jogo da velha
+acha o vencedor, os testes escritos pegam uma versão com defeito, a refatoração devolve o mesmo resultado). O texto da
+skill que entra no pedido é o mesmo que o chat usa, com o mesmo limite.
+
+- **56 skills, 2 execuções com e 2 sem cada uma** (3 e 3 nas 4 que precisaram de nova medição). Todas cumpriram mais
+  critérios com a skill. Mediana: 100% com a skill e 50% sem.
+- **Menor ganho:** api-rest, graficos-dados, json-csv e modelagem-banco (12 pontos), senhas-seguras (13: com a skill,
+  38%; o modelo ainda esquece o limite de tentativas e o cookie HttpOnly), layout-css (16).
+- **Não melhoraram na primeira medição e foram reescritas:** banco-no-codigo, componentes-react e jogo-python (o modelo
+  já cumpria tudo sem a skill: elas ganharam o que os modelos costumam esquecer, como conferir as linhas afetadas, o
+  `aria-pressed` e o movimento por `dt`) e testes-automatizados (empatou em 67%; o comando para rodar e a mensagem do
+  erro ficaram explícitos). Depois da reescrita: 100/67, 100/73, 94/56 e 100/33.
+- **Tamanho:** a mediana do texto da skill no pedido foi 1.054 caracteres (máximo 1.320), dentro do limite de 1.500.
+- **Os critérios conferem o que cada skill promete.** Uma resposta boa sem a skill pode ser útil e ainda assim não
+  cumprir o checklist; o número mede se a skill muda a resposta, não se a resposta sem ela é ruim.
+
+Detalhe de cada execução: [skills-2026-11-17.json](skills-2026-11-17.json). O catálogo mostra o resultado de cada skill.
+
+## Agentes especializados do chat (17/11/2026)
+
+`ferramentas/avaliar-agentes.mjs`, com NVIDIA + Groq: os mesmos pedidos e critérios das skills do assunto de cada
+agente, com e sem o papel. Nenhum agente faz chamada a mais: ele muda as instruções do modelo que responde.
+
+| Agente | Critérios com / sem | Tempo mediano com / sem | Execuções de cada lado |
+|---|---|---|---|
+| Depurador | 67% / 44% | 1,3 s / 2,1 s | 3 |
+| Testador | 92% / 42% | 2,3 s / 2,4 s | 3 |
+| Revisor de segurança | 69% / 52% | 3,3 s / 3,2 s | 9 |
+| Explicador para iniciantes | 75% / 42% | 1,9 s / 2,5 s | 6 |
+| Documentador | 81% / 72% | 3,1 s / 3,5 s | 9 |
+| Designer de interface | 69% / 42% | 7,3 s / 3,3 s | 9 |
+| Planejador | 100% / 0% | 6,3 s / 2,6 s | 3 |
+
+Todos ficaram. O Designer e o Planejador deixam a resposta mais longa e cerca de 2 vezes mais lenta; ficaram porque o
+acerto subiu muito. Uma pergunta simples, conversa, texto ou imagem não chama agente nenhum. Detalhe:
+[agentes-2026-11-17.json](agentes-2026-11-17.json).
+
 ### Forja mais forte (13 a 16/11/2026)
 
 Quatro cenários difíceis novos (`ferramentas/cenarios-forja-dificeis.mjs`), com testes escondidos que a Forja não vê:

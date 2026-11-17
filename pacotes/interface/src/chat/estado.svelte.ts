@@ -14,8 +14,10 @@ const MAX_ARQUIVO = 25 * 1024 * 1024;
 
 export type Anexo = { kind: 'image' | 'file'; name: string; dataUrl?: string; text?: string };
 export type Pendente = Anexo & { carregando: boolean; sub?: string };
-export interface SkillAtiva { id: string; nome: string; simbolo: string }
-export interface SkillInstalada { comando: string; nome: string; descricao: string; simbolo: string }
+export interface SkillAtiva { id: string; nome: string; icone: string; secoes?: string[] }
+export interface SugestaoSkill { id: string; nome: string; icone: string; descricao: string }
+export interface AgenteAtivo { id: string; nome: string; fazendo: string }
+export interface SkillInstalada { comando: string; nome: string; descricao: string; icone: string }
 type Opcao = { id: string; label: string; hint: string };
 type Modo = 'new' | 'regenerate' | 'edit' | 'retry';
 interface Envio { mode: Modo; messageId?: string; content?: string; attachments?: Anexo[]; model: string; kind: 'chat' | 'image' }
@@ -29,6 +31,8 @@ export const chat = $state({
   // extras que só existem nesta sessão: modelo real e tokens da resposta que acabou de chegar
   metaExtra: {} as Record<string, string>,
   metaSkills: {} as Record<string, SkillAtiva[]>, // skills que guiaram cada resposta (selo acima dela)
+  metaSugestao: {} as Record<string, SugestaoSkill>, // skill do catálogo que ajudaria (nenhuma instalada servia)
+  metaAgente: {} as Record<string, AgenteAtivo>, // agente especializado que respondeu (quando o pedido precisou)
   conversas: [] as TResumoConversa[],
   busca: '',
   listaCarregada: false,
@@ -36,7 +40,7 @@ export const chat = $state({
   texto: '',
   transmitindo: false,
   temporaria: null as { content: string; attachments: Anexo[] } | null, // pergunta enviada, ainda não confirmada
-  resposta: null as null | { texto: string; status: string; skills: SkillAtiva[]; erro: string | null; envio: Envio | null },
+  resposta: null as null | { texto: string; status: string; skills: SkillAtiva[]; agente: AgenteAtivo | null; sugestao: SugestaoSkill | null; erro: string | null; envio: Envio | null },
   marcas: [{ id: MODELO_PADRAO, label: 'Gyde 1', hint: '' }] as Opcao[],
   modelos: [] as Opcao[],
   modelo: MODELO_PADRAO,
@@ -217,7 +221,7 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
   const atual = () => chat.convId === minhaConversa;
   chat.transmitindo = true;
   chat.temporaria = mode === 'new' || mode === 'edit' ? { content: content ?? '', attachments: attachments ?? [] } : null;
-  chat.resposta = { texto: '', status: '', skills: [], erro: null, envio };
+  chat.resposta = { texto: '', status: '', skills: [], agente: null, sugestao: null, erro: null, envio };
   chat.rolar++;
 
   // o texto chega em pedaços: junta e desenha no máximo uma vez por quadro
@@ -237,6 +241,8 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
         if (!atual()) break;
         if (ev.type === 'user') { chat.mensagens.push(C.Mensagem.parse(ev.message)); chat.temporaria = null; }
         else if (ev.type === 'skills' && chat.resposta) chat.resposta.skills = ev.skills as SkillAtiva[];
+        else if (ev.type === 'sugestao-skill' && chat.resposta) chat.resposta.sugestao = ev.skill as SugestaoSkill;
+        else if (ev.type === 'agente' && chat.resposta) chat.resposta.agente = ev.agente as AgenteAtivo;
         else if (ev.type === 'status' && chat.resposta) chat.resposta.status = String(ev.text);
         else if (ev.type === 'delta') { acumulado += String(ev.text); if (!quadro) quadro = requestAnimationFrame(desenhar); }
         else if (ev.type === 'done') {
@@ -254,6 +260,8 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
             atualizarUso();
           }
           if (chat.resposta?.skills.length) chat.metaSkills[m.id] = chat.resposta.skills;
+          if (chat.resposta?.agente) chat.metaAgente[m.id] = chat.resposta.agente;
+          if (chat.resposta?.sugestao) chat.metaSugestao[m.id] = chat.resposta.sugestao;
           chat.mensagens.push(m);
           chat.resposta = null;
         } else if (ev.type === 'title') {

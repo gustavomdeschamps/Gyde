@@ -21,8 +21,8 @@ self.onmessage = (e) => {
   const fakeConsole = {
     log: (...a) => logs.push(a.map(fmt).join(' ')),
     info: (...a) => logs.push(a.map(fmt).join(' ')),
-    warn: (...a) => logs.push('⚠︎ ' + a.map(fmt).join(' ')),
-    error: (...a) => logs.push('✖ ' + a.map(fmt).join(' ')),
+    warn: (...a) => logs.push('Aviso: ' + a.map(fmt).join(' ')),
+    error: (...a) => logs.push('Erro: ' + a.map(fmt).join(' ')),
   };
   let fnRef;
   try {

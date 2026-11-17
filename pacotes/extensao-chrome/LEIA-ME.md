@@ -69,4 +69,4 @@ O agente age dentro do navegador (na aba aberta); ele não controla outros progr
 | Token inválido | Gere outro no app (**Configurações → Extensões**) e conecte de novo (botão de engrenagem no painel). |
 | "O app do Gyde está desatualizado" | Instale o app novo por cima ([página Releases](https://github.com/gustavomdeschamps/Gyde/releases/latest)). Suas conversas continuam. |
 
-Para atualizar a extensão depois de uma versão nova: `chrome://extensions` → Gyde → ↻.
+Para atualizar a extensão depois de uma versão nova: abra `chrome://extensions` e clique no botão de recarregar do Gyde.

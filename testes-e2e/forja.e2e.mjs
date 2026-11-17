@@ -28,7 +28,7 @@ try {
   await pedir('Corrija a função soma em soma.js e rode npm test.');
   ok('o turno aparece "Trabalhando" com relógio', await esperar(`document.querySelector('.forja-turno.trabalhando .forja-tempo') !== null`, 10_000));
   ok('o turno termina e mostra quanto tempo levou', await esperar(`document.querySelector('.forja-turno') && !document.querySelector('.forja-turno.trabalhando') && /Trabalhou/.test(document.querySelector('.forja-status').textContent)`, 60_000));
-  ok('resumo: soma.js alterado e npm test ✓', await avaliar(`(()=>{ const r = document.querySelector('.forja-resumo'); return Boolean(r) && /soma\\.js/.test(r.textContent) && /✓ npm test/.test(r.textContent); })()`), await avaliar(`document.querySelector('.forja-resumo')?.textContent.slice(0, 120)`));
+  ok('resumo: soma.js alterado e npm test deu certo', await avaliar(`(()=>{ const r = document.querySelector('.forja-resumo'); return Boolean(r) && /soma\\.js/.test(r.textContent) && /npm test/.test(r.querySelector('code.ok')?.textContent || ''); })()`), await avaliar(`document.querySelector('.forja-resumo')?.textContent.slice(0, 120)`));
   ok('arquivo realmente corrigido no disco', /a\s*\+\s*b/.test(proj.ler('soma.js')));
   ok('chave falsa do arquivo não foi para a IA (segredo removido)', ia.pedidos.every((p) => !p.mensagens.some((m) => /AIzaSyFALSO/.test(JSON.stringify(m.content)))));
   ok('botão Desfazer aparece', await avaliar(`[...document.querySelectorAll('.forja-acoes .btn')].some((b) => /Desfazer/.test(b.textContent))`));
@@ -49,7 +49,7 @@ try {
   ok('regravar trocando o segredo pelo marcador é recusado', /no lugar de um segredo real/.test(conversa));
   ok('o segredo real continua no arquivo e a correção entrou por "editar"', proj.ler('soma.js').includes(['AIza', 'Sy'].join('')) && /a\s*\+\s*b/.test(proj.ler('soma.js')));
   ok('mudou e quis terminar sem testar: a Forja pede os testes uma vez', (conversa.match(/Antes de responder: você alterou arquivos/g) || []).length >= 1 && ia.pedidos.slice(antesDasTravas).filter((p) => /Antes de responder: você alterou arquivos/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1);
-  ok('o turno fecha com npm test rodado', await esperar(`/✓ npm test/.test([...document.querySelectorAll('.forja-resumo')].pop()?.textContent || '')`, 5000));
+  ok('o turno fecha com npm test rodado', await esperar(`/npm test/.test([...document.querySelectorAll('.forja-resumo')].pop()?.querySelector('code.ok')?.textContent || '')`, 5000));
 
   await pedir('TEXTOPURO o que tem em soma.js?');
   ok('resposta final em texto puro vale como resposta (não vira erro)', await esperar(`document.querySelectorAll('.forja-turno').length === 3 && !document.querySelector('.forja-turno.trabalhando') && /tem a função soma/.test([...document.querySelectorAll('.forja-turno')].pop().textContent)`, 30_000));

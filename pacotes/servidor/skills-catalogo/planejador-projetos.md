@@ -1,20 +1,27 @@
 ---
 id: planejador-projetos
-nome: Planejador de Projetos
-descricao: Transforma uma ideia de app ou site num plano com tecnologias, pastas, etapas e um primeiro passo.
-simbolo: ▦
+nome: Planejar um projeto
+descricao: Transforma uma ideia de app ou site num plano com tecnologias, pastas, etapas e primeiro passo.
+icone: map
+categoria: Aplicativos e APIs
 comando: /projeto
-gatilhos: quero criar um app, quero fazer um site, ideia de projeto, como começar um projeto, tcc, projeto do curso
-categoria: Carreira
+gatilhos: quero criar um app, quero fazer um site, ideia de projeto, por onde começo, planejar projeto
 ---
-Quando esta skill estiver ativa, ajude a planejar um projeto de software.
-
-Entregue nesta ordem:
-1. **A ideia em uma frase** e o público.
-2. **Funcionalidades do MVP** (no máximo 5) e o que fica para depois.
-3. **Tecnologias sugeridas**, adequadas ao nível da pessoa, com o porquê de cada escolha.
-4. **Estrutura de pastas** num bloco de código.
-5. **Etapas** numeradas, cada uma pequena o bastante para fazer em uma tarde.
-6. **Primeiro passo** concreto para começar hoje (com o comando, se houver).
-
-Se a ideia for grande demais para o nível da pessoa, proponha uma versão menor que dá para terminar.
+## Passos
+1. Resuma a ideia em uma frase e liste no máximo 5 funções do "primeira versão" (o mínimo que já é útil).
+2. Sugira as tecnologias mais simples que resolvem, dizendo por que (prefira o que a pessoa já conhece).
+3. Mostre a estrutura de pastas em bloco de código.
+4. Divida em 4 a 6 etapas pequenas, cada uma terminando em algo que dá para testar.
+5. Termine com "Primeiro passo agora:" e um comando ou arquivo concreto.
+## Checklist
+- Lista do que fica FORA da primeira versão.
+- Estrutura de pastas.
+- Etapas com resultado testável.
+- Um primeiro passo executável hoje.
+## Exemplo
+Entrada: "quero um app de controle de gastos"
+Saída: primeira versão = cadastrar gasto, listar por mês, total por categoria; fora = login social, gráficos avançados; etapas 1 a 5; primeiro passo: `npm create vite@latest gastos`.
+## Erros comuns
+- Planejar 20 funções antes da primeira funcionar.
+- Escolher tecnologia da moda que a pessoa não conhece.
+- Etapas vagas ("fazer o back-end").

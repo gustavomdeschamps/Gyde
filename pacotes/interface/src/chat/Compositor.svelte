@@ -1,15 +1,16 @@
 <script lang="ts">
   // Caixa de envio: texto, anexos (arquivos, pasta, .zip, colar e arrastar), modo imagem, ditado e o menu "/" das skills.
+  import { icone as svgIcone } from '../icones.ts';
   import { tick } from 'svelte';
   import { chat, enviar, parar, podeEnviar, adicionarArquivos, adicionarPasta, adicionarZip, type SkillInstalada } from './estado.svelte.ts';
   import { toast } from '../util.ts';
   import { temDitado, ditar } from '../voz.ts';
 
   const icone = {
-    arquivo: '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
-    pasta: '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
-    zip: '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M11 6h1M11 9h1M11 12h1M10.5 15h2v3h-2z"/></svg>',
-    fechar: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    arquivo: svgIcone('file'),
+    pasta: svgIcone('folder'),
+    zip: svgIcone('file-archive'),
+    fechar: svgIcone('x'),
   };
   const PADRAO = 'Pergunte ao Gyde ou cole seu código';
 
@@ -114,7 +115,7 @@
         <div class="slash-title">Skills instaladas</div>
         {#each slash as s, i}
           <button type="button" role="option" aria-selected={i === slashIndice} class="slash-item" class:active={i === slashIndice} onmousedown={(e) => { e.preventDefault(); escolher(s); }}>
-            <span class="skill-symbol">{s.simbolo}</span><span class="slash-text"><b>{s.nome}</b><small>{s.descricao}</small></span><code>{s.comando}</code>
+            <span class="skill-symbol">{@html svgIcone(s.icone)}</span><span class="slash-text"><b>{s.nome}</b><small>{s.descricao}</small></span><code>{s.comando}</code>
           </button>
         {/each}
       {:else}
@@ -124,10 +125,10 @@
   {/if}
   <div class="composer-row">
     <button type="button" class="icon-btn" id="attachBtn" aria-label="Anexar arquivo" aria-haspopup="menu" aria-expanded={Boolean(menuAnexo)} title="Anexar imagens, PDFs ou arquivos de texto" onclick={abrirMenuAnexo}>
-      <svg viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg>
+      {@html svgIcone('paperclip')}
     </button>
     <button type="button" class="mode-btn" id="imageBtn" aria-pressed={chat.modoImagem} title="Criar uma imagem a partir do que você escrever" onclick={modoImagem}>
-      <svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8.5 8.5"/></svg>
+      {@html svgIcone('image')}
       <span>Imagem</span>
     </button>
     <input type="file" id="folderInput" webkitdirectory hidden bind:this={entradaPasta}
@@ -142,12 +143,12 @@
       oninput={aoDigitar} onkeydown={tecla} onpaste={colar} onblur={() => setTimeout(() => (slashFechado = true), 120)} onfocus={() => (slashFechado = false)}></textarea>
     {#if temDitado}
       <button type="button" class="icon-btn mic" class:listening={ouvindo} id="micBtn" aria-label={ouvindo ? 'Parar de ouvir' : 'Falar'} title={'Falar (diga "enviar" no fim para mandar)'} onclick={microfone}>
-        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+        {@html svgIcone('mic')}
       </button>
     {/if}
     <button type="submit" class="send" class:streaming={chat.transmitindo} id="sendBtn" aria-label={chat.transmitindo ? 'Parar resposta' : 'Enviar'} disabled={desabilitado}>
-      <svg class="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
-      <svg class="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>
+      {@html svgIcone('arrow-up', undefined, 'i-send')}
+      {@html svgIcone('square', undefined, 'i-stop')}
     </button>
   </div>
 </form>

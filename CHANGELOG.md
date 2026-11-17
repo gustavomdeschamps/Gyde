@@ -3,6 +3,34 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.4.0
+
+### Skills que fazem diferença
+- **Catálogo por objetivo:** barra "Quero..." (escreva "fazer um site" e aparece o pacote "Criar um site"), 9 pacotes que
+  instalam de uma vez as skills que trabalham juntas, "Para começar", "Mais instaladas" e filtro pelas 11 categorias.
+- **56 skills** (44 novas), cada uma com passos, checklist, exemplo e erros comuns. Todas foram testadas na mesma tarefa
+  com e sem ela (2 ou 3 execuções de cada lado) e cumpriram mais critérios com ela; o cartão mostra o resultado. Quatro
+  não melhoraram na primeira medição e foram reescritas antes de entrar.
+- **Só as partes necessárias entram no pedido:** passos e checklist sempre; exemplo e erros comuns se couberem (erros
+  primeiro quando a mensagem fala de erro). No máximo 2 skills por mensagem, até 1.500 caracteres cada.
+- A resposta mostra **Usando a skill X**; sem skill instalada do assunto, sugere a do catálogo que ajudaria.
+- Tela de Skills refeita: cartões com ícone na cor da categoria, descrição de uma linha, selo, resultado do teste e
+  Instalar ou Instalada, no computador e no celular, claro e escuro.
+
+### Agentes especializados
+- Depurador, Testador, Revisor de segurança, Explicador para iniciantes, Documentador, Designer de interface e
+  Planejador: escolhidos por regras só quando o pedido precisa, sem chamada a mais, e mostrados na resposta. Todos
+  cumpriram mais critérios com o papel na avaliação; Designer e Planejador deixam a resposta cerca de 2 vezes mais lenta.
+
+### Ícones, sem emoji
+- Um conjunto único de ícones (Lucide, licença ISC) no app, nas duas extensões e no site, com o mesmo traço e tamanho.
+  Ícone decorativo fica escondido do leitor de tela; botão só com ícone tem nome acessível.
+- Nenhum emoji ou caractere solto como ícone (como a marca de certo, a estrela ou o sinal de parágrafo) nas telas; as
+  respostas da IA também perdem esses símbolos.
+
+### Correções
+- A Cidade mostra o arquivo que a Forja leu mesmo quando é aberta um instante depois (2.3.0).
+
 ## 2.3.0
 
 ### Forja

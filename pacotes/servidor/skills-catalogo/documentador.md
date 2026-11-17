@@ -1,18 +1,27 @@
 ---
 id: documentador
-nome: Documentador
-descricao: Gera README, comentários e documentação de funções claros e no padrão da linguagem.
-simbolo: ¶
+nome: Documentar funções
+descricao: Escreve comentários de documentação (JSDoc, docstring, Javadoc) com parâmetros, retorno e exemplo.
+icone: file-code
+categoria: Documentação
 comando: /docs
-gatilhos: readme, documentação, documentar, docstring, jsdoc, javadoc, comentar o código
-categoria: Código
+gatilhos: documentar, documentação, docstring, jsdoc, javadoc, comentar o código, comentário de função
 ---
-Quando esta skill estiver ativa, escreva documentação útil e enxuta.
-
-- **Comentários e docstrings**: use o padrão da linguagem (docstring em Python, JSDoc em JavaScript,
-  Javadoc em Java). Documente o que a função recebe, devolve, os erros que pode lançar e um exemplo.
-  Comente o **porquê**, não o óbvio ("soma 1 em i" é inútil).
-- **README**: inclua título, uma frase do que o projeto faz, como instalar, como rodar, exemplo de uso,
-  estrutura de pastas e como contribuir. Use Markdown limpo e comandos em blocos de código.
-- Não invente funcionalidades que não aparecem no código. Se faltar informação, deixe um
-  `<!-- TODO: ... -->` indicando o que preencher.
+## Passos
+1. Use o padrão da linguagem: JSDoc (`/** */`) em JS/TS, docstring em Python, Javadoc em Java.
+2. Primeira linha: o que a função faz, no presente ("Calcula o frete...").
+3. Cada parâmetro com tipo e significado; o retorno; os erros que pode lançar.
+4. Um exemplo de uso curto.
+5. Comente o porquê de trechos não óbvios, não o que cada linha faz.
+## Checklist
+- Formato da linguagem certo.
+- Parâmetros, retorno e erros.
+- Exemplo de uso.
+- Nenhum comentário óbvio ("// soma a e b").
+## Exemplo
+Entrada: `function frete(peso, cep)`
+Saída: `/** Calcula o frete em reais. @param {number} peso Peso em kg. @param {string} cep CEP de destino, só números. @returns {number} @throws {Error} Se o CEP for inválido. @example frete(2, '88000000') // 23.5 */`
+## Erros comuns
+- Comentar cada linha.
+- Documentação que não bate com o código.
+- Esquecer os erros possíveis.

@@ -110,12 +110,14 @@ export const ResultadoQuestionario = z.object({
 
 // ---------- Skills ----------
 const SkillBase = z.object({
-  nome: z.string(), descricao: z.string(), simbolo: z.string(), comando: z.string(), gatilhos: z.array(z.string()), categoria: z.string(), corpo: z.string(),
+  nome: z.string(), descricao: z.string(), icone: z.string(), comando: z.string(), gatilhos: z.array(z.string()), categoria: z.string(), corpo: z.string(),
 });
 export const Skill = SkillBase.extend({
   id: z.string(), origem: z.enum(['catalogo', 'minha']), instalada: z.boolean(),
   publicada: z.string().nullable().optional(), // id na loja, se a pessoa publicou esta skill
   loja: z.string().nullable().optional(), // id na loja de onde esta cópia veio
+  // resultado da avaliação (mesma tarefa com e sem a skill): % dos critérios cumpridos e execuções de cada lado
+  teste: z.object({ com: z.number().nullable(), sem: z.number().nullable(), n: z.number().int(), criterios: z.number().int(), melhorou: z.boolean() }).nullable().optional(),
 });
 export const ListaSkills = z.object({ skills: z.array(Skill) });
 export const SkillSalva = ListaSkills.extend({ id: z.string() });
@@ -125,6 +127,12 @@ export const ItemLoja = SkillBase.extend({
   id: z.string(), autor: z.string(), installs: z.number().int(), atualizada: z.number(), minha: z.boolean(), instalada: z.boolean(),
 });
 export const Loja = z.object({ loja: z.array(ItemLoja) });
+export const PacoteSkills = z.object({ id: z.string(), nome: z.string(), icone: z.string(), descricao: z.string(), frases: z.array(z.string()), skills: z.array(z.string()) });
+export const ObjetivosSkills = z.object({
+  categorias: z.array(z.object({ nome: z.string(), icone: z.string() })), pacotes: z.array(PacoteSkills),
+  paraComecar: z.array(z.string()), maisUsadas: z.array(z.string()),
+  avaliacao: z.object({ em: z.string().nullable(), provedores: z.array(z.string()) }),
+});
 
 // ---------- Relatório de erro ----------
 export const Diagnostico = z.object({
@@ -205,6 +213,8 @@ export type TConexoes = z.infer<typeof Conexoes>;
 export type TTokens = z.infer<typeof Tokens>;
 export type TSkill = z.infer<typeof Skill>;
 export type TItemLoja = z.infer<typeof ItemLoja>;
+export type TObjetivosSkills = z.infer<typeof ObjetivosSkills>;
+export type TPacoteSkills = z.infer<typeof PacoteSkills>;
 export type TPergunta = z.infer<typeof Pergunta>;
 export type TResultadoQuestionario = z.infer<typeof ResultadoQuestionario>;
 export type TRascunhoForja = z.infer<typeof RascunhoForja>;

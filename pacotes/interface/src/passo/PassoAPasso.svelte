@@ -1,6 +1,7 @@
 <script lang="ts">
   // Passo a passo visual: a linha que vai rodar, a memória desenhada (pilha de chamadas, objetos e setas) ou em tabela,
   // e a saída.
+  import { icone as svgIcone } from '../icones.ts';
   import { onMount, tick } from 'svelte';
   import hljs from '@highlightjs/cdn-assets/es/highlight.min.js';
   import { execute } from '../runner.ts';
@@ -10,13 +11,13 @@
   let { codigo, onfechar }: { codigo: string; onfechar: () => void } = $props();
 
   const icone = {
-    inicio: '<svg viewBox="0 0 24 24"><path d="M6 5v14M18 6l-8 6 8 6z"/></svg>',
-    anterior: '<svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>',
-    proximo: '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
-    fim: '<svg viewBox="0 0 24 24"><path d="M18 5v14M6 6l8 6-8 6z"/></svg>',
-    tocar: '<svg viewBox="0 0 24 24"><path d="M7 5v14l11-7z"/></svg>',
-    pausar: '<svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg>',
-    fechar: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    inicio: svgIcone('skip-back'),
+    anterior: svgIcone('chevron-left'),
+    proximo: svgIcone('chevron-right'),
+    fim: svgIcone('skip-forward'),
+    tocar: svgIcone('play'),
+    pausar: svgIcone('pause'),
+    fechar: svgIcone('x'),
   };
 
   let dialogo: HTMLDialogElement | undefined = $state();

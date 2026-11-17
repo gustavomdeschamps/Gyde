@@ -234,7 +234,7 @@ class ChatView {
         signal: this.abort.signal,
         modelo: this.modelo,
         onDelta: (t) => this.post({ type: 'delta', text: t }),
-        onSkills: (skills) => this.post({ type: 'skills', skills: skills.map((s) => `${s.simbolo} ${s.nome}`) }),
+        onSkills: (skills) => this.post({ type: 'skills', skills: skills.map((s) => ({ nome: s.nome, icone: s.icone })) }),
       });
       this.post({ type: 'done', text: resposta.text, modelo: resposta.modelo });
     } catch (e) {

@@ -1,4 +1,5 @@
 // Markdown das respostas: código colorido com botões (Executar, Passo a passo, Copiar) e HTML sempre sanitizado.
+import { icone as svgIcone } from './icones.ts';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import hljs from '@highlightjs/cdn-assets/es/highlight.min.js';
@@ -7,9 +8,9 @@ import { openTrace } from './passo-a-passo.ts';
 import { copiarTexto, escaparHtml } from './util.ts';
 
 const icone = {
-  play: '<svg viewBox="0 0 24 24"><path d="M7 5v14l11-7z"/></svg>',
-  passos: '<svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h6M4 18h10M17 9l3 3-3 3"/></svg>',
-  copiar: '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
+  play: svgIcone('play'),
+  passos: svgIcone('list-checks'),
+  copiar: svgIcone('copy'),
 };
 
 marked.setOptions({ gfm: true, breaks: false });

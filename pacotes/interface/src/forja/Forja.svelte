@@ -303,7 +303,7 @@
     {#if anexos.length}
       <div class="forja-anexos">
         {#each anexos as a, i}
-          <span class="forja-anexo">{#if a.tipo === 'imagem'}<img src={a.dataUrl} alt="">{:else}{@html ic.ler}{/if}<span>{a.nome}<small>{tamanho(a.tamanho)}</small></span><button type="button" aria-label="Tirar {a.nome}" onclick={() => anexos.splice(i, 1)}>✕</button></span>
+          <span class="forja-anexo">{#if a.tipo === 'imagem'}<img src={a.dataUrl} alt="">{:else}{@html ic.ler}{/if}<span>{a.nome}<small>{tamanho(a.tamanho)}</small></span><button type="button" aria-label="Tirar {a.nome}" onclick={() => anexos.splice(i, 1)}>{@html ic.fechar}</button></span>
         {/each}
       </div>
     {/if}

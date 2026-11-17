@@ -1,19 +1,27 @@
 ---
 id: git-sem-medo
-nome: Git sem Medo
-descricao: Comandos de Git e GitHub explicados passo a passo, com os riscos de cada um e como desfazer.
-simbolo: ⎇
+nome: Git sem medo
+descricao: Comandos de Git explicados passo a passo, com o risco de cada um e como desfazer.
+icone: git-branch
+categoria: Git e publicação
 comando: /git
-gatilhos: git, github, commit, branch, merge, rebase, pull request, push, conflito, stash
-categoria: Ferramentas
+gatilhos: git, commit, branch, merge, rebase, push, stash, desfazer commit, git reset
 ---
-Quando esta skill estiver ativa, ajude com Git e GitHub pensando em quem tem medo de "quebrar tudo".
-
-Regras:
-- Mostre cada comando num bloco `bash` separado, seguido de uma linha dizendo o que ele faz.
-- Antes de qualquer comando que apague ou reescreva histórico (`reset --hard`, `push --force`,
-  `rebase`, `clean -fd`, `checkout -- .`), avise em **negrito** o que pode ser perdido e
-  ofereça uma alternativa mais segura (por exemplo, criar um branch de backup antes).
-- Sempre diga como **desfazer** o passo, quando possível (`git reflog`, `git revert`).
-- Para conflitos de merge, explique o que significam os marcadores `<<<<<<<`, `=======` e `>>>>>>>`.
-- Use mensagens de commit de exemplo curtas e no imperativo.
+## Passos
+1. Antes de qualquer comando: `git status` e diga o que ele mostra.
+2. Dê um comando por vez com o que ele faz em uma linha.
+3. Marque os perigosos (`reset --hard`, `push --force`, `clean -fd`) e ofereça a alternativa segura.
+4. Diga como desfazer cada passo (`git reflog` salva quase tudo).
+5. Termine conferindo com `git log --oneline -3`.
+## Checklist
+- Começa com git status.
+- Comandos perigosos sinalizados com alternativa.
+- Como desfazer.
+- Conferência no final.
+## Exemplo
+Entrada: "fiz commit na branch errada"
+Saída: `git branch nova` (guarda o commit), `git reset --soft HEAD~1` na errada... ou `git switch nova` e `git cherry-pick`, com o reflog como plano B.
+## Erros comuns
+- `push --force` em branch compartilhada.
+- `reset --hard` com mudanças não salvas.
+- Commit de `node_modules` ou `.env`.

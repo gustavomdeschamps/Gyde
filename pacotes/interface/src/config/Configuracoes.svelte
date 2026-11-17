@@ -1,6 +1,7 @@
 <script lang="ts">
   // Configurações do Gyde: cada controle salva na hora. Preferências da conta vão para o servidor (contrato
   // Preferencias); tema e vídeo de abertura são deste navegador.
+  import { icone as svgIcone } from '../icones.ts';
   import { untrack } from 'svelte';
   import * as C from '$contratos';
   import type { TMemoria, TTokens } from '$contratos';
@@ -131,7 +132,7 @@
   <div class="config-form">
     <header class="config-topo">
       <h2 id="configTitulo">Configurações</h2>
-      <button type="button" class="icon-btn" aria-label="Fechar" onclick={fechar}><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button type="button" class="icon-btn" aria-label="Fechar" onclick={fechar}>{@html svgIcone('x')}</button>
     </header>
     <div class="config-corpo">
       <div class="config-abas" role="tablist" aria-label="Seções das configurações" tabindex="-1" onkeydown={teclaAbas}>
@@ -233,7 +234,7 @@
             </div>
             <ul class="memory-list">
               {#each memoria?.itens ?? [] as it, i (it.id)}
-                <li style="animation-delay:{i * 30}ms"><span>{it.text}</span><small>{ORIGEM_MEM[it.source]}</small><button type="button" aria-label="Esquecer" onclick={() => memoriaPedido(`/api/memoria/${it.id}`, { method: 'DELETE' })}>×</button></li>
+                <li style="animation-delay:{i * 30}ms"><span>{it.text}</span><small>{ORIGEM_MEM[it.source]}</small><button type="button" aria-label="Esquecer" onclick={() => memoriaPedido(`/api/memoria/${it.id}`, { method: 'DELETE' })}>{@html svgIcone('x')}</button></li>
               {:else}<li class="empty"><span>Ainda não lembro de nada sobre você.</span></li>{/each}
             </ul>
             <div class="memory-add"><input maxlength="200" bind:value={novaMemoria} placeholder="Ex.: estou fazendo um jogo em Pygame para o TCC" aria-label="Novo fato para a memória" onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); guardarMemoria(); } }}><button type="button" class="btn small" onclick={guardarMemoria}>Guardar</button></div>

@@ -1,5 +1,10 @@
 # Novidades
 
+## 2.4.0 (junto com o Gyde 2.4.0)
+
+- Ícones do conjunto do Gyde (Lucide) no painel, sem emoji nem caractere solto.
+- A resposta mostra "Usando a skill X" quando uma skill instalada entra.
+
 ## 2.3.0 (junto com o Gyde 2.3.0)
 
 - Sem mudanças na extensão: a versão acompanha o app.

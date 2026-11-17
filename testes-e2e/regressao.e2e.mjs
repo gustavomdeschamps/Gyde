@@ -19,6 +19,8 @@ try {
   for (const h of ['#/', '#/skills', '#/agente']) {
     nav.erros.length = 0;
     await nav.ir(`${servidor.base}/?r=${Date.now()}${h}`, 2500);
+    // espera a página montar (no CI lento, 2,5 s às vezes não bastam) em vez de olhar num tempo fixo
+    await nav.esperar(`Boolean(document.querySelector('.main')?.dataset.page)`, 15_000);
     const pagina = await nav.avaliar(`document.querySelector('.main')?.dataset.page`);
     ok(`página ${h} abre sem erro`, nav.erros.length === 0 && Boolean(pagina), `${pagina}${nav.erros.length ? ` | ${nav.erros.join(' | ')}` : ''}`);
   }
