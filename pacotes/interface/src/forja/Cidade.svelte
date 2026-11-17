@@ -2,6 +2,7 @@
   // Cidade do código: a pasta conectada como cidade (pasta = bairro, arquivo = prédio, altura = tamanho,
   // vermelho = mais alterado no git). Duas formas de ver: a cidade em 3D (o Three.js só é baixado quando ela abre)
   // e a lista em texto, que funciona sem 3D e é a alternativa acessível.
+  import { icone as svgIcone } from '../icones.ts';
   import { untrack } from 'svelte';
   import * as C from '$contratos';
   import type { TCidade, TPredio } from '$contratos';
@@ -180,7 +181,7 @@
             <span class="cidade-vidro cidade-numeros"><b>{numero(cidade.arquivos.length)}</b> prédios <span aria-hidden="true">·</span> <b>{numero(new Set(cidade.arquivos.map((a) => bairroDe(a.caminho))).size)}</b> bairros{#if cidade.git.ativo}<span class="cidade-hud-extra">{' '}<span aria-hidden="true">·</span>{' '}<b>{numero(cidade.git.commits)}</b> commits</span>{/if}</span>
             <span class="cidade-hud-dir">
               <label class="cidade-vidro cidade-busca"><span class="sr-only">Procurar na cidade</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+                {@html svgIcone('search')}
                 <input type="search" bind:value={busca3d} placeholder="Procurar" autocomplete="off" spellcheck="false">
                 {#if achados != null}<small aria-live="polite">{achados} {achados === 1 ? 'achado' : 'achados'}</small>{/if}
               </label>
@@ -199,12 +200,12 @@
           <div class="cidade-vidro cidade-aviso3d" class:grave={aviso3d.grave} role="status">
             <span>{aviso3d.texto}</span>
             {#if aviso3d.grave}<button type="button" class="btn small primary" onclick={() => trocarModo('lista')}>Ver como lista</button>
-            {:else}<button type="button" class="cidade-cartao-fechar" aria-label="Fechar aviso" onclick={() => { aviso3d = null; }}>✕</button>{/if}
+            {:else}<button type="button" class="cidade-cartao-fechar" aria-label="Fechar aviso" onclick={() => { aviso3d = null; }}>{@html svgIcone('x')}</button>{/if}
           </div>
         {/if}
         {#if escolhido}
           <article class="cidade-vidro cidade-cartao" aria-label="Arquivo escolhido">
-            <button type="button" class="cidade-cartao-fechar" aria-label="Fechar" onclick={fecharCartao}>✕</button>
+            <button type="button" class="cidade-cartao-fechar" aria-label="Fechar" onclick={fecharCartao}>{@html svgIcone('x')}</button>
             <small class="cidade-cartao-bairro">{bairroDe(escolhido.caminho) || 'raiz do projeto'}</small>
             <h3>{nomeDe(escolhido.caminho)}</h3>
             <dl>

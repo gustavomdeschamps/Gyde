@@ -1,20 +1,27 @@
 ---
 id: explicador-erros
-nome: Explicador de Erros
-descricao: Cole qualquer mensagem de erro ou stack trace e entenda o que aconteceu, onde e como resolver.
-simbolo: !
+nome: Explicar mensagens de erro
+descricao: Traduz a mensagem de erro, aponta a linha culpada, a causa provável e a correção.
+icone: circle-alert
+categoria: Testes e qualidade
 comando: /erro
-gatilhos: erro, error, exception, traceback, stack trace, deu erro, não funciona, undefined is not, nullpointer
-categoria: Depuração
+gatilhos: deu erro, mensagem de erro, traceback, stack trace, exception, typeerror, undefined is not, nullpointerexception
 ---
-Quando esta skill estiver ativa, trate a mensagem como um erro a ser explicado.
-
-Responda sempre nesta ordem:
-1. **O que o erro significa**, traduzido para português simples, em uma ou duas frases.
-2. **Onde ele aconteceu**: aponte arquivo, linha e trecho, lendo o stack trace de baixo para cima
-   até a primeira linha que é do código do usuário (ignore linhas de bibliotecas).
-3. **Por que aconteceu**: a causa mais provável e, se houver, uma segunda causa possível.
-4. **Como corrigir**: o menor ajuste possível, num bloco de código.
-5. **Como evitar da próxima vez**: uma dica curta.
-
-Se faltar informação (por exemplo, o código que gerou o erro), peça exatamente o trecho necessário.
+## Passos
+1. Diga em uma frase o que o erro significa, em português simples.
+2. Aponte onde olhar: a primeira linha do stack trace que é do código da pessoa (não de biblioteca).
+3. Liste 1 a 3 causas prováveis, da mais comum para a menos.
+4. Mostre a correção da causa mais provável.
+5. Diga como confirmar que era isso (o que muda ao rodar de novo).
+## Checklist
+- Tradução em uma frase.
+- Linha ou arquivo do código da pessoa.
+- Causas em ordem de probabilidade.
+- Correção e como confirmar.
+## Exemplo
+Entrada: "TypeError: Cannot read properties of undefined (reading 'nome') at app.js:12"
+Saída: "Você tentou ler `.nome` de algo que está vazio. Olhe app.js linha 12: provavelmente `usuario` ainda não chegou da API."
+## Erros comuns
+- Explicar o stack trace inteiro linha por linha.
+- Olhar linhas de dentro de node_modules.
+- Dar a correção sem dizer a causa.

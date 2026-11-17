@@ -1,5 +1,6 @@
 <script lang="ts">
   // "Mostrar o erro": o print com a região do problema destacada (estimada por um modelo com visão) e a explicação.
+  import { icone as svgIcone } from '../icones.ts';
   import { onMount } from 'svelte';
   import * as C from '$contratos';
   import type { TApontamento } from '$contratos';
@@ -19,7 +20,7 @@
 
 <dialog class="dialog apontar" bind:this={dialogo} onclose={onfechar} aria-label="Onde está o erro">
   <div class="apontar-topo"><h2>Onde está o erro</h2>
-    <button type="button" class="icon-btn" aria-label="Fechar" onclick={() => dialogo?.close()}><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <button type="button" class="icon-btn" aria-label="Fechar" onclick={() => dialogo?.close()}>{@html svgIcone('x')}</button></div>
   <div class="apontar-imagem" class:analisando={!r && !erro}>
     <img src={imagem} alt={nome}>
     {#if r?.regiao}

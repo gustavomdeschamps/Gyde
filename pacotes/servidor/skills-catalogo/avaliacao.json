@@ -1,0 +1,402 @@
+{
+ "em": "2026-11-17",
+ "provedores": [
+  "nvidia",
+  "groq"
+ ],
+ "nota": "Média dos critérios cumpridos na mesma tarefa com e sem a skill; n = execuções de cada lado. Detalhe em docs/avaliacao/skills-2026-11-17.json",
+ "skills": {
+  "acessibilidade-web": {
+   "com": 75,
+   "sem": 38,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "analise-pandas": {
+   "com": 75,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "api-rest": {
+   "com": 100,
+   "sem": 88,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "app-celular": {
+   "com": 100,
+   "sem": 0,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "banco-no-codigo": {
+   "com": 100,
+   "sem": 67,
+   "n": 3,
+   "criterios": 5,
+   "melhorou": true
+  },
+  "changelog-versoes": {
+   "com": 67,
+   "sem": 33,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "commits-claros": {
+   "com": 67,
+   "sem": 50,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "componentes-react": {
+   "com": 100,
+   "sem": 73,
+   "n": 3,
+   "criterios": 5,
+   "melhorou": true
+  },
+  "conflitos-git": {
+   "com": 100,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "consumir-api": {
+   "com": 100,
+   "sem": 63,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "debug-socratico": {
+   "com": 100,
+   "sem": 0,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "desempenho-codigo": {
+   "com": 100,
+   "sem": 67,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "design-de-jogo": {
+   "com": 100,
+   "sem": 25,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "design-visual": {
+   "com": 88,
+   "sem": 0,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "documentador": {
+   "com": 100,
+   "sem": 75,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "documentar-api": {
+   "com": 100,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "entrevista-tecnica": {
+   "com": 100,
+   "sem": 25,
+   "n": 2,
+   "criterios": 2,
+   "melhorou": true
+  },
+  "estatistica-basica": {
+   "com": 83,
+   "sem": 33,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "exercicios-praticos": {
+   "com": 100,
+   "sem": 50,
+   "n": 2,
+   "criterios": 2,
+   "melhorou": true
+  },
+  "explicador-erros": {
+   "com": 100,
+   "sem": 50,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "explicar-conceito": {
+   "com": 100,
+   "sem": 33,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "formulario-web": {
+   "com": 100,
+   "sem": 38,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "front-end": {
+   "com": 100,
+   "sem": 75,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "git-sem-medo": {
+   "com": 88,
+   "sem": 25,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "github-actions": {
+   "com": 100,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "graficos-dados": {
+   "com": 75,
+   "sem": 63,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "indices-consultas": {
+   "com": 100,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "injecao-xss": {
+   "com": 100,
+   "sem": 67,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "jogo-canvas": {
+   "com": 100,
+   "sem": 38,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "jogo-python": {
+   "com": 94,
+   "sem": 56,
+   "n": 3,
+   "criterios": 6,
+   "melhorou": true
+  },
+  "json-csv": {
+   "com": 100,
+   "sem": 88,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "landing-page": {
+   "com": 75,
+   "sem": 0,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "layout-css": {
+   "com": 83,
+   "sem": 67,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "ler-codigo": {
+   "com": 100,
+   "sem": 63,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "limpar-dados": {
+   "com": 100,
+   "sem": 0,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "linha-de-comando": {
+   "com": 100,
+   "sem": 67,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "logica-de-jogo": {
+   "com": 88,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "logica-programacao": {
+   "com": 100,
+   "sem": 0,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "modelagem-banco": {
+   "com": 100,
+   "sem": 88,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "node-express": {
+   "com": 100,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "planejador-projetos": {
+   "com": 100,
+   "sem": 0,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "planilhas-formulas": {
+   "com": 100,
+   "sem": 33,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "plano-de-estudos": {
+   "com": 88,
+   "sem": 38,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "publicar-site": {
+   "com": 100,
+   "sem": 38,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "python-flask": {
+   "com": 75,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "readme-projeto": {
+   "com": 100,
+   "sem": 63,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "refatorador": {
+   "com": 100,
+   "sem": 33,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "regex": {
+   "com": 100,
+   "sem": 33,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "revisao-seguranca": {
+   "com": 75,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "revisor-codigo": {
+   "com": 100,
+   "sem": 38,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "scripts-arquivos": {
+   "com": 100,
+   "sem": 0,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "segredos-env": {
+   "com": 100,
+   "sem": 63,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "senhas-seguras": {
+   "com": 38,
+   "sem": 25,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "sql-na-pratica": {
+   "com": 100,
+   "sem": 33,
+   "n": 2,
+   "criterios": 3,
+   "melhorou": true
+  },
+  "tarefas-agendadas": {
+   "com": 100,
+   "sem": 50,
+   "n": 2,
+   "criterios": 4,
+   "melhorou": true
+  },
+  "testes-automatizados": {
+   "com": 100,
+   "sem": 33,
+   "n": 3,
+   "criterios": 4,
+   "melhorou": true
+  }
+ }
+}

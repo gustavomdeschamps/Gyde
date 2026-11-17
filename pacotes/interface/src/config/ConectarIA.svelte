@@ -1,6 +1,7 @@
 <script lang="ts">
   // Configurações > Conectar IA: para quem nunca viu uma chave de API. Uma chave grátis basta; o Groq é opcional.
   // A chave colada é testada de verdade antes de salvar e nunca volta para a tela. O FreeLLMAPI fica em "Avançado".
+  import { icone as svgIcone } from '../icones.ts';
   import * as C from '$contratos';
   import type { TConexoes } from '$contratos';
   import { pedir, enviar, corpo, mensagemDe } from '../api.ts';
@@ -53,7 +54,7 @@
   <article class="conexao" class:conectada={p.conectado} aria-labelledby="conexao-{p.id}">
     <header class="conexao-topo">
       <h3 id="conexao-{p.id}">{p.nome}</h3>
-      {#if p.conectado}<span class="conexao-selo">✓ Conectado</span>{/if}
+      {#if p.conectado}<span class="conexao-selo">{@html svgIcone('circle-check')}Conectado</span>{/if}
     </header>
     <p class="conexao-desc">{p.descricao}</p>
     {#each p.avisos as aviso}<p class="conexao-aviso">{aviso}</p>{/each}
@@ -65,7 +66,7 @@
       </div>
     {:else}
       <ol class="conexao-passos">
-        <li><a href={p.linkChave} target="_blank" rel="noopener noreferrer">Abra o site {p.de} ↗</a> e entre na sua conta (ou crie uma, é grátis).</li>
+        <li><a href={p.linkChave} target="_blank" rel="noopener noreferrer">Abra o site {p.de}{@html svgIcone('external-link', undefined, 'icone-link')}<span class="sr-only"> (abre em outra aba)</span></a> e entre na sua conta (ou crie uma, é grátis).</li>
         <li>Clique para criar uma chave e copie o código que aparecer{#if p.prefixo}{' '}(ele começa com <code>{p.prefixo}</code>){/if}.</li>
         <li>Cole a chave aqui embaixo e clique em <b>Testar chave</b>.</li>
       </ol>
@@ -75,7 +76,7 @@
       </form>
     {/if}
     {#if resultado[p.id]}
-      <p class="conexao-resultado" class:ok={resultado[p.id]?.ok} role="status">{resultado[p.id]?.ok ? '✓' : '✗'} {resultado[p.id]?.texto}</p>
+      <p class="conexao-resultado" class:ok={resultado[p.id]?.ok} role="status">{@html svgIcone(resultado[p.id]?.ok ? 'circle-check' : 'circle-x')}{resultado[p.id]?.texto}</p>
     {/if}
   </article>
 {/snippet}

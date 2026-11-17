@@ -15,7 +15,7 @@ try {
   await transporter.sendMail({
     from: `Gyde <${SMTP_USER}>`,
     to: SMTP_USER,
-    subject: 'Gyde: e-mail configurado ✓',
+    subject: 'Gyde: e-mail configurado',
     text: 'Tudo certo! O Gyde já consegue mandar códigos de confirmação por este e-mail.',
   });
   console.log('OK');

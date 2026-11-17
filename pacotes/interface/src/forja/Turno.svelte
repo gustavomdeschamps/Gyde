@@ -1,5 +1,6 @@
 <script lang="ts">
   // Um turno da Forja: o pedido do usuário, a atividade (abre e fecha) e a resposta com o resumo das mudanças.
+  import { icone as svgIcone } from '../icones.ts';
   import { ic, verbo } from './icones.ts';
   import { duracao, relogio, type Turno, type EtapaAcao } from './estado.ts';
 
@@ -63,7 +64,7 @@
           <div class="ag-cab">
             <span class="ag-ic">{@html icone(e.nome)}</span>
             <span class="ag-tit"><b>{verbo[e.nome] || e.nome}</b> <code>{alvo(e)}</code></span>
-            <span class="ag-estado">{e.estado === 'ok' ? '✓' : e.estado === 'falhou' ? '✕' : e.estado === 'interrompido' ? '•' : ''}</span>
+            <span class="ag-estado">{@html e.estado === 'ok' ? svgIcone('check', 'Feito') : e.estado === 'falhou' ? svgIcone('x', 'Falhou') : e.estado === 'interrompido' ? svgIcone('pause', 'Interrompido') : ''}</span>
           </div>
           {#if e.pensamento}<p class="ag-pens">{e.pensamento}</p>{/if}
           {#if e.estado !== 'rodando' && e.estado !== 'interrompido'}
@@ -88,8 +89,8 @@
             <div><b>A Forja quer: {e.acao}</b><small>Precisa da sua autorização porque {e.motivo}.</small></div>
           {/if}
           <div class="forja-confirmar-botoes">
-            {#if e.resposta === true}<span class="forja-confirmar-estado">✓ {e.plano ? 'Plano aprovado' : 'Permitido'}</span>
-            {:else if e.resposta === false}<span class="forja-confirmar-estado">✕ {e.plano ? 'Plano recusado' : 'Não permitido'}</span>
+            {#if e.resposta === true}<span class="forja-confirmar-estado">{@html svgIcone('check')}{e.plano ? 'Plano aprovado' : 'Permitido'}</span>
+            {:else if e.resposta === false}<span class="forja-confirmar-estado">{@html svgIcone('x')}{e.plano ? 'Plano recusado' : 'Não permitido'}</span>
             {:else if e.aoVivo}
               <button type="button" class="btn small" onclick={() => onconfirmar(e.id, false)}>{e.plano ? 'Não seguir' : 'Não permitir'}</button>
               <button type="button" class="btn primary small" onclick={() => onconfirmar(e.id, true)}>{e.plano ? 'Seguir o plano' : 'Permitir'}</button>
@@ -109,7 +110,7 @@
           {#each [['Criados', 'criados', m.criados], ['Alterados', 'alterados', m.modificados], ['Apagados', 'apagados', m.apagados]] as [rot, cls, itens]}
             {#if (itens as string[]).length}<div class="forja-mud {cls}"><b>{rot}</b>{#each itens as string[] as f}<code>{f}</code>{/each}</div>{/if}
           {/each}
-          {#if m.comandos.length}<div class="forja-mud comandos"><b>Comandos</b>{#each m.comandos as c}<code class={c.ok ? 'ok' : 'falhou'}>{c.ok ? '✓' : '✕'} {c.comando}</code>{/each}</div>{/if}
+          {#if m.comandos.length}<div class="forja-mud comandos"><b>Comandos</b>{#each m.comandos as c}<code class={c.ok ? 'ok' : 'falhou'}>{@html svgIcone(c.ok ? 'check' : 'x', c.ok ? 'Deu certo' : 'Falhou')}{c.comando}</code>{/each}</div>{/if}
         </div>
       {/if}
       {@html renderMarkdown(turno.fim.texto)}

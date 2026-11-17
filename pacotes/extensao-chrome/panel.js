@@ -3,6 +3,7 @@
 import { marked } from './vendor/marked.esm.js';
 import DOMPurify from './vendor/purify.es.mjs';
 import { createAgent } from './agente.js';
+import { icone } from './icones.js';
 
 const $ = (s) => document.querySelector(s);
 const MAX_PAGE_CHARS = 30_000;
@@ -185,7 +186,7 @@ async function grab(kind, tabOverride) {
 }
 
 function renderCtx() {
-  $('#ctxChips').innerHTML = state.ctx.map((c, i) => `<span>${c.thumb ? `<img src="${c.thumb}" alt="">` : ''}<em>${esc(c.label)}</em><button type="button" data-rm="${i}" aria-label="Remover">×</button></span>`).join('');
+  $('#ctxChips').innerHTML = state.ctx.map((c, i) => `<span>${c.thumb ? `<img src="${c.thumb}" alt="">` : ''}<em>${esc(c.label)}</em><button type="button" data-rm="${i}" aria-label="Remover">${icone('x')}</button></span>`).join('');
 }
 $('#ctxChips').onclick = (e) => {
   const i = e.target.dataset?.rm;

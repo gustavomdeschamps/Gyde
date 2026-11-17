@@ -1,4 +1,5 @@
-// Skills (componente Svelte): catálogo, criar, editar, importar, publicar e instalar da loja por outra pessoa.
+// Skills (componente Svelte): catálogo por objetivo (busca "Quero...", pacotes, categorias), criar, editar, importar,
+// publicar e instalar da loja por outra pessoa.
 import { subirServidor, abrirNavegador, placar, espera as sleep } from './ajuda.mjs';
 
 const { ok, fim } = placar();
@@ -29,23 +30,41 @@ await send('Page.navigate', { url: `${BASE}/?r=1#/skills` }); await sleep(2500);
 
 // catálogo e instalar
 await espera(`document.querySelector('#skillsView .tab') !== null`, 15000);
-const total = await aba('Todas');
-ok('catálogo carrega com abas e contagens', total > 0 && await aba('Instaladas') === 0, `${total} skills`);
-await ev(`document.querySelector('#skillsView .skill-card .btn.primary').click()`);
-ok('instalar muda o botão e a contagem', await espera(`document.querySelector('#skillsView .skill-card.on .btn.installed') !== null`) && await aba('Instaladas') === 1);
+const total = await aba('Catálogo');
+ok('catálogo carrega com abas e contagens', total >= 50 && await aba('Instaladas') === 0, `${total} skills`);
+ok('página inicial do catálogo: para começar, pacotes e filtros por categoria', await espera(`document.querySelectorAll('.sk-pacote').length >= 5 && document.querySelectorAll('.sk-filtros button').length === 12 && /Para começar/.test(document.querySelector('#skillsView').textContent)`));
+ok('cartões com ícone do conjunto (decorativo), selo de categoria e resultado do teste', await ev(`[...document.querySelectorAll('#skillsView .sk-cartao')].every((c) => c.querySelector('.sk-marca svg.icone[aria-hidden="true"]') && c.querySelector('.sk-selo') && /testada/i.test(c.querySelector('.sk-teste').textContent))`));
+// filtro por categoria
+await clicar('.sk-filtros button', 'Banco de dados');
+ok('filtro por categoria mostra só as dela', await espera(`[...document.querySelectorAll('.sk-secao:last-child .sk-cartao .sk-selo')].every((x) => x.textContent === 'Banco de dados') && document.querySelectorAll('.sk-secao:last-child .sk-cartao').length >= 3`));
+await clicar('.sk-filtros button', 'Todas');
+// "quero fazer um site" chega no pacote certo sem procurar skill por skill
+await preencher('#skQuero', 'quero fazer um site');
+ok('busca por objetivo tira o "quero" repetido e acha o pacote Criar um site', await espera(`document.querySelector('#skQuero').value === 'fazer um site' && /Criar um site/.test(document.querySelector('.sk-pacote h3')?.textContent || '')`));
+await clicar('.sk-pacote .btn.primary', 'Instalar');
+ok('instalar o pacote instala as 4 skills de uma vez', await espera(`document.querySelector('.sk-pacote .btn.installed') !== null`) && await aba('Instaladas') === 4);
+await preencher('#skQuero', 'zzzz');
+ok('busca sem resultado orienta e oferece criar', await espera(`/Nenhuma skill sobre/.test(document.querySelector('#skillsView').textContent)`));
+await preencher('#skQuero', '');
+// volta ao estado do resto do teste: nada instalado
+await ev(`(async()=>{ for (const id of ['front-end','design-visual','acessibilidade-web','publicar-site']) await fetch('/api/skills/' + id + '/install', { method: 'DELETE', headers: ${H} }); return 1; })()`);
+await send('Page.navigate', { url: `${BASE}/?r=1b#/skills` }); await sleep(2000);
+await espera(`document.querySelector('#skillsView .sk-cartao') !== null`, 15000);
+await ev(`document.querySelector('#skillsView .sk-cartao .btn.primary').click()`);
+ok('instalar muda o botão e a contagem', await espera(`document.querySelector('#skillsView .sk-cartao.on .btn.installed') !== null`) && await aba('Instaladas') === 1);
 ok('selo do menu lateral mostra 1', await ev(`document.querySelector('#skillsBadge').textContent === '1'`));
-const comandoInstalado = await ev(`document.querySelector('#skillsView .skill-card.on .cmd')?.textContent || ''`);
+const comandoInstalado = await ev(`fetch('/api/skills').then((r) => r.json()).then((r) => r.skills.find((s) => s.instalada)?.comando || '')`);
 await ev(`location.hash = '#/'`); await sleep(600);
 await ev(`(()=>{ const t = document.querySelector('#input'); t.focus(); t.value = '/'; t.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`); await sleep(200);
 ok('skill instalada aparece no menu "/" do chat', await ev(`[...document.querySelectorAll('.slash-item code')].some((c) => c.textContent === ${JSON.stringify(comandoInstalado)})`), comandoInstalado);
 await ev(`(()=>{ const t = document.querySelector('#input'); t.value = ''; t.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
 await ev(`location.hash = '#/skills'`); await sleep(800);
 await clicar('#skillsView .tab', 'Instaladas'); await sleep(200);
-await ev(`document.querySelector('#skillsView .skill-card .btn.installed').click()`);
-ok('remover na aba Instaladas tira o cartão', await espera(`document.querySelectorAll('#skillsView .skill-card').length === 0 && /Nenhuma skill instalada/.test(document.querySelector('#skillsView').textContent)`));
+await ev(`document.querySelector('#skillsView .sk-cartao .btn.installed').click()`);
+ok('remover na aba Instaladas tira o cartão', await espera(`document.querySelectorAll('#skillsView .sk-cartao').length === 0 && /Nenhuma skill instalada/.test(document.querySelector('#skillsView').textContent)`));
 
 // criar
-await clicar('#skillsView .tab', 'Todas');
+await clicar('#skillsView .tab', 'Catálogo');
 await clicar('#skillsView .hero-actions button', 'Criar skill');
 ok('editor abre', await espera(`document.querySelector('dialog.wide-dialog[open] .skill-form') !== null`));
 await preencher('.skill-form input[name="nome"]', 'Skill de teste');
@@ -55,7 +74,7 @@ await preencher('.skill-form textarea[name="corpo"]', 'Quando esta skill estiver
 await ev(`document.querySelectorAll('.symbol-picker button')[4].click()`);
 await clicar('.skill-form .dialog-actions button', 'Salvar skill');
 ok('salvar abre a página da skill nova', await espera(`/^#\\/skills\\/minha-/.test(location.hash) && /Skill de teste/.test(document.querySelector('.skill-detail h1')?.textContent || '')`));
-ok('símbolo escolhido e "Minha skill"', await ev(`document.querySelector('.skill-detail .skill-symbol').textContent === '■' && /Minha skill/.test(document.querySelector('.skill-meta').textContent)`));
+ok('ícone escolhido (banco de dados) e "Minha skill"', await ev(`document.querySelector('.skill-detail .sk-marca svg.icone')?.innerHTML.includes('ellipse') && /Minha skill/.test(document.querySelector('.skill-meta').textContent)`));
 ok('diálogo some depois de salvar', await espera(`document.querySelector('dialog.wide-dialog') === null`, 3000), await ev(`JSON.stringify([...document.querySelectorAll('dialog')].map((d) => [d.className, d.open, d.querySelector('h1,h2')?.textContent]))`));
 // comando repetido dá erro dentro do editor
 await clicar('#skillsView .detail-actions button', 'Editar'); await sleep(300);
@@ -78,11 +97,11 @@ ok('publicar troca o botão para "Atualizar na loja"', await espera(`/Atualizar 
 const md = `---\nnome: Importada do teste\ndescricao: Veio de um arquivo\nsimbolo: λ\ncomando: ${CMD}i\ngatilhos: teste, importar\n---\nInstruções da skill importada para o teste automático.`;
 await ev(`location.hash = '#/skills'`); await sleep(800);
 await ev(`(()=>{ const dt = new DataTransfer(); dt.items.add(new File([${JSON.stringify(md)}], 'imp.md', { type: 'text/markdown' })); const i = document.querySelector('#skillFile'); i.files = dt.files; i.dispatchEvent(new Event('change', { bubbles: true })); return 1; })()`);
-ok('importar vai para "Minhas" com 2 skills', await espera(`document.querySelector('#skillsView .tab.active')?.textContent.startsWith('Minhas') && document.querySelectorAll('#skillsView .skill-card').length === 2`));
+ok('importar vai para "Minhas" com 2 skills', await espera(`document.querySelector('#skillsView .tab.active')?.textContent.startsWith('Minhas') && document.querySelectorAll('#skillsView .sk-cartao').length === 2`));
 
 // loja vista pela autora
 await clicar('#skillsView .tab', 'Loja');
-ok('loja mostra a skill publicada como "Você publicou"', await espera(`[...document.querySelectorAll('.loja-card')].some((c) => /Você publicou/.test(c.textContent) && /editada/.test(c.textContent))`));
+ok('loja mostra a skill publicada como "Você publicou"', await espera(`[...document.querySelectorAll('#skillsView .sk-cartao')].some((c) => /Você publicou/.test(c.textContent) && /editada/.test(c.textContent))`));
 await preencher('#lojaBusca', 'zzz-nada');
 ok('busca na loja sem resultado avisa', await espera(`/Nada encontrado/.test(document.querySelector('#skillsView').textContent)`));
 await preencher('#lojaBusca', '');
@@ -91,11 +110,11 @@ await preencher('#lojaBusca', '');
 await entrarComo(OUTRA);
 await send('Page.navigate', { url: `${BASE}/?r=2#/skills` }); await sleep(2500);
 await clicar('#skillsView .tab', 'Loja'); await sleep(500);
-await ev(`[...document.querySelectorAll('.loja-card')].find((c) => /editada/.test(c.textContent)).querySelector('.btn.primary').click()`);
+await ev(`[...document.querySelectorAll('#skillsView .sk-cartao')].find((c) => /editada/.test(c.textContent)).querySelector('.btn.primary').click()`);
 ok('"Ver e instalar" abre as instruções antes', await espera(`document.querySelector('dialog.wide-dialog[open] .loja-detail .skill-body') !== null && /responda com exemplos curtos/.test(document.querySelector('.loja-detail .md').textContent)`));
 await clicar('.loja-detail .dialog-actions button', 'Instalar cópia');
-ok('instalar cópia fecha o diálogo e marca Instalada', await espera(`document.querySelector('dialog.wide-dialog') === null && [...document.querySelectorAll('.loja-card')].some((c) => /editada/.test(c.textContent) && c.querySelector('.btn.installed'))`));
-ok('cópia aparece em Minhas como "Da loja"', await aba('Minhas') === 1 && await clicar('#skillsView .tab', 'Minhas') && await espera(`/Da loja/.test(document.querySelector('#skillsView .skill-card')?.textContent || '')`));
+ok('instalar cópia fecha o diálogo e marca Instalada', await espera(`document.querySelector('dialog.wide-dialog') === null && [...document.querySelectorAll('#skillsView .sk-cartao')].some((c) => /editada/.test(c.textContent) && c.querySelector('.btn.installed'))`));
+ok('cópia aparece em Minhas como "Da loja"', await aba('Minhas') === 1 && await clicar('#skillsView .tab', 'Minhas') && await espera(`/Da loja/.test(document.querySelector('#skillsView .sk-cartao')?.textContent || '')`));
 
 // autora tira da loja e exclui
 await entrarComo(AUTOR);
@@ -103,7 +122,7 @@ await send('Page.navigate', { url: `${BASE}/?r=3#/skills/${skillId}` }); await s
 await clicar('#skillsView .detail-actions button', 'Tirar da loja');
 ok('tirar da loja volta para "Publicar na loja"', await espera(`/Publicar na loja/.test(document.querySelector('.detail-actions').textContent)`));
 await clicar('#skillsView .detail-actions button', 'Excluir');
-ok('excluir volta para a lista', await espera(`location.hash === '#/skills' && document.querySelector('.skills-hero') !== null`));
+ok('excluir volta para a lista', await espera(`location.hash === '#/skills' && document.querySelector('.sk-topo') !== null`));
 ok('skill inexistente na URL volta para a lista', await ev(`(location.hash = '#/skills/minha-naoexiste', 1)`) && await espera(`location.hash === '#/skills'`));
 
 ok('sem erro de JavaScript', erros.length === 0, erros.slice(0, 3).join(' | '));

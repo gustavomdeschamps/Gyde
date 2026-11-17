@@ -461,7 +461,8 @@ test('instruções: a mesma identidade em toda tarefa, com complemento próprio 
 test('filtro: tira raciocínio, introdução e emoji, mesmo com a tag cortada entre pedaços', () => {
   assert.equal(limparResposta('<think>hmm vou pensar</think>Resposta certa'), 'Resposta certa');
   assert.equal(limparResposta('Claro! o erro está na linha 3.'), 'O erro está na linha 3.');
-  assert.equal(limparResposta('Pronto 🚀 funcionou ✓'), 'Pronto  funcionou ✓');
+  assert.equal(limparResposta('Pronto 🚀 funcionou ✓'), 'Pronto  funcionou');
+  assert.equal(limparResposta('A → B ★ ⚠️ fim'), 'A → B   fim', 'estrela e alerta saem; seta fica');
   assert.equal(limparResposta('Veja:\n```py\nprint("🚀")\n```\nFim 🚀'), 'Veja:\n```py\nprint("🚀")\n```\nFim');
   assert.equal(limparResposta('Clarissa é o nome da variável.'), 'Clarissa é o nome da variável.');
   const f = criarFiltro();

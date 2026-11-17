@@ -15,7 +15,9 @@ import type { PreferenciasIA } from './ia/rotas.ts';
 import { profileSummary, type Preferencias } from './perfil.ts';
 import type { Uso } from './uso.ts';
 import type { Imagens } from './imagens.ts';
-import type { SkillListada } from './skills-sistema.ts';
+import type { SkillAtiva, SkillListada } from './skills-sistema.ts';
+import { textoDaSkillNoPedido } from './skills-sistema.ts';
+import { escolherAgente, textoDoAgente } from './ia/agentes.ts';
 import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 import { registrarErro } from './diagnostico.ts';
@@ -43,7 +45,7 @@ export const limparAnexos = (lista: unknown): Anexo[] => (Array.isArray(lista) ?
 interface Opcoes {
   router: Router; uso: Uso; imagens: Imagens; asyncRoute: AsyncRoute; preferencias: Preferencias;
   orquestrador: Orquestrador; preferenciasIA: (userId: string) => PreferenciasIA;
-  skills: { activeFor: (userId: string, texto: string) => SkillListada[] };
+  skills: { activeFor: (userId: string, texto: string) => { ativas: SkillAtiva[]; sugestao: SkillListada | null } };
   memoria: { promptFor: (userId: string) => string; learnFrom: (user: Usuario, historico: Mensagem[], resposta: string) => unknown };
 }
 
@@ -75,7 +77,7 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
   const now = () => (lastTs = Math.max(Date.now(), lastTs + 1));
 
   // Partes da memória do Gyde que valem para todo modelo desta conversa.
-  function extrasDoSistema(user: Usuario, activeSkills: SkillListada[], nota: string): string[] {
+  function extrasDoSistema(user: Usuario, activeSkills: SkillAtiva[], nota: string): string[] {
     const extras: string[] = [];
     const profile = profileSummary(user);
     const about = getSetting(user.id, 'about_user');
@@ -86,9 +88,8 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
     if (about) extras.push(`Sobre o usuário:\n${about}`);
     if (style) extras.push(`Como o usuário quer as respostas:\n${style}`);
     if (nota) extras.push(nota);
-    for (const s of activeSkills) {
-      extras.push(`Skill ativa: ${s.nome}\nSiga estas instruções nesta resposta (elas complementam as regras acima, sem anular a regra de não usar emojis):\n${s.corpo}`);
-    }
+    // só as partes da skill que cabem no limite (passos e checklist sempre): veja trechoDaSkill
+    for (const s of activeSkills) extras.push(textoDaSkillNoPedido(s, s.trecho));
     return extras;
   }
 
@@ -254,8 +255,10 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
     const send = (event: Record<string, unknown>) => res.write(`data: ${JSON.stringify(event)}\n\n`);
     if (userMessage) send({ type: 'user', message: userMessage });
     const ultima = history.at(-1)!;
-    const activeSkills = skills.activeFor(req.user.id, ultima.content);
-    if (activeSkills.length) send({ type: 'skills', skills: activeSkills.map((s) => ({ id: s.id, nome: s.nome, simbolo: s.simbolo })) });
+    const { ativas: activeSkills, sugestao } = skills.activeFor(req.user.id, ultima.content);
+    // a tela mostra "Usando a skill X" (e quais partes dela entraram); sem nenhuma instalada que sirva, sugere uma do catálogo
+    if (activeSkills.length) send({ type: 'skills', skills: activeSkills.map((s) => ({ id: s.id, nome: s.nome, icone: s.icone, secoes: s.trecho.secoes })) });
+    else if (sugestao) send({ type: 'sugestao-skill', skill: { id: sugestao.id, nome: sugestao.nome, icone: sugestao.icone, descricao: sugestao.descricao } });
 
     const controller = new AbortController();
     res.on('close', () => controller.abort());
@@ -286,7 +289,11 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
         const classificacao = classificar(ultima.content, { comImagem, comArquivo: arquivos.length > 0, tamanhoAnexos: arquivos.reduce((n, a) => n + (a.text?.length ?? 0), 0) });
         const selecao = selecionarHistorico(history, { resumo: conv.resumo });
         cortadas = selecao.cortadas;
-        const mensagens: MensagemIA[] = [{ role: 'system', content: sistemaDoChat({ tarefa: classificacao.tarefa, extras: extrasDoSistema(req.user, activeSkills, selecao.nota) }) }, ...selecao.mensagens];
+        // agente especializado: só quando o pedido precisa (regras, sem chamada a mais) e sem skill do mesmo assunto ativa
+        const agente = activeSkills.length || comImagem ? null : escolherAgente(ultima.content, classificacao);
+        if (agente) send({ type: 'agente', agente: { id: agente.id, nome: agente.nome, fazendo: agente.fazendo } });
+        const extras = [...extrasDoSistema(req.user, activeSkills, selecao.nota), ...(agente ? [textoDoAgente(agente)] : [])];
+        const mensagens: MensagemIA[] = [{ role: 'system', content: sistemaDoChat({ tarefa: classificacao.tarefa, extras }) }, ...selecao.mensagens];
         const prefs = preferenciasIA(req.user.id);
         const plano = await orquestrador.planejar(classificacao, {
           modo: chosenModel === 'gyde-1-pro' ? 'capricho' : prefs.modo,

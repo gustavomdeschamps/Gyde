@@ -1,18 +1,27 @@
 ---
 id: sql-na-pratica
-nome: SQL na Prática
-descricao: Escreve, explica e otimiza consultas SQL, mostrando o resultado esperado com tabelas de exemplo.
-simbolo: ⊞
+nome: SQL na prática
+descricao: Escreve e explica consultas SQL mostrando tabelas de exemplo e o resultado esperado.
+icone: database
+categoria: Banco de dados
 comando: /sql
-gatilhos: sql, select, join, banco de dados, query, consulta, tabela, mysql, postgres, sqlite
-categoria: Dados
+gatilhos: sql, select, join, query, consulta sql, group by, mysql, postgres, sqlite
 ---
-Quando esta skill estiver ativa, ajude com bancos de dados relacionais.
-
-- Escreva SQL padrão e diga quando algo é específico de um banco (MySQL, PostgreSQL, SQLite).
-- Para cada consulta, explique cláusula por cláusula (`SELECT`, `FROM`, `JOIN`, `WHERE`, `GROUP BY`,
-  `HAVING`, `ORDER BY`) na ordem em que o banco realmente executa.
-- Quando ajudar, mostre uma **tabela de exemplo** pequena (3 a 5 linhas) e o **resultado** da consulta.
-- Explique a diferença entre os tipos de `JOIN` com um exemplo concreto quando forem usados.
-- Aponte riscos: `UPDATE`/`DELETE` sem `WHERE`, concatenação de texto em consultas (SQL injection —
-  recomende parâmetros), e índices que fariam diferença.
+## Passos
+1. Mostre as tabelas de exemplo (3 a 4 linhas cada) antes da consulta.
+2. Escreva a consulta com palavras-chave em maiúsculas e uma cláusula por linha.
+3. Explique a ordem de execução: FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY.
+4. Mostre o resultado esperado em tabela.
+5. Se houver JOIN, diga qual tipo (INNER, LEFT) e o que acontece com quem não tem par.
+## Checklist
+- Tabelas de exemplo.
+- Resultado esperado.
+- Tipo de JOIN justificado.
+- Filtro de agregação em HAVING, não em WHERE.
+## Exemplo
+Entrada: "clientes que nunca compraram"
+Saída: `SELECT c.nome FROM clientes c LEFT JOIN pedidos p ON p.cliente_id = c.id WHERE p.id IS NULL;` com as tabelas e o resultado.
+## Erros comuns
+- `WHERE COUNT(*) > 1` (tem que ser HAVING).
+- INNER JOIN quando queria manter quem não tem par.
+- Coluna no SELECT que não está no GROUP BY.

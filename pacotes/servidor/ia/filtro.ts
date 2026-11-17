@@ -3,11 +3,14 @@
 const ABRE = /<think(?:ing)?>/i;
 const FECHA = /<\/think(?:ing)?>/i;
 const INTRO = /^\s*(claro|com certeza|certamente|[óo]tima pergunta|boa pergunta|excelente pergunta)\s*[!.,:]+\s*/i;
-const PERMITIDOS = new Set(['✓', '✗', '→', '•', '⚠', '★', '©', '®', '™', '↔', '↩', '▶', '◀']);
+// fora de bloco de código, só ficam símbolos tipográficos (setas e marcas registradas); ✓, ✗, ★ e ⚠ saem como emoji
+const PERMITIDOS = new Set(['→', '•', '©', '®', '™', '↔', '↩']);
 const EMOJI = /\p{Extended_Pictographic}️?(?:‍\p{Extended_Pictographic}️?)*/gu;
 const ESPERA_INTRO = 40; // caracteres guardados no começo para reconhecer a introdução
 
-const semEmoji = (t: string) => t.replace(EMOJI, (e) => (PERMITIDOS.has(e[0]!) ? e : '')).replace(/[ \t]{2,}$/gm, ' ');
+// símbolos que viram "ícone solto" na tela: não são emoji para o Unicode, mas fazem o mesmo papel
+const SIMBOLOS = /[✓✔✗✘★☆◆◇●○■□▲△►▶◀¶◉◎]︎?/gu;
+const semEmoji = (t: string) => t.replace(EMOJI, (e) => (PERMITIDOS.has(e[0]!) ? e : '')).replace(SIMBOLOS, '').replace(/[ \t]{2,}$/gm, ' ');
 
 export function criarFiltro() {
   let bruto = '', dentroThink = false, inicio = true, inicial = '', emCodigo = false;

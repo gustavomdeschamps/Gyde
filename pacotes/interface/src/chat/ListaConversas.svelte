@@ -1,16 +1,17 @@
 <script lang="ts">
   // Lista de conversas da barra lateral, agrupadas por data, com menu (renomear, fixar, exportar, excluir).
+  import { icone as svgIcone } from '../icones.ts';
   import type { TResumoConversa } from '$contratos';
   import { chat, renomear, fixar, excluir, exportar } from './estado.svelte.ts';
   import { toast } from '../util.ts';
   import { mensagemDe } from '../api.ts';
 
   const icone = {
-    pontos: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>',
-    fixar: '<svg viewBox="0 0 24 24"><path d="M9 4h6l-1 6 4 4H6l4-4-1-6zM12 14v6"/></svg>',
-    editar: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/></svg>',
-    exportar: '<svg viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>',
-    lixo: '<svg viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+    pontos: svgIcone('ellipsis'),
+    fixar: svgIcone('pin'),
+    editar: svgIcone('pencil'),
+    exportar: svgIcone('share'),
+    lixo: svgIcone('trash'),
   };
 
   function grupo(ts: number) {
@@ -86,7 +87,7 @@
               onblur={() => terminarRenomear(true, c)}>
           {:else}
             <a href="#/c/{c.id}" title={c.title}>{c.title}</a>
-            {#if c.pinned}{@html icone.fixar.replace('<svg', '<svg class="pin"')}{/if}
+            {#if c.pinned}{@html svgIcone('pin', undefined, 'pin')}{/if}
             <button class="conv-menu-btn" aria-label="Opções da conversa" aria-haspopup="menu" aria-expanded={menu?.conversa.id === c.id} onclick={(e) => abrirMenu(e, c)}>{@html icone.pontos}</button>
           {/if}
         </div>

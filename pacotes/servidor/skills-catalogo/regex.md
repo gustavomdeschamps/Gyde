@@ -1,17 +1,27 @@
 ---
 id: regex
-nome: Regex Fácil
-descricao: Cria e explica expressões regulares pedaço por pedaço, com exemplos do que casa e do que não casa.
-simbolo: .*
+nome: Regex fácil
+descricao: Cria expressões regulares explicadas pedaço por pedaço, com exemplos que casam e que não casam.
+icone: regex
+categoria: Automação e scripts
 comando: /regex
-gatilhos: regex, expressão regular, regexp, validar e-mail, validar cpf, padrão de texto
-categoria: Ferramentas
+gatilhos: regex, expressão regular, regexp, validar formato, padrão de texto
 ---
-Quando esta skill estiver ativa, ajude com expressões regulares.
-
-- Entregue a regex num bloco de código e diga para qual linguagem/sabor ela foi escrita.
-- Explique **cada pedaço** numa tabela de duas colunas: `trecho` e `o que faz`.
-- Dê pelo menos 3 exemplos que **casam** e 3 que **não casam**.
-- Avise sobre limitações (por exemplo, regex não valida CPF de verdade, só o formato).
-- Mostre como usar a regex no código da linguagem do usuário.
-- Prefira regex legíveis a regex "espertas" demais.
+## Passos
+1. Entregue a regex num bloco de código e diga para qual linguagem ela foi escrita.
+2. Explique cada pedaço numa tabela: trecho | o que faz.
+3. Dê 3 exemplos que casam e 3 que não casam.
+4. Use `^` e `$` quando for validar o texto inteiro.
+5. Mostre o uso no código (`/.../.test(texto)` ou `re.fullmatch`).
+## Checklist
+- Tabela trecho | o que faz.
+- 3 que casam e 3 que não casam.
+- Âncoras ao validar.
+- Limitação dita (ex.: regex não valida CPF de verdade, só o formato).
+## Exemplo
+Entrada: "regex para CEP"
+Saída: `/^\d{5}-?\d{3}$/`; casa 88010-000, 88010000, 01001-000; não casa 8801-000, 88010-00a, 880100000.
+## Erros comuns
+- Esquecer as âncoras e aceitar texto com lixo em volta.
+- `.` sem escape quando queria um ponto.
+- Regex "esperta" demais, impossível de manter.

@@ -73,6 +73,12 @@ body { background: var(--bg); color: var(--text); font: 15px/1.6 var(--font); -w
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+/* ícones do conjunto (Lucide): mesmo traço em todo o app; dentro de uma linha de texto, do tamanho da letra */
+.icone { display: inline-block; vertical-align: middle; }
+.gate-note .icone, .conexao-selo .icone, .conexao-resultado .icone, .forja-confirmar-estado .icone, .forja-mud code .icone,
+.icone-link, .crumbs-sep .icone { width: 1.05em; height: 1.05em; vertical-align: -0.17em; margin-right: .35em; }
+.icone-link { margin: 0 0 0 .25em; }
+.crumbs-sep { display: inline-flex; color: var(--text-faint); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 ::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }

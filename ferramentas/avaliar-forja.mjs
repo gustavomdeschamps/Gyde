@@ -167,7 +167,7 @@ try {
         passos: fim.passos ?? null, ms: Date.now() - inicio, arquivos: fim.arquivos ?? [], comandos, modelo: fim.modelo ?? null, erro: fim.tipo === 'erro' ? limparErro(String(fim.texto)).slice(0, 160) : null };
       if (!r.ok) r.respostaFinal = limparErro(String(fim.texto ?? '')).slice(0, 600); // para entender a falha (sem segredos)
       resultados.push(r);
-      console.log(`${r.ok ? 'OK   ' : 'FALHA'} ${c.id.padEnd(11)} ${String(Math.round(r.ms / 1000)).padStart(4)} s  ${String(r.passos ?? '-').padStart(2)} passos  ${lidos} lido(s)  ${edicoesFalhas} edição(ões) falha(s)  ${comandos} comando(s)  ${checagens.map(([k, v]) => `${v ? '✓' : '✗'} ${k}`).join(' · ')}${r.erro ? `  [${r.erro}]` : ''}`);
+      console.log(`${r.ok ? 'OK   ' : 'FALHA'} ${c.id.padEnd(11)} ${String(Math.round(r.ms / 1000)).padStart(4)} s  ${String(r.passos ?? '-').padStart(2)} passos  ${lidos} lido(s)  ${edicoesFalhas} edição(ões) falha(s)  ${comandos} comando(s)  ${checagens.map(([k, v]) => `${v ? 'sim' : 'não'}: ${k}`).join(' · ')}${r.erro ? `  [${r.erro}]` : ''}`);
       if (!r.ok && process.argv.includes('--manter-falhas')) console.log(`      pasta guardada para conferir: ${proj.pasta}`);
       else apagarSeguro(proj.pasta);
     }

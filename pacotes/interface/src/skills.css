@@ -14,21 +14,6 @@ a.btn { text-decoration: none; color: inherit; }
 .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 .tab.active span { background: var(--accent-soft); color: var(--accent-text); }
 
-.skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
-.skill-card { display: flex; flex-direction: column; gap: 10px; padding: 18px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-sm); animation: rise var(--t3) var(--ease) both; animation-delay: calc(var(--i, 0) * 40ms); transition: transform var(--t2) var(--ease), border-color var(--t2) var(--ease), box-shadow var(--t2) var(--ease); }
-.skill-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--border-strong); }
-.skill-card.on { border-color: color-mix(in srgb, var(--success) 40%, var(--border)); }
-.skill-card.just-toggled .skill-symbol { animation: pop-in var(--t3) var(--ease); }
-.skill-top { display: flex; align-items: center; justify-content: space-between; }
-.skill-symbol { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); font: 700 18px var(--mono); flex: none; transition: background-color var(--t2) var(--ease), color var(--t2) var(--ease); }
-.skill-card.on .skill-symbol { background: var(--success-soft); color: var(--success); }
-.skill-symbol.big { width: 64px; height: 64px; border-radius: 18px; font-size: 26px; }
-.skill-cat { font: 700 11px var(--font); text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); }
-.skill-card h2 { margin: 0; font: 700 17px/1.3 var(--font-display); letter-spacing: -.015em; }
-.skill-card h2 a { color: inherit; text-decoration: none; }
-.skill-card h2 a:hover { color: var(--accent-text); }
-.skill-card p { margin: 0; color: var(--text-soft); font-size: 14px; flex: 1; }
-.skill-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
 code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: var(--accent-soft); padding: 3px 9px; border-radius: 8px; }
 .empty-state { text-align: center; padding: 48px 16px; border: 1px dashed var(--border-strong); border-radius: 18px; color: var(--text-soft); animation: fade var(--t3) var(--ease); }
 
@@ -65,14 +50,14 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 /* Skill em uso numa resposta */
 .skill-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; animation: rise var(--t2) var(--ease); }
 .skill-chip { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); border-radius: 99px; padding: 3px 11px 3px 4px; }
-.skill-chip b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); font: 700 11px var(--mono); }
 
 /* Menu de comandos "/" */
 .slash-menu { position: absolute; left: 8px; right: 8px; bottom: calc(100% + 8px); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 6px; max-height: 300px; overflow-y: auto; z-index: 5; animation: pop-in var(--t2) var(--ease); transform-origin: bottom left; }
 .slash-title { font: 700 11px var(--font); text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); padding: 6px 10px 4px; }
 .slash-item { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; text-align: left; padding: 8px 10px; border-radius: 10px; transition: background-color var(--t1) var(--ease); }
 .slash-item.active, .slash-item:hover { background: var(--hover); }
-.slash-item .skill-symbol { width: 30px; height: 30px; border-radius: 9px; font-size: 13px; }
+.slash-item .skill-symbol { width: 30px; height: 30px; border-radius: 9px; flex: none; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); }
+.slash-item .skill-symbol svg { width: 16px; height: 16px; }
 .slash-item .slash-text { min-width: 0; }
 .slash-item b { display: block; font-size: 14px; }
 .slash-item small { color: var(--text-faint); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -128,3 +113,110 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 .intro-som-btn:hover, .intro-som-btn:focus-visible { opacity: 1; border-color: rgb(157 188 255 / .55); }
 .intro-som-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .intro-som-btn[aria-pressed="true"] .mudo, .intro-som-btn[aria-pressed="false"] .onda { display: none; }
+
+/* Catálogo de skills. A cor da categoria (--cat) aparece só no quadrado do ícone e no selo: a cor diz a categoria. */
+.sk-topo { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 18px 0 20px; }
+.sk-titulo h1 { font: 800 clamp(28px, 4vw, 38px)/1.1 var(--font-display); letter-spacing: -.035em; margin: 0 0 6px; }
+.sk-titulo p { margin: 0; color: var(--text-soft); max-width: 560px; }
+
+/* "Quero ...": a frase de objetivo é a busca */
+.sk-quero { display: flex; align-items: center; gap: 4px; margin: 2px 0 10px; padding: 6px 8px 6px 18px; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--border-strong); box-shadow: var(--shadow-sm); transition: border-color var(--t2) var(--ease), box-shadow var(--t2) var(--ease); }
+.sk-quero:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent); }
+.sk-quero label { font: 700 clamp(19px, 2.4vw, 23px)/1 var(--font-display); letter-spacing: -.02em; color: var(--accent-text); flex: none; cursor: text; }
+.sk-quero input { flex: 1; min-width: 0; border: 0; background: none; outline: none; padding: 10px 6px; font: 500 clamp(17px, 2.2vw, 21px)/1.2 var(--font-display); letter-spacing: -.01em; color: var(--text); }
+.sk-quero input::placeholder { color: var(--text-faint); font-weight: 400; }
+.sk-quero input::-webkit-search-cancel-button { display: none; }
+.sk-limpar { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 10px; background: none; color: var(--text-faint); }
+.sk-limpar:hover { background: var(--hover); color: var(--text); }
+.sk-limpar svg { width: 18px; height: 18px; }
+.sk-exemplos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 13.5px; color: var(--text-faint); }
+.sk-exemplos span { margin-right: 2px; }
+.sk-exemplos button { border: 1px solid var(--border); background: var(--bg-soft); color: var(--text-soft); border-radius: 99px; padding: 3px 11px; font-size: 13px; transition: border-color var(--t2) var(--ease), color var(--t2) var(--ease); }
+.sk-exemplos button:hover { border-color: var(--accent); color: var(--accent-text); }
+
+.sk-secao { margin-top: 30px; }
+.sk-secao h2 { font: 700 19px/1.25 var(--font-display); letter-spacing: -.015em; margin: 0 0 4px; }
+.sk-secao-nota { margin: 0 0 14px; color: var(--text-faint); font-size: 14px; }
+.sk-secao h2 + .sk-grade, .sk-secao h2 + .sk-pacotes, .sk-secao h2 + .sk-filtros { margin-top: 12px; }
+
+/* Quadrado do ícone: fundo e traço no tom da categoria */
+.sk-marca { --cat: var(--accent); width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 12px;
+  background: color-mix(in srgb, var(--cat) 14%, var(--surface)); color: color-mix(in srgb, var(--cat) 78%, var(--text));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat) 22%, transparent); }
+.sk-marca svg { width: 21px; height: 21px; }
+.sk-marca.grande { width: 56px; height: 56px; border-radius: 16px; }
+.sk-marca.grande svg { width: 28px; height: 28px; }
+.sk-marca.pacote { background: var(--accent-soft); color: var(--accent-text); box-shadow: none; }
+
+/* Cartão de skill */
+.sk-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 268px), 1fr)); gap: 12px; }
+.sk-cartao { display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); min-width: 0; transition: border-color var(--t2) var(--ease), box-shadow var(--t2) var(--ease); }
+.sk-cartao:hover { border-color: var(--border-strong); box-shadow: var(--shadow); }
+.sk-cartao.on { border-color: color-mix(in srgb, var(--success) 38%, var(--border)); }
+.sk-cartao-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+.sk-selo { --cat: var(--text-faint); font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 99px; color: color-mix(in srgb, var(--cat) 70%, var(--text)); background: color-mix(in srgb, var(--cat) 10%, var(--surface)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.sk-cartao h3 { margin: 0; font: 700 16px/1.3 var(--font-display); letter-spacing: -.01em; }
+.sk-cartao h3 a, .sk-cartao h3 .link-btn { color: inherit; text-decoration: none; }
+.sk-cartao h3 a:hover { color: var(--accent-text); }
+/* o título inteiro é a área de clique do cartão */
+.sk-cartao { position: relative; }
+.sk-cartao h3 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.sk-cartao .btn, .sk-cartao .link-btn { position: relative; z-index: 1; }
+.sk-desc { margin: 0; color: var(--text-soft); font-size: 14px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+.sk-cartao-pe { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.sk-teste { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-faint); min-width: 0; }
+.sk-teste svg { width: 14px; height: 14px; color: var(--success); }
+.sk-teste.sem-teste svg { color: var(--text-faint); }
+.sk-instalar { flex: none; }
+.sk-teste-longo { display: flex; gap: 10px; align-items: flex-start; margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--success-soft); color: var(--text-soft); font-size: 14px; }
+.sk-teste-longo svg { width: 18px; height: 18px; color: var(--success); margin-top: 2px; }
+.sk-teste-longo.sem-teste { background: var(--bg-soft); }
+.sk-teste-longo.sem-teste svg { color: var(--text-faint); }
+
+/* Pacote por objetivo */
+.sk-pacotes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.sk-pacote { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 16px; border: 1px solid var(--border); background: linear-gradient(180deg, var(--surface-2), var(--surface)); }
+.sk-pacote-cabeca { display: flex; gap: 12px; align-items: center; }
+.sk-pacote-cabeca .sk-marca.grande { width: 46px; height: 46px; border-radius: 14px; }
+.sk-pacote-cabeca .sk-marca.grande svg { width: 23px; height: 23px; }
+.sk-pacote h3 { margin: 0 0 2px; font: 700 17px/1.25 var(--font-display); letter-spacing: -.015em; }
+.sk-pacote-cabeca p { margin: 0; font-size: 13.5px; color: var(--text-soft); line-height: 1.45; }
+.sk-pacote-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; flex: 1; }
+.sk-pacote-lista li { display: flex; align-items: center; gap: 8px; }
+.sk-pacote-lista a { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; padding: 4px 6px 4px 4px; border-radius: 10px; color: var(--text); text-decoration: none; font-size: 14px; }
+.sk-pacote-lista a:hover { background: var(--hover); }
+.sk-pacote-lista .sk-marca { width: 28px; height: 28px; border-radius: 8px; }
+.sk-pacote-lista .sk-marca svg { width: 16px; height: 16px; }
+.sk-pacote-lista a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sk-ok { color: var(--success); display: inline-flex; padding-right: 6px; }
+.sk-ok svg { width: 16px; height: 16px; }
+.sk-pacote > .btn { align-self: flex-start; }
+
+/* Filtro por categoria */
+.sk-filtros { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.sk-filtros button { --cat: var(--accent); display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--surface); border-radius: 99px; padding: 5px 12px 5px 10px; font-size: 13px; font-weight: 600; color: var(--text-soft); transition: border-color var(--t2) var(--ease), background-color var(--t2) var(--ease), color var(--t2) var(--ease); }
+.sk-filtros button svg { width: 15px; height: 15px; color: color-mix(in srgb, var(--cat) 78%, var(--text)); }
+.sk-filtros button span { font-size: 12px; font-weight: 500; color: var(--text-faint); }
+.sk-filtros button:hover { border-color: var(--border-strong); color: var(--text); }
+.sk-filtros button.on { border-color: color-mix(in srgb, var(--cat) 55%, var(--border)); background: color-mix(in srgb, var(--cat) 10%, var(--surface)); color: var(--text); }
+
+/* Quem ajudou na resposta do chat */
+.skill-chip svg { width: 15px; height: 15px; }
+a.skill-chip { text-decoration: none; }
+a.skill-chip:hover { background: color-mix(in srgb, var(--accent) 22%, var(--surface)); }
+.agente-chip { color: var(--text-soft); background: var(--bg-soft); }
+.sugestao-chip { color: var(--text-soft); background: transparent; box-shadow: inset 0 0 0 1px var(--border-strong); }
+
+/* Escolha do ícone ao criar uma skill */
+.symbol-picker button svg { width: 18px; height: 18px; }
+
+@media (max-width: 640px) {
+  .sk-topo { padding-top: 10px; }
+  .sk-quero { padding-left: 14px; }
+  .sk-cartao-pe { flex-wrap: wrap; }
+  .tabs { display: flex; width: 100%; }
+  .tabs .tab { flex: 1; justify-content: center; padding: 7px 4px; gap: 5px; font-size: 13px; }
+  .tabs .tab span { min-width: 0; padding: 0 5px; }
+  .tabs .tab svg { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .sk-cartao, .sk-quero, .sk-filtros button { transition: none; } }

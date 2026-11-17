@@ -51,7 +51,7 @@ empresa dá de graça, parecido com uma senha, só que para programas. **Uma cha
      crie uma chave. Ela começa com `AIza`. No plano grátis, o Google pode usar o que você envia para melhorar os
      produtos dele: não mande dados pessoais nem confidenciais.
 3. Copie a chave, cole no cartão da empresa que você escolheu e clique em **Testar chave**.
-4. Apareceu **✓ Conectado**? Pronto. Por segurança, a chave não aparece mais na tela depois de salva.
+4. Apareceu **Conectado**? Pronto. Por segurança, a chave não aparece mais na tela depois de salva.
 
 ![Tela Conectar IA com os cartões da NVIDIA e do Google](docs/imagens/conectar-ia.jpg)
 

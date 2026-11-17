@@ -1,6 +1,7 @@
 // Painel de conversa do Gyde dentro do VS Code (webview). Quem fala com o servidor é o extension.js.
 import { marked } from './marked.esm.js';
 import DOMPurify from './purify.es.mjs';
+import { icone } from './icones.js';
 
 const vscode = acquireVsCodeApi();
 const app = document.getElementById('app');
@@ -14,11 +15,11 @@ let current = null; // resposta sendo escrita
 const logo = (cls = 'logo') => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="gbg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#gbg)"/><path d="M15 50C15 38 31 42 31 31S47 24 46 17" fill="none" stroke="#dbeafe" stroke-width="5" stroke-linecap="round"/><circle cx="15" cy="50" r="4.5" fill="#93c5fd"/><circle cx="15" cy="50" r="1.8" fill="#1e3a8a"/><path d="M46 6Q47.3 14.2 54 15.5Q47.3 16.8 46 25Q44.7 16.8 38 15.5Q44.7 14.2 46 6Z" fill="#fff"/></svg>`;
 const quem = `<div class="quem">${logo()}Gyde</div>`;
 const ic = {
-  explicar: '<svg viewBox="0 0 24 24"><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5M12 18h.01"/><circle cx="12" cy="12" r="9.5"/></svg>',
-  revisar: '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 14l2 2 4-4"/></svg>',
-  erro: '<svg viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17h.01"/></svg>',
-  exercicio: '<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.8z"/></svg>',
-  nova: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  explicar: icone('circle-question-mark'),
+  revisar: icone('file-check'),
+  erro: icone('triangle-alert'),
+  exercicio: icone('dumbbell'),
+  nova: icone('plus'),
 };
 
 function renderConnect(error) {
@@ -48,7 +49,7 @@ function renderChat() {
     <form class="composer" id="composer">
       <div class="caixa">
         <textarea id="input" rows="1" placeholder="Pergunte ao Gyde ou cole um erro"></textarea>
-        <button class="send" id="send" aria-label="Enviar" disabled><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+        <button class="send" id="send" aria-label="Enviar" disabled>${icone('arrow-up')}</button>
       </div>
       <p class="dica"><kbd>Enter</kbd> envia · <kbd>Shift</kbd>+<kbd>Enter</kbd> pula linha</p>
     </form>

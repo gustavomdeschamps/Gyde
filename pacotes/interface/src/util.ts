@@ -1,5 +1,6 @@
 // Utilidades de tela compartilhadas: aviso rápido (toast) e copiar texto.
-const ICONE_OK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+import { icone as svgIcone } from './icones.ts';
+const ICONE_OK = svgIcone('check');
 
 let tempoToast: ReturnType<typeof setTimeout> | undefined;
 export function toast(texto: string) {
