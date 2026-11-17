@@ -117,6 +117,27 @@ os tempos de quadro, sem dados pessoais, para relatar um problema.
 
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/cidade-forja.jpg"><img src="docs/imagens/cidade-forja-claro.jpg" alt="Cidade do código em 3D, com o cartão de um arquivo muito alterado e o botão Pedir à Forja" width="88%"></picture></p>
 
+### Skills: o Gyde especialista no que você vai fazer
+Em **Skills**, escreva o que você quer fazer na barra **Quero...** ("fazer um site", "analisar uma planilha") e o Gyde
+mostra o pacote certo ("Criar um site" instala de uma vez HTML e CSS, design, acessibilidade e publicação) e as skills do
+assunto. Também dá para navegar pelas 11 categorias (Sites e design, Aplicativos e APIs, Jogos, Dados e planilhas, Banco
+de dados, Testes e qualidade, Segurança, Git e publicação, Documentação, Estudar e aprender, Automação e scripts).
+
+São 56 skills, cada uma com passos, checklist, exemplo e erros comuns. Com a skill instalada, quando o pedido é do assunto
+(ou com o comando, como `/sql`), o Gyde segue os passos dela e a resposta mostra **Usando a skill X**. Entram no máximo 2
+por mensagem e só as partes que cabem num limite pequeno, para não estourar o contexto dos modelos grátis. Sem nenhuma
+instalada que sirva, a resposta sugere a do catálogo que ajudaria. Cada skill foi testada na mesma tarefa com e sem ela, e
+o cartão mostra o resultado (números em [docs/avaliacao](docs/avaliacao/README.md)). Dá para criar as suas, importar e
+exportar `.md` e publicar na loja de skills.
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/skills-escuro.jpg"><img src="docs/imagens/skills.jpg" alt="Tela de Skills com a busca Quero fazer um site mostrando o pacote Criar um site" width="88%"></picture></p>
+
+### Agentes especializados
+Quando o pedido precisa, o Gyde responde com um papel especializado e mostra qual na resposta (por exemplo, **Agente
+Depurador: procurando a causa do erro**): Depurador, Testador, Revisor de segurança, Explicador para iniciantes,
+Documentador, Designer de interface e Planejador. A escolha é por regras, sem chamada a mais à IA, e uma pergunta simples
+não chama agente nenhum. Cada um foi medido com e sem o papel; os números estão em [docs/avaliacao](docs/avaliacao/README.md).
+
 ### Configurações
 No menu lateral, **Configurações** reúne tudo em seções: **Geral** (tema automático, claro ou escuro; página inicial;
 refazer o questionário; vídeo de abertura; restaurar padrões; copiar um relatório de erro), **Conectar IA** (as chaves
@@ -125,7 +146,6 @@ grátis), **IA e modelos** (geração de imagens, modo online, offline ou autom�
 restaurar, apagar conversas e registros) e **Extensões** (tokens). Cada opção salva na hora.
 
 ### E mais
-- **Skills:** habilidades instaláveis, como plugins (`/revisar`, `/git`, `/sql`...). Dá para criar as suas e publicar na loja de skills.
 - **Questionário inicial:** o Gyde descobre o seu nível e objetivo e adapta as explicações e os exemplos.
 - **Memória:** o Gyde lembra o que você pedir para ele lembrar (dá para ver e apagar).
 - **Revisar projeto inteiro:** anexe uma pasta ou um `.zip` e peça a revisão.

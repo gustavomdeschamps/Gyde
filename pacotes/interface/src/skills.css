@@ -199,6 +199,7 @@ code.cmd { font: 600 13px var(--mono); color: var(--accent-text); background: va
 .sk-filtros button span { font-size: 12px; font-weight: 500; color: var(--text-faint); }
 .sk-filtros button:hover { border-color: var(--border-strong); color: var(--text); }
 .sk-filtros button.on { border-color: color-mix(in srgb, var(--cat) 55%, var(--border)); background: color-mix(in srgb, var(--cat) 10%, var(--surface)); color: var(--text); }
+.sk-filtros button.on span { color: var(--text-soft); }
 
 /* Quem ajudou na resposta do chat */
 .skill-chip svg { width: 15px; height: 15px; }

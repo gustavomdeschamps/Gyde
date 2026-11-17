@@ -181,7 +181,7 @@ window.addEventListener('message', ({ data: m }) => {
     current = add('assistant', `${quem}<div class="md"><div class="thinking"><i></i><i></i><i></i></div></div>`);
     setBusy(true);
   } else if (m.type === 'skills' && current) {
-    current.querySelector('.quem').insertAdjacentHTML('afterend', `<div class="skills">${m.skills.map((s) => `<span>${esc(s)}</span>`).join('')}</div>`);
+    current.querySelector('.quem').insertAdjacentHTML('afterend', `<div class="skills">${m.skills.map((s) => `<span>${icone(s.icone)}Usando a skill ${esc(s.nome)}</span>`).join('')}</div>`);
   } else if (m.type === 'delta' && current) {
     const out = current.querySelector('.md');
     out.innerHTML = md(m.text);

@@ -10,7 +10,7 @@ administrador do computador nem saber usar o terminal.
 ## 1. Baixar o instalador
 
 1. Abra a página **[Releases do Gyde](https://github.com/gustavomdeschamps/Gyde/releases/latest)**.
-2. Na parte **Assets** (no fim da versão mais nova), clique em **`Gyde-Setup-2.3.0.exe`** (o número pode ser maior,
+2. Na parte **Assets** (no fim da versão mais nova), clique em **`Gyde-Setup-2.4.0.exe`** (o número pode ser maior,
    se houver uma versão mais nova). O download começa.
 
 ## 2. Instalar
@@ -94,7 +94,16 @@ A **Forja** é o agente de código do Gyde: ela abre a pasta de um projeto e tra
 
 ![Cartão de um arquivo na Cidade, com Pedir à Forja e as opções rápidas](docs/imagens/cidade-forja.jpg)
 
-## 8. Extensões (opcional)
+## 8. Skills para o que você vai fazer (opcional)
+
+1. No menu da esquerda, clique em **Skills**.
+2. Na barra **Quero...**, escreva o que vai fazer (por exemplo, "fazer um site") e clique em **Instalar** no pacote que
+   aparecer, ou instale skills uma a uma.
+3. Pronto: quando você pedir algo desse assunto no chat, a resposta mostra **Usando a skill X**.
+
+![Tela de Skills com a busca Quero fazer um site mostrando o pacote Criar um site](docs/imagens/skills.jpg)
+
+## 9. Extensões (opcional)
 
 O Gyde também funciona dentro do **VS Code** e do **Chrome**. As duas usam o app do Gyde aberto e a IA que você
 conectou nele.

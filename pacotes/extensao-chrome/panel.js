@@ -296,7 +296,7 @@ async function send() {
         if (!raw.startsWith('data: ')) continue;
         const ev = JSON.parse(raw.slice(6));
         if (ev.type === 'skills') {
-          answer.insertAdjacentHTML('afterbegin', ev.skills.map((s) => `<span class="skill-chip">${esc(s.simbolo)} ${esc(s.nome)}</span>`).join(''));
+          answer.insertAdjacentHTML('afterbegin', ev.skills.map((s) => `<span class="skill-chip">${icone(s.icone)}Usando a skill ${esc(s.nome)}</span>`).join(''));
         } else if (ev.type === 'delta') {
           text += ev.text;
           out.innerHTML = md(text);
