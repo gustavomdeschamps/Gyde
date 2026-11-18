@@ -3,6 +3,7 @@
   "productName": "Gyde",
   "version": "2.6.0",
   "private": true,
+  "license": "MIT",
   "description": "Gyde, a IA que ensina programação para iniciantes, com os modelos grátis do FreeLLMAPI.",
   "author": "Gustavo Moreira Deschamps",
   "type": "module",
@@ -127,6 +128,15 @@
     ]
   },
   "overrides": {
-    "deepmerge": "$deepmerge"
+    "deepmerge": "$deepmerge",
+    "@electron/universal": {
+      "minimatch": "^11.0.9",
+      "dir-compare": {
+        "minimatch": "^3.1.5"
+      }
+    },
+    "app-builder-lib": {
+      "minimatch": "^11.0.9"
+    }
   }
 }

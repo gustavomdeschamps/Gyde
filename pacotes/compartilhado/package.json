@@ -2,6 +2,7 @@
   "name": "@gyde/compartilhado",
   "version": "2.6.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "Contratos (Zod) entre o servidor e a interface do Gyde.",
   "exports": {

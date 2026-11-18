@@ -2,6 +2,7 @@
   "name": "@gyde/servidor",
   "version": "2.6.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "Servidor do Gyde (Express + SQLite embutido no Node).",
   "main": "server.ts",
