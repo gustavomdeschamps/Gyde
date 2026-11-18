@@ -85,6 +85,16 @@ function forja(mensagens) {
     ];
     return roteiro[Math.min(passo, roteiro.length - 1)];
   }
+  // SITE-RUIM: cria uma página sem lang, sem viewport e com pouco contraste; a Forja confere e pede a correção
+  if (/SITE-RUIM/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Crio a página.', acoes: [{ ferramenta: 'escrever', args: { caminho: 'pagina.html', conteudo: '<html><body><p style="color:#ddd">oi</p></body></html>\n' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nCriei a página.' },
+      { pensamento: 'Corrijo.', acoes: [{ ferramenta: 'escrever', args: { caminho: 'pagina.html', conteudo: '<!doctype html><html lang="pt-BR"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><p>oi</p></body></html>\n' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nCriei a página e corrigi o idioma e o celular.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
   // ARGS: primeiro manda "editar" sem o trecho a procurar (a Forja explica o formato), depois faz certo
   if (/ARGS/.test(tarefa)) {
     const roteiro = [

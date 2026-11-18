@@ -78,6 +78,15 @@ try {
   ok('a tela mostra que a verificação falhou', await esperar(`/Verificação falhou: npm test/.test(${ultimoTurno}.querySelector('.forja-verificacao.falhou')?.textContent || '')`, 3000));
   ok('"todos os testes passaram" sem base vira aviso conferido pelo Gyde', /Conferido pelo Gyde: A resposta diz que os testes passaram/.test(await avaliar(`${ultimoTurno}.querySelector('.forja-verificacao.aviso')?.textContent || ''`)));
 
+  n = await turnos();
+  writeFileSync(path.join(proj.pasta, 'soma.js'), proj.ler('soma.js').replace('a * b', 'a + b')); // npm test passando: só a conferência de site cobra
+  const antesDoSite = ia.pedidos.length;
+  await pedir('SITE-RUIM crie uma página');
+  ok('mudou uma página: a Forja confere lang e viewport e pede a correção antes de terminar', await terminou(n + 1)
+    && ia.pedidos.slice(antesDoSite).filter((p) => /conferi as páginas e os estilos/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1
+    && /lang="pt-BR"/.test(proj.ler('pagina.html')), ia.pedidos.slice(antesDoSite).map((p) => JSON.stringify(p.mensagens.at(-1)?.content).slice(0, 90)).join(' || '));
+
+  writeFileSync(path.join(proj.pasta, 'soma.js'), proj.ler('soma.js').replace('a + b', 'a * b')); // o roteiro ARGS corrige a * b
   writeFileSync(path.join(proj.pasta, 'GYDE.md'), '# Projeto de teste\nUse sempre ponto e vírgula. INSTRUCAO-DO-GYDE-MD\n');
   // menu do campo: "@" lista os arquivos e "/" os comandos
   const digitar = (t) => avaliar(`(()=>{ const c = document.querySelector('#agenteView textarea'); c.focus(); c.value = ${JSON.stringify(t)}; c.setSelectionRange(c.value.length, c.value.length); c.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
