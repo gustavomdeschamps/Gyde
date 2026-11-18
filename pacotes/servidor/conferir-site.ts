@@ -1,7 +1,8 @@
 // Conferência rápida de páginas que a Forja mudou, sem navegador (roda no servidor, leve, sem internet):
-//  - contraste do texto (cor do texto contra o fundo da mesma regra, ou do body) abaixo de 4,5:1 (WCAG AA);
+//  - contraste do texto (cor do texto contra o fundo da mesma regra, do elemento em volta ou do body) abaixo de 4,5:1
+//    (WCAG AA), no tema claro (o tema escuro, se houver, fica de fora); degradê conta pela pior cor;
 //  - <html> sem lang, <img> sem alt, página sem meta viewport (no celular a página encolhe).
-// É uma aproximação: não sabe o fundo herdado de elementos aninhados. Serve para pegar os casos comuns antes de terminar.
+// É uma aproximação (não monta a página): serve para pegar os casos comuns antes de terminar.
 
 type RGB = [number, number, number];
 const NOMES: Record<string, RGB> = { white: [255, 255, 255], black: [0, 0, 0], gray: [128, 128, 128], grey: [128, 128, 128], silver: [192, 192, 192], red: [255, 0, 0], yellow: [255, 255, 0], blue: [0, 0, 255], green: [0, 128, 0], orange: [255, 165, 0], navy: [0, 0, 128] };
@@ -26,9 +27,22 @@ export function corDe(v: string, variaveis: Record<string, string> = {}): RGB | 
 const lum = ([r, g, b]: RGB) => { const f = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
 export function contraste(a: RGB, b: RGB): number { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x! + 0.05) / (y! + 0.05); }
 
+// tira os blocos do tema escuro (@media prefers-color-scheme: dark): a conferência é do tema claro, que é o padrão
+function semTemaEscuro(css: string): string {
+  let out = '', i = 0;
+  const re = /@media[^{]*prefers-color-scheme\s*:\s*dark[^{]*\{/gi;
+  for (let m = re.exec(css); m; m = re.exec(css)) {
+    out += css.slice(i, m.index);
+    let nivel = 1, j = m.index + m[0].length;
+    for (; j < css.length && nivel > 0; j++) { if (css[j] === '{') nivel++; else if (css[j] === '}') nivel--; }
+    i = j; re.lastIndex = j;
+  }
+  return out + css.slice(i);
+}
+
 interface Regra { seletor: string; decl: Record<string, string> }
 function regras(css: string): Regra[] {
-  const limpo = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const limpo = semTemaEscuro(css.replace(/\/\*[\s\S]*?\*\//g, ''));
   const out: Regra[] = [];
   // regras simples e as de dentro de @media (o conteúdo do bloco é lido do mesmo jeito)
   for (const m of limpo.matchAll(/([^{}@]+)\{([^{}]*)\}/g)) {
@@ -38,11 +52,26 @@ function regras(css: string): Regra[] {
   }
   return out;
 }
-const fundoDe = (d: Record<string, string>, vars: Record<string, string>) => {
-  if (d['background-color']) return corDe(d['background-color'], vars);
-  if (d.background) { const c = d.background.split(/\s+(?![^(]*\))/).map((p) => corDe(p, vars)).find(Boolean); return c ?? null; }
+const tema = (seletor: string) => /dark|escuro/i.test(seletor); // [data-theme="dark"] e parecidos: fora da conferência
+
+// cores do fundo de uma regra: uma cor só, ou as paradas de um degradê (o texto precisa ler bem em todas)
+function fundoDe(d: Record<string, string>, vars: Record<string, string>): RGB[] | null {
+  const v = d['background-color'] ?? d.background ?? d['background-image'];
+  if (!v) return null;
+  const expandido = v.replace(/var\(\s*(--[\w-]+)\s*(?:,[^)]*)?\)/g, (x, n: string) => vars[n] ?? x);
+  const cores = (expandido.match(/#[0-9a-f]{3,8}\b|rgba?\([^)]*\)|\b[a-z]+\b/gi) ?? []).map((x) => corDe(x, vars)).filter((c): c is RGB => Boolean(c));
+  return cores.length ? cores : null;
+}
+// fundo de quem está em volta: ".card h2" usa o fundo de ".card" (se a regra dele tiver um)
+function fundoDoPai(seletor: string, todas: Regra[], vars: Record<string, string>): RGB[] | null {
+  const partes = seletor.split(',')[0]!.trim().split(/\s*>\s*|\s+/);
+  for (let n = partes.length - 1; n >= 1; n--) {
+    const pai = partes.slice(0, n).join(' ');
+    const r = [...todas].reverse().find((x) => !tema(x.seletor) && x.seletor.split(',').map((y) => y.trim()).includes(pai) && fundoDe(x.decl, vars));
+    if (r) return fundoDe(r.decl, vars);
+  }
   return null;
-};
+}
 
 export interface ProblemaSite { arquivo: string; problema: string }
 
@@ -59,17 +88,18 @@ export function conferirSite(arquivos: Record<string, string>): ProblemaSite[] {
     if (semAlt) problemas.push({ arquivo: f, problema: `${semAlt} <img> sem alt (use alt="" se for só decoração)` });
   }
   const todas = csss.flatMap(([f, c]) => regras(c).map((r) => ({ ...r, arquivo: f })));
+  // variáveis: a primeira definição fora do tema escuro (é a que vale no tema claro)
   const vars: Record<string, string> = {};
-  for (const r of todas) for (const [k, v] of Object.entries(r.decl)) if (k.startsWith('--')) vars[k] = v;
-  const corpo = todas.filter((r) => /(^|,)\s*(body|html|:root)\s*(,|$)/.test(r.seletor));
-  const fundoBody = corpo.map((r) => fundoDe(r.decl, vars)).filter(Boolean).at(-1) ?? [255, 255, 255] as RGB;
+  for (const r of todas) if (!tema(r.seletor)) for (const [k, v] of Object.entries(r.decl)) if (k.startsWith('--')) vars[k] ??= v;
+  const corpo = todas.filter((r) => !tema(r.seletor) && /(^|,)\s*(body|html|:root)\s*(,|$)/.test(r.seletor));
+  const fundoBody: RGB[] = corpo.map((r) => fundoDe(r.decl, vars)).filter((x): x is RGB[] => Boolean(x)).at(-1) ?? [[255, 255, 255]];
   for (const r of todas) {
-    if (!r.decl.color) continue;
+    if (!r.decl.color || tema(r.seletor)) continue;
     const texto = corDe(r.decl.color, vars);
     if (!texto) continue;
-    const fundo = fundoDe(r.decl, vars) ?? fundoBody;
-    const c = contraste(texto, fundo);
-    if (c < 4.5) problemas.push({ arquivo: r.arquivo, problema: `contraste ${c.toFixed(1)}:1 em "${r.seletor}" (${r.decl.color} sobre ${fundoDe(r.decl, vars) ? 'o fundo da própria regra' : 'o fundo da página'}); o mínimo para texto é 4,5:1` });
+    const proprio = fundoDe(r.decl, vars), pai = proprio ? null : fundoDoPai(r.seletor, todas, vars);
+    const c = Math.min(...(proprio ?? pai ?? fundoBody).map((f) => contraste(texto, f)));
+    if (c < 4.5) problemas.push({ arquivo: r.arquivo, problema: `contraste ${c.toFixed(1)}:1 em "${r.seletor}" (${r.decl.color} sobre ${proprio ? 'o fundo da própria regra' : pai ? 'o fundo do elemento em volta' : 'o fundo da página'}); o mínimo para texto é 4,5:1` });
   }
   return problemas.slice(0, 12);
 }

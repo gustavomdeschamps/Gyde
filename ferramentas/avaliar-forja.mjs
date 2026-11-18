@@ -158,7 +158,8 @@ try {
       const proj = c.criar();
       const sessao = await (await pedir('POST', '/api/codigo/sessoes', { pasta: proj.pasta })).json();
       const inicio = Date.now();
-      const eventos = await executar(sessao.id, c.pedido);
+      // passou de 15 minutos (ou a conexão caiu): conta como falha do cenário, sem derrubar a medição inteira
+      const eventos = await executar(sessao.id, c.pedido).catch((e) => [{ tipo: 'erro', texto: `não terminou: ${e?.name === 'TimeoutError' ? 'passou de 15 minutos' : String(e?.message ?? e)}` }]);
       const fim = eventos.find((e) => e.tipo === 'resposta' || e.tipo === 'erro') || {};
       const checagens = await c.conferir(proj, eventos);
       const comandos = eventos.filter((e) => e.tipo === 'ferramenta' && e.nome === 'executar').length;
