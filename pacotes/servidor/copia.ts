@@ -9,8 +9,11 @@ import { unzipSync, zipSync } from 'fflate';
 import { erroGyde } from './tipos.ts';
 import { MIGRACOES } from './migracoes.ts';
 import { copiarBanco } from './banco.ts';
+import { apagarPastaDoGyde } from './apagar-pasta.ts';
 
 const PENDENTE = 'restaurar-pendente';
+// só estas pastas, filhas diretas da pasta de dados, são apagadas aqui (nunca a pasta de dados)
+const apagarPendente = (alvo: string, pastaDados: string) => apagarPastaDoGyde(alvo, pastaDados, /^restaurar-pendente(\.novo)?$/);
 const MAX_ARQUIVO = 50 * 1024 * 1024; // por arquivo dentro do .zip
 const IMAGEM = /^images\/[\w-]+\.(jpg|png|webp)$/;
 
@@ -48,7 +51,7 @@ export function gerarCopia(db: DatabaseSync, pastaDados: string): Uint8Array {
       'Guarde em lugar seguro. Para usar: Gyde > Configurações > Privacidade e dados > Restaurar cópia.',
     ].join('\r\n'));
     return zipSync(arquivos, { level: 6 });
-  } finally { rmSync(temp, { recursive: true, force: true }); }
+  } finally { apagarPastaDoGyde(temp, tmpdir(), /^gyde-copia-/); }
 }
 
 // recebe o .zip, valida e deixa pronto para a próxima abertura
@@ -71,14 +74,14 @@ export function prepararRestauracao(zip: Uint8Array, pastaDados: string) {
 // (uma cópia ruim nunca apaga uma boa que já estava esperando)
 function montarPendente<T>(pastaDados: string, montar: (pasta: string) => T): T {
   const novo = path.join(pastaDados, `${PENDENTE}.novo`);
-  rmSync(novo, { recursive: true, force: true });
+  apagarPendente(novo, pastaDados);
   mkdirSync(novo, { recursive: true });
   try {
     const resumo = montar(novo);
-    rmSync(path.join(pastaDados, PENDENTE), { recursive: true, force: true });
+    apagarPendente(path.join(pastaDados, PENDENTE), pastaDados);
     renameSync(novo, path.join(pastaDados, PENDENTE));
     return resumo;
-  } catch (e) { rmSync(novo, { recursive: true, force: true }); throw e; }
+  } catch (e) { apagarPendente(novo, pastaDados); throw e; }
 }
 
 // importa direto de uma pasta de dados do Gyde (ex.: a pasta data\ do Gyde rodando pelo código)
@@ -108,7 +111,7 @@ export function aplicarRestauracaoPendente(arquivoBanco: string, pastaDados: str
   renameSync(path.join(pendente, 'chat.db'), arquivoBanco);
   // imagens: as da cópia entram ao lado das que já existiam (os nomes são aleatórios, não colidem)
   if (existsSync(path.join(pendente, 'images'))) cpSync(path.join(pendente, 'images'), path.join(pastaDados, 'images'), { recursive: true });
-  rmSync(pendente, { recursive: true, force: true });
+  apagarPendente(pendente, pastaDados);
   log.log('  Cópia de segurança restaurada (o banco anterior foi guardado em copias-banco).');
   return true;
 }
