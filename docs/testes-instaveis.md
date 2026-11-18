@@ -13,4 +13,4 @@ tolerante sem a causa ter sido vista.
 | Token das extensões / troca de senha / chat (textContent) | vários | 4 | 13/11 | Em branches de desenvolvimento, durante a mudança do próprio recurso; eram falhas reais corrigidas antes do merge, não instabilidade. |
 | Chat: "o que já tinha chegado fica salvo" ao parar | Windows | 1 | 29/10 | Não voltou em 20 dias; sem registro da causa. |
 
-Como conferir de novo: `gh run list --limit 60` e `gh run view <id> --log-failed`, procurando por `FALHOU` e `✖`.
+Como conferir de novo: `gh run list --limit 60` e `gh run view <id> --log-failed`, procurando por `FALHOU` e pelos testes do node marcados como falhos.

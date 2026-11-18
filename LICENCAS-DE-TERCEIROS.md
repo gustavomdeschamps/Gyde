@@ -157,7 +157,7 @@ na pasta do pacote, em `node_modules`. O Electron inclui no instalador as licen√
 | fresh | 2.0.0 | MIT |
 | fs-extra | 10.1.0 | MIT |
 | graceful-fs | 4.2.11 | ISC |
-| gyde | 2.5.0 | MIT |
+| gyde | 2.6.0 | MIT |
 | http-errors | 2.0.1 | MIT |
 | iconv-lite | 0.7.3 | MIT |
 | ipaddr.js | 1.9.1 | MIT |
