@@ -1,0 +1,88 @@
+{
+  "em": "2026-11-18T20:19:39.033Z",
+  "repeticoes": 5,
+  "predios": 270,
+  "navegador": "Edge sem janela, WebGL por software (SwiftShader)",
+  "resumo": {
+    "abrir": {
+      "mediana": 1240,
+      "valores": [
+        244,
+        1580,
+        1240,
+        81,
+        1407
+      ]
+    },
+    "cidadePrimeiroQuadro": {
+      "mediana": 837,
+      "valores": [
+        837,
+        863,
+        818,
+        857,
+        731
+      ]
+    },
+    "cidadePronta": {
+      "mediana": 6504,
+      "valores": [
+        6616,
+        6503,
+        6504,
+        6596,
+        6352
+      ]
+    },
+    "cpuQuadroMediana": {
+      "mediana": 0.9,
+      "valores": [
+        1.1,
+        0.9,
+        0.9,
+        0.9,
+        1
+      ]
+    },
+    "cpuQuadroP95": {
+      "mediana": 1.7,
+      "valores": [
+        2.5,
+        1.7,
+        1.7,
+        1.8,
+        1.7
+      ]
+    },
+    "intervaloP95": {
+      "mediana": 192.9,
+      "valores": [
+        242.2,
+        175.8,
+        254.6,
+        192.9,
+        148.4
+      ]
+    },
+    "memoriaMB": {
+      "mediana": 18,
+      "valores": [
+        18,
+        18,
+        17,
+        17,
+        18
+      ]
+    },
+    "aoVivo": {
+      "mediana": 219,
+      "valores": [
+        216,
+        231,
+        219,
+        219,
+        222
+      ]
+    }
+  }
+}

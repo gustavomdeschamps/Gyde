@@ -7,6 +7,25 @@ geral. Os modelos grátis e o roteamento do FreeLLMAPI mudam de um dia para o ou
 **Nada aqui compara o Gyde com ChatGPT, Claude, Gemini ou Grok.** Isso exigiria testes independentes e comparáveis, que não
 foram feitos. Como a inteligência funciona: [inteligencia.md](../inteligencia.md).
 
+## Desempenho (18/11/2026)
+
+`ferramentas/medir-desempenho.mjs --repeticoes 5` ([resultado](desempenho-2026-11-18.json)), servidor de teste com IA
+falsa, Edge sem janela e WebGL por software (SwiftShader). A Cidade é a de uma cópia do código do próprio Gyde (270
+prédios). Medianas de 5 rodadas:
+
+| Medida | Mediana |
+|---|---|
+| Abrir o app até o campo de mensagem aparecer | 1,24 s (de 0,24 a 1,8 s entre rodadas) |
+| Cidade: primeiro quadro depois do clique na aba | 0,84 s |
+| Cidade: pronta (abertura animada terminada e prédios conferidos no quadro) | 6,5 s |
+| Cidade: tempo de CPU para desenhar um quadro | 0,9 ms (pior 5%: 1,7 ms) |
+| Cidade: memória JavaScript | 18 MB |
+| Ao vivo: do clique até o site aparecer | 0,22 s |
+
+Ressalvas: o tempo de CPU por quadro não inclui o trabalho da placa de vídeo (aqui feito por software); o intervalo
+entre quadros fica preso ao ritmo da tela e, parado, a Cidade reduz o ritmo de propósito, então ele não mede custo.
+Nada disso é a Intel UHD 620 com o app aberto: **não foi medido numa UHD 620 de verdade nesta sessão**.
+
 ## Forja na Fase 2 (18/11/2026)
 
 `ferramentas/avaliar-forja.mjs --provedor nvidia,groq`, 3 execuções de cada cenário, a versão nova contra a 2.5.0
