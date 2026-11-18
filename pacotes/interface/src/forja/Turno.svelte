@@ -4,9 +4,11 @@
   import { ic, verbo } from './icones.ts';
   import { duracao, relogio, type Turno, type EtapaAcao } from './estado.ts';
 
-  let { turno, agora, urlAnexo, renderMarkdown, onconfirmar }: {
+  let { turno, agora, urlAnexo, renderMarkdown, onconfirmar, ondesfazer = null, desfeitos = [] }: {
     turno: Turno; agora: number; urlAnexo: (arquivo: string) => string;
     renderMarkdown: (texto: string) => string; onconfirmar: (id: string, aprovado: boolean) => void;
+    // só no turno da última tarefa que mudou arquivos (é a que o servidor ainda pode desfazer)
+    ondesfazer?: ((caminho: string) => void) | null; desfeitos?: string[];
   } = $props();
 
   // aberto enquanto trabalha; fecha sozinho quando termina (dá para abrir de novo)
@@ -108,12 +110,17 @@
         {@const m = turno.fim.mudancas}
         <div class="forja-resumo" aria-label="Resumo das mudanças">
           {#each [['Criados', 'criados', m.criados], ['Alterados', 'alterados', m.modificados], ['Apagados', 'apagados', m.apagados]] as [rot, cls, itens]}
-            {#if (itens as string[]).length}<div class="forja-mud {cls}"><b>{rot}</b>{#each itens as string[] as f}<code>{f}</code>{/each}</div>{/if}
+            {#if (itens as string[]).length}<div class="forja-mud {cls}"><b>{rot}</b>{#each itens as string[] as f}<span class="forja-arq"><code class:desfeito={desfeitos.includes(f)}>{f}</code>{#if desfeitos.includes(f)}<small>desfeito</small>{:else if ondesfazer}<button type="button" class="forja-desfazer-arq" aria-label="Desfazer a mudança em {f}" title="Volta {f} ao que era antes desta tarefa" onclick={() => ondesfazer(f)}>{@html svgIcone('undo-2')}</button>{/if}</span>{/each}</div>{/if}
           {/each}
           {#if m.comandos.length}<div class="forja-mud comandos"><b>Comandos</b>{#each m.comandos as c}<code class={c.ok ? 'ok' : 'falhou'}>{@html svgIcone(c.ok ? 'check' : 'x', c.ok ? 'Deu certo' : 'Falhou')}{c.comando}</code>{/each}</div>{/if}
         </div>
       {/if}
       {@html renderMarkdown(turno.fim.texto)}
+      <!-- conferido pelo Gyde, não pelo modelo: a mudança foi verificada? a resposta afirma algo que não aconteceu? -->
+      {#if turno.fim.verificacao && turno.fim.verificacao.estado !== 'sem-mudanca'}
+        <p class="forja-verificacao {turno.fim.verificacao.estado}">{@html svgIcone(turno.fim.verificacao.estado === 'verificado' ? 'check' : turno.fim.verificacao.estado === 'falhou' ? 'x' : 'circle-alert')}<span>{turno.fim.verificacao.texto.replaceAll('`', '')}</span></p>
+      {/if}
+      {#each turno.fim.avisos ?? [] as aviso}<p class="forja-verificacao aviso" role="note">{@html svgIcone('circle-alert')}<span>Conferido pelo Gyde: {aviso}</span></p>{/each}
     {:else if turno.fim}
       <p class="msg-error">{turno.fim.texto}</p>
     {/if}

@@ -48,8 +48,8 @@ body:
     id: versao
     attributes:
       label: Versão do Gyde
-      description: Aparece em Configurações > Geral (ou no nome do instalador, ex.: 2.5.0).
-      placeholder: "2.5.0"
+      description: Aparece em Configurações > Geral (ou no nome do instalador, ex.: 2.6.0).
+      placeholder: "2.6.0"
     validations:
       required: true
   - type: input

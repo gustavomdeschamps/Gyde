@@ -1,5 +1,9 @@
 # Novidades
 
+## 2.6.0 (junto com o Gyde 2.6.0)
+
+- Sem mudanças na extensão: a versão acompanha o app.
+
 ## 2.5.0 (junto com o Gyde 2.5.0)
 
 - Sem mudanças na extensão: a versão acompanha o app. As respostas melhores vêm do servidor do Gyde.

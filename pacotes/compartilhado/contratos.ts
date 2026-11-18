@@ -68,7 +68,9 @@ export const EstadoAoVivo = z.object({
 export const AoVivo = z.object({ plano: PlanoAoVivo, estado: EstadoAoVivo });
 export const EstadoPasta = z.object({ ok: z.boolean(), motivo: z.string().nullable(), texto: z.string().nullable(), temporario: z.boolean().optional() })
   .refine((e) => e.ok || Boolean(e.texto), { message: 'pasta indisponível sem explicação' });
-export const Projeto = z.object({ tecnologias: z.array(z.string()), testes: z.string().nullable(), arquivos: z.number().int(), git: z.boolean() });
+// arquivos do projeto da Forja (caminhos relativos), para o menu "@" do campo
+export const ListaArquivos = z.object({ arquivos: z.array(z.string()) });
+export const Projeto = z.object({ tecnologias: z.array(z.string()), testes: z.string().nullable(), verificar: z.array(z.string()), arquivos: z.number().int(), git: z.boolean() });
 export const TIPOS_EVENTO = ['tarefa', 'pensando', 'ferramenta', 'resultado', 'confirmar', 'confirmacao', 'revisao', 'resposta', 'erro', 'desfeito', 'reconectado'] as const;
 export const EventoForja = z.object({ tipo: z.enum(TIPOS_EVENTO), em: z.number() }).passthrough();
 // Pedido para a Forja vindo de uma extensão (ex.: VS Code): só fica guardado. O app mostra e a pessoa decide se abre a

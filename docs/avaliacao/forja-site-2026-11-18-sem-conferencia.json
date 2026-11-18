@@ -1,0 +1,152 @@
+{
+  "em": "2026-11-18T20:01:25.604Z",
+  "codigo": "..\\..\\AppData\\Local\\Temp\\gyde-aval-sem-site",
+  "repeticoes": 6,
+  "resultados": [
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": false,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": false,
+        "cabe em 375 px": false,
+        "mudou além da paleta": false,
+        "conteúdo mantido": true
+      },
+      "detalhe": "axe: color-contrast, html-has-lang, image-alt",
+      "terminou": "erro",
+      "passos": null,
+      "ms": 366995,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": null,
+      "erro": "não terminou: terminated",
+      "respostaFinal": "não terminou: terminated"
+    },
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": false,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": false,
+        "cabe em 375 px": true,
+        "mudou além da paleta": true,
+        "conteúdo mantido": true
+      },
+      "detalhe": "axe: color-contrast",
+      "terminou": "resposta",
+      "passos": 5,
+      "ms": 311240,
+      "arquivos": [
+        "index.html",
+        "estilo.css"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null,
+      "respostaFinal": "## O que fiz\n\nRedesenhei o site da padaria com foco em modernidade, profissionalismo, acessibilidade e responsividade.\n\n### Arquivos alterados\n\n**index.html**\n- Adicionado `<!DOCTYPE html>` e atributo `lang=\"pt-BR\"` para acessibilidade\n- Incluído `<meta name=\"viewport\">` para mobile\n- Substituído `<font>` por `<h1>` semântico\n- Adicionado `alt` na imagem (logo.svg)\n- Estrutura semântica com `<header>`, `<main>`, `<section>`, `<article>` e `<footer>`\n- Texto do telefone formatado como (47) 99999-999\n\n**estilo.css**\n- Layout responsivo com `grid` (mobile-first) e media queries\n- Tipografia moder"
+    },
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": true,
+        "cabe em 375 px": true,
+        "mudou além da paleta": true,
+        "conteúdo mantido": true
+      },
+      "terminou": "resposta",
+      "passos": 7,
+      "ms": 333337,
+      "arquivos": [
+        "index.html",
+        "estilo.css"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 6,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": true,
+        "cabe em 375 px": true,
+        "mudou além da paleta": true,
+        "conteúdo mantido": true
+      },
+      "terminou": "resposta",
+      "passos": 5,
+      "ms": 186813,
+      "arquivos": [
+        "index.html",
+        "estilo.css"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": true,
+        "cabe em 375 px": true,
+        "mudou além da paleta": true,
+        "conteúdo mantido": true
+      },
+      "terminou": "resposta",
+      "passos": 6,
+      "ms": 120266,
+      "arquivos": [
+        "index.html",
+        "estilo.css"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": true,
+        "cabe em 375 px": true,
+        "mudou além da paleta": true,
+        "conteúdo mantido": true
+      },
+      "terminou": "resposta",
+      "passos": 5,
+      "ms": 128551,
+      "arquivos": [
+        "index.html",
+        "estilo.css"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    }
+  ]
+}

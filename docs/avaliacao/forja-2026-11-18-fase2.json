@@ -1,0 +1,605 @@
+{
+  "em": "2026-11-18T18:19:28.360Z",
+  "codigo": "atual",
+  "repeticoes": 3,
+  "resultados": [
+    {
+      "cenario": "bug",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 20431,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "bug",
+      "grupo": "pequeno",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 4,
+      "ms": 28356,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "bug",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste para passar": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 13726,
+      "arquivos": [
+        "calc.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "grupo": "pequeno",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 4,
+      "ms": 19837,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "grupo": "pequeno",
+      "lidos": 1,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 18176,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "preservar",
+      "grupo": "pequeno",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "dobro funciona": true,
+        "mudança da pessoa (metade) continua lá e exportada": true,
+        "teste novo de dobro": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 14192,
+      "arquivos": [
+        "util.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "grupo": "pequeno",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 4,
+      "ms": 57079,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "grupo": "pequeno",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 6,
+      "ms": 75866,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 4,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "front-back",
+      "grupo": "pequeno",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "back-end devolve hora HH:MM": true,
+        "front-end mostra a hora": true,
+        "testes passam": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 26596,
+      "arquivos": [
+        "servidor.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "grupo": "pequeno",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 1,
+      "ms": 22861,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "grupo": "pequeno",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 0,
+      "ms": 3293,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "pergunta",
+      "grupo": "pequeno",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "nenhum arquivo mudou": true,
+        "respondeu citando npm test": true
+      },
+      "terminou": "resposta",
+      "passos": 0,
+      "ms": 2531,
+      "arquivos": [],
+      "comandos": 0,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "bug-espalhado",
+      "grupo": "dificil",
+      "lidos": 2,
+      "edicoesFalhas": 1,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "os dois bugs corrigidos de verdade (testes escondidos)": true
+      },
+      "terminou": "resposta",
+      "passos": 8,
+      "ms": 36975,
+      "arquivos": [
+        "src/carrinho.js",
+        "src/precos.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "bug-espalhado",
+      "grupo": "dificil",
+      "lidos": 1,
+      "edicoesFalhas": 1,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "os dois bugs corrigidos de verdade (testes escondidos)": true
+      },
+      "terminou": "resposta",
+      "passos": 7,
+      "ms": 23581,
+      "arquivos": [
+        "src/carrinho.js",
+        "src/precos.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "bug-espalhado",
+      "grupo": "dificil",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "os dois bugs corrigidos de verdade (testes escondidos)": true
+      },
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 41779,
+      "arquivos": [
+        "src/carrinho.js",
+        "src/precos.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "teste-engana",
+      "grupo": "dificil",
+      "lidos": 5,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "corrigiu a causa em ler.js (testes escondidos)": true,
+        "não remendou formatar.js": true
+      },
+      "terminou": "resposta",
+      "passos": 7,
+      "ms": 51655,
+      "arquivos": [
+        "ler.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "teste-engana",
+      "grupo": "dificil",
+      "lidos": 6,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "corrigiu a causa em ler.js (testes escondidos)": true,
+        "não remendou formatar.js": true
+      },
+      "terminou": "resposta",
+      "passos": 6,
+      "ms": 43635,
+      "arquivos": [
+        "ler.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "teste-engana",
+      "grupo": "dificil",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "não mexeu no teste": true,
+        "corrigiu a causa em ler.js (testes escondidos)": true,
+        "não remendou formatar.js": true
+      },
+      "terminou": "resposta",
+      "passos": 6,
+      "ms": 49003,
+      "arquivos": [
+        "ler.js"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 13,
+      "edicoesFalhas": 1,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 15,
+      "ms": 68899,
+      "arquivos": [
+        "teste.js",
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 8,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 9,
+      "ms": 47091,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "pedido-grande",
+      "grupo": "dificil",
+      "lidos": 5,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "testes passam": true,
+        "comportamento pedido (testes escondidos)": true,
+        "testes cobrem a categoria": true
+      },
+      "terminou": "resposta",
+      "passos": 8,
+      "ms": 62448,
+      "arquivos": [
+        "src/modelo.js",
+        "src/repositorio.js",
+        "src/rotas.js",
+        "public/app.js",
+        "teste.js"
+      ],
+      "comandos": 1,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "achar-arquivo",
+      "grupo": "dificil",
+      "lidos": 1,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "frete de R$ 100 grátis (testes escondidos)": true,
+        "testes passam": true,
+        "não mexeu nos outros arquivos": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 12142,
+      "arquivos": [
+        "src/servicos/frete/calculo.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "achar-arquivo",
+      "grupo": "dificil",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "frete de R$ 100 grátis (testes escondidos)": true,
+        "testes passam": true,
+        "não mexeu nos outros arquivos": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 9662,
+      "arquivos": [
+        "src/servicos/frete/calculo.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "achar-arquivo",
+      "grupo": "dificil",
+      "lidos": 0,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "frete de R$ 100 grátis (testes escondidos)": true,
+        "testes passam": true,
+        "não mexeu nos outros arquivos": true
+      },
+      "terminou": "resposta",
+      "passos": 2,
+      "ms": 23254,
+      "arquivos": [
+        "src/servicos/frete/calculo.js"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 2,
+      "edicoesFalhas": 0,
+      "ok": true,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": true,
+        "cabe em 375 px": true,
+        "mudou além da paleta": true,
+        "conteúdo mantido": true
+      },
+      "terminou": "resposta",
+      "passos": 7,
+      "ms": 54067,
+      "arquivos": [
+        "index.html",
+        "estilo.css"
+      ],
+      "comandos": 3,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null
+    },
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 3,
+      "edicoesFalhas": 0,
+      "ok": false,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": false,
+        "cabe em 375 px": true,
+        "mudou além da paleta": true,
+        "conteúdo mantido": true
+      },
+      "detalhe": "axe: color-contrast",
+      "terminou": "resposta",
+      "passos": 5,
+      "ms": 56533,
+      "arquivos": [
+        "index.html",
+        "estilo.css"
+      ],
+      "comandos": 2,
+      "modelo": "nvidia:poolside/laguna-xs-2.1",
+      "erro": null,
+      "respostaFinal": "**O que fiz**\n\nRedesenhei o site da padaria com foco em modernização, acessibilidade e responsividade:\n\n- **HTML**: \n  - Adicionei `<!DOCTYPE html>` e `lang=\"pt-BR\"` para acessibilidade e SEO\n  - Incluí meta viewport para mobile\n  - Substituí `<font>` por elementos semânticos (`<header>`, `<main>`, `<section>`, `<article>`, `<footer>`)\n  - Adicionei `alt` na logo para leitores de tela\n  - Melhorei a estrutura com headings apropriados\n\n- **CSS**:\n  - Layout responsivo com Grid (`auto-fit`, `minmax`)\n  - Paleta de cores profissional (laranja #d2691e, cinza #333, destaque #ffa500)\n  - Tipografia "
+    },
+    {
+      "cenario": "redesenhar-site",
+      "grupo": "site",
+      "lidos": 4,
+      "edicoesFalhas": 0,
+      "ok": false,
+      "checagens": {
+        "build passa": true,
+        "axe-core sem violação séria": false,
+        "cabe em 375 px": true,
+        "mudou além da paleta": true,
+        "conteúdo mantido": true
+      },
+      "detalhe": "axe: color-contrast",
+      "terminou": "resposta",
+      "passos": 3,
+      "ms": 110981,
+      "arquivos": [
+        "index.html",
+        "estilo.css"
+      ],
+      "comandos": 1,
+      "modelo": "groq:openai/gpt-oss-120b",
+      "erro": null,
+      "respostaFinal": "## O que fiz\n- Redesenhei o site da padaria modernizando o layout, tipografia e cores.\n- Tornei o HTML semântico, adicionei `lang=\"pt-BR\"`, meta viewport, descrição e textos alternativos para acessibilidade.\n- Refatorei o CSS para um design responsivo, mobile‑first, com variáveis de cores, tipografia moderna, contraste adequado e suporte a modo escuro.\n- Incluí foco visível, redução de movimento e estilos de impressão.\n- Mantive todo o conteúdo original.\n- Rodei o build (`npm test`) para garantir que todos os arquivos citados no HTML existem e são copiados para a pasta `dist/`.\n\n## Arquivos\n- "
+    }
+  ]
+}

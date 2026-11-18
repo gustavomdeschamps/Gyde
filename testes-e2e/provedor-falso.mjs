@@ -74,6 +74,36 @@ function forja(mensagens) {
     ];
     return roteiro[Math.min(passo, roteiro.length - 1)];
   }
+  // LACO: tenta para sempre a mesma edição que não acha o trecho (a Forja avisa e, se continuar, para)
+  if (/LACO/.test(tarefa)) return { pensamento: 'Tento de novo.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'trecho que não existe', substituir: 'x' } }] };
+  // MENTIRA: quebra a soma, o teste falha e o modelo diz que tudo passou (o Gyde cobra uma vez e depois avisa na tela)
+  if (/MENTIRA/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Leio.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] },
+      { pensamento: 'Mudo e testo.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a - b', substituir: 'a * b' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nMudei a soma.\n\n**Testes**\nTodos os testes passaram.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
+  // SITE-RUIM: cria uma página sem lang, sem viewport e com pouco contraste; a Forja confere e pede a correção
+  if (/SITE-RUIM/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Crio a página.', acoes: [{ ferramenta: 'escrever', args: { caminho: 'pagina.html', conteudo: '<html><body><p style="color:#ddd">oi</p></body></html>\n' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nCriei a página.' },
+      { pensamento: 'Corrijo.', acoes: [{ ferramenta: 'escrever', args: { caminho: 'pagina.html', conteudo: '<!doctype html><html lang="pt-BR"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><p>oi</p></body></html>\n' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nCriei a página e corrigi o idioma e o celular.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
+  // ARGS: primeiro manda "editar" sem o trecho a procurar (a Forja explica o formato), depois faz certo
+  if (/ARGS/.test(tarefa)) {
+    const roteiro = [
+      { pensamento: 'Edito.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', substituir: 'a + b' } }] },
+      { pensamento: 'Agora com o trecho.', acoes: [{ ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a * b', substituir: 'a + b' } }, { ferramenta: 'executar', args: { comando: 'npm test' } }] },
+      { pensamento: 'Pronto.', resposta: '**O que fiz**\nCorrigi a soma.' },
+    ];
+    return roteiro[Math.min(passo, roteiro.length - 1)];
+  }
   if (passo === 0) return { pensamento: 'Primeiro leio o arquivo.', acoes: [{ ferramenta: 'ler', args: { caminho: 'soma.js' } }] };
   if (passo === 1) return { pensamento: 'A função subtrai; corrijo e rodo os testes.', acoes: [
     { ferramenta: 'editar', args: { caminho: 'soma.js', procurar: 'a - b', substituir: 'a + b' } },

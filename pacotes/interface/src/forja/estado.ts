@@ -16,6 +16,8 @@ export type Etapa = EtapaAcao | EtapaConfirmacao | EtapaRevisao;
 export interface FimTurno {
   estado: 'ok' | 'parado' | 'erro' | 'interrompido'; texto: string; duracaoMs: number;
   acoes: number; arquivos: number; comandos: number; mudancas?: Mudancas; modelo?: string;
+  // conferido pelo servidor (não pelo texto do modelo): se a mudança foi verificada e o que a resposta afirmou sem base
+  verificacao?: { estado: 'verificado' | 'falhou' | 'nao-verificado' | 'sem-mudanca'; texto: string }; avisos?: string[];
 }
 export interface Turno { tipo: 'turno'; chave: number; texto: string; anexos: AnexoSalvo[]; inicio: number; etapas: Etapa[]; pensando: boolean; fim: FimTurno | null }
 export type Item = Turno | { tipo: 'desfeito'; chave: number; texto: string } | { tipo: 'reconectado'; chave: number; para: string };
@@ -46,6 +48,8 @@ function fechar(turno: Turno, ev: Evento, estado: FimTurno['estado'], agora: num
     comandos: typeof ev.comandos === 'number' ? ev.comandos : acoes.filter((a) => a.nome === 'executar').length,
     ...(ev.mudancas ? { mudancas: ev.mudancas as Mudancas } : {}),
     ...(typeof ev.modelo === 'string' ? { modelo: ev.modelo } : {}),
+    ...(ev.verificacao && typeof ev.verificacao === 'object' ? { verificacao: ev.verificacao as FimTurno['verificacao'] } : {}),
+    ...(Array.isArray(ev.avisos) && ev.avisos.length ? { avisos: ev.avisos.map(String) } : {}),
   };
 }
 

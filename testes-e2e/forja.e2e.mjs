@@ -61,6 +61,65 @@ try {
     && ia.pedidos.slice(antesDaPreguica).filter((p) => /Você ainda não mudou nada/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1
     && /a\s*\+\s*b/.test(proj.ler('soma.js')));
 
+  // Fase 2: regras que valem mesmo que o modelo tente outra coisa
+  const turnos = () => avaliar(`document.querySelectorAll('.forja-turno').length`);
+  const terminou = (n) => esperar(`document.querySelectorAll('.forja-turno').length === ${n} && !document.querySelector('.forja-turno.trabalhando')`, 60_000);
+  const ultimoTurno = `[...document.querySelectorAll('.forja-turno')].pop()`;
+  let n = await turnos();
+  await pedir('LACO: troque o trecho.');
+  ok('repetindo a mesma tentativa sem resultado, a Forja para e diz o motivo', await terminou(n + 1) && /repetindo a mesma tentativa/.test(await avaliar(`${ultimoTurno}.textContent`)), await avaliar(`${ultimoTurno}.textContent.slice(-300)`));
+  ok('o laço parou bem antes das 30 rodadas', ia.pedidos.filter((p) => /LACO/.test(JSON.stringify(p.mensagens[1] ?? ''))).length <= 6);
+
+  writeFileSync(path.join(proj.pasta, 'soma.js'), proj.ler('soma.js').replace('a + b', 'a - b'));
+  n = await turnos();
+  const antesDaMentira = ia.pedidos.length;
+  await pedir('MENTIRA mude a soma.');
+  ok('teste falhou depois da mudança: a Forja pede uma vez para corrigir ou explicar', await terminou(n + 1) && ia.pedidos.slice(antesDaMentira).filter((p) => /o último comando depois da sua mudança/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1);
+  ok('a tela mostra que a verificação falhou', await esperar(`/Verificação falhou: npm test/.test(${ultimoTurno}.querySelector('.forja-verificacao.falhou')?.textContent || '')`, 3000));
+  ok('"todos os testes passaram" sem base vira aviso conferido pelo Gyde', /Conferido pelo Gyde: A resposta diz que os testes passaram/.test(await avaliar(`${ultimoTurno}.querySelector('.forja-verificacao.aviso')?.textContent || ''`)));
+
+  n = await turnos();
+  writeFileSync(path.join(proj.pasta, 'soma.js'), proj.ler('soma.js').replace('a * b', 'a + b')); // npm test passando: só a conferência de site cobra
+  const antesDoSite = ia.pedidos.length;
+  await pedir('SITE-RUIM crie uma página');
+  ok('mudou uma página: a Forja confere lang e viewport e pede a correção antes de terminar', await terminou(n + 1)
+    && ia.pedidos.slice(antesDoSite).filter((p) => /conferi as páginas e os estilos/.test(JSON.stringify(p.mensagens.at(-1)?.content))).length === 1
+    && /lang="pt-BR"/.test(proj.ler('pagina.html')), ia.pedidos.slice(antesDoSite).map((p) => JSON.stringify(p.mensagens.at(-1)?.content).slice(0, 90)).join(' || '));
+
+  writeFileSync(path.join(proj.pasta, 'soma.js'), proj.ler('soma.js').replace('a + b', 'a * b')); // o roteiro ARGS corrige a * b
+  writeFileSync(path.join(proj.pasta, 'GYDE.md'), '# Projeto de teste\nUse sempre ponto e vírgula. INSTRUCAO-DO-GYDE-MD\n');
+  // menu do campo: "@" lista os arquivos e "/" os comandos
+  const digitar = (t) => avaliar(`(()=>{ const c = document.querySelector('#agenteView textarea'); c.focus(); c.value = ${JSON.stringify(t)}; c.setSelectionRange(c.value.length, c.value.length); c.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
+  const tecla = (key) => avaliar(`document.querySelector('#agenteView textarea').dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true, cancelable: true }))`);
+  await digitar('ARGS corrija @so');
+  ok('"@" mostra os arquivos do projeto', await esperar(`/soma\\.js/.test(document.querySelector('#forjaMenuCampo')?.textContent || '')`, 5000));
+  ok('o .env nunca aparece no menu', !/\.env/.test(await avaliar(`document.querySelector('#forjaMenuCampo')?.textContent || ''`)));
+  await tecla('Enter');
+  ok('Enter escolhe o arquivo e completa o campo', await esperar(`document.querySelector('#agenteView textarea').value === 'ARGS corrija @soma.js ' && !document.querySelector('#forjaMenuCampo')`, 3000), await avaliar(`document.querySelector('#agenteView textarea').value`));
+  n = await turnos();
+  const antesDosArgs = ia.pedidos.length;
+  await avaliar(`document.querySelector('#agenteView form').requestSubmit()`);
+  ok('argumento faltando: a Forja explica o formato certo e o modelo corrige', await terminou(n + 1) && /Argumentos inválidos para [^:]*editar[^:]*: [^ ]*procurar[^ ]* é obrigatório/.test(ia.pedidos.slice(antesDosArgs).map((p) => JSON.stringify(p.mensagens)).join('')) && /a\s*\+\s*b/.test(proj.ler('soma.js')));
+  {
+    const sistema = JSON.stringify(ia.pedidos.slice(antesDosArgs).find((p) => /Você é a Forja/.test(JSON.stringify(p.mensagens[0])))?.mensagens[0] ?? '');
+    ok('o arquivo citado com @ vai junto no pedido', /ARQUIVOS QUE O USUÁRIO APONTOU COM @/.test(sistema) && /@soma\.js/.test(sistema));
+    ok('o GYDE.md do projeto vai junto, abaixo das regras de segurança', /INSTRUÇÕES DO PROJETO/.test(sistema) && /INSTRUCAO-DO-GYDE-MD/.test(sistema) && sistema.indexOf('SEGURANÇA') < sistema.indexOf('INSTRUCAO-DO-GYDE-MD'));
+    ok('o segredo do arquivo citado com @ não vai para a IA', !/AIzaSyFALSO/.test(sistema));
+  }
+  ok('verificado: npm test passou depois da última mudança', /Verificado: npm test/.test(await avaliar(`${ultimoTurno}.querySelector('.forja-verificacao.verificado')?.textContent || ''`)));
+  // desfazer um arquivo só, pelo botão ao lado dele no resumo
+  await avaliar(`window.confirm = () => true; 1`);
+  ok('o resumo da última tarefa tem "Desfazer" por arquivo', await esperar(`${ultimoTurno}.querySelector('button[aria-label="Desfazer a mudança em soma.js"]') !== null`, 3000));
+  await avaliar(`${ultimoTurno}.querySelector('button[aria-label="Desfazer a mudança em soma.js"]').click()`);
+  ok('desfazer um arquivo volta só ele e marca como desfeito', await esperar(`/desfeito/.test(${ultimoTurno}.querySelector('.forja-arq')?.textContent || '')`, 5000) && /a\s*\*\s*b/.test(proj.ler('soma.js')), proj.ler('soma.js'));
+  await digitar('/');
+  ok('"/" mostra os comandos da Forja', await esperar(`/\\/testes/.test(document.querySelector('#forjaMenuCampo')?.textContent || '') && /\\/gyde-md/.test(document.querySelector('#forjaMenuCampo')?.textContent || '')`, 3000));
+  await digitar('/expl');
+  await tecla('Enter');
+  ok('escolher um comando escreve o pedido no campo (a pessoa confere e envia)', await esperar(`/^Explique como este projeto funciona/.test(document.querySelector('#agenteView textarea').value)`, 3000));
+  await digitar('');
+  writeFileSync(path.join(proj.pasta, 'soma.js'), proj.ler('soma.js').replace('a * b', 'a + b'));
+
   // Ao vivo: sem nada rodável explica; com um site, liga um servidor estático de verdade (raiz certa, porta própria),
   // recarrega quando a Forja edita, e para tudo ao fechar. Erro do projeto vira pedido pronto para a Forja.
   const botaoAoVivo = `[...document.querySelectorAll('.forja-acoes .btn')].find((b) => /Ao vivo/.test(b.textContent))`;
