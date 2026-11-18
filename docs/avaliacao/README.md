@@ -7,6 +7,33 @@ geral. Os modelos grátis e o roteamento do FreeLLMAPI mudam de um dia para o ou
 **Nada aqui compara o Gyde com ChatGPT, Claude, Gemini ou Grok.** Isso exigiria testes independentes e comparáveis, que não
 foram feitos. Como a inteligência funciona: [inteligencia.md](../inteligencia.md).
 
+## Forja na Fase 2 (18/11/2026)
+
+`ferramentas/avaliar-forja.mjs --provedor nvidia,groq`, 3 execuções de cada cenário, a versão nova contra a 2.5.0
+(cópia com `git worktree`). Resultados: [fase 2](forja-2026-11-18-fase2.json), [2.5.0](forja-2026-11-18-v250.json).
+
+| Grupo | 2.5.0 | Fase 2 |
+|---|---|---|
+| Pequenos (4 cenários) | 12/12 | 12/12 |
+| Difíceis (4 cenários) | 12/12 | 12/12 |
+| Redesenhar site | 0/3 | 1/3 |
+| Tempo mediano | 40 s | 28 s |
+
+Pequenos e difíceis já estavam no teto: a medição não tem como mostrar ganho neles. O que a Fase 2 muda (verificação
+depois da última mudança, aviso de afirmação sem base, quebra de laço, argumentos conferidos) é conferido pelos testes
+com o provedor falso, que forçam cada situação.
+
+**Cenário novo, "redesenhar site"** (`ferramentas/cenario-forja-site.mjs`): um site com problemas de acessibilidade e
+de celular. Passa se o build roda, o axe-core (WCAG 2.1 A e AA) não acha violação séria ou crítica, a página cabe em
+375 px com a meta viewport, a mudança vai além da paleta e o conteúdo continua. Antes de medir, o critério foi
+conferido com o site original (falha em 3 itens) e com um redesenho feito à mão (passa em todos).
+
+**Conferência de site da Forja**, A/B no mesmo período, n = 6 de cada lado:
+[com](forja-site-2026-11-18-com-conferencia.json) 5/6, [sem](forja-site-2026-11-18-sem-conferencia.json) 4/6;
+diferença +17 pontos, intervalo de 90% de -17 a +50 (incerto). Tempo mediano 115 s contra 249 s. Todas as falhas
+foram de contraste de cor. A primeira versão da conferência não ajudou (lia as cores do tema escuro e ignorava
+degradês); foi corrigida antes desta rodada, olhando uma falha deste mesmo cenário, o que é uma ressalva.
+
 ## Guia de estilo das respostas (18/11/2026)
 
 `ferramentas/avaliar-estilo.mjs` com os 40 pedidos de `ferramentas/pedidos-estilo.mjs` (curtos, médios e longos;

@@ -52,3 +52,15 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
     (com a meta viewport; sem ela o celular desenha com 980 px e o critério passava sem mérito, corrigido antes de
     medir) e mudança além da paleta. Conferido com o site original (falha em 3) e com um redesenho feito à mão (passa
     em todos) antes de medir a Forja.
+15. **Medição da Fase 2 (18/11/2026, NVIDIA + Groq, `ferramentas/avaliar-forja.mjs`).** Fase 2 sem a conferência de
+    site contra a 2.5.0, 3 execuções por cenário: pequenos 12/12 nos dois, difíceis 12/12 nos dois (já no teto: a
+    medição não consegue mostrar ganho neles), site 1/3 contra 0/3. Tempo mediano 28 s contra 40 s. As mudanças de
+    honestidade (verificação, avisos, laço, argumentos) quase não aparecem nesses cenários porque os modelos já
+    terminavam bem; elas são conferidas pelos testes com o provedor falso, que forçam cada situação.
+16. **A conferência de site fica, marcada como tendência.** Primeira rodada: não melhorou (2 falhas e um estouro de
+    tempo); a causa foi o verificador ler as cores do tema escuro e ignorar degradês. Corrigido com casos de teste
+    tirados da falha real. Segunda rodada, mesmo período, n = 6 de cada lado: 5/6 com a conferência contra 4/6 sem,
+    +17 pontos, intervalo de 90% de -17 a +50 (incerto). Somando as rodadas anteriores sem a conferência (mesmo
+    código, outros horários): 5/6 contra 7/15, +37 [+3, +67]. Tempo mediano 115 s contra 249 s. Fica porque não
+    piorou nada medido, só entra em pedido visual e só nos arquivos que a tarefa mudou; a ressalva é que a conferência
+    foi ajustada olhando uma falha do próprio cenário medido.

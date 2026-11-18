@@ -109,6 +109,8 @@ export function analisarProjeto(pasta: string) {
   return { tecnologias: [...tecnologias].slice(0, 8), testes, verificar: [...(testes ? [testes] : []), ...verificar], arquivos, git: tem('.git') };
 }
 
+// pedido sobre a aparência do site ou acessibilidade: aí a conferência de site (conferir-site.ts) entra
+export const PEDIDO_VISUAL = /(redesenh|design|layout|visual|acessib|responsiv|celular|mobile|contraste|cores|tipografia|bonit|moderno|profissional|estiliz|\bsite\b|landing)/i;
 // .html e .css do projeto (até 40 arquivos de até 300 KB) para a conferência de site
 export function paginasDoProjeto(pasta: string): Record<string, string> {
   const achados: Record<string, string> = {}; let n = 0;
@@ -929,9 +931,12 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           continue;
         }
         // mudou página ou estilo: confere contraste, lang, alt e viewport (sem navegador) e pede uma vez para corrigir
-        if (o.resposta && !cobrouSite && [...mudancas.criados, ...mudancas.modificados].some((f) => /\.(html?|css)$/i.test(f))) {
+        // Só quando o pedido é sobre aparência, site ou acessibilidade (num pedido de API que toca o HTML, cobrar lang e
+        // viewport seria aumentar o escopo) e só dos arquivos que esta tarefa mudou.
+        const mudouPagina = [...mudancas.criados, ...mudancas.modificados].filter((f) => /\.(html?|css)$/i.test(f));
+        if (o.resposta && !cobrouSite && mudouPagina.length && PEDIDO_VISUAL.test(tarefa)) {
           cobrouSite = true;
-          const problemas = conferirSite(paginasDoProjeto(pastaReal));
+          const problemas = conferirSite(paginasDoProjeto(pastaReal)).filter((p) => mudouPagina.includes(p.arquivo.replace(/ \(<style>\)$/, '')));
           if (problemas.length) {
             registrar('pensando', { passo });
             msgs.push({ role: 'user', content: `Antes de responder: conferi as páginas e os estilos do projeto e achei:\n${problemas.map((p) => `- ${p.arquivo}: ${p.problema}`).join('\n')}\nCorrija o que for verdade (com "editar"), rode ${projeto.verificar[0] ?? 'o build ou os testes'} de novo e só então responda.` });

@@ -87,3 +87,11 @@ test('GYDE.md e comandos de verificação do projeto', () => {
     assert.deepEqual(analisarProjeto(pasta).verificar, ['npm test', 'npm run build', 'npm run lint']);
   } finally { apagarSeguro(pasta); }
 });
+
+test('a conferência de site só entra em pedido sobre aparência, site ou acessibilidade', async () => {
+  const { PEDIDO_VISUAL } = await import('../codigo-agente.ts');
+  assert.ok(PEDIDO_VISUAL.test('Redesenhe este site para ficar moderno e funcionar no celular'));
+  assert.ok(PEDIDO_VISUAL.test('melhore o contraste das cores'));
+  assert.ok(!PEDIDO_VISUAL.test('Quero que a API traga o campo hora e que a página mostre essa hora'), 'pedido de API que toca o HTML: não cobra lang e viewport');
+  assert.ok(!PEDIDO_VISUAL.test('O teste está falhando. Corrija e rode os testes.'));
+});

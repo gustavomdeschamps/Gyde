@@ -21,7 +21,12 @@ As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do 
 - **@arquivo e comandos /:** no campo, `@` lista os arquivos do projeto; `/` mostra `/testes`, `/corrigir`,
   `/explicar`, `/revisar`, `/gyde-md` e `/desfazer`.
 - **Desfazer por arquivo:** cada arquivo do resumo da última tarefa tem o seu botão de desfazer.
-- **Medição:** MEDICAO_FORJA
+- **Conferência de site:** em pedidos de design, site ou acessibilidade, a Forja confere o contraste das cores (no
+  tema claro, com degradês), `lang`, `alt` e a meta viewport dos arquivos que mudou, e pede a correção antes de terminar.
+- **Medição** (NVIDIA + Groq): pequenos e difíceis seguem em 12/12 (3 execuções de cada cenário, iguais à 2.5.0). No
+  cenário novo "redesenhar site" (build, axe-core sem violação séria, caber em 375 px, mudança além da paleta), com a
+  conferência 5/6 contra 4/6 sem ela, +17 pontos, intervalo de 90% de -17 a +50: tendência, ainda incerto. Detalhes
+  em [docs/avaliacao](docs/avaliacao/README.md).
 
 ### Testes
 - O teste da Loja de skills repete o clique em "Ver e instalar" até o diálogo abrir (falhou uma vez no Windows do CI).
