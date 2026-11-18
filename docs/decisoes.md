@@ -64,3 +64,6 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
     código, outros horários): 5/6 contra 7/15, +37 [+3, +67]. Tempo mediano 115 s contra 249 s. Fica porque não
     piorou nada medido, só entra em pedido visual e só nos arquivos que a tarefa mudou; a ressalva é que a conferência
     foi ajustada olhando uma falha do próprio cenário medido.
+17. **O limpar-antigos.ps1 apagou as cópias de trabalho do git em %TEMP%** (gyde-fase3 e as de medição) ao limpar
+    os temporários gyde-*. Nada se perdeu: todos os commits já estavam no repositório. O script agora pula qualquer
+    pasta gyde-* que tenha um .git dentro.
