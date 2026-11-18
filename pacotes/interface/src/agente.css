@@ -111,6 +111,13 @@
 .forja-mud.apagados code { border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); text-decoration: line-through; }
 .forja-mud.comandos code.ok { color: var(--success); }
 .forja-mud.comandos code.falhou { color: var(--danger); }
+/* verificação conferida pelo Gyde, embaixo da resposta: uma linha discreta, cor só no ícone */
+.forja-verificacao { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0 0; padding: 8px 12px; font-size: 13px; line-height: 1.45; color: var(--text-soft); border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); }
+.forja-verificacao svg { flex: none; width: 16px; height: 16px; margin-top: 1px; }
+.forja-verificacao.verificado svg { color: var(--success); }
+.forja-verificacao.falhou svg, .forja-verificacao.aviso svg { color: var(--danger); }
+.forja-verificacao.nao-verificado svg { color: var(--text-soft); }
+.forja-verificacao.aviso { color: var(--text); border-color: color-mix(in srgb, var(--danger) 35%, var(--border)); }
 
 .forja-arvore { margin: 8px 16px 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); max-height: 280px; overflow: auto; animation: rise var(--t2) var(--ease); }
 .forja-arvore pre { margin: 6px 0 0; font: 12.5px/1.5 var(--mono); color: var(--text-soft); }
@@ -368,3 +375,17 @@
 .rascunho-pedido { margin: 0; max-height: 160px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: var(--bg-soft); border: 1px solid var(--border); font: 13px/1.5 inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
 .rascunho-nota { margin: 8px 0 12px; font-size: 12.5px; color: var(--text-soft); }
 .rascunho-acoes { display: flex; justify-content: flex-end; gap: 8px; }
+/* desfazer um arquivo só, ao lado do nome no resumo da última tarefa */
+.forja-arq { display: inline-flex; align-items: center; gap: 2px; }
+.forja-arq code.desfeito { text-decoration: line-through; color: var(--text-soft); }
+.forja-arq small { font-size: 11px; color: var(--text-soft); }
+.forja-desfazer-arq { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--text-soft); cursor: pointer; }
+.forja-desfazer-arq:hover { background: var(--surface); color: var(--text); }
+.forja-desfazer-arq:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.forja-desfazer-arq svg { width: 15px; height: 15px; }
+/* menu do campo da Forja: comandos (/) e arquivos (@), acima do campo */
+.forja-menu-campo { list-style: none; margin: 0 0 6px; padding: 4px; max-height: 260px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: 0 6px 20px rgb(0 0 0 / 0.08); }
+.forja-menu-campo li { display: flex; align-items: baseline; gap: 10px; padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 13.5px; min-width: 0; }
+.forja-menu-campo li b { font-weight: 600; font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+.forja-menu-campo li span { color: var(--text-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.forja-menu-campo li.ativo { background: var(--bg-soft); }

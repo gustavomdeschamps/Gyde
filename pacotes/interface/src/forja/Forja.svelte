@@ -12,6 +12,7 @@
   import Cidade from './Cidade.svelte';
   import AoVivo from './AoVivo.svelte';
   import { avisarCidade, sinalDoEvento } from './sinais-cidade.ts';
+  import { menuDoCampo, escolher, type ItemMenu } from './menu-campo.ts';
 
   type Recente = { id: string; pasta: string; titulo: string; updated_at: number; disponivel: boolean };
   type AnexoNovo = { nome: string; tipo: 'imagem' | 'arquivo'; dataUrl?: string; texto?: string; tamanho: number };
@@ -51,6 +52,38 @@
     await tick(); ajustarAltura(); campo?.focus();
   }
   const MUDA_ARQUIVO = new Set(['escrever', 'editar', 'apagar', 'desfazer']);
+
+  // menu do campo: "/" no começo mostra os comandos, "@" mostra os arquivos do projeto (menu-campo.ts)
+  let cursor = $state(0);
+  let arquivosProjeto = $state<string[] | null>(null);
+  let menuFechadoEm = $state<string | null>(null); // Esc fecha até o texto mudar
+  let ativo = $state(0);
+  const menuCampo = $derived(id && menuFechadoEm !== texto ? menuDoCampo(texto, cursor, arquivosProjeto ?? []) : null);
+  $effect(() => { void menuCampo?.itens.length; ativo = 0; });
+  function lerCursor() {
+    cursor = campo?.selectionStart ?? texto.length;
+    // a lista de arquivos só é buscada quando a pessoa digita "@" pela primeira vez
+    if (id && arquivosProjeto === null && /(^|\s)@[^\s]*$/.test(texto.slice(0, cursor))) {
+      arquivosProjeto = [];
+      pedir(`/api/codigo/sessoes/${id}/lista-arquivos`, C.ListaArquivos).then((r) => { arquivosProjeto = r.arquivos; }).catch(() => {});
+    }
+  }
+  async function escolherItem(item: ItemMenu) {
+    const m = menuCampo; if (!m) return;
+    if (item.comando?.acao === 'desfazer') { texto = ''; await tick(); ajustarAltura(); desfazer(); return; }
+    const r = escolher(texto, m, item);
+    texto = r.texto; await tick();
+    campo?.setSelectionRange(r.cursor, r.cursor); campo?.focus(); cursor = r.cursor; ajustarAltura();
+  }
+  function teclaNoCampo(e: KeyboardEvent) {
+    const m = menuCampo;
+    if (m) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); ativo = (ativo + (e.key === 'ArrowDown' ? 1 : m.itens.length - 1)) % m.itens.length; return; }
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); escolherItem(m.itens[ativo]!); return; }
+      if (e.key === 'Escape') { e.preventDefault(); menuFechadoEm = texto; return; }
+    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarTarefa(); }
+  }
 
   const nomeDaPasta = (p: string) => p.split(/[\\/]/).filter(Boolean).pop() || p;
   const quando = (ms: number) => new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -113,11 +146,24 @@
     try { arvore.texto = (await enviar<{ arvore: string }>(`/api/codigo/sessoes/${id}/arquivos`)).arvore; } catch (e) { arvore.erro = mensagemDe(e); }
   }
 
-  async function desfazer() {
+  // sem caminho: a última tarefa inteira; com caminho: só aquele arquivo (botão ao lado dele no resumo)
+  let desfeitos = $state<string[]>([]);
+  // o turno da última tarefa que mudou arquivos: é o único que o servidor ainda pode desfazer arquivo por arquivo
+  const chaveDaUltimaMudanca = $derived.by(() => {
+    for (let i = itens.length - 1; i >= 0; i--) {
+      const it = itens[i]!;
+      const m = it.tipo === 'turno' ? it.fim?.mudancas : undefined;
+      if (m && m.criados.length + m.modificados.length + m.apagados.length > 0) return it.chave;
+    }
+    return -1;
+  });
+  $effect(() => { void chaveDaUltimaMudanca; desfeitos = []; }); // tarefa nova com mudanças: a lista de desfeitos recomeça
+  async function desfazer(caminho?: string) {
     if (trabalhando || !sessao) return;
-    if (!confirm('Desfazer a última tarefa da Forja? Os arquivos que ela mudou voltam ao que eram antes (os que você editou depois ficam como estão).')) return;
+    if (!confirm(caminho ? `Desfazer a mudança da Forja em ${caminho}? Ele volta ao que era antes da última tarefa.` : 'Desfazer a última tarefa da Forja? Os arquivos que ela mudou voltam ao que eram antes (os que você editou depois ficam como estão).')) return;
     try {
-      const r = await enviar<{ saida: string; podeDesfazer: boolean }>(`/api/codigo/sessoes/${id}/desfazer`, { method: 'POST' });
+      const r = await enviar<{ saida: string; podeDesfazer: boolean; restaurados?: string[] }>(`/api/codigo/sessoes/${id}/desfazer`, { method: 'POST', ...(caminho ? { body: JSON.stringify({ caminho }) } : {}) });
+      desfeitos = caminho ? [...desfeitos, ...(r.restaurados ?? [])] : [];
       aplicar(itens, { tipo: 'desfeito', texto: r.saida }); sessao.podeDesfazer = r.podeDesfazer; descer(); recarregarPrevia();
     } catch (e) { toast(mensagemDe(e)); }
   }
@@ -226,7 +272,7 @@
     {#if sessao}
       <span class="forja-acoes">
         <button type="button" class="btn small ghost" class:ativo={aoVivoAberto} aria-pressed={aoVivoAberto} title="Liga o projeto (site, servidor ou programa) e mostra ao lado; pede permissão antes de rodar qualquer comando" onclick={alternarPrevia}>{@html ic.aovivo}Ao vivo</button>
-        {#if sessao.podeDesfazer}<button type="button" class="btn small ghost" title="Volta os arquivos ao que eram antes da última tarefa da Forja" onclick={desfazer}>{@html ic.desfazer}Desfazer</button>{/if}
+        {#if sessao.podeDesfazer}<button type="button" class="btn small ghost" title="Volta os arquivos ao que eram antes da última tarefa da Forja" onclick={() => desfazer()}>{@html ic.desfazer}Desfazer</button>{/if}
         <button type="button" class="icon-btn" title="Arquivos que a Forja pode ver" aria-label="Arquivos do projeto" aria-expanded={arvore.aberta} onclick={alternarArvore}>{@html ic.arquivos}</button>
         <button type="button" class="icon-btn" title="Apagar esta conversa (os arquivos do projeto ficam)" aria-label="Apagar esta conversa" onclick={apagarConversa}>{@html ic.lixo}</button>
       </span>
@@ -286,7 +332,8 @@
     {/if}
     {#each itens as it (it.chave)}
       {#if it.tipo === 'turno'}
-        <Turno turno={it} {agora} {urlAnexo} {renderMarkdown} onconfirmar={responderConfirmacao} />
+        <Turno turno={it} {agora} {urlAnexo} {renderMarkdown} onconfirmar={responderConfirmacao} {desfeitos}
+          ondesfazer={sessao?.podeDesfazer && !trabalhando && it.chave === chaveDaUltimaMudanca ? (c: string) => desfazer(c) : null} />
       {:else if it.tipo === 'desfeito'}
         <div class="forja-desfeito" role="status">{@html ic.desfazer}<span><b>Desfeito</b> {it.texto}</span></div>
       {:else}
@@ -307,6 +354,15 @@
         {/each}
       </div>
     {/if}
+    {#if menuCampo}
+      <ul class="forja-menu-campo" id="forjaMenuCampo" role="listbox" aria-label={menuCampo.tipo === 'comando' ? 'Comandos da Forja' : 'Arquivos do projeto'}>
+        {#each menuCampo.itens as item, i (item.rotulo + (item.descricao ?? ''))}
+          <li id="forjaMenuItem{i}" role="option" aria-selected={i === ativo} class:ativo={i === ativo} onmousedown={(e) => { e.preventDefault(); escolherItem(item); }} onmouseenter={() => (ativo = i)}>
+            <b>{item.rotulo}</b>{#if item.descricao}<span>{item.descricao}</span>{/if}
+          </li>
+        {/each}
+      </ul>
+    {/if}
     <div class="composer-row">
       {#if id}
         <button type="button" class="icon-btn" aria-label="Anexar imagens ou arquivos" title="Anexar imagens (prints, referências) ou arquivos de texto" onclick={() => seletor?.click()}>{@html ic.clipe}</button>
@@ -314,9 +370,10 @@
           onchange={(e) => { const el = e.currentTarget as HTMLInputElement; anexar([...(el.files ?? [])]); el.value = ''; }}>
       {/if}
       <textarea rows="1" bind:this={campo} bind:value={texto} aria-label="Mensagem para a Forja"
-        placeholder={id ? 'Peça qualquer coisa para este projeto (cole prints com Ctrl+V)' : 'Diga o que fazer. Ao enviar, você escolhe a pasta do projeto.'}
-        oninput={ajustarAltura}
-        onkeydown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarTarefa(); } }}
+        placeholder={id ? 'Peça algo para este projeto. @ cita um arquivo, / mostra os comandos' : 'Diga o que fazer. Ao enviar, você escolhe a pasta do projeto.'}
+        oninput={() => { ajustarAltura(); lerCursor(); }} onclick={lerCursor} onkeyup={(e) => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) lerCursor(); }}
+        role="combobox" aria-autocomplete="list" aria-expanded={Boolean(menuCampo)} aria-controls="forjaMenuCampo" aria-activedescendant={menuCampo ? `forjaMenuItem${ativo}` : undefined}
+        onkeydown={teclaNoCampo}
         onpaste={(e) => { const fs = [...(e.clipboardData?.files ?? [])]; if (fs.length && id) { e.preventDefault(); anexar(fs); } }}></textarea>
       <button type="submit" class="send" class:streaming={trabalhando} aria-label={trabalhando ? 'Parar' : 'Enviar'}>{@html ic.enviar}</button>
     </div>
