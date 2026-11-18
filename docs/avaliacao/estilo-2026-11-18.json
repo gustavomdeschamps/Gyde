@@ -1,0 +1,2742 @@
+{
+ "em": "2026-11-18",
+ "provedores": [
+  "nvidia",
+  "groq"
+ ],
+ "repeticoes": 2,
+ "resumo": {
+  "nAntiga": 80,
+  "nNova": 80,
+  "notaAntiga": 97,
+  "notaNova": 99,
+  "diferenca": 3,
+  "intervalo90": [
+   1,
+   4
+  ],
+  "criterios": {
+   "comeca": {
+    "antiga": {
+     "taxa": 100,
+     "n": 80
+    },
+    "nova": {
+     "taxa": 100,
+     "n": 80
+    }
+   },
+   "sem_formula": {
+    "antiga": {
+     "taxa": 100,
+     "n": 80
+    },
+    "nova": {
+     "taxa": 100,
+     "n": 80
+    }
+   },
+   "tamanho": {
+    "antiga": {
+     "taxa": 95,
+     "n": 80
+    },
+    "nova": {
+     "taxa": 99,
+     "n": 80
+    }
+   },
+   "codigo_roda": {
+    "antiga": {
+     "taxa": 87,
+     "n": 45
+    },
+    "nova": {
+     "taxa": 98,
+     "n": 45
+    }
+   },
+   "sem_sucesso_falso": {
+    "antiga": {
+     "taxa": 98,
+     "n": 80
+    },
+    "nova": {
+     "taxa": 100,
+     "n": 80
+    }
+   }
+  },
+  "msAntiga": 4324,
+  "msNova": 4492,
+  "palavrasAntiga": 50,
+  "palavrasNova": 42,
+  "corrigidas": 8
+ },
+ "execucoes": [
+  {
+   "pedido": "let-const",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 64,
+   "ms": 888,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "git-desfazer",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 17,
+   "ms": 1272,
+   "modelo": "groq:qwen/qwen3.8-27b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "let-const",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": false
+   },
+   "palavras": 112,
+   "ms": 1349,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "**`let`** \n- Declara uma variável com escopo de bloco (ou seja, só existe dentro das `{}` onde foi criada). \n- O valor pode ser **reatribuído** quantas vezes quiser. \n```js\nlet contador = 0;\ncontador = contador + 1; // válido\n```\n\n**`const`** \n- Também tem escopo de bloco, mas cria uma **referência constante**. \n- Não é possível reatribuir a variável depois da inicialização. \n```js\nconst PI = 3.1415;\nPI = 3; // erro: tentativa de reatribuição\n```\n\n### Observação importante sobre objetos e arrays\n`const` impede a **reatribuição** da referência, mas o conteúdo interno pode ser alterado, pois o objeto em si continua mutável.\n\n```js\nconst pessoa = { nome: 'Ana' };\npessoa.nome = 'Bia';   // permitido\npessoa = {};           // erro: tentativa de reatribuição da constante\n```\n\n### Quando usar\n- Use **`const`** por padrão, pois indica que a referência não será trocada, facilitando a leitura e a manutenção do código. \n- Use **`let`** quando souber que o valor precisará mudar ao longo da execução (ex.: contadores, índices de loops)."
+  },
+  {
+   "pedido": "http-404",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 28,
+   "ms": 418,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "git-desfazer",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 35,
+   "ms": 862,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "http-404",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 47,
+   "ms": 675,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-lista-tupla",
+   "versao": "nova",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": false,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 166,
+   "ms": 1352,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "Use **lista** quando precisar de uma sequência mutável – ou seja, quando for acrescentar, remover ou alterar itens ao longo da execução; use **tupla** quando a sequência for fixa e você quiser garantir que os valores não mudem, além de obter pequenas vantagens de desempenho e permitir que a estrutura seja usada como chave em dicionários ou elemento de conjuntos. \n\n- **Mutabilidade**: listas (`list`) suportam `append`, `pop`, atribuição por índice etc.; tuplas (`tuple`) são imutáveis, qualquer tentativa de modificar lança `TypeError`. \n- **Semântica**: tuplas indicam “um registro de valores” (ex.: coordenadas `(x, y)`), listas indicam “coleção de itens” que pode crescer ou mudar (ex.: `filmes_a_assistir`). \n- **Performance**: tuplas ocupam menos memória e são ligeiramente mais rápidas para iteração, pois o Python pode otimizar objetos imutáveis. \n- **Uso como chave**: só tuplas podem ser usadas como chave em `dict` ou elemento de `set`, pois precisam ser hash‑áveis. \n\n**Exemplo prático**\n\n```python\n# Lista – coleção que será modificada\ncarrinho = ['maçã', 'banana']\ncarrinho.append('laranja')   # permite mudar\n\n# Tupla – registro de dados fixos\nponto = (10, 20)             # coordenada que não deve mudar\ndistancia = {ponto: 5}       # ponto pode ser chave de dicionário\n```\n\nEm resumo: escolha lista para dados mutáveis e operacionais; escolha tupla para dados imutáveis, para expressar intenção de constância e quando precisar de hashabilidade.\n\n*Código conferido: rodei e não deu erro.*"
+  },
+  {
+   "pedido": "py-lista-tupla",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": false,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 226,
+   "ms": 1765,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "**Lista**\n\n- **Mutável**: permite inserir, remover ou alterar elementos depois da criação. \n- **Uso típico**: coleções que vão mudar ao longo da execução (ex.: acumular resultados, ler dados de um arquivo e ir acrescentando, filas, pilhas). \n- **Sintaxe**: `lista = [1, 2, 3]` \n- **Métodos úteis**: `append`, `extend`, `insert`, `remove`, `pop`, `clear`, `sort`, `reverse`. \n\n**Tupla**\n\n- **Imutável**: depois de criada, seus elementos não podem ser alterados nem reordenados. \n- **Uso típico**: dados que devem permanecer constantes, como coordenadas `(x, y)`, valores de configuração, chaves de dicionário que precisam ser hash‑able, retorno de múltiplos valores de uma função. \n- **Sintaxe**: `tupla = (1, 2, 3)` (ou `tupla = 1, 2, 3` sem parênteses). \n- **Vantagens**: menor consumo de memória e acesso ligeiramente mais rápido que listas; por serem imutáveis podem ser usadas como chave em dicionários ou elemento de conjuntos. \n\n**Critérios de escolha**\n\n1. **Precisão semântica** – Se o conceito representa algo que não deve mudar, prefira tupla; se a coleção pode ser modificada, use lista. \n2. **Desempenho** – Em laços intensivos onde a estrutura não será alterada, tuplas podem ser marginalmente mais rápidas. \n3. **Compatibilidade com APIs** – Algumas funções esperam especificamente uma lista (ex.: `list.sort()`), outras aceitam qualquer iterável. \n4. **Hashability** – Quando precisar usar o conjunto de valores como chave de dicionário ou elemento de `set`, só tuplas (ou outros objetos imutáveis) funcionam. \n\n**Exemplo prático**\n\n```python\n# Lista: acumulando notas de alunos\nnotas = []\nfor n in [7, 8, 5]:\n    notas.append(n)          # mutável, pode crescer\nprint(notas)                # [7, 8, 5]\n\n# Tupla: coordenadas de um ponto que não mudarão\nponto = (10, 20)            # imutável\n# ponto[0] = 15  # erro: TypeError\n```\n\nEm resumo, escolha **lista** quando precisar modificar a coleção; escolha **tupla** quando quiser garantir que os dados permanecerão fixos e, possivelmente, usá‑los como chave ou elemento de conjunto."
+  },
+  {
+   "pedido": "css-centralizar",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 93,
+   "ms": 1619,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "css-centralizar",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 51,
+   "ms": 3710,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-igual",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 97,
+   "ms": 4924,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "sql-like",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 75,
+   "ms": 4324,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-igual",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": false,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 130,
+   "ms": 8301,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "Em JavaScript, o operador `===` é o **igualdade estrita**, enquanto `==` é a **igualdade abruta** (ou \"frouxa\"). A diferença está em como eles tratam a comparação de tipos.\n\n### Como funciona cada um:\n\n- `==` (igualdade abruta): faz **conversão de tipo automática** antes de comparar. Pode resultar em comportamentos inesperados.\n- `===` (igualdade estrita): compara **valor e tipo** sem converter nada.\n\n### Exemplo prático:\n\n```javascript\nconsole.log(5 == \"5\");    // true (converte string para número)\nconsole.log(5 === \"5\");   // false (tipos diferentes)\n\nconsole.log(true == 1);   // true (converte booleano para número)\nconsole.log(true === 1);  // false (booleano vs número)\n\nconsole.log(null == undefined);  // true (casos especiais)\nconsole.log(null === undefined); // false (tipos diferentes)\n```\n\n### Por que `===` é recomendado?\n\n1. **Previsibilidade**: evita surpresas com conversões automáticas\n2. **Segurança**: você sabe exatamente o que está comparando\n3. **Boas práticas**: a maioria dos linters (como ESLint) reclama quando usa `==`\n\n### Exceções raras onde `==` pode fazer sentido:\n\n```javascript\nnull == undefined  // true - útil para checar \"nada\"\n```\n\nMas até mesmo isso, alguns preferem escrever `value == null` para cobrir ambos os casos.\n\n**Conclusão**: use `===` sempre que puder. Só caia no `==` se souber exatamente o que está acontecendo por trás."
+  },
+  {
+   "pedido": "node-versao",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 18,
+   "ms": 840,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "node-versao",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 27,
+   "ms": 1810,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "sql-like",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 86,
+   "ms": 4706,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-venv",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 92,
+   "ms": 2793,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "json-o-que",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 52,
+   "ms": 2040,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "json-o-que",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 32,
+   "ms": 1120,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-venv",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 71,
+   "ms": 4047,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-pares",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": false
+   },
+   "palavras": 43,
+   "ms": 2898,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "```javascript\nfunction filtrarPares(numeros) {\n  return numeros.filter(num => num % 2 === 0);\n}\n```\n\nExemplo de uso:\n\n```javascript\nconsole.log(filtrarPares([1, 2, 3, 4, 5, 6])); // [2, 4, 6]\nconsole.log(filtrarPares([1, 3, 5]));          // []\nconsole.log(filtrarPares([]));                  // []\n```\n\nA função usa o método `filter`, que cria um novo array com os elementos que passam no teste da função callback. O operador `%` retorna o resto da divisão; se o resto de dividir por 2 for 0, o número é par."
+  },
+  {
+   "pedido": "js-pares",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 0,
+   "ms": 5412,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 1,
+   "erro": false
+  },
+  {
+   "pedido": "py-palindromo",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 0,
+   "ms": 4245,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-palindromo",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 43,
+   "ms": 5978,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-contar-palavras",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 22,
+   "ms": 3553,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-fatorial",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": false
+   },
+   "palavras": 37,
+   "ms": 5444,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "Aqui vão as duas versões em Python.\n\n**Com recursão:**\n```python\ndef fatorial_recursivo(n):\n    if n < 0:\n        raise ValueError(\"Fatorial não existe para números negativos\")\n    if n == 0 or n == 1:\n        return 1\n    return n * fatorial_recursivo(n - 1)\n```\n\n**Sem recursão (iterativo):**\n```python\ndef fatorial_iterativo(n):\n    if n < 0:\n        raise ValueError(\"Fatorial não existe para números negativos\")\n    resultado = 1\n    for i in range(2, n + 1):\n        resultado *= i\n    return resultado\n```\n\nExemplo de uso:\n```python\nprint(fatorial_recursivo(5))   # 120\nprint(fatorial_iterativo(5))   # 120\n```\n\nA versão iterativa é mais eficiente para números grandes, pois evita o limite de profundidade da pilha que a recursão pode atingir."
+  },
+  {
+   "pedido": "js-contar-palavras",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 40,
+   "ms": 6726,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-fatorial",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 38,
+   "ms": 4082,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-data",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 45,
+   "ms": 3210,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-data",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 34,
+   "ms": 3508,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-media-notas",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 0,
+   "ms": 2051,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-media-notas",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 0,
+   "ms": 4129,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-debounce",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 65,
+   "ms": 4107,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-primos",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 1,
+   "ms": 4291,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-primos",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 13,
+   "ms": 7182,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-debounce",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 53,
+   "ms": 10295,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-ordenar-objetos",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 24,
+   "ms": 6205,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-ordenar-objetos",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 28,
+   "ms": 4011,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-dicionario",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 42,
+   "ms": 4492,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-dicionario",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 43,
+   "ms": 5839,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-undefined",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 42,
+   "ms": 2574,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-undefined",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 38,
+   "ms": 7346,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-indentacao",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 49,
+   "ms": 7320,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-nan",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 32,
+   "ms": 3605,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-zero",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 62,
+   "ms": 10484,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-nan",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 0,
+   "ms": 16038,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 1,
+   "erro": false
+  },
+  {
+   "pedido": "erro-indentacao",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 57,
+   "ms": 24677,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 1,
+   "erro": false
+  },
+  {
+   "pedido": "erro-laco",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 28,
+   "ms": 3037,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-zero",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 41,
+   "ms": 5191,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-laco",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 20,
+   "ms": 2791,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-tipo-py",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 46,
+   "ms": 4757,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-await",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 43,
+   "ms": 6846,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-await",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 5,
+   "ms": 10880,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 1,
+   "erro": false
+  },
+  {
+   "pedido": "erro-escopo",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 36,
+   "ms": 6606,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-tipo-py",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 1,
+   "ms": 11479,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 1,
+   "erro": false
+  },
+  {
+   "pedido": "erro-escopo",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 54,
+   "ms": 8494,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-recursao",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 123,
+   "ms": 3986,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-recursao",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 106,
+   "ms": 9108,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-api",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 145,
+   "ms": 7402,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-api",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 285,
+   "ms": 14410,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-git",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 265,
+   "ms": 15929,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-git",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 202,
+   "ms": 16275,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-oop",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 130,
+   "ms": 12081,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-oop",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 106,
+   "ms": 8744,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-big-o",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 68,
+   "ms": 3528,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-big-o",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 56,
+   "ms": 2444,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-roteiro",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 81,
+   "ms": 3312,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-roteiro",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 58,
+   "ms": 2542,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-site",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 44,
+   "ms": 1787,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-ordenar",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 65,
+   "ms": 5965,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-banco",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 60,
+   "ms": 1295,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-ordenar",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 42,
+   "ms": 5665,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-banco",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 45,
+   "ms": 1060,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "opiniao-linguagem",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 35,
+   "ms": 1299,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "revisar-codigo",
+   "versao": "antiga",
+   "nota": 0.75,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": false
+   },
+   "palavras": 33,
+   "ms": 1430,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "Seu código está bom! Ele define uma função `soma` que recebe dois parâmetros e retorna sua soma, e depois testa com `console.log(soma(1,2))`, que imprimirá `3` no console. Funciona perfeitamente para o caso básico."
+  },
+  {
+   "pedido": "opiniao-linguagem",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 38,
+   "ms": 3150,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "revisar-codigo",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 26,
+   "ms": 1971,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-site",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 52,
+   "ms": 10151,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "regex-email",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 58,
+   "ms": 2137,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "let-const",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 70,
+   "ms": 786,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "let-const",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 111,
+   "ms": 1092,
+   "modelo": "groq:qwen/qwen3.8-27b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "git-desfazer",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 36,
+   "ms": 507,
+   "modelo": "groq:qwen/qwen3.8-27b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "git-desfazer",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 34,
+   "ms": 953,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "http-404",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 53,
+   "ms": 707,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "http-404",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 31,
+   "ms": 895,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "regex-email",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 70,
+   "ms": 6275,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-lista-tupla",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 93,
+   "ms": 764,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-lista-tupla",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": false,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 220,
+   "ms": 1470,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "**Lista (`list`)** \n- **Mutável**: pode acrescentar, remover ou mudar elementos após a criação. \n- **Uso típico**: quando o conteúdo pode mudar ao longo da execução (acúmulo de resultados, filtragem, ordenação, etc.). \n- **Performance**: inserções/remover no fim são O(1); inserir ou remover no meio é O(n). \n- **Exemplo**:\n\n```python\nfrutas = ['maçã', 'banana']\nfrutas.append('laranja')   # ['maçã', 'banana', 'laranja']\nfrutas[0] = 'morango'      # ['morango', 'banana', 'laranja']\n```\n\n**Tupla (`tuple`)** \n- **Imutável**: depois de criada, seus elementos não podem ser alterados. \n- **Uso típico**: quando o conjunto de valores deve permanecer constante (chaves de dicionário, coordenadas, retorno de múltiplos valores, parâmetros de função). Também serve como documento de contrato: quem recebe a tupla sabe que não será modificada. \n- **Performance**: por ser imutável, tem menor overhead de memória e acesso ligeiramente mais rápido que listas. \n- **Exemplo**:\n\n```python\nponto = (10, 20)   # coordenadas x e y\nx, y = ponto       # desempacotamento\n```\n\n**Quando escolher cada uma**\n\n| Situação | Escolha | Por quê |\n|----------|---------|---------|\n| Precisa mudar a coleção (adicionar, remover, ordenar) | **Lista** | Mutabilidade permite essas operações. |\n| Dados são fixos e não devem mudar | **Tupla** | Imutabilidade garante integridade e pode ser usada como chave de dicionário. |\n| Quer usar a coleção como chave de outro dicionário ou elemento de `set` | **Tupla** | Só objetos imutáveis podem ser chaves. |\n| Precisa de desempenho máximo em leitura e pouca memória | **Tupla** | Menor overhead por ser imutável. |\n| Precisa de sintaxe de desempacotamento múltiplo | **Tupla** | Desempacotar tuplas é idiomático em Python. |\n\nEm resumo, use **lista** quando a coleção for dinâmica; use **tupla** quando o conjunto de valores for estático ou precisar ser hashable (usável como chave)."
+  },
+  {
+   "pedido": "css-centralizar",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 42,
+   "ms": 949,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "css-centralizar",
+   "versao": "antiga",
+   "nota": 0.75,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": false,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 160,
+   "ms": 2467,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "Para centralizar uma **div** tanto horizontal quanto verticalmente na tela, as abordagens mais simples são usar **Flexbox** ou **position absolute**.\n\n### 1. Flexbox (recomendado)\n\n```html\n<body>\n  <div class=\"centralizada\">\n    Conteúdo da div\n  </div>\n</body>\n```\n\n```css\nhtml, body {\n  height: 100%;               /* garante que o body ocupe a tela inteira */\n  margin: 0;                  /* remove margens padrão */\n}\n\nbody {\n  display: flex;              /* ativa o flexbox no body */\n  justify-content: center;    /* centraliza horizontalmente */\n  align-items: center;        /* centraliza verticalmente */\n}\n\n.centralizada {\n  /* tamanho opcional da div */\n  width: 300px;\n  padding: 20px;\n  background: #f0f0f0;\n  border: 1px solid #ccc;\n  text-align: center;\n}\n```\n\n**Como funciona** \n- `display: flex` transforma o elemento pai (`body`) em um contêiner flexível. \n- `justify-content: center` alinha os itens ao centro do eixo horizontal. \n- `align-items: center` alinha ao centro do eixo vertical. \n\n### 2. Position absolute + transform\n\n```html\n<body>\n  <div class=\"centralizada\">\n    Conteúdo da div\n  </div>\n</body>\n```\n\n```css\nhtml, body {\n  height: 100%;\n  margin: 0;\n  position: relative;   /* necessário para o posicionamento absoluto da div */\n}\n\n.centralizada {\n  position: absolute;           /* retira a div do fluxo normal */\n  top: 50%;                     /* ponto de referência vertical */\n  left: 50%;                    /* ponto de referência horizontal */\n  transform: translate(-50%, -50%); /* desloca a div metade da sua largura/altura */\n  \n  /* estilos opcionais */\n  width: 300px;\n  padding: 20px;\n  background: #f0f0f0;\n  border: 1px solid #ccc;\n  text-align: center;\n}\n```\n\n**Como funciona** \n- `top: 50%` e `left: 50%` posicionam o canto superior esquerdo da div no centro da tela. \n- `transform: translate(-50%, -50%)` move a própria div para que seu centro coincida com esse ponto.\n\n### Quando usar cada método\n- **Flexbox**: ideal quando você controla o contêiner pai (ex.: `body` ou outro wrapper) e quer centralizar um ou mais itens. É responsivo e lida bem com conteúdo que pode mudar de tamanho.\n- **Position absolute**: útil quando a div precisa ficar fixa no centro independentemente de outros elementos ou quando o contêiner pai não pode ser transformado em flex.\n\nEscolha a que melhor se adapta ao seu layout. Ambas funcionam em todos os navegadores modernos."
+  },
+  {
+   "pedido": "sql-like",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 30,
+   "ms": 759,
+   "modelo": "groq:openai/gpt-oss-120b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-igual",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": false
+   },
+   "palavras": 76,
+   "ms": 4235,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "Em JavaScript, o operador `===` (igualdade estrita) é preferido ao `==` (igualdade abstrata) porque **não realiza conversão de tipos**.\n\nCom `==`, o JavaScript tenta \"acoplar\" os tipos antes de comparar, o que pode levar a resultados inesperados:\n\n```javascript\n0 == false    // true (false vira 0)\n'' == 0       // true (string vira 0)\nnull == undefined  // true\n[] == false   // true (array vira string vazia, depois 0)\n```\n\nJá com `===`, a comparação é direta:\n\n```javascript\n0 === false   // false (tipos diferentes)\n'' === 0      // false\nnull === undefined  // false\n[] === false  // false\n```\n\nUsar `===` evita bugs sutis causados por essas conversões implícitas. É uma boa prática adotada pela maioria dos desenvolvedores JavaScript para garantir que a comparação seja sempre entre valores do mesmo tipo."
+  },
+  {
+   "pedido": "sql-like",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 42,
+   "ms": 2679,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "node-versao",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 18,
+   "ms": 970,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "node-versao",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 28,
+   "ms": 2715,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-venv",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 75,
+   "ms": 6248,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-venv",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 71,
+   "ms": 7427,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-igual",
+   "versao": "nova",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": false
+   },
+   "palavras": 74,
+   "ms": 14559,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 2,
+   "erro": false,
+   "texto": "O `===` é o operador de **igualdade estrita**, que compara valor **e tipo**. O `==` é o operador de **igualdade solta**, que faz conversões de tipo automáticas antes de comparar.\n\nO problema do `==` está nas conversões implícitas. Por exemplo:\n\n```javascript\n0 == false    // true\n\"\" == false   // true\nnull == undefined // true\n\"5\" == 5      // true\n[] == false   // true\n```\n\nEssas comparações podem ser confusas ou surpreendentes. O `===` evita isso:\n\n```javascript\n0 === false      // false\n\"\" === false     // false\nnull === undefined // false\n\"5\" === 5        // false\n[] === false     // false\n```\n\nCom `===`, o resultado é sempre o que você provavelmente espera. É por isso que boas práticas recomendam usar `===` e evitar `==`.\n\n*Atenção: rodei o código e deu erro (SyntaxError: Unexpected token ']'). Confira antes de usar.*"
+  },
+  {
+   "pedido": "json-o-que",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 60,
+   "ms": 1871,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "json-o-que",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 48,
+   "ms": 4717,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-pares",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": false
+   },
+   "palavras": 50,
+   "ms": 3562,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "Aqui está uma função em JavaScript que filtra e retorna apenas os números pares de uma lista:\n\n```javascript\nfunction filtrarPares(numeros) {\n  return numeros.filter(num => num % 2 === 0);\n}\n```\n\n**Exemplo de uso:**\n\n```javascript\nconsole.log(filtrarPares([1, 2, 3, 4, 5, 6])); // Saída: [2, 4, 6]\nconsole.log(filtrarPares([1, 3, 5]));           // Saída: []\nconsole.log(filtrarPares([]));                  // Saída: []\n```\n\nA função usa o método `filter`, que percorre a lista e mantém apenas os elementos que satisfazem a condição (no caso, `num % 2 === 0`, que verifica se o número é divisível por 2)."
+  },
+  {
+   "pedido": "js-pares",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 0,
+   "ms": 5343,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 1,
+   "erro": false
+  },
+  {
+   "pedido": "py-palindromo",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 0,
+   "ms": 2762,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-palindromo",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 52,
+   "ms": 5667,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-contar-palavras",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 19,
+   "ms": 6072,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-fatorial",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 38,
+   "ms": 5435,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-contar-palavras",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 27,
+   "ms": 7711,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-fatorial",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 34,
+   "ms": 3684,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-data",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 57,
+   "ms": 4287,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-data",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 34,
+   "ms": 6845,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-media-notas",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 34,
+   "ms": 7775,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-media-notas",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 36,
+   "ms": 7375,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-debounce",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 44,
+   "ms": 6518,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-primos",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 45,
+   "ms": 13205,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-primos",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 0,
+   "ms": 13874,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-ordenar-objetos",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 23,
+   "ms": 2743,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-debounce",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 75,
+   "ms": 19323,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "js-ordenar-objetos",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 23,
+   "ms": 1981,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-undefined",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 40,
+   "ms": 3427,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-dicionario",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 44,
+   "ms": 4622,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-indentacao",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 44,
+   "ms": 2118,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "py-dicionario",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 54,
+   "ms": 7534,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-undefined",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 53,
+   "ms": 2423,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-indentacao",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 26,
+   "ms": 1596,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-nan",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 57,
+   "ms": 7837,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-zero",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 46,
+   "ms": 9112,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-nan",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 29,
+   "ms": 11294,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-laco",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 20,
+   "ms": 1773,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-laco",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 20,
+   "ms": 3140,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-zero",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 49,
+   "ms": 8410,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-await",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 26,
+   "ms": 6484,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-await",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 46,
+   "ms": 7304,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-escopo",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 50,
+   "ms": 11683,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "erro-tipo-py",
+   "versao": "antiga",
+   "nota": 0.8,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": false
+   },
+   "palavras": 69,
+   "ms": 16974,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "O erro ocorre porque o operador `+` não concatena strings com números inteiros diretamente. O Python exige que ambos os lados sejam do mesmo tipo (strings).\n\n**Linha problemática:**\n```python\nprint('Tenho ' + idade + ' anos')\n```\n\n**Causa:** `idade` é um `int` (20). O Python não converte automaticamente para string na concatenação com `+`.\n\n**Correção:** Converta `idade` para string com `str()` ou use f-strings (recomendado).\n\n**Opção 1 — f-string (mais legível):**\n```python\nidade = 20\nprint(f'Tenho {idade} anos')\n```\n\n**Opção 2 — conversão explícita:**\n```python\nidade = 20\nprint('Tenho ' + str(idade) + ' anos')\n```\n\n**Opção 3 — vírgula no `print` (adiciona espaço automaticamente):**\n```python\nidade = 20\nprint('Tenho', idade, 'anos')\n```"
+  },
+  {
+   "pedido": "erro-tipo-py",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 0,
+   "ms": 13206,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 1,
+   "erro": false
+  },
+  {
+   "pedido": "erro-escopo",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 51,
+   "ms": 4218,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-recursao",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 135,
+   "ms": 6649,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-recursao",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 116,
+   "ms": 8004,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-api",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 239,
+   "ms": 10803,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-api",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 176,
+   "ms": 8415,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-git",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 232,
+   "ms": 13792,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-git",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 219,
+   "ms": 12729,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-big-o",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 67,
+   "ms": 3472,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-oop",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 92,
+   "ms": 13332,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-roteiro",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 56,
+   "ms": 4940,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-big-o",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 87,
+   "ms": 15335,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-roteiro",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 93,
+   "ms": 7470,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "estudo-oop",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 120,
+   "ms": 35008,
+   "modelo": "nvidia:nvidia/nemotron-3-ultra-550b-a55b",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-site",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 46,
+   "ms": 1680,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-ordenar",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 35,
+   "ms": 5842,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-ordenar",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 82,
+   "ms": 9351,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-banco",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 76,
+   "ms": 2262,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-banco",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 61,
+   "ms": 1633,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "opiniao-linguagem",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 36,
+   "ms": 1790,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "opiniao-linguagem",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 84,
+   "ms": 3511,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "revisar-codigo",
+   "versao": "antiga",
+   "nota": 0.75,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": false
+   },
+   "palavras": 47,
+   "ms": 2230,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false,
+   "texto": "O código está bom e funciona perfeitamente. Ele define uma função `soma` que recebe dois parâmetros e retorna sua soma, e depois testa com `console.log`.\n\nSe quiser deixar mais legível, você pode adicionar espaços e quebras de linha:\n\n```js\nfunction soma(a, b) {\n  return a + b;\n}\n\nconsole.log(soma(1, 2));\n```\n\nMas a versão original é válida e executa corretamente."
+  },
+  {
+   "pedido": "revisar-codigo",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 30,
+   "ms": 5418,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "regex-email",
+   "versao": "antiga",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 94,
+   "ms": 9192,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "ambiguo-site",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true
+   },
+   "palavras": 42,
+   "ms": 18812,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  },
+  {
+   "pedido": "regex-email",
+   "versao": "nova",
+   "nota": 1,
+   "criterios": {
+    "comeca": true,
+    "sem_formula": true,
+    "tamanho": true,
+    "sem_sucesso_falso": true,
+    "codigo_roda": true
+   },
+   "palavras": 64,
+   "ms": 6530,
+   "modelo": "nvidia:poolside/laguna-xs-2.1",
+   "tentativas": 0,
+   "erro": false
+  }
+ ]
+}

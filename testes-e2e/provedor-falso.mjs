@@ -121,11 +121,14 @@ export async function provedorFalso() {
       return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: ((r) => (typeof r === 'string' ? r : JSON.stringify(r)))(forja(mensagens)) } }] });
     }
     const pergunta = textoDe(mensagens.filter((m) => m.role === 'user').at(-1)?.content).trim();
+    // o Gyde rodou o código da resposta, deu erro e pediu a correção: devolve a versão que roda
+    if (!corpo.stream && /^Rodei o código/.test(pergunta)) return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: ['Assim:', '```js', 'function media(l) { return l.length ? l.reduce((a, b) => a + b, 0) / l.length : 0; }', 'console.log(media([]));', '```'].join('\n') } }] });
     if (!corpo.stream) return json(200, { model: MODELO, usage, choices: [{ message: { role: 'assistant', content: 'Conversa de teste' } }] });
 
     res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' });
     const enviar = (o) => res.write(`data: ${JSON.stringify(o)}\n\n`);
-    const pedacos = /LONGA/.test(pergunta)
+    // CODIGO-QUEBRADO: a resposta traz código JavaScript que dá erro ao rodar (o Gyde confere e pede a correção)
+    const pedacos = /CODIGO-QUEBRADO/.test(pergunta) ? ['Assim:\n```js\nfunction media(l) { return l.reduce((a, b) => a + b) / l.length; }\n', 'console.log(media([]));\n```'] : /LONGA/.test(pergunta)
       ? Array.from({ length: 300 }, (_, i) => `${i + 1}. Linha comprida de teste para dar tempo de parar.\n`)
       : ['Resposta ', 'de teste: ', pergunta.slice(0, 200)];
     let fechou = false;

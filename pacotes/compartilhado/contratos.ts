@@ -79,6 +79,13 @@ export const RascunhoForja = z.object({
 
 // Parar a resposta do chat: o servidor encerra, grava o que já foi escrito e manda o fim pela mesma conexão
 export const Parada = z.object({ parado: z.boolean() });
+// votos guardados só neste computador: polegar em cada resposta e "Comparar respostas"
+export const Voto = z.object({ valor: z.number().int() });
+export const VotosDaConversa = z.object({ votos: z.record(z.string(), z.number().int()) });
+export const Comparacao = z.object({ id: z.string(), a: z.string(), b: z.string() });
+const Placar = z.object({ atual: z.number().int(), anterior: z.number().int(), empate: z.number().int() });
+export const VotoComparacao = z.object({ a: z.string(), b: z.string(), placar: Placar });
+export const PlacarComparacao = z.object({ placar: Placar });
 
 export const ListaSessoes = z.object({
   sessoes: z.array(z.object({ id: z.string(), pasta: z.string(), titulo: z.string(), updated_at: z.number(), disponivel: z.boolean() })),

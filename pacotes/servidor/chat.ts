@@ -112,7 +112,7 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
       const { texto } = await completar(router, {
         cadeia: CADEIAS.util ?? ['auto'], max_tokens: 24, tempoLimite: 20_000,
         messages: [
-          { role: 'system', content: 'Crie um título curto (máx. 6 palavras) em português para esta conversa. Responda só com o título, sem aspas nem pontuação final.' },
+          { role: 'system', content: 'Dê um título de 2 a 6 palavras, em português, que diga o assunto concreto desta conversa (o erro, a linguagem, o conceito). Exemplos bons: "Erro de índice em Python", "Centralizar div com CSS", "Recursão para iniciantes". Ruins: "Dúvida de programação", "Ajuda com código", "Pergunta". Responda só com o título, sem aspas nem ponto final.' },
           { role: 'user', content: firstUserText.slice(0, 2000) },
         ],
       });

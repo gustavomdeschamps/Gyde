@@ -20,6 +20,7 @@ import { setupIA } from './ia/rotas.ts';
 import { setupCodigoAgente } from './codigo-agente.ts';
 import { setupSkills } from './skills-sistema.ts';
 import { setupChat } from './chat.ts';
+import { setupVotos } from './votos.ts';
 import { setupConfiguracao } from './configuracao.ts';
 import { setupPerfil, criarPreferencias } from './perfil.ts';
 import { criarImagens } from './imagens.ts';
@@ -143,6 +144,7 @@ const { gravarNoEnv } = setupConfiguracao(app, { arquivoEnv: ENV_FILE, routerUrl
 setupConexoes(app, { conexoes, gravarNoEnv, asyncRoute, aoMudar: () => provedores.definirChave(process.env.FREELLMAPI_KEY ?? '') }); // Conectar IA
 const { preferenciasIA } = setupIA(app, { preferencias, catalogo, desempenho, avisoExtras: extras.erro, asyncRoute }); // modo de resposta e modelos ligados
 setupChat(app, db, { router, uso, imagens, asyncRoute, preferencias, skills, memoria, orquestrador, preferenciasIA }); // conversas e mensagens
+setupVotos(app, db, { router, orquestrador, asyncRoute }); // polegar e "Comparar respostas" (só neste computador)
 setupApontar(app, { router, asyncRoute, uso }); // "Mostrar o erro" num print (modelo com visão)
 setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão do Chrome
 setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso, catalogo, orquestrador, preferenciasIA }); // Forja: trabalha numa pasta de projeto

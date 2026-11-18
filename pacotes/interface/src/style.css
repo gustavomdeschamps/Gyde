@@ -204,6 +204,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .msg-actions button { border: 0; background: none; padding: 5px; border-radius: 8px; color: var(--text-faint); display: grid; place-items: center; transition: background-color var(--t1) var(--ease), color var(--t1) var(--ease), transform var(--t1) var(--ease); }
 .msg-actions button:hover { background: var(--hover); color: var(--text); }
 .msg-actions button:active { transform: scale(.9); }
+.msg-actions button.votado { color: var(--accent-text); background: var(--accent-soft); }
 .msg-actions button.speaking { color: var(--accent-text); animation: pulse 1.2s ease-in-out infinite; }
 .msg-actions svg { width: 17px; height: 17px; }
 .msg-meta { margin-left: 6px; padding: 1px 8px; border-radius: 99px; background: var(--bg-soft); font-size: 11.5px; }
@@ -512,3 +513,10 @@ label.btn.desligado { opacity: .6; pointer-events: none; }
 .conexao, .conexao > * { min-width: 0; }
 .conexao-aviso { overflow-wrap: anywhere; }
 @media (max-width: 720px) { .config-chave-campo { flex: none; } } /* em coluna, a base de 300px virava altura */
+
+/* atalhos (tela vazia do chat) e "ir para o fim" quando a pessoa sobe a conversa */
+.atalhos { margin: 18px 0 0; font-size: 12.5px; color: var(--text-faint); text-align: center; line-height: 2; }
+.atalhos kbd { font: 600 11.5px var(--mono); padding: 1px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; background: var(--surface); color: var(--text-soft); }
+.ir-fim { position: sticky; bottom: 12px; margin: 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); box-shadow: var(--shadow); left: 50%; transform: translateX(-50%); z-index: 3; }
+.ir-fim:hover { color: var(--text); border-color: var(--border-strong); }
+@media (max-width: 640px) { .atalhos { display: none; } }

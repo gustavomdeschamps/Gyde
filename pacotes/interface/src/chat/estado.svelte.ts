@@ -31,6 +31,7 @@ export const chat = $state({
   // extras que só existem nesta sessão: modelo real e tokens da resposta que acabou de chegar
   metaExtra: {} as Record<string, string>,
   metaSkills: {} as Record<string, SkillAtiva[]>, // skills que guiaram cada resposta (selo acima dela)
+  votos: {} as Record<string, number>, // polegar de cada resposta (1 ou -1), guardado só neste computador
   metaSugestao: {} as Record<string, SugestaoSkill>, // skill do catálogo que ajudaria (nenhuma instalada servia)
   metaAgente: {} as Record<string, AgenteAtivo>, // agente especializado que respondeu (quando o pedido precisou)
   conversas: [] as TResumoConversa[],
@@ -77,6 +78,7 @@ export async function abrirConversa(id: string, { manterRolagem = false } = {}) 
     chat.modelo = c.model.replace(/^bugo-/, 'gyde-');
     document.title = c.title === 'Nova conversa' ? 'Gyde' : `${c.title} · Gyde`;
     if (!manterRolagem) chat.rolar++;
+    pedir(`/api/conversations/${c.id}/votos`, C.VotosDaConversa).then((v) => { if (esta === ultimaAbertura) chat.votos = v.votos; }).catch(() => {});
   } catch {
     if (esta !== ultimaAbertura) return;
     toast('Conversa não encontrada');
@@ -294,4 +296,13 @@ export function tentarDeNovo() {
   chat.resposta = null;
   if (chat.mensagens.at(-1)?.role === 'user') enviar({ mode: 'retry' });
   else if (envio) { chat.temporaria = null; enviar({ mode: envio.mode, messageId: envio.messageId, content: envio.content, attachments: envio.attachments }); }
+}
+
+/** Polegar numa resposta: clicar de novo no mesmo tira o voto. Fica só no banco deste computador. */
+export async function votar(messageId: string, valor: 1 | -1) {
+  const novo = chat.votos[messageId] === valor ? 0 : valor;
+  try {
+    await pedir(`/api/mensagens/${messageId}/voto`, C.Voto, corpo({ valor: novo }));
+    if (novo) chat.votos[messageId] = novo; else delete chat.votos[messageId];
+  } catch (e) { toast(mensagemDe(e)); }
 }

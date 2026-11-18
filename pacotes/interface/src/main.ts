@@ -16,7 +16,7 @@ import { desktop } from './desktop.ts';
 vigiarErros(); // guarda os erros desta tela para o relatório de erro (Configurações > Geral)
 import { montarConfiguracoes } from './config.ts';
 import { atualizarUso } from './config/uso.svelte.ts';
-import { chat, abrirConversa, novaConversa, carregarConversas, carregarModelos, restaurarModeloPadrao } from './chat/estado.svelte.ts';
+import { chat, abrirConversa, novaConversa, carregarConversas, carregarModelos, restaurarModeloPadrao, parar } from './chat/estado.svelte.ts';
 import ListaConversas from './chat/ListaConversas.svelte';
 import Mensagens from './chat/Mensagens.svelte';
 import Compositor from './chat/Compositor.svelte';
@@ -57,7 +57,16 @@ addEventListener('hashchange', rota);
 
 const nova = () => { if (location.hash === '#/' || !location.hash) { novaConversa(); $('#input')?.focus(); } else location.hash = '#/'; };
 $('#newChat').addEventListener('click', nova);
-document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'o') { e.preventDefault(); nova(); } });
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'o') { e.preventDefault(); nova(); return; }
+  // Esc para a resposta que está chegando (se nenhum diálogo estiver aberto: aí o Esc fecha o diálogo)
+  if (e.key === 'Escape' && chat.transmitindo && !document.querySelector('dialog[open]')) { e.preventDefault(); parar(); return; }
+  // Ctrl+Shift+C copia a última resposta da conversa aberta
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'c' && location.hash.startsWith('#/c/')) {
+    const ultima = [...chat.mensagens].reverse().find((m) => m.role === 'assistant');
+    if (ultima) { e.preventDefault(); navigator.clipboard.writeText(ultima.content).then(() => toast('Última resposta copiada')).catch(() => toast('Não deu para copiar')); }
+  }
+});
 let esperaBusca: ReturnType<typeof setTimeout>;
 $<HTMLInputElement>('#search').addEventListener('input', (e) => {
   chat.busca = (e.currentTarget as HTMLInputElement).value;
