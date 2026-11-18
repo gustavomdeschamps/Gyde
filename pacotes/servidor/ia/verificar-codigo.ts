@@ -11,7 +11,8 @@
 import { spawn, spawnSync } from 'node:child_process';
 
 export interface Bloco { linguagem: 'js' | 'python'; codigo: string }
-export interface Verificacao { rodou: number; erros: { linguagem: string; erro: string }[] }
+/** comUso: blocos que rodaram e chamam ou mostram algo (sem isso, rodar só prova que o código não tem erro de sintaxe) */
+export interface Verificacao { rodou: number; comUso: number; erros: { linguagem: string; erro: string }[] }
 
 const JS = new Set(['js', 'javascript', 'node', 'mjs']);
 const PY = new Set(['python', 'py', 'python3']);
@@ -89,11 +90,12 @@ export async function rodarBloco(b: Bloco): Promise<{ ok: boolean; erro: string 
 
 /** Roda os blocos da resposta e devolve quantos rodaram e os erros. */
 export async function verificarCodigo(texto: string): Promise<Verificacao> {
-  const v: Verificacao = { rodou: 0, erros: [] };
+  const v: Verificacao = { rodou: 0, comUso: 0, erros: [] };
   for (const b of blocosRodaveis(texto)) {
     const r = await rodarBloco(b);
     if (!r) continue;
     v.rodou++;
+    if (/console\.\w+\s*\(|\bprint\s*\(|\bassert\b/.test(b.codigo)) v.comUso++;
     if (!r.ok) v.erros.push({ linguagem: b.linguagem === 'js' ? 'JavaScript' : 'Python', erro: r.erro });
   }
   return v;

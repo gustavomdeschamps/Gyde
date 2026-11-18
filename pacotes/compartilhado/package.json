@@ -1,6 +1,6 @@
 {
   "name": "@gyde/compartilhado",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "private": true,
   "type": "module",
   "description": "Contratos (Zod) entre o servidor e a interface do Gyde.",

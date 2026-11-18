@@ -19,7 +19,7 @@ test('acabamento: tira desculpa e fecho vazio, arruma o Markdown e não toca no 
 });
 
 test('verificação: roda JS e Python puros, pega erro e laço infinito, recusa o que mexe no sistema', async () => {
-  assert.deepEqual(await verificarCodigo(js('const soma = (a, b) => a + b;\nconsole.log(soma(2, 3));')), { rodou: 1, erros: [] });
+  assert.deepEqual(await verificarCodigo(js('const soma = (a, b) => a + b;\nconsole.log(soma(2, 3));')), { rodou: 1, comUso: 1, erros: [] });
   const erro = await verificarCodigo(js('function f(l) { return l.map((x) => x * 2); }\nconsole.log(f(undefined));'));
   assert.equal(erro.erros.length, 1);
   assert.match(erro.erros[0].erro, /TypeError/);
@@ -61,7 +61,9 @@ test('correção: código com erro é corrigido antes de salvar, com aviso; sem 
   assert.match(c2.texto, /Atenção: rodei o código e deu erro/);
 
   const c3 = await conferirResposta({ texto: `Pronto:\n${js('console.log(2 + 2);')}`, mensagens: [], router: roteador([]).router, cadeia: ['m'], verificar: true });
-  assert.match(c3.texto, /Código conferido: rodei e não deu erro/);
+  assert.match(c3.texto, /Código conferido: rodei e não deu erro\.\*$/);
+  const c5 = await conferirResposta({ texto: `Assim:\n${js('function dobro(x) {\n  return x * 2;\n}')}`, mensagens: [], router: roteador([]).router, cadeia: ['m'], verificar: true });
+  assert.match(c5.texto, /só define, sem exemplo de uso/, 'só a definição: não diz mais do que rodar provou');
   const c4 = await conferirResposta({ texto: 'Sem código aqui.', mensagens: [], router: roteador([]).router, cadeia: ['m'], verificar: true });
   assert.equal(c4.texto, 'Sem código aqui.', 'sem código, nenhuma linha a mais');
 });

@@ -18,7 +18,7 @@ export async function conferirResposta({ texto, mensagens, router, cadeia, signa
   if (!verificar) return { texto: atual, nota: null, tentativas: 0, verificado: false };
   let v = await verificarCodigo(atual);
   if (!v.rodou) return { texto: atual, nota: null, tentativas: 0, verificado: false };
-  if (!v.erros.length) return { texto: `${atual}\n\n*Código conferido: rodei e não deu erro.*`, nota: 'ok', tentativas: 0, verificado: true };
+  if (!v.erros.length) return { texto: `${atual}\n\n*Código conferido: ${v.comUso ? 'rodei e não deu erro' : 'rodei e não deu erro, mas o código só define, sem exemplo de uso para conferir o resultado'}.*`, nota: 'ok', tentativas: 0, verificado: true };
 
   const primeiroErro = v.erros[0]!;
   const original = atual;

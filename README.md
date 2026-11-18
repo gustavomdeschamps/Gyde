@@ -45,6 +45,15 @@ cria em 2 minutos. Suas conversas ficam só com você; só a pergunta vai para o
 Cole um erro ou um código. O Gyde aponta a linha, explica a causa e mostra a correção. Os blocos de Python e
 JavaScript têm o botão **Executar**, que roda o código ali mesmo.
 
+**Respostas diretas e código conferido.** A resposta começa pelo que você perguntou, sem "Claro!" nem "Espero ter
+ajudado", no tamanho do pedido ([guia de estilo](docs/guia-de-estilo.md)). Antes de entregar, o Gyde roda o código
+JavaScript e Python da resposta numa área sem acesso aos seus arquivos; se der erro, pede a correção ao modelo (no
+máximo 2 vezes) e diz isso numa linha embaixo da resposta. Polegar para cima ou para baixo em cada resposta, e
+**Comparar respostas** mostra duas versões lado a lado, sem dizer qual é qual: os votos ficam só no seu computador.
+Atalhos: Esc para a resposta, Ctrl+Shift+C copia a última, Ctrl+Shift+O abre uma conversa nova.
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/respostas-escuro.jpg"><img src="docs/imagens/respostas.jpg" alt="Resposta do Gyde com uma função em JavaScript e a linha Código conferido embaixo" width="88%"></picture></p>
+
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/chat-escuro.jpg"><img src="docs/imagens/chat.jpg" alt="Chat do Gyde explicando um erro de Python" width="88%"></picture></p>
 
 ### Passo a passo
@@ -211,7 +220,9 @@ não espera sem avisar. O app de desktop é Electron: sobe o servidor num proces
 
 A escolha dos modelos vem de chamadas reais, corrigidas automaticamente (código rodando contra testes, SQL num banco de
 verdade, arquivos conferidos no disco), em 17 categorias. Nas medições de 09/11/2026, com as chaves grátis ligadas
-direto, o melhor modelo no chat acertou 44 de 48 tarefas, e a Forja (NVIDIA + Groq) completou 7 de 8 cenários. Resumo
+direto, o melhor modelo no chat acertou 44 de 48 tarefas, e a Forja (NVIDIA + Groq) completou 7 de 8 cenários. Em 18/11/2026, o guia de estilo novo com a verificação do código
+subiu a nota das respostas de 97% para 99% (+3 pontos, intervalo de 90% de +1 a +4, 80 respostas de cada lado); o
+código das respostas rodou em 98% contra 87%. Resumo
 e dados brutos em [docs/avaliacao](docs/avaliacao/README.md). Amostras pequenas: servem para comparar, não como
 garantia, e não há comparação com outros produtos.
 

@@ -10,13 +10,12 @@ Feito:
 - Verificação do código antes de salvar (`ia/verificar-codigo.ts`, `ia/conferir-resposta.ts`): JS com `node --permission`,
   Python só código puro; até 2 correções; aviso de uma linha.
 - Acabamento do texto (`acabamento` em `ia/filtro.ts`).
+- Testes de unidade (`respostas.test.mjs`) e de navegador (correção do código, polegar, Comparar).
+- Medição: nota 99% contra 97%, +3 pontos [+1, +4], n = 80 por lado (ver decisoes.md, item 5).
+- "Comparar respostas" e polegar, só no computador; atalhos de teclado; botão "Ir para o fim"; títulos melhores.
 
 Falta na Fase 1:
-- testes de unidade e de navegador da verificação e do acabamento;
-- medição com 40 pedidos (nova contra antiga);
-- "Comparar respostas" e polegar, guardados só no computador;
-- acabamento do chat (auditoria do que falta);
-- CHANGELOG, README, capturas, PR, CI, Release 2.5.0.
+- CHANGELOG, README, capturas, versão 2.5.0, PR, CI, Release.
 
 ## Depois
 - Fase 2: Forja (inclui o que estava previsto para a 2.4.2: validação dos argumentos, quebra de laço, honestidade das
