@@ -32,3 +32,23 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
    JavaScript", "IndexError em listas Python", "Centralizar div com CSS".
 8. **"Código conferido" não diz mais do que rodar provou.** Se o código só define uma função, sem nenhum uso
    (`console.log`, `print`, `assert`), rodar só mostra que não há erro de sintaxe; a linha passa a dizer isso.
+9. **Instabilidade do teste da Loja de skills no Windows do CI.** Na execução do push da 2.5.0, o clique em "Ver e
+   instalar" não abriu o diálogo em 8 s (só no Windows; a execução do PR do mesmo commit passou nos 3 sistemas). O log
+   não mostra a causa; a hipótese é o clique cair durante o redesenho da lista. O teste agora repete o clique até o
+   diálogo abrir (até 15 s) e continua conferindo o conteúdo. A causa exata fica em aberto para a Fase 3.
+10. **Fase 2: o plano continua opcional.** A medição da 2.4.x mostrou que o plano antes de tarefas grandes não melhorou o
+    resultado e dobrou as rodadas. Em vez de ligar o plano para todos, a Fase 2 investe no que o Gyde pode conferir
+    sozinho: argumentos das ferramentas, laço, verificação depois da última mudança e afirmações sem base.
+11. **"Verificado" vem do que rodou, não do texto do modelo.** A linha embaixo da resposta da Forja diz "Verificado"
+    só quando um comando rodou sem erro depois da última mudança de arquivo; "Verificação falhou" quando o último deu
+    erro; "Não verificado" quando nada rodou. Se a resposta afirma que os testes passaram sem isso, aparece um aviso
+    "Conferido pelo Gyde". A Forja pede uma vez para corrigir antes de terminar com o teste falhando.
+12. **Laço:** a mesma ação (mesma ferramenta e mesmos argumentos) que falha de novo recebe um aviso para mudar de
+    caminho; 3 rodadas seguidas só com repetições presas encerram a tarefa com a explicação, em vez de gastar as 30
+    rodadas e a cota grátis.
+13. **GYDE.md entra abaixo das regras de segurança** e passa pelo filtro de segredos. É texto do projeto: pode orientar
+    estilo e comandos, mas não libera nada que as regras do Gyde bloqueiam.
+14. **Cenário "redesenhar site" medido por programa:** build, axe-core sem violação séria ou crítica, caber em 375 px
+    (com a meta viewport; sem ela o celular desenha com 980 px e o critério passava sem mérito, corrigido antes de
+    medir) e mudança além da paleta. Conferido com o site original (falha em 3) e com um redesenho feito à mão (passa
+    em todos) antes de medir a Forja.

@@ -3,6 +3,29 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.6.0
+
+### Forja: o que ela afirma é conferido
+- **Verificação depois da última mudança:** embaixo da resposta, uma linha diz "Verificado" (um teste, build ou lint
+  rodou sem erro depois da última mudança), "Verificação falhou" ou "Não verificado". A Forja conhece os comandos do
+  projeto (`npm test`, `npm run build`, `npm run lint`) e pede para rodá-los antes de terminar. Se o último deu erro,
+  ela pede uma vez para corrigir ou explicar.
+- **Afirmações sem base viram aviso:** se a resposta disser que os testes passaram sem que isso tenha acontecido (ou
+  que nada mudou quando mudou), aparece "Conferido pelo Gyde" com o que de fato houve.
+- **Sem laço:** a mesma ação que falha de novo recebe um aviso para mudar de caminho; 3 rodadas seguidas presas
+  encerram a tarefa com a explicação.
+- **Argumentos conferidos:** cada ação da IA tem os campos conferidos antes de rodar; faltando algo, a IA recebe o
+  erro e um exemplo do formato certo.
+- **GYDE.md:** instruções do projeto para a Forja (como rodar, testar, estilo), lidas em toda tarefa, abaixo das
+  regras de segurança e sem segredos.
+- **@arquivo e comandos /:** no campo, `@` lista os arquivos do projeto; `/` mostra `/testes`, `/corrigir`,
+  `/explicar`, `/revisar`, `/gyde-md` e `/desfazer`.
+- **Desfazer por arquivo:** cada arquivo do resumo da última tarefa tem o seu botão de desfazer.
+- **Medição:** MEDICAO_FORJA
+
+### Testes
+- O teste da Loja de skills repete o clique em "Ver e instalar" até o diálogo abrir (falhou uma vez no Windows do CI).
+
 ## 2.5.0
 
 ### Respostas mais diretas, e o código conferido antes de chegar

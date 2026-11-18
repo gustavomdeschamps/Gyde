@@ -72,11 +72,20 @@ e documenta. Você não precisa saber comandos de terminal.
 2. A Forja identifica o projeto (tecnologias, quantidade de arquivos, comando de testes) e mostra isso no topo.
 3. Cada ação aparece ao vivo (lendo, editando, executando), com o tempo que levou e as mudanças coloridas.
 4. No fim vem um resumo, montado pelo servidor e não pelo texto da IA, com os arquivos **criados, alterados e
-   apagados** e os **comandos rodados** com o resultado.
+   apagados** e os **comandos rodados** com o resultado. Embaixo, uma linha diz se a mudança foi **verificada** (um
+   teste, build ou lint rodou sem erro depois da última mudança), se a verificação falhou ou se nada foi verificado.
+   Se a resposta da IA disser que os testes passaram sem isso, aparece um aviso "Conferido pelo Gyde".
 5. Continue a conversa: o contexto do projeto e das mensagens anteriores fica guardado.
 
+- **@arquivo e comandos:** no campo, `@` lista os arquivos do projeto e manda o conteúdo do escolhido junto do pedido;
+  `/` mostra comandos prontos (`/testes`, `/corrigir`, `/explicar`, `/revisar`, `/gyde-md`, `/desfazer`).
+- **GYDE.md:** um arquivo `GYDE.md` na raiz do projeto (ou em `.gyde/`) com como rodar, testar e o estilo do código. A
+  Forja lê em toda tarefa, abaixo das regras de segurança do Gyde. `/gyde-md` pede para a Forja escrever um.
 - **Desfazer:** o botão **Desfazer** (ou pedir "desfaça a última alteração") volta os arquivos ao que eram antes da
-  última tarefa. Arquivos que você editou depois ficam como estão, e a Forja avisa quais.
+  última tarefa; no resumo, cada arquivo tem o seu botão para desfazer só ele. Arquivos que você editou depois ficam
+  como estão, e a Forja avisa quais.
+- **Sem laço:** se a IA repetir a mesma tentativa que falha, a Forja avisa para mudar de caminho e, se continuar,
+  para e explica o motivo, em vez de gastar as rodadas e a sua cota grátis.
 - **Trocar de projeto:** o nome da pasta no topo abre o menu com outra pasta e os projetos recentes.
 - **Pasta guardada:** a conversa lembra a pasta mesmo depois de fechar o Gyde ou reiniciar o PC. Se a pasta sumir, a
   Forja diz o motivo real (movida ou apagada, unidade desconectada, sem permissão) e o botão **Reconectar pasta**

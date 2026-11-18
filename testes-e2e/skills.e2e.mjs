@@ -113,7 +113,9 @@ await send('Page.navigate', { url: `${BASE}/?r=2#/skills` }); await sleep(2500);
 await espera(`document.querySelector('#skillsView .tab') !== null`, 15000);
 await clicar('#skillsView .tab', 'Loja');
 await espera(`[...document.querySelectorAll('#skillsView .sk-cartao')].some((c) => /editada/.test(c.textContent) && c.querySelector('.btn.primary'))`, 15000);
-await ev(`[...document.querySelectorAll('#skillsView .sk-cartao')].find((c) => /editada/.test(c.textContent)).querySelector('.btn.primary').click()`);
+// clica de novo enquanto o diálogo não abre: no Windows do CI o primeiro clique às vezes se perdia (lista ainda sendo
+// redesenhada); repetir o clique é o que uma pessoa faria e não esconde erro, porque o conteúdo continua conferido abaixo
+await espera(`(()=>{ if (!document.querySelector('dialog.wide-dialog[open]')) [...document.querySelectorAll('#skillsView .sk-cartao')].find((c) => /editada/.test(c.textContent))?.querySelector('.btn.primary')?.click(); return document.querySelector('dialog.wide-dialog[open]') !== null; })()`, 15000);
 ok('"Ver e instalar" abre as instruções antes', await espera(`document.querySelector('dialog.wide-dialog[open] .loja-detail .skill-body') !== null && /responda com exemplos curtos/.test(document.querySelector('.loja-detail .md').textContent)`));
 await clicar('.loja-detail .dialog-actions button', 'Instalar cópia');
 ok('instalar cópia fecha o diálogo e marca Instalada', await espera(`document.querySelector('dialog.wide-dialog') === null && [...document.querySelectorAll('#skillsView .sk-cartao')].some((c) => /editada/.test(c.textContent) && c.querySelector('.btn.installed'))`));

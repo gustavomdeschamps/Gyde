@@ -22,6 +22,7 @@ import * as C from '../compartilhado/contratos.ts';
 import { responder } from './contratos-servidor.ts';
 import { mapaDaCidade, LIMITE_PREDIOS } from './cidade.ts';
 import { criarAoVivo, encerrarOrfaos } from './ao-vivo.ts';
+import { conferirSite } from './conferir-site.ts';
 import { problemaNosArgs, criarDetectorDeLaco, verificacaoDaTarefa, afirmacoesSemBase, mencoesDoPedido } from './forja-regras.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).
@@ -106,6 +107,24 @@ export function analisarProjeto(pasta: string) {
   const porExt: Record<string, string> = { '.py': 'Python', '.java': 'Java', '.cs': 'C#', '.cpp': 'C++', '.c': 'C', '.php': 'PHP', '.ts': 'TypeScript', '.html': 'HTML', '.css': 'CSS', '.js': 'JavaScript', '.kt': 'Kotlin', '.sql': 'SQL', '.dart': 'Dart' };
   for (const [e, n] of Object.entries(porExt)) if (extensoes[e]) tecnologias.add(n);
   return { tecnologias: [...tecnologias].slice(0, 8), testes, verificar: [...(testes ? [testes] : []), ...verificar], arquivos, git: tem('.git') };
+}
+
+// .html e .css do projeto (até 40 arquivos de até 300 KB) para a conferência de site
+export function paginasDoProjeto(pasta: string): Record<string, string> {
+  const achados: Record<string, string> = {}; let n = 0;
+  const anda = (dir: string, nivel: number) => {
+    if (nivel > 5 || n >= 40) return;
+    let itens; try { itens = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const it of itens) {
+      if (IGNORAR.has(it.name) || it.name.startsWith('.') || it.isSymbolicLink()) continue;
+      const p = path.join(dir, it.name);
+      if (it.isDirectory()) { anda(p, nivel + 1); continue; }
+      if (!/\.(html?|css)$/i.test(it.name) || n >= 40) continue;
+      try { if (statSync(p).size <= 300_000) { achados[path.relative(pasta, p).replaceAll(path.sep, '/')] = readFileSync(p, 'utf8'); n++; } } catch { /* sem acesso */ }
+    }
+  };
+  anda(pasta, 1);
+  return achados;
 }
 
 // GYDE.md na raiz do projeto (ou em .gyde/GYDE.md): instruções do dono do projeto para a Forja. Até 6.000 caracteres,
@@ -836,7 +855,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
       // os do contexto enxuto NÃO contam como lidos: para substituir um arquivo inteiro, a Forja ainda precisa lê-lo (a trava
       // que protege trabalho da pessoa continua igual). Editar por trecho não depende disso.
       const lidos = new Set<string>();
-      let rodadaDaUltimaMudanca = 0, rodadaDoUltimoComando = 0, cobrouTestes = false, cobrouAcao = false, cobrouFalha = false;
+      let rodadaDaUltimaMudanca = 0, rodadaDoUltimoComando = 0, cobrouTestes = false, cobrouAcao = false, cobrouFalha = false, cobrouSite = false;
       const laco = criarDetectorDeLaco(); // a mesma tentativa falhando de novo e de novo
       let comandosDepois: { comando: string; ok: boolean }[] = []; // comandos rodados depois da última mudança de arquivo
       // resposta final com o que o Gyde confere por conta própria: se foi verificado e se a resposta afirma algo sem base
@@ -908,6 +927,16 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           cobrouFalha = true;
           msgs.push({ role: 'user', content: `Antes de responder: o último comando depois da sua mudança (${comandosDepois.at(-1)!.comando}) deu erro. Corrija e rode de novo. Se o erro já existia antes da sua mudança ou não tem relação com ela, diga isso na resposta com o motivo, sem afirmar que tudo passou.` });
           continue;
+        }
+        // mudou página ou estilo: confere contraste, lang, alt e viewport (sem navegador) e pede uma vez para corrigir
+        if (o.resposta && !cobrouSite && [...mudancas.criados, ...mudancas.modificados].some((f) => /\.(html?|css)$/i.test(f))) {
+          cobrouSite = true;
+          const problemas = conferirSite(paginasDoProjeto(pastaReal));
+          if (problemas.length) {
+            registrar('pensando', { passo });
+            msgs.push({ role: 'user', content: `Antes de responder: conferi as páginas e os estilos do projeto e achei:\n${problemas.map((p) => `- ${p.arquivo}: ${p.problema}`).join('\n')}\nCorrija o que for verdade (com "editar"), rode ${projeto.verificar[0] ?? 'o build ou os testes'} de novo e só então responda.` });
+            continue;
+          }
         }
         // mudou arquivos e os testes já foram cobrados: outro modelo lê as mudanças uma vez. Só lê; quem corrige é o modelo que está
         // trabalhando, então nunca há dois modelos mexendo nos arquivos. Se a revisão falhar, a tarefa termina normalmente.

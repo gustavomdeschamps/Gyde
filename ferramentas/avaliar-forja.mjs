@@ -1,7 +1,7 @@
 // Avaliação da Forja com IA de verdade (FreeLLMAPI) em projetos pequenos criados aqui, conferidos no disco no fim.
 // Cenários pequenos: corrigir um bug sem mexer no teste, preservar uma mudança da pessoa ainda não salva no git, mudar
 // back-end e front-end juntos, e responder uma pergunta sem alterar nada. Cenários difíceis em cenarios-forja-dificeis.mjs.
-//   node ferramentas/avaliar-forja.mjs [--codigo <raiz de um Gyde>] [--repeticoes 1] [--grupo pequeno|dificil] [--cenarios a,b] [--saida resultado.json]
+//   node ferramentas/avaliar-forja.mjs [--codigo <raiz de um Gyde>] [--repeticoes 1] [--grupo pequeno|dificil|site] [--cenarios a,b] [--saida resultado.json]
 // --codigo permite rodar a mesma avaliação numa versão anterior (ex.: um git worktree), para comparar antes e depois.
 // Confirmações da Forja (instalar, apagar...) são sempre recusadas. A chave vem do .env e nunca é mostrada.
 import { spawn, spawnSync } from 'node:child_process';
@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { redigir } from '../pacotes/servidor/seguranca.ts';
 import { cenariosDificeis } from './cenarios-forja-dificeis.mjs';
+import { cenarioSite } from './cenario-forja-site.mjs';
 import { apagarSeguro } from './limpeza-segura.mjs';
 const limparErro = (t) => redigir(t).replace(/org_[A-Za-z0-9]{10,}/g, 'org_[oculto]'); // sem chaves e sem o ID da conta no provedor
 
@@ -125,7 +126,7 @@ const CENARIOS = [
 ];
 
 for (const c of CENARIOS) c.grupo ??= 'pequeno';
-CENARIOS.push(...cenariosDificeis({ criarPasta, ler, rodar }));
+CENARIOS.push(...cenariosDificeis({ criarPasta, ler, rodar }), cenarioSite({ criarPasta, ler, rodar }));
 const GRUPO = arg('grupo', null), SO_CENARIOS = arg('cenarios', null)?.split(',');
 const ESCOLHIDOS = CENARIOS.filter((c) => (!GRUPO || c.grupo === GRUPO) && (!SO_CENARIOS || SO_CENARIOS.includes(c.id)));
 
@@ -159,11 +160,11 @@ try {
       const inicio = Date.now();
       const eventos = await executar(sessao.id, c.pedido);
       const fim = eventos.find((e) => e.tipo === 'resposta' || e.tipo === 'erro') || {};
-      const checagens = c.conferir(proj, eventos);
+      const checagens = await c.conferir(proj, eventos);
       const comandos = eventos.filter((e) => e.tipo === 'ferramenta' && e.nome === 'executar').length;
       const lidos = eventos.filter((e) => e.tipo === 'ferramenta' && e.nome === 'ler').length;
       const edicoesFalhas = eventos.filter((e) => e.tipo === 'resultado' && e.nome === 'editar' && !e.ok).length; // trecho não achado etc.
-      const r = { cenario: c.id, grupo: c.grupo, lidos, edicoesFalhas, ok: fim.tipo === 'resposta' && checagens.every(([, v]) => v), checagens: Object.fromEntries(checagens), terminou: fim.tipo || 'sem fim',
+      const r = { cenario: c.id, grupo: c.grupo, lidos, edicoesFalhas, ok: fim.tipo === 'resposta' && checagens.every(([, v]) => v), checagens: Object.fromEntries(checagens), ...(checagens.detalhe ? { detalhe: checagens.detalhe } : {}), terminou: fim.tipo || 'sem fim',
         passos: fim.passos ?? null, ms: Date.now() - inicio, arquivos: fim.arquivos ?? [], comandos, modelo: fim.modelo ?? null, erro: fim.tipo === 'erro' ? limparErro(String(fim.texto)).slice(0, 160) : null };
       if (!r.ok) r.respostaFinal = limparErro(String(fim.texto ?? '')).slice(0, 600); // para entender a falha (sem segredos)
       resultados.push(r);
@@ -178,10 +179,10 @@ try {
   apagarSeguro(dados);
 }
 const ok = resultados.filter((r) => r.ok).length;
-for (const g of ['pequeno', 'dificil']) {
+for (const g of ['pequeno', 'dificil', 'site']) {
   const rs = resultados.filter((r) => r.grupo === g); if (!rs.length) continue;
   const tempos = rs.map((r) => r.ms).sort((a, b) => a - b);
-  console.log(`${g === 'pequeno' ? 'pequenos' : 'difíceis'}: ${rs.filter((r) => r.ok).length}/${rs.length} completos · tempo mediano ${Math.round(tempos[Math.floor((tempos.length - 1) / 2)] / 1000)} s`);
+  console.log(`${({ pequeno: 'pequenos', dificil: 'difíceis', site: 'site' })[g]}: ${rs.filter((r) => r.ok).length}/${rs.length} completos · tempo mediano ${Math.round(tempos[Math.floor((tempos.length - 1) / 2)] / 1000)} s`);
 }
 console.log(`\n${ok}/${resultados.length} cenários completos (código avaliado: ${path.relative(RAIZ, CODIGO) || 'atual'})`);
 const saida = arg('saida', null);
