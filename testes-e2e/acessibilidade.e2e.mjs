@@ -4,18 +4,25 @@
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { subirServidor, abrirNavegador, clienteApi, placar, criarProjetoForja } from './ajuda.mjs';
+import { provedorFalso } from './provedor-falso.mjs';
 
 const { ok, fim } = placar();
 const detalhes = process.argv.includes('--detalhes');
 const AXE = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
-const servidor = await subirServidor();
+// IA falsa: as telas são auditadas com conteúdo de verdade (resposta com as ações, tarefa da Forja feita, comparação)
+const ia = await provedorFalso();
+const servidor = await subirServidor({ env: { FREELLMAPI_URL: ia.url, FREELLMAPI_KEY: 'freellmapi-teste-falsa-0000' } });
 const api = clienteApi(servidor.base);
 const conta = await api.criarConta({ nome: 'Ana Acessível' });
 const conv = await (await api.pedir('POST', '/api/conversations', {})).json();
 await api.pedir('PATCH', `/api/conversations/${conv.id}`, { title: 'Conversa de exemplo' });
 const proj = criarProjetoForja();
 const sessao = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta: proj.pasta })).json();
-const TELAS = [['chat', '#/'], ['Skills', '#/skills'], ['Forja', `#/agente/${sessao.id}`]];
+const respondida = await (await api.pedir('POST', '/api/conversations', {})).json();
+await (await api.pedir('POST', `/api/conversations/${respondida.id}/messages`, { mode: 'new', content: 'Como faço um laço em Python?', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
+const feita = await (await api.pedir('POST', '/api/codigo/sessoes', { pasta: proj.pasta })).json();
+if (process.platform === 'win32') await (await api.pedir('POST', `/api/codigo/sessoes/${feita.id}/tarefa`, { texto: 'Corrija a função soma em soma.js e rode npm test.' })).text(); // a Forja roda comandos só no Windows
+const TELAS = [['chat', '#/'], ['conversa com resposta', `#/c/${respondida.id}`], ['Skills', '#/skills'], ['página de uma skill', '#/skills/regex'], ['Forja', `#/agente/${sessao.id}`], ['Forja com tarefa feita', `#/agente/${feita.id}`]];
 
 async function auditar(nav, rotulo, contexto = 'document') {
   await nav.avaliar(`window.axe ? 1 : (eval(${JSON.stringify(AXE)}), 1)`);
@@ -35,6 +42,18 @@ for (const tema of ['light', 'dark']) {
       await nav.esperar(`document.querySelector('.skeleton') === null`, 5000);
       await auditar(nav, `${nome} (tema ${tema === 'light' ? 'claro' : 'escuro'})`);
     }
+    // Comparar respostas, já com as duas respostas e depois do voto (o diálogo inteiro)
+    await nav.ir(`${servidor.base}/?r=${Date.now()}#/`, 2500);
+    await nav.avaliar(`document.querySelector('.comparar-abrir').click()`);
+    await nav.esperar(`document.querySelector('dialog.comparar[open]') !== null`, 3000);
+    await nav.avaliar(`(()=>{ const t = document.querySelector('#compararTexto'); t.value = 'o que é uma variável?'; t.dispatchEvent(new Event('input', { bubbles: true })); document.querySelector('.comparar-pergunta').requestSubmit(); return 1; })()`);
+    await nav.esperar(`document.querySelectorAll('.comparar-resposta').length === 2`, 10_000);
+    await nav.esperar('false', 400);
+    await auditar(nav, `Comparar respostas (tema ${tema === 'light' ? 'claro' : 'escuro'})`, `document.querySelector('dialog.comparar')`);
+    await nav.avaliar(`document.querySelector('.comparar-votos button').click()`);
+    await nav.esperar(`document.querySelector('.comparar-placar') !== null`, 3000);
+    await auditar(nav, `Comparar respostas depois do voto (tema ${tema === 'light' ? 'claro' : 'escuro'})`, `document.querySelector('dialog.comparar')`);
+    await nav.avaliar(`document.querySelector('dialog.comparar').close()`);
     await nav.ir(`${servidor.base}/?r=${Date.now()}#/`, 2500);
     await nav.avaliar(`document.querySelector('#openSettings').click()`);
     await nav.esperar('false', 600); // a animação de abertura deixa o texto semitransparente por um instante
@@ -78,5 +97,5 @@ for (const tema of ['light', 'dark']) {
     await auditar(nav, 'chat no celular');
   } finally { await nav.fechar(); }
 }
-await servidor.parar(); proj.apagar();
+await servidor.parar(); await ia.fechar(); proj.apagar();
 process.exit(fim());
