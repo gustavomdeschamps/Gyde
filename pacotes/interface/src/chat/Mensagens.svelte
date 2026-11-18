@@ -128,6 +128,8 @@
             {:else if chat.resposta.status}<div class="status-line"><div class="thinking"><i></i><i></i><i></i></div><span>{chat.resposta.status}</span></div>
             {:else}<div class="thinking"><i></i><i></i><i></i></div>{/if}
           </div>
+          <!-- depois do texto: o que o Gyde ainda está fazendo (ex.: conferindo o código), para a pessoa saber que não terminou -->
+          {#if htmlResposta && chat.resposta.status}<div class="status-line depois" role="status"><div class="thinking"><i></i><i></i><i></i></div><span>{chat.resposta.status}</span></div>{/if}
         {/if}
       </article>
     {/if}

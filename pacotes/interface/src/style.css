@@ -246,6 +246,7 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .thinking i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: bounce 1.2s infinite ease-in-out; }
 .thinking i:nth-child(2) { animation-delay: .15s; } .thinking i:nth-child(3) { animation-delay: .3s; }
 .status-line { color: var(--text-soft); font-size: 14px; display: flex; align-items: center; gap: 10px; }
+.status-line.depois { margin-top: 10px; font-size: 13px; }
 .msg-error { display: flex; align-items: flex-start; gap: 10px; color: var(--danger); background: var(--danger-soft); border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent); padding: 10px 14px; border-radius: 12px; font-size: 14px; animation: shake 420ms var(--ease); }
 .msg-error button { margin-left: auto; flex: none; border: 1px solid currentColor; background: none; color: inherit; border-radius: 8px; padding: 3px 10px; font-size: 13px; }
 

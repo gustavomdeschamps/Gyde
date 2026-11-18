@@ -10,6 +10,7 @@ import { classificar } from './ia/classificar.ts';
 import { selecionarHistorico, tamanhoDe, type Anexo } from './ia/contexto.ts';
 import { PROMPT_RESUMO, sistemaDoChat } from './ia/prompts.ts';
 import { limparResposta } from './ia/filtro.ts';
+import { conferirResposta } from './ia/conferir-resposta.ts';
 import type { Orquestrador } from './ia/orquestrador.ts';
 import type { PreferenciasIA } from './ia/rotas.ts';
 import { profileSummary, type Preferencias } from './perfil.ts';
@@ -308,6 +309,15 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
           aoStatus: (texto) => send({ type: 'status', text: texto }),
         });
         if (r.modelo) servedModel = r.modelo; // guarda o modelo que respondeu de verdade, para aparecer embaixo da resposta
+        // acabamento do texto e, em pedido de programação, o código conferido rodando (corrige até 2 vezes antes de salvar)
+        if (answer && !controller.signal.aborted) {
+          const conferida = await conferirResposta({
+            texto: answer, mensagens, router, cadeia: plano.principal, signal: controller.signal,
+            verificar: ['codigo', 'sql', 'frontend', 'backend'].includes(classificacao.tarefa),
+            aoStatus: (texto) => send({ type: 'status', text: texto }),
+          });
+          if (conferida.texto !== answer) { answer = conferida.texto; send({ type: 'substituir', text: answer }); }
+        }
         consumo = r.consumo;
         orquestracao = { estrategia: r.estrategia, revisada: r.revisadaPorOutro, mudou: r.mudou, chamadas: r.chamadas, modelos: r.modelos };
       }

@@ -244,7 +244,9 @@ export async function enviar({ mode = 'new', messageId, content, attachments }: 
         else if (ev.type === 'sugestao-skill' && chat.resposta) chat.resposta.sugestao = ev.skill as SugestaoSkill;
         else if (ev.type === 'agente' && chat.resposta) chat.resposta.agente = ev.agente as AgenteAtivo;
         else if (ev.type === 'status' && chat.resposta) chat.resposta.status = String(ev.text);
-        else if (ev.type === 'delta') { acumulado += String(ev.text); if (!quadro) quadro = requestAnimationFrame(desenhar); }
+        else if (ev.type === 'delta') { acumulado += String(ev.text); if (chat.resposta?.status) chat.resposta.status = ''; if (!quadro) quadro = requestAnimationFrame(desenhar); }
+        // versão final do servidor (acabamento, código conferido e corrigido): troca o texto que chegou aos pedaços
+        else if (ev.type === 'substituir') { acumulado = String(ev.text); if (chat.resposta) chat.resposta.status = ''; if (!quadro) quadro = requestAnimationFrame(desenhar); }
         else if (ev.type === 'done') {
           cancelAnimationFrame(quadro);
           const m = C.Mensagem.parse(ev.message);
