@@ -3,7 +3,7 @@
   import { icone as svgIcone } from '../icones.ts';
   import { tick } from 'svelte';
   import type { TMensagem } from '$contratos';
-  import { chat, enviar, tentarDeNovo, rotuloModelo, type Anexo, type SkillAtiva, type AgenteAtivo, type SugestaoSkill } from './estado.svelte.ts';
+  import { chat, enviar, tentarDeNovo, rotuloModelo, votar, type Anexo, type SkillAtiva, type AgenteAtivo, type SugestaoSkill } from './estado.svelte.ts';
   import { renderMarkdown, tratarCliqueNaResposta } from '../markdown.ts';
   import { copiarTexto } from '../util.ts';
   import { falar, temVoz } from '../voz.ts';
@@ -43,6 +43,11 @@
     });
   });
 
+  // longe do fim (a pessoa subiu para ler): aparece o botão "Ir para o fim", em vez de a tela pular sozinha
+  let longeDoFim = $state(false);
+  const medirFim = () => { if (thread) longeDoFim = thread.scrollHeight - thread.scrollTop - thread.clientHeight > 320; };
+  const irParaOFim = () => { thread?.scrollTo({ top: thread.scrollHeight, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+
   function sugestao(texto: string) {
     chat.texto = texto;
     tick().then(() => { const campo = document.getElementById('input') as HTMLTextAreaElement | null; campo?.focus(); campo?.dispatchEvent(new Event('input')); });
@@ -78,7 +83,7 @@
 {/snippet}
 
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-<section class="thread" class:has-messages={temMensagens} id="thread" aria-live="polite" bind:this={thread} onclick={tratarCliqueNaResposta}>
+<section class="thread" class:has-messages={temMensagens} id="thread" aria-live="polite" bind:this={thread} onclick={tratarCliqueNaResposta} onscroll={medirFim}>
   <div class="empty" id="empty">
     <img class="empty-logo" src="/logo.svg" alt="" width="68" height="68">
     <h1 id="greeting">Bora <span class="accent">programar</span>{chat.nome ? `, ${chat.nome}` : ''}?</h1>
@@ -86,6 +91,7 @@
     <div class="suggestions" id="suggestions">
       {#each SUGESTOES as [rotulo, texto], i}<button style="--i:{i}" onclick={() => sugestao(texto!)}>{rotulo}</button>{/each}
     </div>
+    <p class="atalhos">Atalhos: <kbd>Enter</kbd> envia · <kbd>Shift</kbd>+<kbd>Enter</kbd> quebra a linha · <kbd>Esc</kbd> para a resposta · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> copia a última resposta · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> nova conversa</p>
   </div>
   <div class="messages" id="messages">
     {#each chat.mensagens as m (m.id)}
@@ -109,6 +115,8 @@
             <button title="Copiar" onclick={(e) => copiarTexto(m.content, e.currentTarget)}>{@html icone.copiar}</button>
             {#if temVoz}<button title="Ouvir resposta" onclick={(e) => falar(m.content, e.currentTarget)}>{@html icone.falar}</button>{/if}
             {#if m.id === ultimaResposta}<button title="Gerar de novo" onclick={() => enviar({ mode: 'regenerate', messageId: m.id })}>{@html icone.repetir}</button>{/if}
+            <button title="Boa resposta" aria-label="Boa resposta" aria-pressed={chat.votos[m.id] === 1} class:votado={chat.votos[m.id] === 1} onclick={() => votar(m.id, 1)}>{@html svgIcone('thumbs-up')}</button>
+            <button title="Resposta ruim" aria-label="Resposta ruim" aria-pressed={chat.votos[m.id] === -1} class:votado={chat.votos[m.id] === -1} onclick={() => votar(m.id, -1)}>{@html svgIcone('thumbs-down')}</button>
             <span class="msg-meta" title={chat.metaExtra[m.id] ? 'Modelo que respondeu e tokens usados, informados pelo provedor' : ''}>{chat.metaExtra[m.id] ?? (m.model ? rotuloModelo(m.model) : '')}</span>
           </div>
         {/if}
@@ -128,10 +136,13 @@
             {:else if chat.resposta.status}<div class="status-line"><div class="thinking"><i></i><i></i><i></i></div><span>{chat.resposta.status}</span></div>
             {:else}<div class="thinking"><i></i><i></i><i></i></div>{/if}
           </div>
+          <!-- depois do texto: o que o Gyde ainda está fazendo (ex.: conferindo o código), para a pessoa saber que não terminou -->
+          {#if htmlResposta && chat.resposta.status}<div class="status-line depois" role="status"><div class="thinking"><i></i><i></i><i></i></div><span>{chat.resposta.status}</span></div>{/if}
         {/if}
       </article>
     {/if}
   </div>
+  {#if temMensagens && longeDoFim}<button type="button" class="ir-fim" onclick={irParaOFim} aria-label="Ir para o fim da conversa">{@html svgIcone('chevron-down')}</button>{/if}
 </section>
 
 {#if apontando}<Apontar {...apontando} onfechar={() => (apontando = null)} />{/if}

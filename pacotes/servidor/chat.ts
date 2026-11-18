@@ -10,6 +10,7 @@ import { classificar } from './ia/classificar.ts';
 import { selecionarHistorico, tamanhoDe, type Anexo } from './ia/contexto.ts';
 import { PROMPT_RESUMO, sistemaDoChat } from './ia/prompts.ts';
 import { limparResposta } from './ia/filtro.ts';
+import { conferirResposta } from './ia/conferir-resposta.ts';
 import type { Orquestrador } from './ia/orquestrador.ts';
 import type { PreferenciasIA } from './ia/rotas.ts';
 import { profileSummary, type Preferencias } from './perfil.ts';
@@ -94,24 +95,26 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
   }
 
   // Conversa longa: guarda um resumo do que ficou de fora do contexto. Em segundo plano; se falhar, fica a lista de pedidos.
-  async function atualizarResumo(conv: Conversa, historico: Mensagem[], cortadas: number) {
+  // modelos utilitários primeiro; se não houver (só provedores diretos, sem FreeLLMAPI), os mesmos da resposta
+  const comReserva = (reserva: string[]) => [...new Set([...(CADEIAS.util ?? ['auto']), ...reserva])];
+  async function atualizarResumo(conv: Conversa, historico: Mensagem[], cortadas: number, reserva: string[] = []) {
     if (cortadas - conv.resumo_ate < 8) return;
     const trecho = historico.slice(conv.resumo_ate, cortadas).map((m) => `${m.role === 'user' ? 'Pessoa' : 'Gyde'}: ${redigir(m.content.slice(0, 1200))}`).join('\n\n');
     try {
       const { texto } = await completar(router, {
-        cadeia: CADEIAS.util ?? ['auto'], max_tokens: 500, temperature: 0.1, tempoLimite: 45_000,
+        cadeia: comReserva(reserva), max_tokens: 500, temperature: 0.1, tempoLimite: 45_000,
         messages: [{ role: 'system', content: PROMPT_RESUMO }, { role: 'user', content: `${conv.resumo ? `RESUMO ATÉ AGORA:\n${conv.resumo}\n\n` : ''}CONVERSA:\n${trecho}` }],
       });
       db.prepare('UPDATE conversations SET resumo = ?, resumo_ate = ? WHERE id = ?').run(texto.trim().slice(0, 3000), cortadas, conv.id);
     } catch { /* o resumo é um extra */ }
   }
 
-  async function generateTitle(convId: string, firstUserText: string) {
+  async function generateTitle(convId: string, firstUserText: string, reserva: string[] = []) {
     try {
       const { texto } = await completar(router, {
-        cadeia: CADEIAS.util ?? ['auto'], max_tokens: 24, tempoLimite: 20_000,
+        cadeia: comReserva(reserva), max_tokens: 24, tempoLimite: 20_000,
         messages: [
-          { role: 'system', content: 'Crie um título curto (máx. 6 palavras) em português para esta conversa. Responda só com o título, sem aspas nem pontuação final.' },
+          { role: 'system', content: 'Dê um título de 2 a 6 palavras, em português, que diga o assunto concreto desta conversa (o erro, a linguagem, o conceito). Exemplos bons: "Erro de índice em Python", "Centralizar div com CSS", "Recursão para iniciantes". Ruins: "Dúvida de programação", "Ajuda com código", "Pergunta". Responda só com o título, sem aspas nem ponto final.' },
           { role: 'user', content: firstUserText.slice(0, 2000) },
         ],
       });
@@ -270,6 +273,7 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
     let orquestracao: { estrategia: string; revisada: boolean; mudou: boolean; chamadas: number; modelos: string[] } | null = null;
     let failure: ErroGyde | null = null;
     let cortadas = 0;
+    let cadeiaDaResposta: string[] = []; // reserva para o título e o resumo quando os modelos utilitários não estão disponíveis
     const started = Date.now();
     const registro = uso.iniciar(req.user.id, isImage ? 'imagem' : 'chat');
     try {
@@ -302,12 +306,22 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
           tamanho: tamanhoDe(mensagens),
           reserva: comImagem ? CADEIAS.visao ?? [] : cadeiaDe(chosenModel).filter((m) => m !== 'auto'),
         });
+        cadeiaDaResposta = plano.principal;
         const r = await orquestrador.executar(plano, {
           mensagens, signal: controller.signal, registro, userId: req.user.id, origem: 'chat',
           aoEscrever: (texto) => { answer += texto; send({ type: 'delta', text: texto }); },
           aoStatus: (texto) => send({ type: 'status', text: texto }),
         });
         if (r.modelo) servedModel = r.modelo; // guarda o modelo que respondeu de verdade, para aparecer embaixo da resposta
+        // acabamento do texto e, em pedido de programação, o código conferido rodando (corrige até 2 vezes antes de salvar)
+        if (answer && !controller.signal.aborted) {
+          const conferida = await conferirResposta({
+            texto: answer, mensagens, router, cadeia: plano.principal, signal: controller.signal,
+            verificar: ['codigo', 'sql', 'frontend', 'backend'].includes(classificacao.tarefa),
+            aoStatus: (texto) => send({ type: 'status', text: texto }),
+          });
+          if (conferida.texto !== answer) { answer = conferida.texto; send({ type: 'substituir', text: answer }); }
+        }
         consumo = r.consumo;
         orquestracao = { estrategia: r.estrategia, revisada: r.revisadaPorOutro, mudou: r.mudou, chamadas: r.chamadas, modelos: r.modelos };
       }
@@ -323,14 +337,14 @@ export function setupChat(app: Express, db: Db, { router, uso, imagens, asyncRou
       q.insertMessage.run(assistant.id, conv.id, 'assistant', answer, '[]', servedModel, assistant.created_at);
       q.touchConv.run(Date.now(), conv.id);
       if (!res.writableEnded) send({ type: 'done', message: assistant, elapsedMs: Date.now() - started, stopped: controller.signal.aborted, consumo, orquestracao });
-      if (!isImage) { memoria.learnFrom(req.user, history, answer); void atualizarResumo(conv, history, cortadas); } // em segundo plano
+      if (!isImage) { memoria.learnFrom(req.user, history, answer); void atualizarResumo(conv, history, cortadas, cadeiaDaResposta); } // em segundo plano
     } else if (!res.writableEnded) {
       send({ type: 'error', error: failure?.message || 'O modelo não devolveu nenhuma resposta. Tente de novo ou troque o modelo.' });
     }
     q.touchConv.run(Date.now(), conv.id);
 
     if (isFirstExchange && answer && conv.title === 'Nova conversa') {
-      const title = await generateTitle(conv.id, history[0]!.content || history[0]!.attachments.map((a) => a.name).join(', '));
+      const title = await generateTitle(conv.id, history[0]!.content || history[0]!.attachments.map((a) => a.name).join(', '), cadeiaDaResposta);
       if (title && !res.writableEnded) send({ type: 'title', title });
     }
     res.end();

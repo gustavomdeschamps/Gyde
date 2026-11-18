@@ -42,6 +42,22 @@ try {
       } finally { await nav.fechar(); }
     }
   }
+  if (TELAS.includes('respostas')) {
+    // uma pergunta de código com a IA de verdade: a resposta segue o guia de estilo e termina com "Código conferido"
+    const conv = await (await api.pedir('POST', '/api/conversations', {})).json();
+    await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'escreve uma função em javascript que devolve só os números pares de uma lista', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
+    for (const t of ['light', 'dark']) {
+      const nav = await abrirNavegador({ largura: 1440, altura: 900 });
+      try {
+        await nav.entrar(servidor.base, conta);
+        await tema(nav, t);
+        await nav.ir(`${servidor.base}/?r=${Math.random()}#/c/${conv.id}`, 2500);
+        await tema(nav, t);
+        await nav.esperar(`document.querySelector('.msg.assistant .md') !== null`, 15_000);
+        await foto(nav, t === 'light' ? 'respostas.jpg' : 'respostas-escuro.jpg');
+      } finally { await nav.fechar(); }
+    }
+  }
   if (TELAS.includes('forja')) {
     const pasta = `${PROJETOS}/calculadora`;
     if (!existsSync(pasta)) throw new Error('Falta o projeto de exemplo C:/Projetos/calculadora');

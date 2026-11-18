@@ -71,6 +71,50 @@ export function criarFiltro() {
   return { passar, terminar };
 }
 
+// ---------- acabamento (na resposta inteira, no fim) ----------
+// Tira o que o guia de estilo proíbe e escapou do modelo, sem mudar conteúdo técnico: código dentro de bloco nunca muda.
+const DESCULPA = /^(?:(?:peço|pe[çc]o) desculpas|desculpe(?: pela confus[ãa]o| o erro)?|lamento(?: pelo erro| a confus[ãa]o)?|me desculpe)\b[^.!\n]*[.!]?\s*/i;
+const FECHO = /^(?:espero (?:ter ajudado|que (?:isso|isto|essa explica[çc][ãa]o) (?:ajude|tenha ajudado|esclare[çc]a))|se (?:voc[êe] )?(?:tiver|precisar|quiser)[^.\n]{0,40}(?:d[úu]vidas?|ajuda|saber mais)|qualquer d[úu]vida|fico [àa] disposi[çc][ãa]o|bons estudos|boa sorte|bom c[óo]digo|happy coding)\b[^\n]*$/i;
+
+// "Peço desculpas pela confusão." sai inteira; "Desculpe, mas o certo é X" perde só a desculpa (o resto é conteúdo)
+function semDesculpa(linha: string): string {
+  const m = DESCULPA.exec(linha);
+  if (!m) return linha;
+  const frase = m[0];
+  const virgula = frase.search(/,\s*(mas|por[ée]m|na verdade|o certo|a resposta)\b/i);
+  if (virgula >= 0) { const resto = linha.slice(virgula).replace(/^,\s*(mas|por[ée]m)\s*/i, ''); return resto.charAt(0).toUpperCase() + resto.slice(1); }
+  return /[:]/.test(frase) || frase.length > 90 ? linha : linha.slice(frase.length);
+}
+
+/** Acabamento final da resposta: tira desculpas e fechos vazios, parágrafos repetidos, arruma o Markdown. */
+export function acabamento(texto: string): string {
+  let t = texto.replace(/\r\n/g, '\n');
+  // bloco de código aberto e nunca fechado (resposta cortada): fecha
+  if ((t.match(/^```/gm) ?? []).length % 2 === 1) t = `${t.trimEnd()}\n\`\`\``;
+  const partes = t.split(/(^```[\s\S]*?^```)/m);
+  const prosa = (p: string) => {
+    let s = p
+      .replace(/^(#{1,6})([^#\s])/gm, '$1 $2') // "##Título" vira "## Título"
+      .split('\n').map(semDesculpa).join('\n')
+      .replace(/\n{3,}/g, '\n\n');
+    // parágrafo igual ao anterior (o modelo repetiu): sai
+    const ps = s.split(/\n\n/);
+    s = ps.filter((x, i) => i === 0 || x.trim() === '' || x.trim() !== ps[i - 1]!.trim()).join('\n\n');
+    return s;
+  };
+  for (let i = 0; i < partes.length; i += 2) partes[i] = prosa(partes[i]!);
+  t = partes.join('');
+  // fechos vazios no fim ("Espero ter ajudado", "Se tiver dúvidas..."), fora de bloco de código
+  for (let k = 0; k < 3; k++) {
+    const linhas = t.trimEnd().split('\n');
+    const ultima = linhas.at(-1)?.trim() ?? '';
+    if (!ultima || /^```/.test(ultima) || !FECHO.test(ultima.replace(/^[*_]+|[*_]+$/g, ''))) break;
+    linhas.pop();
+    t = linhas.join('\n');
+  }
+  return t.trim();
+}
+
 export function limparResposta(texto: string): string {
   const f = criarFiltro();
   return (f.passar(texto) + f.terminar()).trim();

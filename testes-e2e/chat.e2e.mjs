@@ -177,6 +177,36 @@ try {
     await (await api.pedir('POST', `/api/conversations/${conv.id}/messages`, { mode: 'new', content: 'esse outro bug é importante, corrija meu código python que vai para produção', attachments: [], model: 'gyde-1', kind: 'chat' })).text();
     ok('rápido: nem pedido importante chama um segundo modelo', !ia.pedidos.slice(meio2).some((p) => /revisor técnico/.test(JSON.stringify(p.mensagens[0]))));
   }
+  // Fase 1: o Gyde roda o código da resposta antes de entregar; deu erro, pede a correção e avisa em uma linha
+  {
+    await api.pedir('PUT', '/api/ia/preferencias', { modo: 'equilibrado' });
+    await nav.ir(`${servidor.base}/?r=cq1#/`, 2000);
+    // volta ao modelo padrão (um teste acima trocou para o outro, que revisa com um 2º modelo)
+    await avaliar(`(()=>{ const s = document.querySelector('#model'); s.value = 'gyde-1'; s.dispatchEvent(new Event('change', { bubbles: true })); return 1; })()`);
+    await digitar('CODIGO-QUEBRADO escreva uma função em javascript que calcula a média de uma lista');
+    await avaliar(`document.querySelector('#input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))`);
+    const ultima = `[...document.querySelectorAll('.msg.assistant')].at(-1)`;
+    ok('código com erro é corrigido antes de entregar e a resposta diz isso', await esperar(`!${transmitindo} && /a primeira versão deu erro ao rodar/.test(${ultima}?.textContent || '') && /l\\.length \\? /.test(${ultima}?.textContent || '')`, 20_000), await avaliar(`${ultima}?.textContent`));
+    const pedidoCorrecao = ia.pedidos.some((p) => /^Rodei o código/.test(JSON.stringify(p.mensagens.at(-1)?.content ?? '').slice(1)));
+    ok('o pedido de correção leva o erro que deu ao rodar', pedidoCorrecao);
+    // polegar: o voto fica salvo e volta marcado depois de recarregar
+    await avaliar(`${ultima}.querySelector('button[aria-label="Boa resposta"]').click()`);
+    ok('polegar para cima fica marcado', await esperar(`${ultima}.querySelector('button[aria-label="Boa resposta"]').getAttribute('aria-pressed') === 'true'`, 3000));
+    await nav.ir(`${servidor.base}/?r=cq2${await avaliar('location.hash')}`, 2500);
+    ok('o voto continua marcado depois de recarregar', await esperar(`${ultima}?.querySelector('button[aria-label="Boa resposta"]')?.getAttribute('aria-pressed') === 'true'`, 5000));
+    await avaliar(`${ultima}.querySelector('button[aria-label="Resposta ruim"]').click()`);
+    ok('trocar para polegar para baixo desmarca o outro', await esperar(`${ultima}.querySelector('button[aria-label="Resposta ruim"]').getAttribute('aria-pressed') === 'true' && ${ultima}.querySelector('button[aria-label="Boa resposta"]').getAttribute('aria-pressed') === 'false'`, 3000));
+    ok('voto em resposta de outra pessoa ou inexistente é recusado', (await api.pedir('POST', '/api/mensagens/nao-existe/voto', { valor: 1 })).status === 404);
+    // Comparar respostas: duas respostas anônimas, voto, e só então a revelação
+    await avaliar(`[...document.querySelectorAll('button')].find((b) => /Comparar respostas/.test(b.textContent + (b.getAttribute('aria-label') || '') + (b.title || ''))).click()`);
+    ok('"Comparar respostas" abre', await esperar(`document.querySelector('dialog.comparar[open]') !== null`, 3000));
+    await avaliar(`(()=>{ const t = document.querySelector('#compararTexto'); t.value = 'como desfaço o último commit?'; t.dispatchEvent(new Event('input', { bubbles: true })); return 1; })()`);
+    await avaliar(`document.querySelector('.comparar-pergunta button[type="submit"]').click()`);
+    ok('aparecem as respostas A e B, sem dizer qual é qual', await esperar(`document.querySelectorAll('.comparar-resposta').length === 2 && !/Guia de estilo/.test(document.querySelector('dialog.comparar').textContent)`, 15_000));
+    await avaliar(`[...document.querySelectorAll('.comparar-votos button')].find((b) => /A é melhor/.test(b.textContent)).click()`);
+    ok('depois do voto, revela as duas versões e mostra o placar', await esperar(`/Guia de estilo atual/.test(document.querySelector('dialog.comparar').textContent) && /Guia de estilo anterior/.test(document.querySelector('dialog.comparar').textContent) && /Seus votos até agora/.test(document.querySelector('.comparar-placar')?.textContent || '')`, 3000));
+    await avaliar(`document.querySelector('dialog.comparar').close()`);
+  }
   ok('sem erro de JavaScript', nav.erros.length === 0, nav.erros.slice(0, 3).join(' | '));
   ok('sem resposta fora do contrato', !servidor.foraDoContrato(), servidor.foraDoContrato() ?? '');
 } finally { await nav.fechar(); await servidor.parar(); await ia.fechar(); }

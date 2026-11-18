@@ -7,6 +7,29 @@ geral. Os modelos grátis e o roteamento do FreeLLMAPI mudam de um dia para o ou
 **Nada aqui compara o Gyde com ChatGPT, Claude, Gemini ou Grok.** Isso exigiria testes independentes e comparáveis, que não
 foram feitos. Como a inteligência funciona: [inteligencia.md](../inteligencia.md).
 
+## Guia de estilo das respostas (18/11/2026)
+
+`ferramentas/avaliar-estilo.mjs` com os 40 pedidos de `ferramentas/pedidos-estilo.mjs` (curtos, médios e longos;
+conceito, código, git, SQL, dúvidas vagas), 2 execuções de cada, guia novo contra o anterior, mesmos modelos (NVIDIA e
+Groq) dos dois lados. Critérios conferidos por programa, sem nota dada por IA: começa pela resposta; sem fórmula de
+abertura ou fecho ("Claro!", "Espero ter ajudado"); tamanho proporcional ao pedido; o código dos blocos roda; não diz
+que testou ou rodou algo. Resultados guardados em [estilo-2026-11-18.json](estilo-2026-11-18.json).
+
+| Critério | Guia anterior | Guia novo | n por lado |
+|---|---|---|---|
+| Nota geral | 97% | 99% | 80 |
+| Começa pela resposta | 100% | 100% | 80 |
+| Sem fórmula de abertura ou fecho | 100% | 100% | 80 |
+| Tamanho proporcional | 95% | 99% | 80 |
+| O código roda | 87% | 98% | 45 |
+| Não inventa sucesso | 98% | 100% | 80 |
+
+Diferença na nota: **+3 pontos, intervalo de 90% de +1 a +4** (reamostragem). Mediana de palavras 42 contra 50; tempo
+mediano 4,5 s contra 4,3 s (a verificação do código custa um pouco). 8 respostas tiveram o código corrigido pela
+verificação. Os dois critérios de "vibe" mais visíveis (começar pela resposta, sem fórmula) já estavam em 100% no guia
+anterior com esses modelos, então a medição não mostra ganho neles. O critério "o código roda" conta como falha um
+bloco que mostra um erro de propósito sem avisar antes, o que pesa um pouco contra o guia anterior.
+
 ## Provedores diretos (09/11/2026)
 
 Medições com as chaves grátis ligadas direto (NVIDIA, Google, Groq e Mistral), sem o FreeLLMAPI. São a base de

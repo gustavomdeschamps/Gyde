@@ -29,7 +29,7 @@ export const ICONES_UI = [
   'sparkles', 'star', 'zap', 'loader-circle', 'wifi-off', 'plug', 'bot', 'brain', 'lightbulb', 'anvil', 'hammer', 'wand-sparkles',
   'graduation-cap', 'compass', 'route', 'layers', 'list-checks', 'mouse-pointer-click', 'puzzle', 'gauge', 'sun', 'moon',
   // agentes
-  'bug', 'flask-conical', 'search-code', 'file-pen-line', 'palette', 'map-pin', 'notebook-pen',
+  'bug', 'flask-conical', 'search-code', 'file-pen-line', 'palette', 'map-pin', 'notebook-pen', 'thumbs-up', 'thumbs-down', 'columns-2', 'scale',
   // extensões
   'file-check', 'dumbbell', 'text-cursor', 'scan', 'mouse-pointer-2', 'circle-stop',
   // escolha de ícone ao criar uma skill (EditorSkill.svelte)

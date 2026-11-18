@@ -183,4 +183,29 @@ export const MIGRACOES: Migracao[] = [
                ALTER TABLE conversations ADD COLUMN resumo_ate INTEGER NOT NULL DEFAULT 0;`);
     },
   },
+  {
+    versao: 5,
+    nome: 'polegar em cada resposta e "Comparar respostas" (votos guardados só neste computador)',
+    aplicar(db) {
+      db.exec(`CREATE TABLE votos_resposta (
+                 message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+                 user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                 valor INTEGER NOT NULL CHECK (valor IN (-1, 1)),
+                 em INTEGER NOT NULL,
+                 PRIMARY KEY (message_id, user_id)
+               );
+               CREATE TABLE comparacoes (
+                 id TEXT PRIMARY KEY,
+                 user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                 pergunta TEXT NOT NULL,
+                 resposta_a TEXT NOT NULL,
+                 resposta_b TEXT NOT NULL,
+                 variante_a TEXT NOT NULL,
+                 variante_b TEXT NOT NULL,
+                 voto TEXT CHECK (voto IN ('a', 'b', 'empate')),
+                 em INTEGER NOT NULL
+               );
+               CREATE INDEX idx_comparacoes ON comparacoes(user_id, em);`);
+    },
+  },
 ];

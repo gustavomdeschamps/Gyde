@@ -3,6 +3,37 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.5.0
+
+### Respostas mais diretas, e o código conferido antes de chegar
+- **Guia de estilo** ([docs/guia-de-estilo.md](docs/guia-de-estilo.md)) nas instruções da IA: começa pela resposta,
+  sem "Claro!" nem "Espero ter ajudado", tamanho de acordo com o pedido, nível de quem pergunta, listas só quando
+  ajudam, código sempre em bloco, pedido ambíguo respondido pela leitura mais provável (dizendo qual), nunca inventar
+  que testou ou que deu certo.
+- **O Gyde roda o código da resposta antes de entregar** (JavaScript numa área sem acesso a arquivos e programas;
+  Python só código que não mexe no sistema, se houver Python no computador). Deu erro: pede a correção ao modelo, no
+  máximo 2 vezes, e avisa numa linha ("Código conferido: a primeira versão deu erro ao rodar e foi corrigida"). Se não
+  conseguir corrigir, entrega com o aviso "Atenção: rodei o código e deu erro". Blocos que mostram um erro de propósito
+  não rodam.
+- **Acabamento do texto**: fecha bloco de código esquecido aberto, tira pedido de desculpas vazio, parágrafo repetido e
+  fecho de cortesia, sem tocar no código.
+- **Medição** com 40 pedidos separados, guia novo contra o anterior, mesmos modelos: nota 99% contra 97% (+3 pontos,
+  intervalo de 90% de +1 a +4, n = 80 por lado). O código das respostas rodou em 98% contra 87% (n = 45). Começar
+  pela resposta e não usar fórmulas já estavam em 100% antes. Detalhes em [docs/avaliacao](docs/avaliacao/README.md).
+
+### Seu voto ajusta o jeito de responder (só no seu computador)
+- Polegar para cima ou para baixo em cada resposta.
+- **Comparar respostas** (botão ao lado do seletor de modelo): a mesma pergunta respondida por duas versões do Gyde,
+  lado a lado e sem dizer qual é qual; depois do voto a tela revela as duas e mostra o placar.
+- Os votos ficam só no banco local. `node ferramentas/resumir-votos.mjs` resume os votos e sugere ajustes no guia.
+
+### Chat
+- Atalhos: Esc para a resposta, Ctrl+Shift+C copia a última resposta, Ctrl+Shift+O abre uma conversa nova (a lista de
+  atalhos aparece na tela inicial).
+- Botão "Ir para o fim" quando você sobe para ler, em vez de a tela pular sozinha.
+- Enquanto o Gyde confere o código, uma linha embaixo da resposta avisa que ainda não terminou.
+- Títulos das conversas mais concretos (2 a 6 palavras sobre o assunto).
+
 ## 2.4.1
 
 ### Medição por resultado: só fica o que ajuda de verdade

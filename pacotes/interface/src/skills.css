@@ -221,3 +221,22 @@ a.skill-chip:hover { background: color-mix(in srgb, var(--accent) 22%, var(--sur
   .tabs .tab svg { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .sk-cartao, .sk-quero, .sk-filtros button { transition: none; } }
+
+/* Comparar respostas */
+.comparar-abrir { margin-left: auto; }
+.comparar { width: min(1100px, calc(100% - 32px)); max-height: calc(100vh - 48px); overflow: auto; }
+.comparar-topo { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.comparar-topo h2 { margin: 0 0 4px; font: 700 20px/1.25 var(--font-display); }
+.comparar-topo p { margin: 0; color: var(--text-soft); font-size: 14px; max-width: 640px; }
+.comparar-pergunta { display: flex; gap: 8px; align-items: stretch; margin: 16px 0 8px; }
+.comparar-pergunta textarea { flex: 1; min-width: 0; resize: vertical; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; background: var(--bg-soft); }
+.comparar-exemplos { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--text-faint); margin: 0 0 8px; }
+.comparar-exemplos button { border: 1px solid var(--border); background: var(--surface); border-radius: 99px; padding: 3px 10px; font-size: 13px; color: var(--text-soft); }
+.comparar-lado { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; margin-top: 12px; }
+.comparar-resposta { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; background: var(--surface); min-width: 0; }
+.comparar-resposta.escolhida { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.comparar-resposta h3 { margin: 0 0 8px; font-size: 14px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.comparar-resposta h3 small { color: var(--accent-text); font-weight: 600; }
+.comparar-votos { display: flex; gap: 8px; justify-content: center; margin: 14px 0 4px; flex-wrap: wrap; }
+.comparar-placar { color: var(--text-soft); font-size: 13px; margin: 12px 0 0; }
+@media (max-width: 640px) { .comparar-abrir span { display: none; } .comparar-pergunta { flex-direction: column; } }
