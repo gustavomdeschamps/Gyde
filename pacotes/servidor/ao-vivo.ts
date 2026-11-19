@@ -174,8 +174,12 @@ export function planejarAoVivo(raiz: string): PlanoAoVivo {
   anda('', 0);
   for (const rel of relsPkg) opcoes.push(...opcoesNode(raiz, rel, ids));
   opcoes.push(...opcoesEstaticas(raiz, relsPkg), ...opcoesPython(raiz), ...opcoesOutras(raiz));
-  // recomendada: servidor web da raiz que já tem as dependências; senão o site pronto; senão o primeiro web; senão o resto
-  const nota = (o: OpcaoAoVivo) => (o.tipo === 'web' && !o.pasta && !o.instalar ? 0 : o.tipo === 'estatico' ? 1 : o.tipo === 'web' && !o.pasta ? 2 : o.tipo === 'web' ? 3 : 4);
+  // recomendada: servidor web da raiz que já tem as dependências; senão uma ferramenta conhecida na raiz (Vite, Next.js...:
+  // o index.html desses projetos é um modelo, servir como site pronto quebra), mesmo precisando instalar; senão o site
+  // pronto; senão o primeiro web; senão o resto
+  const framework = (o: OpcaoAoVivo) => o.id.startsWith('node:') && !o.rotulo.startsWith('Script "');
+  const nota = (o: OpcaoAoVivo) => (o.tipo === 'web' && !o.pasta && !o.instalar ? 0 : o.tipo === 'web' && !o.pasta && framework(o) ? 1
+    : o.tipo === 'estatico' ? 2 : o.tipo === 'web' && !o.pasta ? 3 : o.tipo === 'web' ? 4 : 5);
   const recomendada = [...opcoes].sort((a, b) => nota(a) - nota(b))[0]?.id ?? null;
   return {
     opcoes, recomendada,

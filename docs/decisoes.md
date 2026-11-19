@@ -92,3 +92,9 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
     minificado ou com cabeçalho `@license`) fica fora da saúde; ciclo só conta entre arquivos de código; arquivos
     citados por package.json/manifest.json não aparecem como "ninguém importa". O que sobra em "ninguém importa" pode
     ser carregado por texto (workers, webview); a tela diz para conferir antes de apagar.
+23. **Ao vivo conferido com projetos de verdade** (`ferramentas/conferir-ao-vivo.mjs`, 19/11/2026, Windows 11, com
+    internet para o npm install): site de HTML (na hora), Vite (12 s com o npm install), Next.js 15 (27 s com o npm
+    install) e programa Python de console (2 s): 4 de 4 funcionaram. A primeira rodada mostrou que, num projeto Vite com
+    index.html simples, o Ao vivo recomendava servir o index.html como site pronto em vez do servidor do Vite; agora uma
+    ferramenta conhecida na raiz (Vite, Next.js, Angular...) vem antes do site estático. Um teste de unidade falha sem
+    essa mudança e passa com ela. O teste do Ao vivo deixou de usar rmSync recursivo (usa a lista permitida).

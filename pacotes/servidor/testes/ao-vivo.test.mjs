@@ -2,11 +2,12 @@
 // programa de console), explica falhas em português, para tudo ao parar e não passa as chaves do Gyde ao projeto.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { planejarAoVivo, explicarErro, criarAoVivo } from '../ao-vivo.ts';
+import { apagarSeguro } from '../../../ferramentas/limpeza-segura.mjs';
 
 const pastas = [];
 function projeto(arquivos) {
@@ -16,7 +17,7 @@ function projeto(arquivos) {
   return pasta;
 }
 const aoVivo = criarAoVivo();
-after(() => { aoVivo.fechar(); for (const p of pastas) rmSync(p, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); });
+after(async () => { aoVivo.fechar(); await espera(500); for (const p of pastas) { try { apagarSeguro(p); } catch { /* arquivo preso: fica na pasta temporária */ } } });
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 async function esperarFase(sessao, fases, ms = 20_000) {
   const t = Date.now();
@@ -32,6 +33,15 @@ test('React com Vite: servidor de desenvolvimento só em 127.0.0.1, na porta esc
   assert.match(o.rotulo, /Vite \(React\)/);
   assert.equal(o.comando, 'npm run dev -- --host 127.0.0.1 --port {porta} --strictPort');
   assert.equal(o.instalar, null, 'node_modules já existe');
+});
+
+test('Vite sem dependências instaladas: recomenda o servidor do Vite (com instalar), não o index.html como site pronto', () => {
+  const p = projeto({ 'package.json': JSON.stringify({ scripts: { dev: 'vite' }, devDependencies: { vite: '6' } }), 'index.html': '<div id="app"></div><script type="module" src="/main.js"></script>', 'main.js': 'export {};' });
+  const plano = planejarAoVivo(p);
+  const o = plano.opcoes.find((x) => x.id === plano.recomendada);
+  assert.equal(o.id, 'node:.');
+  assert.equal(o.instalar, 'npm install');
+  assert.ok(plano.opcoes.some((x) => x.tipo === 'estatico'), 'o site estático continua como opção');
 });
 
 test('monorepo com pnpm e sem dependências (como o do Vue): pede pnpm install e acha os subprojetos', () => {
