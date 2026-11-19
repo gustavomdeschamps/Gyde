@@ -1,0 +1,43 @@
+{
+  "em": "2026-11-19T21:57:50.081Z",
+  "sistema": "win32 x64",
+  "node": "24.22.1",
+  "resultados": [
+    {
+      "tipo": "html",
+      "detectado": "Site de HTML, CSS e JavaScript",
+      "comando": null,
+      "ok": true,
+      "fase": "pronto",
+      "segundos": 0,
+      "detalhe": "página respondeu em http://127.0.0.1:63270/"
+    },
+    {
+      "tipo": "vite",
+      "detectado": "Vite · raiz do projeto",
+      "comando": "npm run dev -- --host 127.0.0.1 --port {porta} --strictPort",
+      "ok": true,
+      "fase": "pronto",
+      "segundos": 12,
+      "detalhe": "página respondeu em http://127.0.0.1:63272/"
+    },
+    {
+      "tipo": "next",
+      "detectado": "Next.js · raiz do projeto",
+      "comando": "npm run dev -- -H 127.0.0.1 -p {porta}",
+      "ok": true,
+      "fase": "pronto",
+      "segundos": 27,
+      "detalhe": "página respondeu em http://127.0.0.1:63284/"
+    },
+    {
+      "tipo": "python",
+      "detectado": "Python · principal.py",
+      "comando": "python principal.py",
+      "ok": true,
+      "fase": "terminou",
+      "segundos": 2,
+      "detalhe": "> python principal.pyMARCA-PYTHON 5[o comando terminou com código 0]"
+    }
+  ]
+}

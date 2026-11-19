@@ -25,6 +25,7 @@ import { criarAoVivo, encerrarOrfaos } from './ao-vivo.ts';
 import { conferirSite } from './conferir-site.ts';
 import { problemaNosArgs, criarDetectorDeLaco, verificacaoDaTarefa, afirmacoesSemBase, mencoesDoPedido } from './forja-regras.ts';
 import { apagarPastaDoGyde } from './apagar-pasta.ts';
+import { ruasDaCidade, saudeDoProjeto } from './ruas.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).
 export interface ArgsFerramenta { caminho?: unknown; profundidade?: unknown; inicio?: unknown; fim?: unknown; texto?: unknown; conteudo?: unknown; procurar?: unknown; substituir?: unknown; comando?: unknown }
@@ -616,8 +617,11 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     const s = q.uma.get(String(req.params.id), req.user.id);
     if (!s) return res.status(404).json({ error: 'Sessão não encontrada.' });
     { const e = estadoPasta(s.pasta); if (!e.ok) return res.status(400).json({ error: e.texto, pastaEstado: e }); }
-    const mapa = await mapaDaCidade(realpathSync.native(s.pasta));
-    responder(res, C.Cidade, { pasta: path.basename(s.pasta), ...mapa, limite: LIMITE_PREDIOS });
+    const real = realpathSync.native(s.pasta);
+    const mapa = await mapaDaCidade(real);
+    // ruas de dependência (quem importa quem) e a saúde do projeto, lendo só o texto dos arquivos
+    const { ruas, cortadas: ruasCortadas, terceiros } = await ruasDaCidade(real, mapa.arquivos);
+    responder(res, C.Cidade, { pasta: path.basename(s.pasta), ...mapa, limite: LIMITE_PREDIOS, ruas, ruasCortadas, saude: saudeDoProjeto(mapa.arquivos, ruas, terceiros) });
   }));
   // imagens anexadas (só o dono da sessão vê)
   app.get('/api/codigo/sessoes/:id/anexos/:arquivo', bloqueado, (req, res) => {

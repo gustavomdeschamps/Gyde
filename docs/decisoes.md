@@ -84,3 +84,21 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
 21. **O teste de instalação guarda e devolve os atalhos de um Gyde já instalado.** Neste computador há um Gyde 2.4.1
     instalado de verdade; o teste instala e desinstala com o mesmo nome, o que sobrescreveria e apagaria os atalhos do
     menu Iniciar e da área de trabalho. Conferido depois: os atalhos apontam de novo para o Gyde instalado.
+22. **Fase 5: ruas de dependência e saúde do projeto lidas do texto, sem rodar o projeto.** JS/TS, Python, CSS, HTML e
+    caminhos citados em JSON (package.json, manifest.json). Na cópia do Gyde: 353 prédios, 416 ruas; ruas + saúde
+    custam 105 ms (mediana, n = 5) sobre os 527 ms que o mapa já levava. Na cena, as ruas são linhas finas (uma
+    chamada de desenho); todas só aparecem se a pessoa ligar "Dependências"; as do prédio escolhido aparecem sempre.
+    Ajustes feitos olhando o resultado no próprio Gyde antes de publicar: código de terceiros (pasta vendor,
+    minificado ou com cabeçalho `@license`) fica fora da saúde; ciclo só conta entre arquivos de código; arquivos
+    citados por package.json/manifest.json não aparecem como "ninguém importa". O que sobra em "ninguém importa" pode
+    ser carregado por texto (workers, webview); a tela diz para conferir antes de apagar.
+23. **Ao vivo conferido com projetos de verdade** (`ferramentas/conferir-ao-vivo.mjs`, 19/11/2026, Windows 11, com
+    internet para o npm install): site de HTML (na hora), Vite (12 s com o npm install), Next.js 15 (27 s com o npm
+    install) e programa Python de console (2 s): 4 de 4 funcionaram. A primeira rodada mostrou que, num projeto Vite com
+    index.html simples, o Ao vivo recomendava servir o index.html como site pronto em vez do servidor do Vite; agora uma
+    ferramenta conhecida na raiz (Vite, Next.js, Angular...) vem antes do site estático. Um teste de unidade falha sem
+    essa mudança e passa com ela. O teste do Ao vivo deixou de usar rmSync recursivo (usa a lista permitida).
+24. **Instalador refeito da main limpa antes de publicar a 2.8.0.** O instalador tinha terminado de ser gerado enquanto
+    a Fase 5 já mexia nos arquivos do servidor, que o instalador leva direto da pasta; ele poderia sair misturado. Foi
+    gerado de novo a partir da main (com a Fase 4) antes da Release. Daqui em diante, o instalador de cada versão é
+    gerado da main depois do merge.

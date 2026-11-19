@@ -10,7 +10,7 @@ administrador do computador nem saber usar o terminal.
 ## 1. Baixar o instalador
 
 1. Abra a página **[Releases do Gyde](https://github.com/gustavomdeschamps/Gyde/releases/latest)**.
-2. Na parte **Assets** (no fim da versão mais nova), clique em **`Gyde-Setup-2.8.0.exe`** (o número pode ser maior,
+2. Na parte **Assets** (no fim da versão mais nova), clique em **`Gyde-Setup-2.9.0.exe`** (o número pode ser maior,
    se houver uma versão mais nova). O download começa.
 
 ## 2. Instalar

@@ -3,6 +3,24 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.9.0
+
+### Cidade: quem depende de quem, e a saúde do projeto
+- **Ruas de dependência:** o Gyde lê as importações entre os arquivos (JavaScript e TypeScript, Python, CSS, HTML e
+  caminhos citados em package.json e manifest.json), sem rodar o projeto. Na cidade, as ruas do prédio escolhido
+  aparecem em destaque e o cartão diz o que ele importa e quem usa ele; o botão **Dependências** mostra todas.
+  São linhas finas, desenhadas de uma vez, para continuar leve em placa de vídeo integrada.
+- **Saúde do projeto:** arquivos de código e linhas, testes, arquivos grandes (com atalho para pedir à Forja que
+  divida), dependências em ciclo, código que ninguém importa (com o aviso de conferir antes de apagar) e os mais
+  alterados no git. Código de terceiros copiado para o projeto fica de fora.
+- Na cópia do código do Gyde (353 arquivos), ler as ruas e a saúde soma 105 ms (mediana de 5) à leitura da cidade.
+
+### Ao vivo
+- Num projeto com ferramenta conhecida na raiz (Vite, Next.js, Angular...), o Ao vivo recomenda o servidor dela antes de
+  servir o index.html como site pronto. Conferido com projetos de verdade (`ferramentas/conferir-ao-vivo.mjs`): site de
+  HTML, Vite, Next.js 15 e programa Python de console, 4 de 4 funcionando (o Vite e o Next.js com o npm install, que
+  precisa de internet).
+
 ## 2.8.0
 
 ### Primeiro uso

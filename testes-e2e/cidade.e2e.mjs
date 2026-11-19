@@ -35,6 +35,9 @@ async function verificar(nav, rotulo, webgl) {
   ok(`${rotulo}: o 3D só é baixado quando a aba abre`, !tresAntes && await esperar(`performance.getEntriesByType('resource').some((r) => /cidade3d/.test(r.name))`, 8000));
   if (webgl) {
     ok(`${rotulo}: a cidade 3D aparece`, await esperar(`document.querySelector('.cidade-canvas') !== null && !document.querySelector('.cidade-palco-info')`, 20_000));
+    // ruas de dependência: teste.js importa soma.js; o botão liga todas, e fica lembrado
+    ok(`${rotulo}: botão "Dependências" aparece e liga as ruas`, await esperar(`document.querySelector('.cidade-dep-botao') !== null`, 5000) && await avaliar(`(document.querySelector('.cidade-dep-botao').click(), 1)`) && await esperar(`document.querySelector('.cidade-dep-botao').getAttribute('aria-pressed') === 'true'`, 3000));
+    await avaliar(`document.querySelector('.cidade-dep-botao').click()`);
     await avaliar(`window.__copiado = null; navigator.clipboard.writeText = async (t) => { window.__copiado = t; }; 1`);
     await avaliar(`[...document.querySelectorAll('.cidade-rodape button')].find((b) => /Copiar diagnóstico/.test(b.textContent)).click()`);
     ok(`${rotulo}: abre desenhando direto na tela (sem imagem fora da tela)`, await esperar(`/Desenho: direto na tela/.test(window.__copiado || '')`, 3000), await avaliar(`window.__copiado`));
@@ -45,6 +48,7 @@ async function verificar(nav, rotulo, webgl) {
   else ok(`${rotulo}: sem WebGL, a tela oferece a lista`, await esperar(`/Ver como lista/.test(document.querySelector('.cidade-palco-info')?.textContent || '') || document.querySelector('.cidade-canvas') !== null`, 20_000));
   await avaliar(`[...document.querySelectorAll('.cidade-modo button')].find((b) => b.textContent === 'Lista').click()`);
   ok(`${rotulo}: a cena 3D é desmontada ao trocar para a lista`, await esperar(`document.querySelector('.cidade-canvas') === null`, 3000));
+  ok(`${rotulo}: saúde do projeto conta os arquivos e as dependências`, await avaliar(`(() => { const d = document.querySelector('details.saude'); if (!d) return false; d.open = true; return /3 arquivos de código/.test(d.textContent) && /2 dependências entre arquivos/.test(d.textContent) && /1 arquivo de teste/.test(d.textContent); })()`), await avaliar(`document.querySelector('details.saude')?.textContent.slice(0, 300) ?? 'sem painel'`));
   ok(`${rotulo}: a lista mostra os arquivos reais da pasta`, await esperar(`document.querySelectorAll('.cidade-bairro tbody tr').length === 4`, 8000), await avaliar(`document.querySelector('.cidade')?.textContent.slice(0, 300)`));
   ok(`${rotulo}: .env não aparece`, await avaliar(`!/\\.env|nao-pode-aparecer/.test(document.querySelector('.cidade').textContent)`));
   ok(`${rotulo}: mudanças do git contadas (soma.js mudou 2 vezes)`, await avaliar(`(()=>{ const l = [...document.querySelectorAll('.cidade-bairro tbody tr')].find((tr) => /soma\\.js/.test(tr.textContent)); return Boolean(l) && /2 vezes/.test(l.textContent); })()`));

@@ -103,6 +103,15 @@ export const Predio = z.object({ caminho: z.string(), linhas: z.number().int().m
 export const Cidade = z.object({
   pasta: z.string(), arquivos: z.array(Predio), total: z.number().int(), cortados: z.number().int(), incompleta: z.boolean(),
   git: z.object({ ativo: z.boolean(), commits: z.number().int() }), limite: z.number().int(),
+  // ruas de dependência: [de, para] como posições em "arquivos"; a saúde do projeto vem das mesmas contagens
+  ruas: z.array(z.tuple([z.number().int(), z.number().int()])), ruasCortadas: z.number().int(),
+  saude: z.object({
+    arquivosDeCodigo: z.number().int(), linhasDeCodigo: z.number().int(), arquivosDeTeste: z.number().int(),
+    grandes: z.array(z.object({ caminho: z.string(), linhas: z.number().int() })),
+    ciclos: z.array(z.array(z.string())),
+    semUso: z.object({ total: z.number().int(), exemplos: z.array(z.string()) }),
+    maisAlterados: z.array(z.object({ caminho: z.string(), mudancas: z.number().int() })),
+  }),
 });
 export const Reconexao = z.object({ ok: z.literal(true), pasta: z.string(), pastaEstado: EstadoPasta });
 
