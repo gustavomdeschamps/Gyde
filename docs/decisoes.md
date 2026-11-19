@@ -98,3 +98,7 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
     index.html simples, o Ao vivo recomendava servir o index.html como site pronto em vez do servidor do Vite; agora uma
     ferramenta conhecida na raiz (Vite, Next.js, Angular...) vem antes do site estático. Um teste de unidade falha sem
     essa mudança e passa com ela. O teste do Ao vivo deixou de usar rmSync recursivo (usa a lista permitida).
+24. **Instalador refeito da main limpa antes de publicar a 2.8.0.** O instalador tinha terminado de ser gerado enquanto
+    a Fase 5 já mexia nos arquivos do servidor, que o instalador leva direto da pasta; ele poderia sair misturado. Foi
+    gerado de novo a partir da main (com a Fase 4) antes da Release. Daqui em diante, o instalador de cada versão é
+    gerado da main depois do merge.

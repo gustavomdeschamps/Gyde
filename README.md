@@ -129,6 +129,10 @@ o arquivo. Prefere texto? O botão **Lista** mostra o mesmo em forma acessível.
 opções rápidas: explicar, simplificar, achar bugs e adicionar testes. Nos faróis aparece também **dividir em partes
 menores**. O pedido é só escrito no campo da Forja; quem envia é você. A cidade continua reagindo enquanto a Forja trabalha.
 
+**Dependências e saúde:** as ruas mostram quem importa quem (lido do código, sem rodar o projeto); ao escolher um
+prédio, as ruas dele acendem e o cartão diz o que ele importa e quem usa ele. O painel **Saúde do projeto** conta
+arquivos grandes, dependências em ciclo, código que ninguém importa, testes e os mais alterados.
+
 Roda em placa de vídeo integrada (desenha direto na tela). Os extras, como o brilho (bloom), só ligam sozinhos em placa
 dedicada e depois de uma checagem de segurança. O botão **Copiar diagnóstico** junta a placa de vídeo, as checagens e
 os tempos de quadro, sem dados pessoais, para relatar um problema.
