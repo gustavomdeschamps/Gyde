@@ -11,4 +11,4 @@ Falta: PR, CI, Release.
 
 ## Depois
 - Fase 6: site e documentação.
-- Encerramento: revisão crítica, limpeza (inclui docs/imagens/inicio-sem-ia.jpg, que deixou de ser usada), relatório.
+- Encerramento: revisão crítica, limpeza feita (inicio-sem-ia.jpg, diagnostico-escuro.jpg, Icone.svelte), falta o relatório.
