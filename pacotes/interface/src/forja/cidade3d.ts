@@ -26,12 +26,14 @@ export interface Cidade3D {
   filtrar(termo: string): number; // escurece o que não combina; devolve quantos combinam
   reagir(sinal: SinalCidade): boolean; // a Forja mexeu num arquivo; devolve se o prédio existe (ou foi criado)
   pausar(sim: boolean): void; // em segundo plano (ex.: Ao vivo aberto ao lado): só desenha quando algo muda
+  mostrarDependencias(sim: boolean): void; // todas as ruas de dependência, fracas (as do prédio escolhido aparecem sempre)
   diagnostico(): string; // texto para copiar (placa, formatos, checagens, extras, erros; nada pessoal)
 }
 interface Opcoes {
   aoEscolher: (p: TPredio | null) => void; // clique (ou toque) num prédio, ou no vazio
   aoPassar: (p: TPredio | null, x: number, y: number) => void; // mouse em cima de um prédio
   aoAviso?: (texto: string, grave: boolean) => void; // só para o caso grave (nem a base mostrou os prédios)
+  ruas?: [number, number][]; // dependências: [quem importa, quem é importado], posições em "arquivos"
 }
 
 const CELULA = 1.6; // espaço de cada prédio na quadra
@@ -254,6 +256,36 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
   reflexo.frustumCulled = false;
   cena.add(reflexo);
   const indice = new Map(planta.predios.map((b, i) => [b.p.caminho, i]));
+
+  // ---------- ruas de dependência: arcos finos entre prédios (1 chamada de desenho cada; leve na placa integrada) ----------
+  // Todas juntas ficam fracas e só aparecem quando a pessoa liga; as do prédio escolhido aparecem sempre, fortes.
+  const ruasDep = opcoes.ruas ?? [];
+  const predioDoArquivo = (i: number) => { const j = indice.get(arquivos[i]?.caminho ?? ''); return j == null ? null : planta.predios[j]!; };
+  const arco = (a: { x: number; z: number }, b: { x: number; z: number }, v: number[]) => {
+    const mx = (a.x + b.x) / 2, mz = (a.z + b.z) / 2, alto = CHAO + 0.3 + Math.hypot(b.x - a.x, b.z - a.z) * 0.12, y = CHAO + 0.12;
+    v.push(a.x, y, a.z, mx, alto, mz, mx, alto, mz, b.x, y, b.z);
+  };
+  const vertsDep: number[] = [];
+  for (const [de, para] of ruasDep) { const a = predioDoArquivo(de), b = predioDoArquivo(para); if (a && b) arco(a, b, vertsDep); }
+  const geoDep = guardar(new THREE.BufferGeometry());
+  geoDep.setAttribute('position', new THREE.Float32BufferAttribute(vertsDep, 3));
+  const dependencias = new THREE.LineSegments(geoDep, guardar(new THREE.LineBasicMaterial({ color: COR.trafego, transparent: true, opacity: 0.22, depthWrite: false })));
+  dependencias.visible = false; dependencias.renderOrder = 2; dependencias.frustumCulled = false;
+  cena.add(dependencias);
+  const geoDepEscolhido = guardar(new THREE.BufferGeometry());
+  const depEscolhido = new THREE.LineSegments(geoDepEscolhido, guardar(new THREE.LineBasicMaterial({ color: COR.realce, transparent: true, opacity: 0.95, depthWrite: false })));
+  depEscolhido.renderOrder = 4; depEscolhido.frustumCulled = false;
+  cena.add(depEscolhido);
+  geoDepEscolhido.setAttribute('position', new THREE.Float32BufferAttribute([], 3)); // começa vazio
+  function atualizarDependenciasDoEscolhido(i: number) {
+    const v: number[] = [];
+    const caminho = i >= 0 ? planta.predios[i]!.p.caminho : null;
+    if (caminho) for (const [de, para] of ruasDep) {
+      if (arquivos[de]?.caminho !== caminho && arquivos[para]?.caminho !== caminho) continue;
+      const a = predioDoArquivo(de), b = predioDoArquivo(para); if (a && b) arco(a, b, v);
+    }
+    geoDepEscolhido.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+  }
 
   // ---------- faróis: os arquivos mais alterados ----------
   // faróis: os 8 arquivos mais alterados (com pelo menos 3 mudanças), não importa o tamanho do projeto
@@ -780,6 +812,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
     selecionar(caminho) {
       selecionado = caminho == null ? -1 : (indice.get(caminho) ?? -1);
       colocarContorno(contornoEscolhido, selecionado);
+      atualizarDependenciasDoEscolhido(selecionado);
       if (sobMouse === selecionado) colocarContorno(contornoMouse, -1);
       desenhar();
     },
@@ -829,6 +862,7 @@ export function criarCidade3D(caixa: HTMLElement, arquivos: TPredio[], opcoes: O
       return true;
     },
     pausar(sim) { pausada = sim; desenhar(); },
+    mostrarDependencias(sim) { dependencias.visible = sim; desenhar(); },
     diagnostico() {
       const tela = renderer.getDrawingBufferSize(new THREE.Vector2());
       const ord = (v: number[]) => [...v].sort((a, b) => a - b);

@@ -11,6 +11,7 @@
   import { PEDIDO_PRINCIPAL, pedidosDoArquivo } from './pedidos.ts';
   import type { Cidade3D } from './cidade3d.ts';
   import { ouvirCidade, type SinalCidade } from './sinais-cidade.ts';
+  import SaudeProjeto from './SaudeProjeto.svelte';
 
   // segundoPlano: o Ao vivo está aberto ao lado; a cena 3D só desenha quando algo muda (poupa a placa de vídeo)
   // onpedirForja: escreve um pedido sobre o arquivo no campo da Forja (não envia: quem envia é a pessoa)
@@ -51,6 +52,26 @@
     copiado = true; setTimeout(() => { copiado = false; }, 2500);
   }
   function fecharCartao() { escolhido = null; cena?.selecionar(null); }
+  // ruas de dependência: todas, fracas, quando ligado (fica salvo neste navegador); as do escolhido aparecem sempre
+  let verDependencias = $state((() => { try { return localStorage.getItem('cidadeDependencias') === '1'; } catch { return false; } })());
+  function trocarDependencias() { verDependencias = !verDependencias; try { localStorage.setItem('cidadeDependencias', verDependencias ? '1' : '0'); } catch { /* sem storage */ } }
+  $effect(() => { const v = verDependencias; if (cena && estado3d === 'pronto') cena.mostrarDependencias(v); });
+  // o que o arquivo escolhido importa e quem usa ele
+  const ligacoes = $derived.by(() => {
+    if (!cidade || !escolhido) return null;
+    const i = cidade.arquivos.findIndex((a) => a.caminho === escolhido!.caminho);
+    return {
+      importa: cidade.ruas.filter(([de]) => de === i).map(([, para]) => cidade!.arquivos[para]!.caminho),
+      usadoPor: cidade.ruas.filter(([, para]) => para === i).map(([de]) => cidade!.arquivos[de]!.caminho),
+    };
+  });
+  // "ver na cidade" (painel de saúde): abre a 3D no prédio, ou filtra a lista pelo nome
+  function verNaCidade(caminho: string) {
+    const p = cidade?.arquivos.find((a) => a.caminho === caminho);
+    if (!p) return;
+    if (modo === '3d' && cena) { escolhido = p; cena.selecionar(caminho); cena.focar(caminho); }
+    else { filtro = nomeDe(caminho); }
+  }
   $effect(() => { const t = busca3d; if (cena && estado3d === 'pronto') achados = t.trim() ? cena.filtrar(t) : (cena.filtrar(''), null); });
 
   async function carregar() {
@@ -72,7 +93,9 @@
         aoEscolher: (p) => { escolhido = p; dica = null; },
         aoPassar: (p, x, y) => { dica = p ? { p, x, y } : null; },
         aoAviso: (texto, grave) => { aviso3d = { texto, grave }; },
+        ruas: dados.ruas,
       });
+      cena.mostrarDependencias(untrack(() => verDependencias));
       if (escolhido) cena.selecionar(escolhido.caminho);
       const agora = Date.now(); // o que a Forja fez enquanto a cena carregava acende agora
       for (const p of pendentes.splice(0)) if (agora - p.em < 15_000) cena.reagir(p.sinal);
@@ -165,6 +188,7 @@
       <p class="cidade-aviso">O projeto tem {numero(cidade.total)} arquivos. Para a cidade não ficar pesada, aparecem os {numero(cidade.limite)} mais alterados e maiores; {numero(cidade.cortados)} ficaram de fora.</p>
     {/if}
     {#if cidade.incompleta}<p class="cidade-aviso">A pasta é muito grande: a leitura parou antes do fim, então alguns arquivos não foram vistos.</p>{/if}
+    <SaudeProjeto {cidade} onver={verNaCidade} {onpedirForja} />
 
     {#if modo === '3d'}
       <div class="cidade-palco">
@@ -185,6 +209,7 @@
                 <input type="search" bind:value={busca3d} placeholder="Procurar" autocomplete="off" spellcheck="false">
                 {#if achados != null}<small aria-live="polite">{achados} {achados === 1 ? 'achado' : 'achados'}</small>{/if}
               </label>
+              {#if cidade.ruas.length}<button type="button" class="cidade-vidro cidade-dep-botao" aria-pressed={verDependencias} title="Mostra todas as ligações entre arquivos (quem importa quem). As do prédio escolhido aparecem sempre." onclick={trocarDependencias}>{@html svgIcone('git-branch')}Dependências</button>{/if}
             </span>
           </div>
           {#if atividade}
@@ -215,6 +240,12 @@
                 {#if escolhido.ultima}<div><dt>Última mudança</dt><dd>{data(escolhido.ultima)}</dd></div>{/if}
               {/if}
             </dl>
+            {#if ligacoes && (ligacoes.importa.length || ligacoes.usadoPor.length)}
+              <div class="cidade-ligacoes">
+                {#if ligacoes.importa.length}<p><b>Importa {ligacoes.importa.length}</b> {ligacoes.importa.slice(0, 4).map(nomeDe).join(', ')}{ligacoes.importa.length > 4 ? '…' : ''}</p>{/if}
+                {#if ligacoes.usadoPor.length}<p><b>Usado por {ligacoes.usadoPor.length}</b> {ligacoes.usadoPor.slice(0, 4).map(nomeDe).join(', ')}{ligacoes.usadoPor.length > 4 ? '…' : ''}</p>{/if}
+              </div>
+            {/if}
             {#if onpedirForja}
               {@const escolhidoAgora = escolhido}
               <div class="cidade-cartao-forja">

@@ -54,6 +54,13 @@ for (const tema of ['light', 'dark']) {
     await nav.esperar(`document.querySelector('.comparar-placar') !== null`, 3000);
     await auditar(nav, `Comparar respostas depois do voto (tema ${tema === 'light' ? 'claro' : 'escuro'})`, `document.querySelector('dialog.comparar')`);
     await nav.avaliar(`document.querySelector('dialog.comparar').close()`);
+    // Cidade em lista, com a saúde do projeto aberta (a cena 3D é um desenho; a lista é a forma acessível)
+    await nav.ir(`${servidor.base}/?r=${Date.now()}#/agente/${sessao.id}`, 2500);
+    await nav.avaliar(`localStorage.setItem('cidadeModo', 'lista'); document.querySelector('#abaCidade').click(); 1`);
+    await nav.esperar(`document.querySelector('details.saude') !== null && document.querySelectorAll('.cidade-bairro').length > 0`, 15_000);
+    await nav.avaliar(`document.querySelector('details.saude').open = true; 1`);
+    await nav.esperar('false', 300);
+    await auditar(nav, `Cidade em lista com a saúde do projeto (tema ${tema === 'light' ? 'claro' : 'escuro'})`);
     await nav.ir(`${servidor.base}/?r=${Date.now()}#/`, 2500);
     await nav.avaliar(`document.querySelector('#openSettings').click()`);
     await nav.esperar('false', 600); // a animação de abertura deixa o texto semitransparente por um instante

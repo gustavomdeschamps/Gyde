@@ -84,3 +84,11 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
 21. **O teste de instalação guarda e devolve os atalhos de um Gyde já instalado.** Neste computador há um Gyde 2.4.1
     instalado de verdade; o teste instala e desinstala com o mesmo nome, o que sobrescreveria e apagaria os atalhos do
     menu Iniciar e da área de trabalho. Conferido depois: os atalhos apontam de novo para o Gyde instalado.
+22. **Fase 5: ruas de dependência e saúde do projeto lidas do texto, sem rodar o projeto.** JS/TS, Python, CSS, HTML e
+    caminhos citados em JSON (package.json, manifest.json). Na cópia do Gyde: 353 prédios, 416 ruas; ruas + saúde
+    custam 105 ms (mediana, n = 5) sobre os 527 ms que o mapa já levava. Na cena, as ruas são linhas finas (uma
+    chamada de desenho); todas só aparecem se a pessoa ligar "Dependências"; as do prédio escolhido aparecem sempre.
+    Ajustes feitos olhando o resultado no próprio Gyde antes de publicar: código de terceiros (pasta vendor,
+    minificado ou com cabeçalho `@license`) fica fora da saúde; ciclo só conta entre arquivos de código; arquivos
+    citados por package.json/manifest.json não aparecem como "ninguém importa". O que sobra em "ninguém importa" pode
+    ser carregado por texto (workers, webview); a tela diz para conferir antes de apagar.
