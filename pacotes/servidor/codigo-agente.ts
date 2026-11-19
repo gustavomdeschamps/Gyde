@@ -4,7 +4,7 @@
 // As proteções ficam em seguranca.js e valem mesmo que o modelo tente outra coisa.
 import { randomUUID, createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, rmSync, realpathSync, accessSync, constants as FS } from 'node:fs';
+import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, realpathSync, accessSync, constants as FS } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { acoesDoTexto } from './provedores.ts';
@@ -24,6 +24,7 @@ import { mapaDaCidade, LIMITE_PREDIOS } from './cidade.ts';
 import { criarAoVivo, encerrarOrfaos } from './ao-vivo.ts';
 import { conferirSite } from './conferir-site.ts';
 import { problemaNosArgs, criarDetectorDeLaco, verificacaoDaTarefa, afirmacoesSemBase, mencoesDoPedido } from './forja-regras.ts';
+import { apagarPastaDoGyde } from './apagar-pasta.ts';
 
 // Argumentos que o modelo manda para as ferramentas (vêm de JSON: nada é garantido, tudo é conferido).
 export interface ArgsFerramenta { caminho?: unknown; profundidade?: unknown; inicio?: unknown; fim?: unknown; texto?: unknown; conteudo?: unknown; procurar?: unknown; substituir?: unknown; comando?: unknown }
@@ -510,6 +511,8 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
 
   // ---------- anexos (imagens e arquivos de texto enviados no chat da Forja) ----------
   const pastaAnexos = (sessaoId: string) => path.join(PASTA_ANEXOS, sessaoId.replace(/[^a-f0-9-]/gi, ''));
+  // só a pasta de anexos daquela conversa (filha direta de forja-anexos, com nome de id), sem seguir atalhos
+  const apagarAnexos = (sessaoId: string) => apagarPastaDoGyde(pastaAnexos(sessaoId), PASTA_ANEXOS, /^[a-f0-9-]{36}$/i);
   function guardarAnexos(sessaoId: string, lista: unknown): AnexoSalvo[] {
     if (!Array.isArray(lista) || !lista.length) return [];
     if (lista.length > MAX_ANEXOS) throw erroGyde(`No máximo ${MAX_ANEXOS} anexos por mensagem.`, { status: 400 });
@@ -701,7 +704,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
     if (s) {
       if (rodando.has(s.id)) return res.status(409).json({ error: 'Pare a Forja antes de apagar esta conversa.' });
       q.apagarEventos.run(s.id); q.apagarCopias.run(s.id); q.apagar.run(s.id, req.user.id);
-      rmSync(pastaAnexos(s.id), { recursive: true, force: true }); // anexos vão junto
+      apagarAnexos(s.id); // anexos vão junto
     }
     res.json({ ok: true });
   });
@@ -732,7 +735,7 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
   // apagar todas as conversas da Forja desta conta (os arquivos dos projetos ficam)
   app.delete('/api/codigo/sessoes', bloqueado, (req, res) => {
     const minhas = q.lista.all(req.user.id).filter((s) => !rodando.has(s.id));
-    for (const s of minhas) { q.apagarEventos.run(s.id); q.apagarCopias.run(s.id); q.apagar.run(s.id, req.user.id); rmSync(pastaAnexos(s.id), { recursive: true, force: true }); }
+    for (const s of minhas) { q.apagarEventos.run(s.id); q.apagarCopias.run(s.id); q.apagar.run(s.id, req.user.id); apagarAnexos(s.id); }
     res.json({ apagadas: minhas.length });
   });
 

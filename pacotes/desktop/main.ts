@@ -5,8 +5,9 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, session, shell, utilityProcess, type UtilityProcess } from 'electron';
 import { createServer } from 'node:net';
 import { randomBytes } from 'node:crypto';
-import { appendFileSync, existsSync, mkdirSync, renameSync, rmSync, statSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, renameSync, statSync } from 'node:fs';
 import { prepararDePasta } from '../servidor/copia.ts';
+import { apagarPastaDoGyde } from '../servidor/apagar-pasta.ts';
 import path from 'node:path';
 
 // testes apontam os dados para uma pasta temporária (GYDE_DESKTOP_DADOS), longe dos dados de verdade
@@ -154,7 +155,7 @@ ipcMain.handle('gyde:importar-dados', async (e) => {
     message: `Importar ${resumo.contas} conta(s) e ${resumo.conversas} conversa(s)?`,
     detail: 'Os dados atuais deste app são trocados pelos importados (uma cópia deles fica guardada em copias-banco). O Gyde reabre sozinho.' };
   const { response } = dono ? await dialog.showMessageBox(dono, confirmar) : await dialog.showMessageBox(confirmar);
-  if (response !== 0) { rmSync(path.join(DADOS, 'dados', 'restaurar-pendente'), { recursive: true, force: true }); return { ok: false, cancelado: true }; }
+  if (response !== 0) { apagarPastaDoGyde(path.join(DADOS, 'dados', 'restaurar-pendente'), path.join(DADOS, 'dados'), /^restaurar-pendente$/); return { ok: false, cancelado: true }; }
   registrar(`importando dados de ${resumo.contas} conta(s) e ${resumo.conversas} conversa(s)`);
   app.relaunch(); app.quit();
   return { ok: true };

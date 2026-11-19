@@ -49,7 +49,11 @@ if (Test-Path $dist) {
 }
 # 2) temporários do Gyde (todos gyde-*: nenhum é dado seu)
 if ($Temp -and (Test-Path $Temp)) {
-  foreach ($t in Get-ChildItem $Temp -Filter 'gyde-*' -Force -ErrorAction SilentlyContinue) { $apagar.Add([pscustomobject]@{ Onde = 'temporário'; Item = $t }) }
+  # pula cópias de trabalho do git (git worktree): têm um .git dentro e podem ter trabalho ainda não enviado
+  foreach ($t in Get-ChildItem $Temp -Filter 'gyde-*' -Force -ErrorAction SilentlyContinue) {
+    if ($t.PSIsContainer -and (Test-Path -LiteralPath (Join-Path $t.FullName '.git'))) { Write-Host "  pulado (cópia de trabalho do git): $($t.FullName)"; continue }
+    $apagar.Add([pscustomobject]@{ Onde = 'temporário'; Item = $t })
+  }
 }
 # 3) cópias de segurança: ficam as 5 mais recentes e todas com menos de 7 dias
 if (Test-Path $Backups) {

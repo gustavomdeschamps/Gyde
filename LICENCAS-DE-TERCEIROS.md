@@ -122,3 +122,80 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Pacotes dentro do app
+
+<!-- dependencias:inicio (gerado por ferramentas/licencas.mjs; não edite à mão) -->
+
+65 pacotes vão dentro do app (dependências de produção e as dependências delas). O texto de cada licença fica
+na pasta do pacote, em `node_modules`. O Electron inclui no instalador as licenças do Chromium e do Node.js.
+
+| Pacote | Versão | Licença |
+|---|---|---|
+| @highlightjs/cdn-assets | 11.12.0 | BSD-3-Clause |
+| @types/trusted-types | 2.0.7 | MIT |
+| accepts | 2.0.0 | MIT |
+| argparse | 2.0.1 | Python-2.0 |
+| body-parser | 2.4.0 | MIT |
+| builder-util-runtime | 9.7.0 | MIT |
+| bytes | 3.1.2 | MIT |
+| content-disposition | 2.0.1 | MIT |
+| content-type | 2.1.0 | MIT |
+| cookie | 0.7.2 | MIT |
+| cookie-signature | 1.2.2 | MIT |
+| debug | 4.4.3 | MIT |
+| depd | 2.0.0 | MIT |
+| dompurify | 3.4.17 | (MPL-2.0 OR Apache-2.0) |
+| electron-updater | 6.8.11 | MIT |
+| encodeurl | 2.0.0 | MIT |
+| escape-html | 1.0.3 | MIT |
+| etag | 1.8.1 | MIT |
+| express | 5.3.0 | MIT |
+| fflate | 0.8.3 | MIT |
+| finalhandler | 2.1.1 | MIT |
+| forwarded | 0.2.0 | MIT |
+| fresh | 2.0.0 | MIT |
+| fs-extra | 10.1.0 | MIT |
+| graceful-fs | 4.2.11 | ISC |
+| http-errors | 2.0.1 | MIT |
+| iconv-lite | 0.7.3 | MIT |
+| ipaddr.js | 1.9.1 | MIT |
+| is-promise | 4.0.0 | MIT |
+| js-yaml | 4.3.2 | MIT |
+| jsonfile | 6.2.1 | MIT |
+| lazy-val | 1.0.5 | MIT |
+| lodash.escaperegexp | 4.1.2 | MIT |
+| lodash.isequal | 4.5.0 | MIT |
+| lucide | 1.66.0 | ISC |
+| marked | 16.4.2 | MIT |
+| merge-descriptors | 2.0.0 | MIT |
+| mime-types | 3.0.2 | MIT |
+| ms | 2.1.3 | MIT |
+| negotiator | 1.1.0 | MIT |
+| nodemailer | 10.2.1 | MIT-0 |
+| on-finished | 2.4.2 | MIT |
+| once | 1.4.0 | ISC |
+| parseurl | 1.3.3 | MIT |
+| path-to-regexp | 8.4.2 | MIT |
+| proxy-addr | 2.0.8 | MIT |
+| qs | 6.16.1 | BSD-3-Clause |
+| range-parser | 1.3.0 | MIT |
+| raw-body | 3.0.2 | MIT |
+| router | 2.2.0 | MIT |
+| safer-buffer | 2.1.2 | MIT |
+| sax | 1.6.1 | BlueOak-1.0.0 |
+| semver | 7.7.4 | ISC |
+| send | 1.2.1 | MIT |
+| serve-static | 2.2.1 | MIT |
+| statuses | 2.0.2 | MIT |
+| three | 0.186.1 | MIT |
+| tiny-typed-emitter | 2.1.0 | MIT |
+| type-is | 2.1.0 | MIT |
+| universalify | 2.0.1 | MIT |
+| unpdf | 1.9.1 | MIT |
+| unpipe | 1.0.0 | MIT |
+| vary | 1.1.2 | MIT |
+| wrappy | 1.0.2 | ISC |
+| zod | 4.6.7 | MIT |
+
+<!-- dependencias:fim -->

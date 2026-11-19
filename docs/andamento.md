@@ -4,7 +4,11 @@ Atualizado a cada etapa. Se a sessão parar, "continue" retoma daqui.
 
 ## Fase 1: publicada (2.5.0, PR #7, Release v2.5.0)
 
-## Fase atual: 2, a Forja (branch `fase-2-forja`, versão 2.6.0)
+## Fase 2: publicada (2.6.0, PR #8, Release v2.6.0)
+
+## Fase anterior registrada abaixo; fase atual: 3 (branch `fase-3-qualidade`, versão 2.7.0, falta PR e Release)
+
+## (histórico) Fase 2
 
 Feito: argumentos conferidos, quebra de laço, verificação depois da última mudança e avisos de afirmação sem base,
 GYDE.md, @arquivo, comandos /, desfazer por arquivo, conferência de site, cenário "redesenhar site" na avaliação,
