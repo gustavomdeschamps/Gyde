@@ -62,6 +62,12 @@
     .numero { padding: 22px; border-radius: 14px; background: #fff; border: 1px solid var(--borda); }
     .numero b { display: block; font: 700 34px/1.1 var(--titulo); color: var(--texto); }
     .numero span { display: block; margin-top: 6px; color: var(--suave); font-size: 14.5px; }
+    .duvidas { display: grid; gap: 10px; margin-top: 18px; }
+    .duvidas details { padding: 14px 18px; border-radius: 14px; background: #fff; border: 1px solid var(--borda); }
+    .duvidas summary { cursor: pointer; font-weight: 600; }
+    .duvidas p { margin: 10px 0 0; color: var(--suave); }
+    .limites-titulo { margin: 36px 0 8px; font: 700 20px var(--titulo); }
+    .limites { margin: 0; padding-left: 20px; color: var(--suave); display: grid; gap: 6px; }
     .tabela { width: 100%; margin-top: 24px; border-collapse: collapse; background: #fff; border: 1px solid var(--borda); border-radius: 14px; overflow: hidden; font-size: 14.5px; }
     .tabela th, .tabela td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--borda); }
     .tabela th { background: #f8fafc; font-weight: 600; color: var(--suave); }
@@ -84,7 +90,7 @@
 <body>
   <header class="topo"><div class="largura">
     <a class="marca" href="#"><img src="imagens/logo.svg" alt="">Gyde</a>
-    <nav aria-label="Seções"><a href="#funcoes">O que ele faz</a><a href="#instalar">Instalar</a><a href="#numeros">Números</a><a href="https://github.com/gustavomdeschamps/Gyde">GitHub</a></nav>
+    <nav aria-label="Seções"><a href="#funcoes">O que ele faz</a><a href="#instalar">Instalar</a><a href="#numeros">Números</a><a href="#duvidas">Dúvidas</a><a href="https://github.com/gustavomdeschamps/Gyde">GitHub</a></nav>
   </div></header>
 
   <main>
@@ -105,6 +111,12 @@
       <p class="intro">Cada tela abaixo é uma captura do Gyde de verdade.</p>
 
       <article class="funcao">
+        <div class="texto"><h3>Respostas diretas, com o código conferido</h3>
+          <p>A resposta começa pelo que você perguntou, no tamanho do pedido. Antes de entregar, o Gyde roda o código JavaScript e Python da resposta: se der erro, pede a correção e diz isso numa linha embaixo. Polegar e "Comparar respostas" ficam só no seu computador.</p></div>
+        <figure><img src="imagens/respostas.jpg" alt="Resposta com uma função em JavaScript e a linha Código conferido embaixo" loading="lazy"></figure>
+      </article>
+
+      <article class="funcao">
         <div class="texto"><h3>Veja a memória do seu programa</h3>
           <p>O Passo a passo roda o código linha por linha e desenha a memória: cada chamada de função empilhada, as listas e os dicionários como caixas, e setas mostrando quando duas variáveis apontam para o mesmo objeto.</p></div>
         <figure><img src="imagens/memoria.jpg" alt="Passo a passo com a pilha de chamadas e setas das variáveis até a lista" loading="lazy"></figure>
@@ -112,7 +124,7 @@
 
       <article class="funcao">
         <div class="texto"><h3>Um agente no seu projeto</h3>
-          <p>A Forja lê, edita e testa os arquivos do seu projeto e, no fim, mostra o que mudou e quais comandos rodou. Apagar arquivos ou instalar pacotes sempre pede a sua confirmação, e o Desfazer volta tudo.</p></div>
+          <p>A Forja lê, edita e testa os arquivos do seu projeto e, no fim, mostra o que mudou, quais comandos rodou e se a mudança foi <b>verificada</b> (um teste ou build passou depois dela). Se a IA disser que os testes passaram sem isso, o Gyde avisa. Apagar arquivos ou instalar pacotes sempre pede a sua confirmação, e dá para desfazer arquivo por arquivo.</p></div>
         <figure><img src="imagens/forja.jpg" alt="Forja corrigindo um erro e rodando os testes" loading="lazy"></figure>
       </article>
 
@@ -124,7 +136,7 @@
 
       <article class="funcao">
         <div class="texto"><h3>A Cidade do código</h3>
-          <p>A pasta do projeto vira uma cidade em 3D: cada pasta é um bairro, cada arquivo um prédio; quanto maior o arquivo, mais alto; quanto mais mudou no git, mais quente. Quando a Forja lê ou edita um arquivo, o prédio acende na hora.</p></div>
+          <p>A pasta do projeto vira uma cidade em 3D: cada pasta é um bairro, cada arquivo um prédio; quanto maior o arquivo, mais alto; quanto mais mudou no git, mais quente. As ruas mostram quem importa quem, e o painel Saúde do projeto aponta arquivos grandes, ciclos e código que ninguém usa. Quando a Forja lê ou edita um arquivo, o prédio acende na hora.</p></div>
         <figure><img src="imagens/cidade.jpg" alt="Cidade do código em 3D, com os arquivos mais alterados em vermelho" loading="lazy"></figure>
       </article>
 
@@ -139,7 +151,8 @@
       <span class="rotulo">Instalar</span>
       <h2>Do download à primeira conversa</h2>
       <p class="intro">Instalador comum, sem terminal e sem ser administrador. Depois de instalar, crie a sua conta (ela fica só no seu computador) e conecte a IA em <b>Configurações → Conectar IA</b> com uma chave grátis da NVIDIA ou do Google. O passo a passo, com as telas, está no <a href="https://github.com/gustavomdeschamps/Gyde/blob/main/COMO-INSTALAR.md">guia de instalação</a>.</p>
-      <div class="vitrine"><img src="imagens/inicio-sem-ia.jpg" alt="Primeira tela do Gyde com o aviso para conectar a IA" loading="lazy"></div>
+      <div class="vitrine"><img src="imagens/tutorial.gif" alt="Tutorial animado: primeiros passos, a primeira pergunta com o código conferido, a Forja corrigindo um projeto até o Verificado e a Cidade do código" loading="lazy"></div>
+      <p class="intro">Na primeira vez, a tela inicial mostra os <b>Primeiros passos</b>; se algo não funcionar, <b>Configurações → Geral → Rodar diagnóstico</b> diz o que fazer.</p>
     </div></section>
 
     <section id="numeros"><div class="largura">
@@ -154,6 +167,28 @@
         <tbody></tbody>
       </table>
       <p class="aviso">Amostras pequenas (2 a 3 tentativas por caso): servem para comparar, não como garantia. Os modelos grátis mudam de um dia para o outro. Detalhes em <a href="https://github.com/gustavomdeschamps/Gyde/blob/main/docs/avaliacao/README.md">docs/avaliacao</a>.</p>
+    </div></section>
+
+    <section id="duvidas"><div class="largura">
+      <span class="rotulo">Dúvidas</span>
+      <h2>Perguntas frequentes</h2>
+      <div class="duvidas">
+        <details><summary>É grátis mesmo?</summary><p>Sim. O Gyde é grátis e usa os planos grátis dos serviços de IA (NVIDIA, Google e, se quiser, Groq), com chaves que você mesmo cria. Grátis não quer dizer ilimitado: quando um modelo chega ao limite, o Gyde troca de modelo sozinho.</p></details>
+        <details><summary>Meus dados vão para algum lugar?</summary><p>A conta, as conversas e os votos ficam no seu computador. As mensagens vão só para o serviço de IA que responde. Nada é enviado para um site do Gyde.</p></details>
+        <details><summary>Precisa de internet?</summary><p>Para os modelos online, sim. Sem internet, dá para usar um modelo que roda no seu computador pelo Ollama (mais simples e mais lento).</p></details>
+        <details><summary>Como sei se o código da resposta está certo?</summary><p>A linha "Código conferido" diz se o Gyde rodou o código e se deu erro. Ela prova que roda, não que faz o que você quer: teste com os seus dados. Na Forja, "Verificado" diz se um teste ou build passou depois da última mudança.</p></details>
+        <details><summary>O Windows disse que "protegeu o computador"</summary><p>O instalador não tem assinatura digital paga, então o SmartScreen avisa. Clique em <b>Mais informações</b> e em <b>Executar assim mesmo</b>.</p></details>
+        <details><summary>Como atualizo?</summary><p>Quando sai versão nova, o app pergunta se quer baixar e instala ao fechar. Ou baixe o instalador novo e instale por cima. As conversas continuam.</p></details>
+        <details><summary>Funciona no Mac ou no Linux?</summary><p>Foi feito no Windows. Os testes automáticos também rodam em Linux e macOS, mas o app nesses sistemas ainda não foi testado à mão, e a Forja só roda comandos no Windows.</p></details>
+      </div>
+      <h3 class="limites-titulo">Limites que é bom saber</h3>
+      <ul class="limites">
+        <li>Os modelos grátis mudam de um dia para o outro; as medições do Gyde usam amostras pequenas e servem para comparar versões, não como garantia.</li>
+        <li>A conferência de código roda só JavaScript e Python que não mexem em arquivos, rede ou teclado.</li>
+        <li>O desempenho da Cidade foi medido com o 3D por software, não numa placa de vídeo integrada de verdade.</li>
+        <li>As extensões do VS Code e do Chrome precisam do app do Gyde aberto no mesmo computador.</li>
+      </ul>
+      <p class="aviso">A lista completa está nas <a href="https://github.com/gustavomdeschamps/Gyde#limita%C3%A7%C3%B5es-conhecidas">limitações conhecidas</a> do README.</p>
     </div></section>
   </main>
 
