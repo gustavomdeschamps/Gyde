@@ -25,7 +25,7 @@ export const ICONES_UI = [
   'terminal', 'monitor', 'monitor-play', 'store', 'user', 'users', 'message-square', 'messages-square', 'book-open', 'house',
   'key-round', 'lock-keyhole', 'globe', 'link', 'building', 'map', 'calendar', 'clock', 'history', 'package',
   // estados e sinais
-  'circle-check', 'circle-x', 'circle-alert', 'triangle-alert', 'info', 'circle-question-mark', 'shield-check', 'shield-alert',
+  'circle', 'circle-check', 'circle-x', 'circle-alert', 'triangle-alert', 'info', 'circle-question-mark', 'shield-check', 'shield-alert',
   'sparkles', 'star', 'zap', 'loader-circle', 'wifi-off', 'plug', 'bot', 'brain', 'lightbulb', 'anvil', 'hammer', 'wand-sparkles',
   'graduation-cap', 'compass', 'route', 'layers', 'list-checks', 'mouse-pointer-click', 'puzzle', 'gauge', 'sun', 'moon',
   // agentes

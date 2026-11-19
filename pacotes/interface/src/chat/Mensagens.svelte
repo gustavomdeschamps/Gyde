@@ -8,6 +8,7 @@
   import { copiarTexto } from '../util.ts';
   import { falar, temVoz } from '../voz.ts';
   import Apontar from './Apontar.svelte';
+  import PrimeirosPassos from './PrimeirosPassos.svelte';
   // "Mostrar o erro" num print enviado
   let apontando = $state<{ imagem: string; nome: string; pergunta: string } | null>(null);
 
@@ -88,6 +89,7 @@
     <img class="empty-logo" src="/logo.svg" alt="" width="68" height="68">
     <h1 id="greeting">Bora <span class="accent">programar</span>{chat.nome ? `, ${chat.nome}` : ''}?</h1>
     <p class="empty-sub">Cole um erro, mande seu código ou pergunte qualquer coisa de programação. O Gyde te guia passo a passo.</p>
+    <PrimeirosPassos onpergunta={sugestao} />
     <div class="suggestions" id="suggestions">
       {#each SUGESTOES as [rotulo, texto], i}<button style="--i:{i}" onclick={() => sugestao(texto!)}>{rotulo}</button>{/each}
     </div>

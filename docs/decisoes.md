@@ -67,3 +67,11 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
 17. **O limpar-antigos.ps1 apagou as cópias de trabalho do git em %TEMP%** (gyde-fase3 e as de medição) ao limpar
     os temporários gyde-*. Nada se perdeu: todos os commits já estavam no repositório. O script agora pula qualquer
     pasta gyde-* que tenha um .git dentro.
+18. **Fase 4: primeiros passos marcados pelo estado real.** O cartão na tela inicial marca "Conectar a IA" pela chave
+    conectada, "pasta" pela conversa da Forja e "primeira pergunta" pela primeira conversa, não por clique. Um defeito
+    apareceu no teste antes de sair: o cartão consultava a Forja também na tela de login, a resposta 401 fazia o app
+    recarregar a página e isso virava um ciclo. Corrigido (essa consulta não recarrega a página e o cartão confere de
+    novo depois do login); o teste de navegador passou duas vezes seguidas depois disso.
+19. **Diagnóstico com um pedido real à IA.** "IA conectada" só fica certo se a IA responder de fato a um pedido mínimo
+    ("Responda só com a palavra: ok", até 8 tokens), pelos mesmos modelos do chat. Gasta uma fração mínima da cota, e só
+    quando a pessoa clica em "Rodar diagnóstico".

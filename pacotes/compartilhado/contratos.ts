@@ -148,6 +148,10 @@ export const ObjetivosSkills = z.object({
 });
 
 // ---------- Relatório de erro ----------
+// Diagnóstico com conferências de verdade (pacotes/servidor/verificacoes.ts): cada item diz o estado e o que fazer
+export const ItemVerificacao = z.object({ id: z.string(), nome: z.string(), estado: z.enum(['ok', 'aviso', 'erro']), detalhe: z.string(), acao: z.string().nullable() });
+export type TItemVerificacao = z.infer<typeof ItemVerificacao>;
+export const Verificacoes = z.object({ itens: z.array(ItemVerificacao), em: z.string() });
 export const Diagnostico = z.object({
   gyde: z.string(), node: z.string(), sistema: z.string(), modo: z.enum(['pessoal', 'publico']), desktop: z.boolean(), esquemaBanco: z.number().int(),
   ia: z.object({ modo: z.string(), ativo: z.string(), online: z.boolean(), offline: z.boolean(), chave: z.boolean() }),

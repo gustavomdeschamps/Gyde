@@ -25,6 +25,9 @@ import { setupConfiguracao } from './configuracao.ts';
 import { setupPerfil, criarPreferencias } from './perfil.ts';
 import { criarImagens } from './imagens.ts';
 import { setupDiagnostico, registrarErro } from './diagnostico.ts';
+import { setupVerificacoes } from './verificacoes.ts';
+import { classificar } from './ia/classificar.ts';
+import { completar } from './motor.ts';
 import { criarProvedores } from './provedores.ts';
 import { criarUso } from './uso.ts';
 import type { Request, Response, NextFunction } from 'express';
@@ -150,6 +153,17 @@ setupAgente(app, { router, asyncRoute }); // agente do navegador da extensão do
 setupCodigoAgente(app, db, { router, asyncRoute, dataDir: DATA_DIR, uso, catalogo, orquestrador, preferenciasIA }); // Forja: trabalha numa pasta de projeto
 setupPerfil(app, db, preferencias); // questionário e preferências
 setupDiagnostico(app, { db, provedores, raiz: BASE, asyncRoute }); // relatório de erro (Configurações > Geral)
+// diagnóstico com conferências de verdade; o teste da IA é um pedido mínimo à IA conectada, pelos mesmos modelos do chat
+setupVerificacoes(app, {
+  db, dataDir: DATA_DIR, asyncRoute, temConexao: () => provedores.temAlgumaChave(),
+  async testarIA() {
+    const plano = await orquestrador.planejar(classificar('oi'), { modo: 'rapido', tamanho: 50, reserva: [] });
+    if (!plano.principal.length) return { ok: false, erro: 'nenhum modelo disponível' };
+    const inicio = Date.now();
+    const r = await completar(router, { cadeia: plano.principal, messages: [{ role: 'user', content: 'Responda só com a palavra: ok' }], max_tokens: 8, temperature: 0, tempoLimite: 30_000 });
+    return { ok: Boolean(r.texto.trim()), modelo: r.modelo, ms: Date.now() - inicio };
+  },
+});
 
 // ---------- Arquivos estáticos ----------
 app.use('/images', express.static(IMAGES_DIR, { maxAge: '30d', immutable: true }));

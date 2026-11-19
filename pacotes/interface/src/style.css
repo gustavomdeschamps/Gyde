@@ -520,3 +520,31 @@ label.btn.desligado { opacity: .6; pointer-events: none; }
 .ir-fim { position: sticky; bottom: 12px; margin: 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); box-shadow: var(--shadow); left: 50%; transform: translateX(-50%); z-index: 3; }
 .ir-fim:hover { color: var(--text); border-color: var(--border-strong); }
 @media (max-width: 640px) { .atalhos { display: none; } }
+
+/* Primeiros passos, na tela inicial do chat */
+.primeiros-passos { width: min(560px, 100%); margin: 18px auto 4px; padding: 14px 16px; text-align: left; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.pp-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pp-topo h2 { margin: 0; font-size: 15px; font-weight: 650; }
+.pp-topo h2 small { margin-left: 6px; font-weight: 500; color: var(--text-soft); font-size: 13px; }
+.primeiros-passos ol { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
+.primeiros-passos li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
+.primeiros-passos li > div { display: grid; gap: 1px; min-width: 0; }
+.primeiros-passos li b { font-size: 14px; font-weight: 600; }
+.primeiros-passos li small { font-size: 12.5px; color: var(--text-soft); }
+.primeiros-passos li.feito b { color: var(--text-soft); text-decoration: line-through; text-decoration-color: var(--border); }
+.pp-marca svg { width: 18px; height: 18px; color: var(--text-soft); display: block; }
+.primeiros-passos li.feito .pp-marca svg { color: var(--success); }
+.pp-acoes { display: inline-flex; gap: 6px; }
+@media (max-width: 520px) { .primeiros-passos li { grid-template-columns: auto 1fr; } .primeiros-passos li > .pp-acoes, .primeiros-passos li > .btn { grid-column: 2; justify-self: start; } }
+/* Diagnóstico (Configurações > Geral) */
+.diagnostico { margin: -4px 0 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-soft); }
+.diagnostico-resumo { margin: 0 0 8px; font-weight: 600; font-size: 13.5px; }
+.diagnostico ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.diagnostico li { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; font-size: 13px; }
+.diagnostico li div { display: grid; gap: 2px; }
+.diagnostico li span { color: var(--text-soft); }
+.diagnostico li small { color: var(--text); }
+.diag-ic svg { width: 16px; height: 16px; margin-top: 1px; display: block; }
+.diagnostico li.ok .diag-ic svg { color: var(--success); }
+.diagnostico li.aviso .diag-ic svg { color: var(--text-soft); }
+.diagnostico li.erro .diag-ic svg { color: var(--danger); }
