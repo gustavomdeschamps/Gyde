@@ -167,6 +167,19 @@ async function procurarAtualizacao() {
   try {
     const { autoUpdater } = (await import('electron-updater')).default;
     autoUpdater.autoDownload = false;
+    // teste automático da atualização (testes-e2e/instalacao.mjs): procura a versão nova num servidor LOCAL e instala
+    // sem perguntar. Só vale com endereço 127.0.0.1/localhost; qualquer outro endereço é ignorado.
+    const urlTeste = process.env.GYDE_TESTE_ATUALIZACAO_URL ?? '';
+    const emTeste = /^http:\/\/(127\.0\.0\.1|localhost):\d+\/?/.test(urlTeste);
+    if (emTeste) {
+      autoUpdater.setFeedURL({ provider: 'generic', url: urlTeste });
+      autoUpdater.on('update-available', (info) => { registrar(`atualização disponível (teste): ${info.version}`); autoUpdater.downloadUpdate(); });
+      autoUpdater.on('update-downloaded', (info) => { registrar(`atualização baixada: ${info.version}`); setTimeout(() => autoUpdater.quitAndInstall(true, false), 500); });
+      autoUpdater.on('error', (e) => registrar(`atualização: ${e.message}`));
+      await autoUpdater.checkForUpdates();
+      return;
+    }
+    autoUpdater.on('update-downloaded', (info) => registrar(`atualização baixada: ${info.version}; instala ao fechar`));
     autoUpdater.on('update-available', async (info) => {
       registrar(`atualização disponível: ${info.version}`);
       const { response } = await dialog.showMessageBox({ type: 'info', buttons: ['Baixar agora', 'Depois'], defaultId: 0, title: 'Atualização do Gyde', message: `Saiu a versão ${info.version} do Gyde. Quer baixar agora? Ela é instalada quando você fechar o Gyde. Suas conversas e seu progresso continuam.` });
