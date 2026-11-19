@@ -66,9 +66,9 @@ export function setupVotos(app: Express, db: Db, { router, orquestrador, asyncRo
     const gerar = async (v: Variante) => {
       const mensagens = base(v === 'atual' ? IDENTIDADE : IDENTIDADE_ANTERIOR);
       const r = await completar(router, { cadeia: plano.principal, messages: mensagens, max_tokens: 4000, temperature: 0.5, tempoLimite: 120_000 });
-      const texto = limparResposta(r.texto);
-      if (v === 'anterior') return texto;
-      return (await conferirResposta({ texto, mensagens, router, cadeia: plano.principal, verificar: SOFTWARE.has(c.tarefa) })).texto;
+      // os dois lados passam pelo mesmo acabamento e pela mesma conferência do código: a única diferença é o guia de
+      // estilo (senão a linha "Código conferido" entregaria qual é a nova, e o voto mediria a conferência, não o guia)
+      return (await conferirResposta({ texto: limparResposta(r.texto), mensagens, router, cadeia: plano.principal, verificar: SOFTWARE.has(c.tarefa) })).texto;
     };
     const [atual, anterior] = await Promise.all([gerar('atual'), gerar('anterior')]);
     const atualPrimeiro = Math.random() < 0.5;

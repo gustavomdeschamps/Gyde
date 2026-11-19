@@ -1,49 +1,42 @@
-// Verificação antes de mostrar: roda o código JavaScript ou Python de uma resposta e diz se deu erro, para o chat pedir a
-// correção ao modelo (no máximo 2 vezes) em vez de entregar código quebrado.
+// Verificação antes de mostrar: roda o código JavaScript de uma resposta e diz se deu erro, para o chat pedir a correção
+// ao modelo (no máximo 2 vezes) em vez de entregar código quebrado.
 //
-// Segurança: o código vem do modelo, então só roda o que é "puro" e com limites.
-//   - JavaScript: num processo Node com o modelo de permissões ligado (--permission): sem ler nem gravar arquivos, sem
-//     criar processos nem workers. Tempo limite de 4 s. Código que usa require/import, rede, DOM ou entrada do teclado
-//     não roda (não daria para rodar fora do projeto da pessoa, e não é seguro).
-//   - Python: só se houver Python no computador, em modo isolado (-I), e só código sem import de módulos que mexem no
-//     sistema (os, sys, subprocess, shutil, pathlib, socket...), sem open(), input() nem exec/eval. Tempo limite de 4 s.
-// O resto (outras linguagens, trechos que não são programa completo) não roda: a verificação fica "não verificado".
-import { spawn, spawnSync } from 'node:child_process';
+// Segurança (o código vem do modelo; revisão de 19/11/2026):
+//   - roda num processo Node separado com o modelo de permissões ligado (--permission: sem ler nem gravar arquivos,
+//     sem criar processos nem workers) e memória limitada;
+//   - dentro dele, o código roda num contexto vm VAZIO: não existem require, import, process, fetch, rede, timers nem
+//     nada do Node; só a linguagem e um console que guarda o texto. Só texto sai de lá (nenhum objeto do Node entra);
+//   - tempo limite de 3 s no vm e 5 s no processo; saída limitada a 100 KB (passou disso: "não verificado");
+//   - no app de desktop o servidor roda dentro do Electron: o processo usa o Node do Electron (ELECTRON_RUN_AS_NODE).
+//     Uma prova na primeira vez confere que ele de fato executa; se não executar, a verificação fica desligada
+//     (nunca diz "rodei" sem ter rodado).
+//   - Python NÃO roda sozinho: não há como isolar o Python o suficiente aqui (filtro de texto não basta). O botão
+//     Executar da tela continua, porque ali quem decide rodar é a pessoa.
+import { spawn } from 'node:child_process';
 
-export interface Bloco { linguagem: 'js' | 'python'; codigo: string }
+export interface Bloco { linguagem: 'js'; codigo: string }
 /** comUso: blocos que rodaram e chamam ou mostram algo (sem isso, rodar só prova que o código não tem erro de sintaxe) */
 export interface Verificacao { rodou: number; comUso: number; erros: { linguagem: string; erro: string }[] }
 
 const JS = new Set(['js', 'javascript', 'node', 'mjs']);
-const PY = new Set(['python', 'py', 'python3']);
-const PY_PERMITIDOS = new Set(['math', 'random', 'statistics', 'itertools', 'collections', 'functools', 're', 'json', 'datetime', 'decimal', 'fractions', 'string', 'typing', 'dataclasses', 'heapq', 'bisect', 'enum', 'operator', 'copy', 'textwrap', 'unicodedata']);
+const MAX_SAIDA = 100_000;
 
-/** Por que um bloco não deve rodar (ou null se pode). */
+/** Por que um bloco não deve rodar (ou null se pode). O isolamento não depende disto: é só para não rodar à toa. */
 export function motivoParaNaoRodar(b: Bloco): string | null {
   const c = b.codigo;
-  if (c.trim().split('\n').length < 2 && !/console\.log|print\(/.test(c)) return 'trecho curto demais para ser um programa';
-  if (b.linguagem === 'js') {
-    if (/\b(require\s*\(|import\s|export\s)/.test(c)) return 'usa módulos';
-    if (/\b(document|window|localStorage|fetch|XMLHttpRequest|process\.stdin|readline|prompt\s*\(|alert\s*\()/.test(c)) return 'precisa de navegador, rede ou teclado';
-    if (/:\s*(string|number|boolean|void)\b|\binterface\s+\w+|<\w+>\(/.test(c)) return 'parece TypeScript';
-    return null;
-  }
-  for (const m of c.matchAll(/^\s*(?:from\s+([\w.]+)\s+import|import\s+([\w.,\s]+))/gm)) {
-    const mods = (m[1] ?? m[2] ?? '').split(',').map((x) => x.trim().split(/\s+/)[0]!.split('.')[0]!);
-    if (mods.some((x) => !PY_PERMITIDOS.has(x))) return 'usa módulo que mexe no sistema ou não vem com o Python';
-  }
-  if (/\b(open|input|exec|eval|__import__|compile)\s*\(/.test(c)) return 'lê arquivo, teclado ou roda código dinâmico';
+  if (c.trim().split('\n').length < 2 && !/console\.log/.test(c)) return 'trecho curto demais para ser um programa';
+  if (/\b(require\s*\(|import\s|export\s|import\s*\()/.test(c)) return 'usa módulos';
+  if (/\b(document|window|localStorage|fetch|XMLHttpRequest|process\.|readline|prompt\s*\(|alert\s*\()/.test(c)) return 'precisa de navegador, rede, teclado ou do Node';
+  if (/:\s*(string|number|boolean|void)\b|\binterface\s+\w+|<\w+>\(/.test(c)) return 'parece TypeScript';
   return null;
 }
 
-/** Blocos de código da resposta que dá para rodar com segurança (no máximo 3). */
+/** Blocos de código JavaScript da resposta que dá para rodar (no máximo 3). */
 export function blocosRodaveis(texto: string): Bloco[] {
   const r: Bloco[] = [];
   for (const m of texto.matchAll(/```([\w+-]*)[^\n]*\n([\s\S]*?)```/g)) {
-    const l = m[1]!.toLowerCase();
-    const linguagem = JS.has(l) ? 'js' : PY.has(l) ? 'python' : null;
-    if (!linguagem) continue;
-    const b: Bloco = { linguagem, codigo: m[2]! };
+    if (!JS.has(m[1]!.toLowerCase())) continue;
+    const b: Bloco = { linguagem: 'js', codigo: m[2]! };
     // o tutor mostra de propósito o código com problema antes da correção: esse não é para "consertar"
     const antes = texto.slice(Math.max(0, (m.index ?? 0) - 180), m.index).split('\n').slice(-3).join(' ');
     if (/\b(d[áa] erro|com erro|errad|original|antes da corre|problema|n[ãa]o fa[çc]a|evite|bug|quebra|vulner[áa]vel|inseguro)/i.test(antes)) continue;
@@ -52,14 +45,27 @@ export function blocosRodaveis(texto: string): Bloco[] {
   return r.slice(0, 3);
 }
 
-let python: string | null | undefined;
-function comandoPython(): string | null {
-  if (python !== undefined) return python;
-  for (const c of process.platform === 'win32' ? ['python', 'py'] : ['python3', 'python']) {
-    try { if (spawnSync(c, ['--version'], { timeout: 4000 }).status === 0) return (python = c); } catch { /* não tem */ }
+// Programa que roda no processo filho: lê o código da entrada e roda num contexto vm vazio. Só textos atravessam.
+const EXECUTOR = `
+const vm = require('node:vm');
+let codigo = '';
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', (d) => { codigo += d; });
+process.stdin.on('end', () => {
+  const ctx = vm.createContext(Object.create(null), { codeGeneration: { strings: false, wasm: false } });
+  vm.runInContext("globalThis.__saida = []; globalThis.__n = 0; const __f = (...a) => { if (__n < 100000) { const t = a.map((x) => typeof x === 'string' ? x.slice(0, 2000) : String(JSON.stringify(x) ?? x).slice(0, 2000)).join(' '); __n += t.length + 1; __saida.push(t); } }; globalThis.console = { log: __f, error: __f, warn: __f, info: __f, table: __f, debug: __f };", ctx);
+  try {
+    vm.runInContext(codigo, ctx, { timeout: 3000, filename: 'resposta.js' });
+    const s = vm.runInContext("__saida.join('\\\\n').slice(0, 100000)", ctx);
+    process.stdout.write(typeof s === 'string' ? s : '');
+    process.exitCode = 0;
+  } catch (e) {
+    let nome = 'Error', msg = '';
+    try { nome = String(e && e.name); msg = String(e && e.message); } catch {}
+    process.stderr.write((nome + ': ' + msg).slice(0, 2000));
+    process.exitCode = 1;
   }
-  return (python = null);
-}
+});`;
 
 /** A última linha útil do erro (sem caminhos do computador). */
 function resumoDoErro(saida: string): string {
@@ -68,24 +74,54 @@ function resumoDoErro(saida: string): string {
   return util.replace(/[A-Za-z]:\\[^\s:]+|\/(?:Users|home|tmp)\/[^\s:]+/g, '<arquivo>').slice(0, 200);
 }
 
-function rodar(comando: string, args: string[], codigo: string, tempo = 4000): Promise<{ ok: boolean; erro: string } | null> {
+type Resultado = { ok: boolean; erro: string; saida: string } | null;
+function rodar(codigo: string, tempo = 5000): Promise<Resultado> {
   return new Promise((ok) => {
-    const p = spawn(comando, args, { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, env: { PATH: process.env.PATH ?? '', SystemRoot: process.env.SystemRoot ?? '' } });
-    let err = '', out = '';
-    const relogio = setTimeout(() => { p.kill(); ok({ ok: false, erro: 'o código não terminou em 4 segundos (laço infinito ou espera)' }); }, tempo);
-    p.stdout.on('data', (d) => { out += d; if (out.length > 100_000) p.kill(); });
-    p.stderr.on('data', (d) => { err += d; });
-    p.on('error', () => { clearTimeout(relogio); ok(null); }); // sem o programa: não dá para verificar (não é erro do código)
-    p.on('close', (status) => { clearTimeout(relogio); ok(status === 0 ? { ok: true, erro: '' } : { ok: false, erro: resumoDoErro(err || out) }); });
+    const env: Record<string, string> = { PATH: process.env.PATH ?? '', SystemRoot: process.env.SystemRoot ?? '' };
+    if (process.versions.electron) env.ELECTRON_RUN_AS_NODE = '1'; // no app de desktop, o "Node" é o Gyde.exe
+    let p;
+    try { p = spawn(process.execPath, ['--permission', '--max-old-space-size=128', '-e', EXECUTOR], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, env }); }
+    catch { ok(null); return; }
+    let err = '', out = '', acabou = false, grande = false;
+    const fim = (r: Resultado) => { if (!acabou) { acabou = true; clearTimeout(relogio); ok(r); } };
+    const relogio = setTimeout(() => { p.kill(); fim({ ok: false, erro: 'o código não terminou em 3 segundos (laço infinito ou espera)', saida: '' }); }, tempo);
+    // saída limitada: passou do limite, para tudo e fica "não verificado" (código certo pode imprimir muito)
+    const juntar = (qual: 'out' | 'err') => (d: Buffer) => {
+      try {
+        if (qual === 'out') out += d; else err += d;
+        if (out.length + err.length > MAX_SAIDA) { grande = true; p.kill(); }
+      } catch { grande = true; p.kill(); }
+    };
+    p.stdout.on('data', juntar('out'));
+    p.stderr.on('data', juntar('err'));
+    p.stdin.on('error', () => { /* o processo saiu antes de ler tudo */ });
+    p.on('error', () => fim(null)); // sem o programa: não dá para verificar (não é erro do código)
+    p.on('close', (status) => {
+      if (grande) return fim(null);
+      if (status === 0) return fim({ ok: true, erro: '', saida: out });
+      const e = err || out;
+      if (/timed out|Script execution timed out/i.test(e)) return fim({ ok: false, erro: 'o código não terminou em 3 segundos (laço infinito ou espera)', saida: '' });
+      // usou algo que só existe fora da linguagem (Node, navegador, timers): não dá para dizer se o código está certo
+      if (/^ReferenceError: (require|process|module|exports|setTimeout|setInterval|setImmediate|fetch|Buffer|structuredClone|queueMicrotask|globalThis\.process|document|window|__dirname|__filename)\b/.test(e)) return fim(null);
+      if (status === null || !e) return fim(null); // morto por outro motivo (memória, sistema): não é erro do código
+      fim({ ok: false, erro: resumoDoErro(e), saida: out });
+    });
     p.stdin.end(codigo);
   });
 }
 
+// prova na primeira vez: o processo executa mesmo? (no app de desktop, sem isso o Gyde.exe abriria como app e
+// "terminaria sem erro" sem ter rodado nada)
+let funciona: Promise<boolean> | null = null;
+export function verificacaoDisponivel(): Promise<boolean> {
+  funciona ??= rodar('console.log(6 * 7);\nconsole.log("ok");').then((r) => Boolean(r?.ok && r.saida === '42\nok'));
+  return funciona;
+}
+
 export async function rodarBloco(b: Bloco): Promise<{ ok: boolean; erro: string } | null> {
-  if (b.linguagem === 'js') return rodar(process.execPath, ['--permission', '-'], b.codigo);
-  const py = comandoPython();
-  if (!py) return null;
-  return rodar(py, ['-I', '-X', 'utf8', '-'], b.codigo);
+  if (!(await verificacaoDisponivel())) return null;
+  const r = await rodar(b.codigo);
+  return r && { ok: r.ok, erro: r.erro };
 }
 
 /** Roda os blocos da resposta e devolve quantos rodaram e os erros. */
@@ -95,8 +131,8 @@ export async function verificarCodigo(texto: string): Promise<Verificacao> {
     const r = await rodarBloco(b);
     if (!r) continue;
     v.rodou++;
-    if (/console\.\w+\s*\(|\bprint\s*\(|\bassert\b/.test(b.codigo)) v.comUso++;
-    if (!r.ok) v.erros.push({ linguagem: b.linguagem === 'js' ? 'JavaScript' : 'Python', erro: r.erro });
+    if (/console\.\w+\s*\(/.test(b.codigo)) v.comUso++;
+    if (!r.ok) v.erros.push({ linguagem: 'JavaScript', erro: r.erro });
   }
   return v;
 }

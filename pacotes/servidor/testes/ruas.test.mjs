@@ -56,3 +56,10 @@ test('ruas de uma pasta de verdade e a saúde: ciclo, sem uso, grande, testes', 
     assert.equal(limitado.ruas.length, 2); assert.equal(limitado.cortadas, 2);
   } finally { apagarSeguro(pasta); }
 });
+
+test('resolver: ./x.js aponta para x.ts e os atalhos @/, ~/ e $lib/', () => {
+  const existe = new Set(['src/util.ts', 'src/componentes/Botao.tsx', 'src/lib/api.ts']);
+  assert.equal(resolver('src/util.js', existe, 'src/app.ts'), 'src/util.ts');
+  assert.deepEqual(citacoes('src/app.tsx', "import B from '@/componentes/Botao';\nimport { api } from '$lib/api';\nimport x from '~/util.js';"), ['src/componentes/Botao', 'src/lib/api', 'src/util.js']);
+  assert.equal(resolver('src/componentes/Botao', existe, 'src/app.tsx'), 'src/componentes/Botao.tsx');
+});

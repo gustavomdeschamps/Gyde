@@ -52,7 +52,7 @@ JavaScript têm o botão **Executar**, que roda o código ali mesmo.
 
 **Respostas diretas e código conferido.** A resposta começa pelo que você perguntou, sem "Claro!" nem "Espero ter
 ajudado", no tamanho do pedido ([guia de estilo](docs/guia-de-estilo.md)). Antes de entregar, o Gyde roda o código
-JavaScript e Python da resposta numa área sem acesso aos seus arquivos; se der erro, pede a correção ao modelo (no
+JavaScript da resposta isolado, sem acesso aos seus arquivos, à rede ou a outros programas; se der erro, pede a correção ao modelo (no
 máximo 2 vezes) e diz isso numa linha embaixo da resposta. Polegar para cima ou para baixo em cada resposta, e
 **Comparar respostas** mostra duas versões lado a lado, sem dizer qual é qual: os votos ficam só no seu computador.
 Atalhos: Esc para a resposta, Ctrl+Shift+C copia a última, Ctrl+Shift+O abre uma conversa nova.
@@ -371,8 +371,10 @@ escuro, e celular). O CI do GitHub roda tudo isso em Windows, Linux e macOS.
 - O **Ao vivo** precisa que o programa do projeto (Node.js, Python, Java...) esteja instalado no computador; ele não
   instala linguagens sozinho. Conferido com projetos de verdade (`ferramentas/conferir-ao-vivo.mjs`): site de HTML,
   Vite, Next.js 15 e programa Python de console. Vite e Next.js precisam de internet para o `npm install`.
-- **"Código conferido"** quer dizer que o Gyde rodou o JavaScript ou o Python da resposta e não deu erro. Não quer dizer
-  que o código faz o que você precisa, e código que lê arquivos, usa a rede, o teclado ou a página não é rodado.
+- **"Código conferido"** quer dizer que o Gyde rodou o JavaScript da resposta, isolado, e não deu erro. Não quer dizer
+  que o código faz o que você precisa. Código que usa arquivos, rede, teclado, a página ou módulos não é rodado, e
+  **Python não é conferido sozinho** (não há como isolar o Python o bastante; o botão Executar continua, porque ali quem
+  decide rodar é você).
 - A **conferência de site** da Forja (contraste, `lang`, `alt`, viewport) lê o HTML e o CSS sem abrir um navegador: pega
   os casos comuns, mas não substitui abrir a página.
 - As **ruas de dependência** da Cidade vêm das importações escritas no código. Arquivos carregados de outro jeito
