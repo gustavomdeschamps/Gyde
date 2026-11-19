@@ -3,6 +3,38 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.10.0
+
+Inclui a 2.9.0 (Cidade e Ao vivo, abaixo), que não teve instalador próprio: a revisão crítica achou problemas de
+segurança na conferência de código, presentes desde a 2.5.0, e a correção saiu junto, nesta versão.
+
+### Segurança: conferência de código isolada de verdade (atualize)
+- O código JavaScript das respostas agora roda num contexto vazio (sem require, process, rede, timers nem geração de
+  código por texto), dentro de um processo sem acesso a disco e outros programas e com memória limitada. Antes, um
+  bloco de código podia derrubar o servidor com saída muito grande, e o JavaScript tinha acesso à rede.
+- **No app instalado, a conferência de JavaScript provavelmente não rodava nada e dizia "rodei e não deu erro".**
+  Agora usa o Node que vem no Gyde.exe, com uma prova na primeira vez: se ele não executar, a conferência fica
+  desligada em vez de afirmar o que não fez. Conferido com o Gyde.exe empacotado.
+- O Python deixou de ser conferido sozinho: o filtro de texto dava para contornar e não há como isolar o Python o
+  bastante aqui. O botão Executar continua (roda no navegador, e quem decide rodar é você).
+- "Verificado" na Forja só conta teste, build ou lint (antes, até `echo ok` contava).
+- O GYDE.md por atalho para fora do projeto não é lido; o endereço de teste da atualização automática é interpretado
+  de verdade (só 127.0.0.1/localhost).
+
+### Outras correções da revisão
+- "Comparar respostas" ficou cego de verdade: os dois lados passam pelo mesmo acabamento e pela mesma conferência.
+- O Diagnóstico não trava mais o servidor enquanto procura o Python e o git.
+- As ruas da Cidade entendem `./x.js` apontando para `x.ts` e os atalhos `@/`, `~/` e `$lib/`.
+- A medição do guia de estilo diz com clareza que o ganho vem quase todo da conferência do código, não só do guia.
+
+### Site e documentação
+- Tutorial animado gravado do app de verdade (27 s, 0,3 MB), feito por um gerador de GIF próprio, sem dependência nova.
+- Site e README com perguntas frequentes e limitações atualizadas; GitHub Pages ligado.
+
+### Limpeza
+- Saíram uma imagem que nenhum documento usava, o tema escuro da captura do Diagnóstico e o componente `Icone.svelte`,
+  que nada importava (apontado pela própria Saúde do projeto).
+
 ## 2.9.0
 
 ### Cidade: quem depende de quem, e a saúde do projeto

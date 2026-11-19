@@ -59,7 +59,7 @@ try {
         await nav.avaliar(`document.querySelector('#rodarDiagnostico').click()`);
         await nav.esperar(`document.querySelectorAll('.diagnostico li').length >= 6`, 60_000);
         await nav.avaliar(`document.querySelector('.diagnostico').scrollIntoView({ block: 'center' }); 1`);
-        await foto(nav, t === 'light' ? 'diagnostico.jpg' : 'diagnostico-escuro.jpg');
+        if (t === 'light') await foto(nav, 'diagnostico.jpg'); // só o claro aparece no guia de instalação
       } finally { await nav.fechar(); }
     }
   }

@@ -18,20 +18,33 @@ test('acabamento: tira desculpa e fecho vazio, arruma o Markdown e não toca no 
   assert.equal(acabamento('Se você tiver um array vazio, o reduce precisa do valor inicial.'), 'Se você tiver um array vazio, o reduce precisa do valor inicial.', 'frase de conteúdo que começa com "se você tiver" fica');
 });
 
-test('verificação: roda JS e Python puros, pega erro e laço infinito, recusa o que mexe no sistema', async () => {
+test('verificação: roda JavaScript isolado, pega erro e laço infinito; Python não roda sozinho', async () => {
   assert.deepEqual(await verificarCodigo(js('const soma = (a, b) => a + b;\nconsole.log(soma(2, 3));')), { rodou: 1, comUso: 1, erros: [] });
   const erro = await verificarCodigo(js('function f(l) { return l.map((x) => x * 2); }\nconsole.log(f(undefined));'));
   assert.equal(erro.erros.length, 1);
   assert.match(erro.erros[0].erro, /TypeError/);
-  assert.match((await verificarCodigo(js('while (true) {}\nconsole.log(1);'))).erros[0].erro, /4 segundos/);
-  // o disco fica protegido mesmo se o filtro deixasse passar: o processo roda com --permission
-  const disco = await import('../ia/verificar-codigo.ts').then((m) => m.rodarBloco({ linguagem: 'js', codigo: "const fs = process.getBuiltinModule('node:fs');\nfs.writeFileSync('gyde-nao-deveria.txt', 'x');" }));
-  assert.equal(disco.ok, false, 'sem permissão de gravar');
+  assert.match((await verificarCodigo(js('while (true) {}\nconsole.log(1);'))).erros[0].erro, /3 segundos/);
+  assert.equal(blocosRodaveis('```python\nimport math\nprint(math.sqrt(4))\n```').length, 0, 'Python não roda sozinho');
   assert.ok(motivoParaNaoRodar({ linguagem: 'js', codigo: "const fs = require('fs');\nfs.unlinkSync('a');" }));
-  assert.ok(motivoParaNaoRodar({ linguagem: 'python', codigo: 'import os\nos.remove("a")' }));
-  assert.ok(motivoParaNaoRodar({ linguagem: 'python', codigo: 'x = input()\nprint(x)' }));
-  assert.equal(motivoParaNaoRodar({ linguagem: 'python', codigo: 'import math\nprint(math.sqrt(4))' }), null);
   assert.equal(blocosRodaveis(`Este código dá erro:\n${js('console.log(x.y);\nlet x;')}\nCorrigido:\n${js('const x = { y: 1 };\nconsole.log(x.y);')}`).length, 1, 'o código mostrado como errado não é "consertado"');
+});
+
+test('isolamento: nada do Node nem do computador chega ao código, e nada derruba o servidor', async () => {
+  const { rodarBloco } = await import('../ia/verificar-codigo.ts');
+  const roda = (codigo) => rodarBloco({ linguagem: 'js', codigo });
+  // tentativas que passariam pelo filtro de texto (o isolamento não depende dele)
+  const escape = await roda("const P = this.constructor.constructor('return process')();\nconsole.log(P.pid);");
+  assert.equal(escape?.ok, false, 'sem gerar código a partir de texto: não alcança o process');
+  const porConsole = await roda("const P = console.log.constructor('return process')();\nconsole.log(typeof P);");
+  assert.equal(porConsole?.ok, false, 'nem pelo console');
+  assert.equal(await roda("const r = globalThis['req' + 'uire'];\nr('node:net');").then((x) => x?.ok), false, 'require não existe: o código não alcança nada');
+  assert.equal(await roda("const f = globalThis['fe' + 'tch'];\nf('http://127.0.0.1:3210');").then((x) => x?.ok), false, 'fetch não existe: sem rede');
+  // saída gigante (inclusive no console.error) não derruba nada: vira "não verificado"
+  assert.equal(await roda("const s = 'x'.repeat(1e6);\nfor (let i = 0; i < 1e6; i++) console.error(s);").then((r) => r?.ok), true, 'o console guarda até um limite: roda até o fim, sem estourar');
+  assert.equal(await roda("for (let i = 0; i < 1e5; i++) console.log('linha ' + i);\nconsole.log('fim');").then((r) => r?.ok), true, 'muitas linhas: o console guarda até um limite e o código roda');
+  // memória: um laço que cresce sem parar é cortado (tempo ou memória), sem levar o servidor junto
+  const memoria = await roda('const a = [];\nwhile (true) a.push(new Array(1e5).fill(1));');
+  assert.ok(memoria === null || memoria.ok === false);
 });
 
 function roteador(respostas) {

@@ -1,7 +1,7 @@
 // Diagnóstico (Configurações > Geral e "Primeiros passos"): confere de verdade o que o Gyde precisa para funcionar e diz,
 // para cada item, o que fazer. Nada é enviado para fora do computador, a não ser o pedido mínimo de teste à IA
-// conectada ("Responda só: ok"), que gasta uma fração mínima da cota grátis.
-import { spawnSync } from 'node:child_process';
+// conectada ("Responda só: ok"), que gasta uma fração mínima da cota grátis. Os programas são procurados sem travar o servidor.
+import { execFile } from 'node:child_process';
 import { accessSync, constants, statfsSync } from 'node:fs';
 import type { Express } from 'express';
 import type { AsyncRoute, Db } from './tipos.ts';
@@ -11,9 +11,11 @@ import { responder } from './contratos-servidor.ts';
 type Item = C.TItemVerificacao;
 export interface TesteIA { ok: boolean; modelo?: string; ms?: number; erro?: string }
 
-const programa = (cmd: string, args: string[]) => {
-  try { const r = spawnSync(cmd, args, { encoding: 'utf8', timeout: 5000, windowsHide: true }); return r.status === 0 ? (r.stdout || r.stderr).trim().split('\n')[0] : null; } catch { return null; }
-};
+// assíncrono: o servidor continua respondendo enquanto o Python e o git são procurados
+const programa = (cmd: string, args: string[]) => new Promise<string | null>((ok) => {
+  try { execFile(cmd, args, { encoding: 'utf8', timeout: 5000, windowsHide: true }, (erro, saida, saidaErro) => ok(erro ? null : (String(saida || saidaErro).trim().split('\n')[0] ?? null))); }
+  catch { ok(null); }
+});
 const MB = 1024 * 1024;
 
 /** Espaço livre: aviso abaixo de 1 GB, erro abaixo de 200 MB (o banco, as cópias e as imagens precisam de espaço). */
@@ -54,11 +56,15 @@ export function setupVerificacoes(app: Express, { db, dataDir, testarIA, temCone
     let teste: TesteIA;
     try { teste = await testarIA(); } catch (e) { teste = { ok: false, erro: e instanceof Error ? e.message.slice(0, 160) : 'erro desconhecido' }; }
     itens.push(itemIA(teste, temConexao()));
-    const py = programa(process.platform === 'win32' ? 'python' : 'python3', ['--version']) ?? (process.platform === 'win32' ? programa('py', ['--version']) : null);
+    const [pyPrincipal, pyAtalho, git] = await Promise.all([
+      programa(process.platform === 'win32' ? 'python' : 'python3', ['--version']),
+      process.platform === 'win32' ? programa('py', ['--version']) : Promise.resolve(null),
+      programa('git', ['--version']),
+    ]);
+    const py = pyPrincipal ?? pyAtalho;
     itens.push(py
-      ? { id: 'python', nome: 'Python', estado: 'ok', detalhe: `${py}: o botão Executar e a conferência do código Python funcionam.`, acao: null }
-      : { id: 'python', nome: 'Python', estado: 'aviso', detalhe: 'Python não encontrado: o código Python das respostas não é conferido rodando.', acao: 'Opcional: instale o Python pela Microsoft Store ou por python.org (marque "Add to PATH").' });
-    const git = programa('git', ['--version']);
+      ? { id: 'python', nome: 'Python', estado: 'ok', detalhe: `${py}: o Ao vivo consegue rodar projetos em Python.`, acao: null }
+      : { id: 'python', nome: 'Python', estado: 'aviso', detalhe: 'Python não encontrado: o Ao vivo não roda projetos em Python (o botão Executar das respostas roda no navegador e não precisa dele).', acao: 'Opcional: instale o Python pela Microsoft Store ou por python.org (marque "Add to PATH").' });
     itens.push(git
       ? { id: 'git', nome: 'Git', estado: 'ok', detalhe: `${git}: a Cidade mostra o histórico de mudanças.`, acao: null }
       : { id: 'git', nome: 'Git', estado: 'aviso', detalhe: 'Git não encontrado: a Cidade funciona, mas sem as cores de quanto cada arquivo mudou.', acao: 'Opcional: instale o Git por git-scm.com.' });

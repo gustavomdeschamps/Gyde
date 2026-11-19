@@ -99,6 +99,14 @@ function resumoArgs(args: unknown): string {
   return String(a.caminho ?? a.comando ?? a.texto ?? '').slice(0, 120);
 }
 
+// comando que prova algo sobre o projeto: os de verificação do próprio projeto (testes, build, lint) ou um parecido
+// com eles. "echo ok", "dir" ou "node -v" rodando sem erro não verificam nada.
+const VERIFICA = /\b(test|tests|testes|spec|pytest|unittest|jest|vitest|mocha|ava|tap|playwright|cypress|build|lint|eslint|tsc|typecheck|check|vet|clippy|mvn|gradlew?|phpunit|rspec|ctest)\b|node\s+--test|\bnode\s+\S*(test|teste|spec)\S*/i;
+export function verificaAlgo(comando: string, doProjeto: string[] = []): boolean {
+  const c = comando.trim().replace(/\s+/g, ' ');
+  return doProjeto.some((v) => c === v || c.startsWith(`${v} `)) || VERIFICA.test(c);
+}
+
 export interface Mudancas { criados: string[]; modificados: string[]; apagados: string[]; comandos: { comando: string; ok: boolean; codigo: number | null }[] }
 export interface Verificacao { estado: 'verificado' | 'falhou' | 'nao-verificado' | 'sem-mudanca'; texto: string }
 
@@ -110,7 +118,7 @@ export function verificacaoDaTarefa(m: Mudancas, comandosDepois: { comando: stri
   const mudou = m.criados.length + m.modificados.length + m.apagados.length > 0;
   if (!mudou) return { estado: 'sem-mudanca', texto: m.comandos.length ? `Nenhum arquivo mudou. Comandos rodados: ${m.comandos.length}.` : 'Nenhum arquivo mudou.' };
   const ultimo = comandosDepois.at(-1);
-  if (!ultimo) return { estado: 'nao-verificado', texto: 'Não verificado: nenhum comando (teste, build ou lint) rodou depois da última mudança.' };
+  if (!ultimo) return { estado: 'nao-verificado', texto: 'Não verificado: nenhum teste, build ou lint rodou depois da última mudança.' };
   if (!ultimo.ok) return { estado: 'falhou', texto: `Verificação falhou: \`${ultimo.comando}\` deu erro depois da última mudança.` };
   return { estado: 'verificado', texto: `Verificado: \`${ultimo.comando}\` rodou sem erro depois da última mudança.` };
 }

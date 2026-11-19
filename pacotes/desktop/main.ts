@@ -169,8 +169,10 @@ async function procurarAtualizacao() {
     autoUpdater.autoDownload = false;
     // teste automático da atualização (testes-e2e/instalacao.mjs): procura a versão nova num servidor LOCAL e instala
     // sem perguntar. Só vale com endereço 127.0.0.1/localhost; qualquer outro endereço é ignorado.
+    // o endereço é interpretado de verdade: "http://localhost:1@outro.site/" passaria numa expressão, mas o servidor é outro
     const urlTeste = process.env.GYDE_TESTE_ATUALIZACAO_URL ?? '';
-    const emTeste = /^http:\/\/(127\.0\.0\.1|localhost):\d+\/?/.test(urlTeste);
+    let emTeste = false;
+    try { const u = new URL(urlTeste); emTeste = u.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(u.hostname) && !u.username && !u.password; } catch { /* sem endereço de teste */ }
     if (emTeste) {
       autoUpdater.setFeedURL({ provider: 'generic', url: urlTeste });
       autoUpdater.on('update-available', (info) => { registrar(`atualização disponível (teste): ${info.version}`); autoUpdater.downloadUpdate(); });

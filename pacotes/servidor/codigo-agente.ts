@@ -4,7 +4,7 @@
 // As proteções ficam em seguranca.js e valem mesmo que o modelo tente outra coisa.
 import { randomUUID, createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, realpathSync, accessSync, constants as FS } from 'node:fs';
+import { existsSync, statSync, lstatSync, readdirSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, realpathSync, accessSync, constants as FS } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { acoesDoTexto } from './provedores.ts';
@@ -23,7 +23,7 @@ import { responder } from './contratos-servidor.ts';
 import { mapaDaCidade, LIMITE_PREDIOS } from './cidade.ts';
 import { criarAoVivo, encerrarOrfaos } from './ao-vivo.ts';
 import { conferirSite } from './conferir-site.ts';
-import { problemaNosArgs, criarDetectorDeLaco, verificacaoDaTarefa, afirmacoesSemBase, mencoesDoPedido } from './forja-regras.ts';
+import { problemaNosArgs, criarDetectorDeLaco, verificacaoDaTarefa, afirmacoesSemBase, mencoesDoPedido, verificaAlgo } from './forja-regras.ts';
 import { apagarPastaDoGyde } from './apagar-pasta.ts';
 import { ruasDaCidade, saudeDoProjeto } from './ruas.ts';
 
@@ -138,7 +138,11 @@ export function instrucoesDoProjeto(pasta: string): string | null {
   for (const nome of ['GYDE.md', '.gyde/GYDE.md']) {
     const arq = path.join(pasta, nome);
     try {
-      if (!existsSync(arq) || !statSync(arq).isFile() || statSync(arq).size > 200_000) continue;
+      // atalho (link) não vale: um GYDE.md que aponta para fora do projeto mandaria outro arquivo para a IA
+      if (!existsSync(arq)) continue;
+      const st = lstatSync(arq);
+      if (st.isSymbolicLink() || !st.isFile() || st.size > 200_000) continue;
+      if (path.dirname(arq) !== pasta && lstatSync(path.dirname(arq)).isSymbolicLink()) continue; // .gyde como atalho
       const t = redigir(readFileSync(arq, 'utf8')).trim();
       if (t) return t.length > MAX_GYDE_MD ? `${t.slice(0, MAX_GYDE_MD)}\n… (GYDE.md cortado em ${MAX_GYDE_MD} caracteres)` : t;
     } catch { /* sem acesso: segue sem */ }
@@ -989,7 +993,8 @@ export function setupCodigoAgente(app: Express, db: Db, { router, asyncRoute, da
           if (r.comando) mudancas.comandos.push({ comando: redigir(r.comando.comando), ok: r.comando.codigo === 0, codigo: r.comando.codigo });
           const mudou = Boolean(r.ok && (r.mudanca || r.restaurados?.length));
           if (mudou) comandosDepois = [];
-          if (r.comando) comandosDepois.push({ comando: redigir(r.comando.comando), ok: r.comando.codigo === 0 });
+          // só conta para "Verificado" o comando que prova algo (testes, build, lint), não "echo ok"
+          if (r.comando && verificaAlgo(r.comando.comando, projeto.verificar)) comandosDepois.push({ comando: redigir(r.comando.comando), ok: r.comando.codigo === 0 });
           const aviso = laco.registrar(a.ferramenta, a.args, r.ok, mudou);
           if (!aviso) teveAvanco = true;
           if (aviso) r = { ...r, saida: `${r.saida}\n\n${aviso}` };
