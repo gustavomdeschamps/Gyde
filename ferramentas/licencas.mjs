@@ -28,7 +28,9 @@ export function dependenciasDoApp() {
   const achadas = new Map();
   const anda = (no) => {
     for (const [nome, d] of Object.entries(no.dependencies ?? {})) {
-      if (!d || nome.startsWith('@gyde/') || !d.version) { if (d) anda(d); continue; }
+      // pacotes do próprio repositório (pacotes/*, inclusive a extensão "gyde") não são de terceiros
+      const doProjeto = nome.startsWith('@gyde/') || String(d.resolved ?? '').startsWith('file:');
+      if (!d || doProjeto || !d.version) { if (d) anda(d); continue; }
       const chave = `${nome}@${d.version}`;
       if (achadas.has(chave)) continue;
       let licenca = d.license;

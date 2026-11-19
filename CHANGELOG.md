@@ -3,6 +3,24 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.7.0
+
+### Qualidade, segurança e desempenho
+- **Dependências:** `npm audit` sem avisos (era 14 moderados, todos em ferramentas de build e lint; o minimatch dentro
+  do electron-builder foi trocado pela versão corrigida, e o instalador continua sendo gerado).
+- **Licenças:** os pacotes do Gyde declaram a licença MIT, e os 65 pacotes de terceiros que vão dentro do app estão em
+  [LICENCAS-DE-TERCEIROS.md](LICENCAS-DE-TERCEIROS.md), com um teste que falha se a lista ficar desatualizada ou se
+  entrar uma licença que não permite distribuir junto.
+- **Apagar com segurança no próprio app:** anexos da Forja e a cópia de restauração pendente são apagados só se forem
+  a pasta esperada, dentro da base certa, sem seguir atalho ou junction (antes era uma remoção recursiva comum).
+- **Limpeza:** o `limpar-antigos.ps1` pula pastas temporárias que sejam cópias de trabalho do git.
+- **Acessibilidade:** a auditoria do axe-core passa também por telas com conteúdo (conversa com resposta, Comparar
+  respostas, Forja com tarefa feita, página de skill), nos temas claro e escuro.
+- **Desempenho medido** (`ferramentas/medir-desempenho.mjs`, n = 5, sem a placa de vídeo real): abrir o app 1,2 s,
+  Cidade com 270 prédios no primeiro quadro em 0,84 s e 0,9 ms de CPU por quadro, Ao vivo 0,22 s. Detalhes e ressalvas
+  em [docs/avaliacao](docs/avaliacao/README.md).
+- **Testes instáveis:** levantamento das falhas do CI e das causas em [docs/testes-instaveis.md](docs/testes-instaveis.md).
+
 ## 2.6.0
 
 ### Forja: o que ela afirma é conferido

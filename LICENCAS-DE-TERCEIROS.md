@@ -127,7 +127,7 @@ SOFTWARE.
 
 <!-- dependencias:inicio (gerado por ferramentas/licencas.mjs; não edite à mão) -->
 
-66 pacotes vão dentro do app (dependências de produção e as dependências delas). O texto de cada licença fica
+65 pacotes vão dentro do app (dependências de produção e as dependências delas). O texto de cada licença fica
 na pasta do pacote, em `node_modules`. O Electron inclui no instalador as licenças do Chromium e do Node.js.
 
 | Pacote | Versão | Licença |
@@ -157,7 +157,6 @@ na pasta do pacote, em `node_modules`. O Electron inclui no instalador as licen�
 | fresh | 2.0.0 | MIT |
 | fs-extra | 10.1.0 | MIT |
 | graceful-fs | 4.2.11 | ISC |
-| gyde | 2.6.0 | MIT |
 | http-errors | 2.0.1 | MIT |
 | iconv-lite | 0.7.3 | MIT |
 | ipaddr.js | 1.9.1 | MIT |
