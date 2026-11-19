@@ -1,5 +1,9 @@
 # Novidades
 
+## 2.8.0 (junto com o Gyde 2.8.0)
+
+- Sem mudanças na extensão: a versão acompanha o app.
+
 ## 2.7.0 (junto com o Gyde 2.7.0)
 
 - Sem mudanças na extensão: a versão acompanha o app.

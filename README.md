@@ -162,10 +162,16 @@ foram medidos por resultado, não melhoraram e saíram ([docs/avaliacao](docs/av
 
 ### Configurações
 No menu lateral, **Configurações** reúne tudo em seções: **Geral** (tema automático, claro ou escuro; página inicial;
-refazer o questionário; vídeo de abertura; restaurar padrões; copiar um relatório de erro), **Conectar IA** (as chaves
+refazer o questionário; vídeo de abertura; restaurar padrões; **Diagnóstico**, que confere banco, pasta de dados,
+espaço livre, se a IA responde de verdade, Python e git e diz o que fazer; copiar um relatório de erro), **Conectar IA** (as chaves
 grátis), **IA e modelos** (geração de imagens, modo online, offline ou automático, como o Gyde deve responder, memória),
 **Uso e limites**, **Privacidade e dados** (o que fica no PC, o que vai para a IA, cópia de segurança para baixar e
 restaurar, apagar conversas e registros) e **Extensões** (tokens). Cada opção salva na hora.
+
+Na primeira vez, a tela inicial mostra os **Primeiros passos** (conectar a IA, a pasta de um projeto e a primeira
+pergunta), marcados conforme acontecem de verdade.
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/imagens/primeiros-passos-escuro.jpg"><img src="docs/imagens/primeiros-passos.jpg" alt="Cartão Primeiros passos na tela inicial, com a conta e a IA prontas" width="88%"></picture></p>
 
 ### E mais
 - **Questionário inicial:** o Gyde descobre o seu nível e objetivo e adapta as explicações e os exemplos.

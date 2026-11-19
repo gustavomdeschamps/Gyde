@@ -522,7 +522,7 @@ label.btn.desligado { opacity: .6; pointer-events: none; }
 @media (max-width: 640px) { .atalhos { display: none; } }
 
 /* Primeiros passos, na tela inicial do chat */
-.primeiros-passos { width: min(560px, 100%); margin: 18px auto 4px; padding: 14px 16px; text-align: left; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.primeiros-passos { width: min(560px, 100%); margin: 18px auto 20px; padding: 14px 16px; text-align: left; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
 .pp-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pp-topo h2 { margin: 0; font-size: 15px; font-weight: 650; }
 .pp-topo h2 small { margin-left: 6px; font-weight: 500; color: var(--text-soft); font-size: 13px; }

@@ -42,6 +42,27 @@ try {
       } finally { await nav.fechar(); }
     }
   }
+  if (TELAS.includes('primeiros')) {
+    // conta nova (sem conversa nem pasta) com a IA conectada: o cartão mostra o que falta; depois, o Diagnóstico
+    const outra = await clienteApi(servidor.base).criarConta({ nome: 'Estudante', email: 'novo@exemplo.com' });
+    for (const t of ['light', 'dark']) {
+      const nav = await abrirNavegador({ largura: 1440, altura: 900 });
+      try {
+        await nav.entrar(servidor.base, outra);
+        await tema(nav, t);
+        await nav.ir(`${servidor.base}/?r=${Math.random()}#/`, 2500);
+        await tema(nav, t);
+        await nav.esperar(`document.querySelector('.primeiros-passos') !== null`, 15_000);
+        await foto(nav, t === 'light' ? 'primeiros-passos.jpg' : 'primeiros-passos-escuro.jpg');
+        await nav.avaliar(`document.querySelector('#openSettings').click()`);
+        await nav.esperar(`document.querySelector('#rodarDiagnostico') !== null`, 5000);
+        await nav.avaliar(`document.querySelector('#rodarDiagnostico').click()`);
+        await nav.esperar(`document.querySelectorAll('.diagnostico li').length >= 6`, 60_000);
+        await nav.avaliar(`document.querySelector('.diagnostico').scrollIntoView({ block: 'center' }); 1`);
+        await foto(nav, t === 'light' ? 'diagnostico.jpg' : 'diagnostico-escuro.jpg');
+      } finally { await nav.fechar(); }
+    }
+  }
   if (TELAS.includes('respostas')) {
     // uma pergunta de código com a IA de verdade: a resposta segue o guia de estilo e termina com "Código conferido"
     const conv = await (await api.pedir('POST', '/api/conversations', {})).json();

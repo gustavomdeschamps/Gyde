@@ -1,7 +1,7 @@
 {
   "name": "gyde-monorepo",
   "productName": "Gyde",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "private": true,
   "license": "MIT",
   "description": "Gyde, a IA que ensina programação para iniciantes, com os modelos grátis do FreeLLMAPI.",
@@ -31,8 +31,8 @@
     "teste:instalacao": "npm run dist:win && node testes-e2e/instalacao.mjs"
   },
   "dependencies": {
-    "@gyde/desktop": "2.7.0",
-    "@gyde/servidor": "2.7.0"
+    "@gyde/desktop": "2.8.0",
+    "@gyde/servidor": "2.8.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

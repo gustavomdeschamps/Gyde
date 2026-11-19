@@ -3,6 +3,19 @@
 As extensões seguem a versão do app desde a 2.1.0. Histórico da extensão do VS Code:
 [pacotes/extensao-vscode/CHANGELOG.md](pacotes/extensao-vscode/CHANGELOG.md).
 
+## 2.8.0
+
+### Primeiro uso
+- **Primeiros passos** na tela inicial: conectar a IA (com o teste da chave), conectar a pasta de um projeto e fazer a
+  primeira pergunta, com um exemplo pronto. Cada passo é marcado pelo que aconteceu de verdade; dá para esconder.
+- **Diagnóstico** (Configurações > Geral): confere o banco, a pasta de dados, o espaço livre, se a IA responde de
+  verdade (um pedido mínimo), o Python e o git, e diz o que fazer em cada item.
+- **Atualização automática testada de verdade:** o teste de instalação instala uma versão antiga, deixa o app achar a
+  versão nova num servidor local, baixar e instalar sozinho, e confere que as conversas continuam. Passou no Windows 11.
+
+### Correções
+- O teste de instalação guarda e devolve os atalhos de um Gyde já instalado no computador.
+
 ## 2.7.0
 
 ### Qualidade, segurança e desempenho

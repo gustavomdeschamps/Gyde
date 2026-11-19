@@ -2,25 +2,14 @@
 
 Atualizado a cada etapa. Se a sessão parar, "continue" retoma daqui.
 
-## Fase 1: publicada (2.5.0, PR #7, Release v2.5.0)
+## Publicadas
+- Fase 1: 2.5.0 (PR #7). Fase 2: 2.6.0 (PR #8). Fase 3: 2.7.0 (PR #9).
 
-## Fase 2: publicada (2.6.0, PR #8, Release v2.6.0)
-
-## Fase anterior registrada abaixo; fase atual: 3 (branch `fase-3-qualidade`, versão 2.7.0, falta PR e Release)
-
-## (histórico) Fase 2
-
-Feito: argumentos conferidos, quebra de laço, verificação depois da última mudança e avisos de afirmação sem base,
-GYDE.md, @arquivo, comandos /, desfazer por arquivo, conferência de site, cenário "redesenhar site" na avaliação,
-medição (decisoes.md, itens 15 e 16). Falta: capturas, PR, CI, Release.
-
-## Fase 3 (adiantada numa cópia separada, branch `fase-3-qualidade`, ainda sem PR)
-
-Feito: npm audit sem avisos, licenças declaradas e lista dos pacotes do app conferida por teste, app sem rmSync
-recursivo, acessibilidade auditada com conteúdo, ferramenta de desempenho, levantamento dos testes instáveis.
-Falta: juntar com a Fase 2, medir o desempenho, PR, Release 2.7.0.
+## Fase atual: 4, primeiro uso (branch `fase-4-primeiro-uso`, versão 2.8.0)
+Feito: Primeiros passos, Diagnóstico, atualização automática testada (decisoes.md, itens 18 a 21). Falta: PR, CI,
+Release.
 
 ## Depois
-- Fase 2: Forja (inclui o que estava previsto para a 2.4.2: validação dos argumentos, quebra de laço, honestidade das
-  afirmações, fluxo de redesenhar site).
-- Fases 3 a 6 e o encerramento.
+- Fase 5: Cidade (ruas de dependência, saúde do projeto) e Ao vivo (Next.js, Vite, HTML, projeto sem página).
+- Fase 6: site e documentação.
+- Encerramento: revisão crítica, limpeza (inclui docs/imagens/inicio-sem-ia.jpg, que deixou de ser usada), relatório.

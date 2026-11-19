@@ -1,6 +1,6 @@
 {
   "name": "@gyde/servidor",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -12,7 +12,7 @@
     "test": "node --test testes/*.test.mjs"
   },
   "dependencies": {
-    "@gyde/compartilhado": "2.7.0",
+    "@gyde/compartilhado": "2.8.0",
     "express": "^5.1.0",
     "fflate": "^0.8.3",
     "nodemailer": "^10.2.1",
