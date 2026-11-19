@@ -87,6 +87,8 @@ const config = montarConfiguracoes({
   recarregarConversas: carregarConversas,
 });
 $('#openSettings').addEventListener('click', () => config.abrir());
+// "Primeiros passos" abre as Configurações numa aba (Conectar IA ou Geral, onde fica o Diagnóstico)
+addEventListener('gyde:config', (e) => config.abrir((e as CustomEvent<Parameters<typeof config.abrir>[0]>).detail));
 
 // ---------- conta ----------
 function mostrarUsuario(u: Usuario) {
@@ -179,6 +181,7 @@ async function iniciar() {
   // fechado (no Windows, conectar numa porta fechada demora), e a tela não precisa esperar por isso
   conferirStatus().then((ok) => { if (ok) carregarModelos(); });
   await carregarConversas();
+  dispatchEvent(new CustomEvent('gyde:estado')); // entrou: os Primeiros passos conferem de novo (agora com a sessão)
   if (!inicioAplicado) { // página inicial escolhida em Configurações (só ao entrar, sem atropelar um link)
     inicioAplicado = true;
     if (!location.hash || location.hash === '#/') {

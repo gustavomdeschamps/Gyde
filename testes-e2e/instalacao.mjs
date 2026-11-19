@@ -5,7 +5,8 @@
 // para provar que atualizar e desinstalar não apagam os dados da pessoa (ele é removido no fim).
 // Uso: npm run teste:instalacao   (gera os instaladores se ainda não existirem; demora alguns minutos)
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import http from 'node:http';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -37,6 +38,9 @@ const appdataExistia = existsSync(APPDATA_GYDE);
 const MARCADOR = path.join(APPDATA_GYDE, 'marcador-do-teste-de-instalacao.txt');
 const ATALHO_MENU = path.join(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Gyde.lnk');
 const ATALHO_AREA = path.join(process.env.USERPROFILE, 'Desktop', 'Gyde.lnk');
+// atalhos de um Gyde de verdade já instalado neste computador: guardados aqui e devolvidos no fim (o teste instala e
+// desinstala com o mesmo nome, o que sobrescreveria e apagaria esses atalhos)
+const atalhosDaPessoa = Object.fromEntries([ATALHO_MENU, ATALHO_AREA].filter((f) => existsSync(f)).map((f) => [f, readFileSync(f)]));
 const alvoDoAtalho = (lnk) => ps(`(New-Object -ComObject WScript.Shell).CreateShortcut('${lnk}').TargetPath`);
 const registroDesinstalar = () => ps(`Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -eq 'Gyde' } | ForEach-Object { $_.DisplayVersion + '|' + $_.InstallLocation }`);
 
@@ -46,10 +50,12 @@ function instalar(instalador) {
 }
 
 // ---------- abrir o Gyde instalado e dirigir pela depuração ----------
-async function abrir({ ocuparPorta = false } = {}) {
+async function abrir({ ocuparPorta = false, envExtra = {} } = {}) {
   const ocupante = ocuparPorta ? await new Promise((r) => { const s = createServer(); s.listen(3210, '127.0.0.1', () => r(s)); s.on('error', () => r(null)); }) : null;
   const porta = await portaLivre();
-  const env = { ...process.env, GYDE_DESKTOP_DADOS: DADOS };
+  // sem envExtra, a busca de atualização vai para uma porta local fechada: o teste não depende do GitHub (com uma versão
+  // mais nova publicada, a pergunta "Baixar agora?" seguraria a janela aberta)
+  const env = { ...process.env, GYDE_DESKTOP_DADOS: DADOS, GYDE_TESTE_ATUALIZACAO_URL: 'http://127.0.0.1:9/', ...envExtra };
   delete env.ELECTRON_RUN_AS_NODE;
   const proc = spawn(EXE, [`--remote-debugging-port=${porta}`], { env, stdio: 'ignore', cwd: tmpdir() });
   let pagina;
@@ -122,7 +128,28 @@ try {
   ok('depois de fechar e abrir, a conversa e a conta continuam', await app.esperar(`[...document.querySelectorAll('#convList .conv a')].some((a) => a.textContent === 'Conversa do teste de instalação')`, 20000));
   await fechar(app);
 
-  // ---------- 4. atualizar para a versão atual ----------
+  // ---------- 4a. atualização automática: a versão antiga acha a nova num servidor local, baixa e instala sozinha ----------
+  // (o mesmo caminho do GitHub, com o latest.yml e o instalador gerados agora; só vale com endereço 127.0.0.1)
+  await espera(1500);
+  const servidorAtualizacao = http.createServer((req, res) => {
+    const nome = decodeURIComponent(new URL(req.url, 'http://x').pathname.slice(1));
+    const arq = path.join(RAIZ, 'dist-desktop', nome);
+    if (!/^(latest\.yml|Gyde-Setup-[\d.]+\.exe(\.blockmap)?)$/.test(nome) || !existsSync(arq)) { res.writeHead(404); res.end(); return; }
+    res.writeHead(200, { 'Content-Length': statSync(arq).size }); createReadStream(arq).pipe(res);
+  });
+  await new Promise((r) => servidorAtualizacao.listen(0, '127.0.0.1', r));
+  const appAntigo = await abrir({ envExtra: { GYDE_TESTE_ATUALIZACAO_URL: `http://127.0.0.1:${servidorAtualizacao.address().port}/` } });
+  let atualizou = false;
+  for (let i = 0; i < 240 && !atualizou; i++) { atualizou = registroDesinstalar().startsWith(`${versao}|`); if (!atualizou) await espera(1000); }
+  const registroAtualizacao = (existsSync(path.join(DADOS, 'registros', 'gyde.log')) ? readFileSync(path.join(DADOS, 'registros', 'gyde.log'), 'utf8') : '').split('\n').filter((l) => /atualiza/.test(l)).slice(-4).join(' | ');
+  ok(`atualização automática: a ${ANTIGA} acha a ${versao}, baixa e instala sozinha`, atualizou && /atualização baixada/.test(registroAtualizacao), registroAtualizacao || registroDesinstalar());
+  for (let i = 0; i < 60 && appAntigo.proc.exitCode === null; i++) await espera(1000);
+  appAntigo.ws?.close();
+  servidorAtualizacao.close();
+  await espera(3000);
+  ok('a atualização automática não apagou os dados da pessoa', existsSync(MARCADOR));
+
+  // ---------- 4. atualizar para a versão atual (instalador por cima; depois da automática, reinstala a mesma) ----------
   await espera(1500);
   ok(`atualiza da ${ANTIGA} para a ${versao} por cima`, instalar(INSTALADOR) && registroDesinstalar().startsWith(`${versao}|`), registroDesinstalar());
   ok('a atualização não apagou os dados da pessoa', existsSync(MARCADOR));
@@ -148,6 +175,7 @@ try {
   const desinstalador = existsSync(PASTA) ? readdirSync(PASTA).find((f) => /^Uninstall.*\.exe$/i.test(f)) : null;
   if (desinstalador && existsSync(EXE)) spawnSync(path.join(PASTA, desinstalador), ['/S'], { stdio: 'ignore' });
   rmSync(MARCADOR, { force: true });
+  for (const [f, conteudo] of Object.entries(atalhosDaPessoa)) writeFileSync(f, conteudo); // devolve os atalhos que já existiam
   // única exceção à lista de limpeza: a pasta de dados que ESTE teste criou (não existia antes dele)
   if (!appdataExistia) rmSync(APPDATA_GYDE, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
   for (const p of [PASTA, DADOS]) apagarSeguro(p);

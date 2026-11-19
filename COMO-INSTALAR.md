@@ -10,7 +10,7 @@ administrador do computador nem saber usar o terminal.
 ## 1. Baixar o instalador
 
 1. Abra a página **[Releases do Gyde](https://github.com/gustavomdeschamps/Gyde/releases/latest)**.
-2. Na parte **Assets** (no fim da versão mais nova), clique em **`Gyde-Setup-2.7.0.exe`** (o número pode ser maior,
+2. Na parte **Assets** (no fim da versão mais nova), clique em **`Gyde-Setup-2.8.0.exe`** (o número pode ser maior,
    se houver uma versão mais nova). O download começa.
 
 ## 2. Instalar
@@ -31,8 +31,10 @@ O Gyde abre numa janela própria. Para abrir de novo depois, procure **Gyde** no
    **A conta fica só no seu computador**: nada é enviado para um site do Gyde.
 2. Responda o questionário rápido (seu nível e o que quer aprender). Ele adapta as explicações. Dá para refazer depois
    em **Configurações > Geral**.
+3. Na tela inicial aparece o cartão **Primeiros passos**: conectar a IA, conectar a pasta de um projeto e fazer a
+   primeira pergunta. Cada passo é marcado sozinho quando acontece de verdade; o **X** esconde o cartão.
 
-![Primeira tela do Gyde, com o aviso para conectar a IA](docs/imagens/inicio-sem-ia.jpg)
+![Primeiros passos na tela inicial do Gyde](docs/imagens/primeiros-passos.jpg)
 
 ## 4. Conectar a IA (2 minutos)
 
@@ -124,6 +126,11 @@ chaves, as configurações ou os seus dados, e não rodam nada no seu projeto.
 
 ## Se algo der errado
 
+Antes de tudo, abra **Configurações > Geral > Rodar diagnóstico**. Ele confere o banco, a pasta de dados, o espaço
+livre, se a IA responde de verdade, o Python e o git, e diz o que fazer em cada item.
+
+![Diagnóstico com todos os itens certos](docs/imagens/diagnostico.jpg)
+
 | O que aparece | O que fazer |
 |---|---|
 | "O Windows protegeu o computador" | Clique em **Mais informações** e em **Executar assim mesmo** (passo 2). |
@@ -138,7 +145,7 @@ chaves, as configurações ou os seus dados, e não rodam nada no seu projeto.
 | Esqueci a senha | Na tela de entrada, use **Esqueci minha senha**. |
 
 **Onde ficam os seus dados:** em `%APPDATA%\Gyde` (conta, conversas, chaves e configurações). Atualizar o Gyde
-(instalar a versão nova por cima) mantém tudo. Desinstalar pergunta antes de apagar os seus dados.
+(instalar a versão nova por cima, ou aceitar a atualização que o app oferece quando sai versão nova) mantém tudo. Desinstalar pergunta antes de apagar os seus dados.
 
 **Sem internet:** o Gyde pode usar um modelo que roda no seu computador pelo [Ollama](https://ollama.com). Veja a parte
 "IA offline" no [README](README.md#ia-offline-sem-internet).

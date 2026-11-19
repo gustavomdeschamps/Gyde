@@ -13,6 +13,7 @@
   import ConectarIA from './ConectarIA.svelte';
   import { desktop } from '../desktop.ts';
   import { montarRelatorio } from '../diagnostico.ts';
+  import Diagnostico from './Diagnostico.svelte';
 
   type Aba = 'geral' | 'conectar' | 'ia' | 'uso' | 'dados' | 'extensoes';
   let { toast, copiar, verAbertura, refazerQuiz, restaurarModelo, recarregarConversas }: {
@@ -128,7 +129,7 @@
   const fechar = () => dialogo?.close();
 </script>
 
-<dialog bind:this={dialogo} id="settingsDialog" class="dialog config" aria-labelledby="configTitulo" onclose={() => { tokenNovo = ''; }}>
+<dialog bind:this={dialogo} id="settingsDialog" class="dialog config" aria-labelledby="configTitulo" onclose={() => { tokenNovo = ''; dispatchEvent(new CustomEvent('gyde:estado')); }}>
   <div class="config-form">
     <header class="config-topo">
       <h2 id="configTitulo">Configurações</h2>
@@ -163,6 +164,7 @@
             <div><b>Restaurar padrões</b><small>Volta o tema, a página inicial e o modelo do chat ao padrão. Não apaga conversas nem progresso.</small></div>
             <button type="button" class="btn ghost" onclick={restaurar}>Restaurar</button>
           </div>
+          <Diagnostico />
           <div class="config-linha">
             <div><b>Relatório de erro</b><small>Copia um resumo técnico (versões, estado da IA e erros recentes, sem conversas nem chaves) para você colar numa issue. Nada é enviado sozinho.</small></div>
             <button type="button" class="btn ghost" onclick={async (e) => { const botao = e.currentTarget; copiar(await montarRelatorio(), botao); }}>Copiar relatório</button>
