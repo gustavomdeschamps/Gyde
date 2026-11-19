@@ -13,7 +13,7 @@ com o tamanho da amostra; onde houve comparação, com o intervalo de 90% (reamo
 | 3. Qualidade | 2.7.0 | [#9](https://github.com/gustavomdeschamps/Gyde/pull/9) | [v2.7.0](https://github.com/gustavomdeschamps/Gyde/releases/tag/v2.7.0) |
 | 4. Primeiro uso | 2.8.0 | [#10](https://github.com/gustavomdeschamps/Gyde/pull/10) | [v2.8.0](https://github.com/gustavomdeschamps/Gyde/releases/tag/v2.8.0) |
 | 5. Cidade e Ao vivo | 2.9.0 | [#11](https://github.com/gustavomdeschamps/Gyde/pull/11) | sem instalador próprio (veja a revisão) |
-| 6. Site, documentação, revisão e limpeza | 2.10.0 | PR_FINAL | RELEASE_FINAL |
+| 6. Site, documentação, revisão e limpeza | 2.10.0 | [#12](https://github.com/gustavomdeschamps/Gyde/pull/12) | [v2.10.0](https://github.com/gustavomdeschamps/Gyde/releases/tag/v2.10.0) |
 
 Cada Release tem o instalador do Windows, o `latest.yml` da atualização automática, o `.vsix` do VS Code e o `.zip`
 do Chrome. Nada foi publicado nas lojas. O site está em https://gustavomdeschamps.github.io/Gyde/.
