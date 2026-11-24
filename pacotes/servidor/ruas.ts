@@ -25,6 +25,9 @@ export function citacoes(caminho: string, texto: string): string[] {
     for (const m of semComentario.matchAll(/(?:\bimport\s+(?:[^'"`;]*?\s+from\s+)?|\bexport\s+[^'"`;]*?\s+from\s+|\brequire\s*\(\s*|\bimport\s*\(\s*)['"]([^'"]+)['"]/g)) {
       const spec = m[1]!;
       if (spec.startsWith('./') || spec.startsWith('../')) saida.push(rel(spec));
+      // atalhos comuns de projeto: "@/x" e "~/x" (Vite, Next) apontam para src/x; "$lib/x" (SvelteKit) para src/lib/x
+      else if (/^[@~]\//.test(spec)) saida.push(`src/${spec.slice(2)}`);
+      else if (spec.startsWith('$lib/')) saida.push(`src/lib/${spec.slice(5)}`);
     }
   } else if (/\.py$/i.test(caminho)) {
     for (const m of texto.matchAll(/^\s*from\s+(\.*)([\w.]*)\s+import\s+([\w*, ()]+)|^\s*import\s+([\w.]+)/gm)) {
@@ -64,6 +67,9 @@ export function resolver(cit: string, existe: Set<string>, origem: string): stri
   }
   if (cit.startsWith('..')) return null; // fora da pasta conectada
   for (const ext of EXT_JS) if (existe.has(cit + ext)) return cit + ext;
+  // TypeScript no estilo NodeNext: importa "./x.js" e o arquivo é x.ts (ou x.tsx, x.mts)
+  const semExt = cit.replace(/\.(m?js|jsx)$/, '');
+  if (semExt !== cit) for (const ext of ['.ts', '.tsx', '.mts']) if (existe.has(semExt + ext)) return semExt + ext;
   return null;
 }
 

@@ -61,7 +61,7 @@ Groq) dos dois lados. Critérios conferidos por programa, sem nota dada por IA: 
 abertura ou fecho ("Claro!", "Espero ter ajudado"); tamanho proporcional ao pedido; o código dos blocos roda; não diz
 que testou ou rodou algo. Resultados guardados em [estilo-2026-11-18.json](estilo-2026-11-18.json).
 
-| Critério | Guia anterior | Guia novo | n por lado |
+| Critério | Guia anterior, sem conferência | Guia novo + acabamento + conferência do código | n por lado |
 |---|---|---|---|
 | Nota geral | 97% | 99% | 80 |
 | Começa pela resposta | 100% | 100% | 80 |
@@ -69,6 +69,11 @@ que testou ou rodou algo. Resultados guardados em [estilo-2026-11-18.json](estil
 | Tamanho proporcional | 95% | 99% | 80 |
 | O código roda | 87% | 98% | 45 |
 | Não inventa sucesso | 98% | 100% | 80 |
+
+**Ressalva da revisão de 19/11/2026:** a comparação é "guia anterior sem nada" contra "guia novo com acabamento e
+conferência do código", então o ganho não é só do guia: vem quase todo da conferência. E o critério "o código roda" usa
+o mesmo verificador que corrige a resposta até passar, o que favorece o lado novo por construção. Nesta medição o
+Python também era conferido; depois da revisão, só o JavaScript é (o Python deixou de rodar sozinho por segurança).
 
 Diferença na nota: **+3 pontos, intervalo de 90% de +1 a +4** (reamostragem). Mediana de palavras 42 contra 50; tempo
 mediano 4,5 s contra 4,3 s (a verificação do código custa um pouco). 8 respostas tiveram o código corrigido pela

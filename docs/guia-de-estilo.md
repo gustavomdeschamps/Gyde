@@ -25,7 +25,7 @@ compara versões do guia está em `ferramentas/avaliar-estilo.mjs`.
 
 ## O que o Gyde faz por conta própria
 
-- **Confere o código antes de entregar** (JavaScript e Python simples): roda, e se der erro pede a correção ao modelo
+- **Confere o código antes de entregar** (JavaScript, isolado; Python não roda sozinho): roda, e se der erro pede a correção ao modelo
   (até 2 vezes). A resposta diz em uma linha que o código foi conferido. Veja `pacotes/servidor/ia/verificar-codigo.ts`.
 - **Limpa o texto** sem tocar no conteúdo técnico: tira fórmulas de desculpa e de encerramento, introduções vazias e
   linhas repetidas; fecha bloco de código esquecido aberto. Código dentro de bloco nunca muda.

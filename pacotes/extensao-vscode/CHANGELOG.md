@@ -1,5 +1,9 @@
 # Novidades
 
+## 2.10.0 (junto com o Gyde 2.10.0)
+
+- Sem mudanças na extensão: a versão acompanha o app.
+
 ## 2.9.0 (junto com o Gyde 2.9.0)
 
 - Sem mudanças na extensão: a versão acompanha o app.

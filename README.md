@@ -24,8 +24,13 @@
   <a href="#conectar-a-ia">Conectar a IA</a> ·
   <a href="#configura%C3%A7%C3%A3o-env">Configuração</a> ·
   <a href="#testes">Testes</a> ·
-  <a href="#perguntas-frequentes">Dúvidas</a>
+  <a href="#perguntas-frequentes">Dúvidas</a> ·
+  <a href="#limita%C3%A7%C3%B5es-conhecidas">Limitações</a> ·
+  <a href="https://gustavomdeschamps.github.io/Gyde/">Site</a>
 </p>
+
+<p align="center"><img src="docs/imagens/tutorial.gif" alt="Tutorial animado: primeiros passos, a primeira pergunta com o código conferido, a Forja corrigindo um projeto até o Verificado e a Cidade do código" width="88%"></p>
+<p align="center"><small>Gravado do app de verdade, com a IA grátis conectada (27 s, sem som).</small></p>
 
 ---
 
@@ -47,7 +52,7 @@ JavaScript têm o botão **Executar**, que roda o código ali mesmo.
 
 **Respostas diretas e código conferido.** A resposta começa pelo que você perguntou, sem "Claro!" nem "Espero ter
 ajudado", no tamanho do pedido ([guia de estilo](docs/guia-de-estilo.md)). Antes de entregar, o Gyde roda o código
-JavaScript e Python da resposta numa área sem acesso aos seus arquivos; se der erro, pede a correção ao modelo (no
+JavaScript da resposta isolado, sem acesso aos seus arquivos, à rede ou a outros programas; se der erro, pede a correção ao modelo (no
 máximo 2 vezes) e diz isso numa linha embaixo da resposta. Polegar para cima ou para baixo em cada resposta, e
 **Comparar respostas** mostra duas versões lado a lado, sem dizer qual é qual: os votos ficam só no seu computador.
 Atalhos: Esc para a resposta, Ctrl+Shift+C copia a última, Ctrl+Shift+O abre uma conversa nova.
@@ -364,7 +369,18 @@ escuro, e celular). O CI do GitHub roda tudo isso em Windows, Linux e macOS.
 - O modelo local (Ollama) é bem mais simples e lento que os online, principalmente na Forja.
 - O **Desfazer** da Forja guarda as 10 últimas tarefas de cada conversa e não copia arquivos maiores que 2 MB.
 - O **Ao vivo** precisa que o programa do projeto (Node.js, Python, Java...) esteja instalado no computador; ele não
-  instala linguagens sozinho. Foi testado à mão com React/Vite, HTML, Python e pastas sem nada para ligar.
+  instala linguagens sozinho. Conferido com projetos de verdade (`ferramentas/conferir-ao-vivo.mjs`): site de HTML,
+  Vite, Next.js 15 e programa Python de console. Vite e Next.js precisam de internet para o `npm install`.
+- **"Código conferido"** quer dizer que o Gyde rodou o JavaScript da resposta, isolado, e não deu erro. Não quer dizer
+  que o código faz o que você precisa. Código que usa arquivos, rede, teclado, a página ou módulos não é rodado, e
+  **Python não é conferido sozinho** (não há como isolar o Python o bastante; o botão Executar continua, porque ali quem
+  decide rodar é você).
+- A **conferência de site** da Forja (contraste, `lang`, `alt`, viewport) lê o HTML e o CSS sem abrir um navegador: pega
+  os casos comuns, mas não substitui abrir a página.
+- As **ruas de dependência** da Cidade vêm das importações escritas no código. Arquivos carregados de outro jeito
+  (workers, páginas de extensão, caminhos montados em texto) aparecem em "ninguém importa".
+- O desempenho da Cidade foi medido com WebGL por software; **não foi medido numa Intel UHD 620 de verdade**. A
+  atualização automática foi testada no Windows 11, não no Windows 10.
 - A **Cidade** mostra até 1500 arquivos por projeto. Em placa de vídeo muito antiga ela pode ficar lenta: a **Lista**
   mostra o mesmo em texto.
 - Os modelos grátis variam de um dia para o outro. A ordem dos modelos foi escolhida por uma avaliação pequena
@@ -398,6 +414,21 @@ As mensagens vão só para o serviço de IA que responde.
 **E quando o limite grátis acabar?**
 O Gyde troca de modelo sozinho quando um chega ao limite. Ter duas chaves (por exemplo NVIDIA e Groq) ajuda. Se
 todos estiverem no limite, espere um pouco ou use o modelo local pelo Ollama (veja "IA offline").
+
+**Como sei se o código da resposta está certo?**
+Embaixo da resposta, a linha **Código conferido** diz se o Gyde rodou o código e se deu erro (e se precisou corrigir).
+Ela prova que roda, não que faz o que você quer: teste com os seus dados. Na Forja, a linha **Verificado** diz se um
+teste, build ou lint passou depois da última mudança.
+
+**Algo não funciona. O que eu faço?**
+Abra **Configurações > Geral > Rodar diagnóstico**: ele confere o banco, a pasta de dados, o espaço livre, se a IA
+responde, o Python e o git, e diz o que fazer. Se não resolver, **Copiar relatório** junta o que ajuda a investigar
+(sem conversas nem chaves) para colar numa [issue](https://github.com/gustavomdeschamps/Gyde/issues).
+
+**Como atualizo?**
+Quando sai versão nova, o app pergunta se quer baixar; ela é instalada ao fechar o Gyde. Ou baixe o instalador novo na
+página de [Releases](https://github.com/gustavomdeschamps/Gyde/releases/latest) e instale por cima. As conversas e o
+progresso continuam.
 
 **Funciona no Mac ou no Linux?**
 Foi feito no Windows. Os testes automáticos rodam também em Linux e macOS no CI do GitHub, e o app de desktop tem

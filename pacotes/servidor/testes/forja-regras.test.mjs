@@ -95,3 +95,22 @@ test('a conferência de site só entra em pedido sobre aparência, site ou acess
   assert.ok(!PEDIDO_VISUAL.test('Quero que a API traga o campo hora e que a página mostre essa hora'), 'pedido de API que toca o HTML: não cobra lang e viewport');
   assert.ok(!PEDIDO_VISUAL.test('O teste está falhando. Corrija e rode os testes.'));
 });
+
+test('"Verificado" só conta comando que prova algo (teste, build, lint)', async () => {
+  const { verificaAlgo } = await import('../forja-regras.ts');
+  for (const c of ['npm test', 'npm run build', 'npm run lint', 'python -m pytest', 'node --test', 'node teste.js', 'npx vitest run', 'go test ./...', 'cargo test', 'mvn test', 'tsc --noEmit']) assert.ok(verificaAlgo(c), c);
+  for (const c of ['echo ok', 'dir', 'node -v', 'git status', 'type app.js', 'npm install']) assert.ok(!verificaAlgo(c), c);
+  assert.ok(verificaAlgo('npm run verificar', ['npm run verificar']), 'o comando do próprio projeto vale');
+});
+
+test('GYDE.md por atalho (pasta .gyde que aponta para fora) não é lido', async () => {
+  const { symlinkSync } = await import('node:fs');
+  const raiz = mkdtempSync(path.join(tmpdir(), 'gyde-gydemd-'));
+  try {
+    const projeto = path.join(raiz, 'projeto'), fora = path.join(raiz, 'fora');
+    mkdirSync(projeto); mkdirSync(fora);
+    writeFileSync(path.join(fora, 'GYDE.md'), 'SEGREDO-DE-FORA');
+    symlinkSync(fora, path.join(projeto, '.gyde'), 'junction');
+    assert.equal(instrucoesDoProjeto(projeto), null);
+  } finally { apagarSeguro(raiz); }
+});

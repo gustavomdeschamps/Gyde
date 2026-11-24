@@ -102,3 +102,25 @@ Cada decisão importante, com o motivo. As mais recentes ficam no fim.
     a Fase 5 já mexia nos arquivos do servidor, que o instalador leva direto da pasta; ele poderia sair misturado. Foi
     gerado de novo a partir da main (com a Fase 4) antes da Release. Daqui em diante, o instalador de cada versão é
     gerado da main depois do merge.
+25. **Revisão crítica independente (19/11/2026, um subagente lendo o código da v2.4.1 até a Fase 6).** Achou 12
+    problemas; corrigidos antes de publicar mais nada:
+    - um bloco de código da IA podia derrubar o servidor (saída de erro sem limite): limites de saída, e o console
+      dentro da conferência guarda no máximo 100 mil caracteres;
+    - no app instalado a conferência de JavaScript provavelmente não rodava nada (o processo era o próprio Gyde.exe) e
+      diria "rodei e não deu erro": agora roda com o Node do Electron (`ELECTRON_RUN_AS_NODE`) e uma prova na primeira
+      vez desliga a conferência se ele não executar. Conferido com o Gyde.exe empacotado: Node 24.22.1, `--permission`
+      bloqueia gravação em disco;
+    - o filtro do Python era só texto e dava para contornar: o Python deixou de rodar sozinho;
+    - o JavaScript tinha rede: agora roda num contexto vm vazio (sem require, process, fetch, timers nem geração de
+      código por texto), dentro do processo com `--permission` e memória limitada; testes tentam escapar pelo
+      construtor, pelo console, por require e fetch montados em texto;
+    - "Verificado" na Forja aceitava qualquer comando (até `echo ok`): só conta teste, build ou lint;
+    - "Comparar respostas" não era cego (só um lado tinha a linha "Código conferido"): os dois lados passam pelo mesmo
+      acabamento e conferência;
+    - a medição do estilo creditava ao guia um ganho que vem da conferência: o texto agora diz isso;
+    - o modo de teste da atualização aceitava `http://localhost:1@outro.site/`: o endereço é interpretado de verdade;
+    - GYDE.md por atalho para fora do projeto era lido: atalho é recusado;
+    - o Diagnóstico travava o servidor até 15 s procurando programas: agora é assíncrono;
+    - as ruas não entendiam `./x.js` apontando para `x.ts` nem os atalhos `@/`, `~/` e `$lib/`.
+    O que a revisão olhou e não achou problema: permissões dos votos, apagar-pasta, desfazer por arquivo, menções com @,
+    quebra de laço, licenças e o gerador de GIF.
